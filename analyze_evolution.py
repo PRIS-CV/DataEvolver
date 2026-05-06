@@ -1,162 +1,124 @@
-#!/usr/bin/env python3
-from __future__ import annotations
+"""
+analyze_evolution.py — 三表结果分析脚本
 
-import argparse
+读取 evolution_summary.json (由 aggregate_results.py 生成) 及各 obj 的
+evolution_result.json，输出：
+  Table 1: Per-object 指标汇总
+  Table 2: Issue tag 分布（次数 + 占比）
+  Table 3: Exit reason 分布
+"""
+
 import json
+import glob
+import sys
+import os
 from collections import Counter
-from pathlib import Path
-from typing import Any
 
 
-def load_json(path: Path) -> dict[str, Any]:
-    with path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-    if not isinstance(data, dict):
-        raise ValueError(f"Expected JSON object in {path}")
-    return data
+def load_summary(evolution_dir: str) -> dict:
+    path = os.path.join(evolution_dir, "evolution_summary.json")
+    if not os.path.exists(path):
+        print(f"[analyze] evolution_summary.json not found at {path}")
+        print("[analyze] Tip: run aggregate_results.py first")
+        sys.exit(1)
+    with open(path) as f:
+        return json.load(f)
 
 
-def normalize_tags(value: Any) -> list[str]:
-    if value is None:
-        return []
-    if isinstance(value, str):
-        return [value]
-    if isinstance(value, list):
-        return [str(item) for item in value if item is not None]
-    return [str(value)]
+def load_all_results(evolution_dir: str) -> list:
+    results = []
+    for fpath in sorted(glob.glob(os.path.join(evolution_dir, "obj_*", "evolution_result.json"))):
+        with open(fpath) as f:
+            results.append(json.load(f))
+    return results
 
 
-def format_value(value: Any) -> str:
-    if isinstance(value, float):
-        return f"{value:.4f}"
-    if isinstance(value, bool):
-        return "true" if value else "false"
-    return str(value)
+def table1_per_object(results: list):
+    print("\n" + "=" * 70)
+    print("TABLE 1: Per-Object Summary")
+    print("=" * 70)
+    header = f"{'obj_id':12s} {'final_hybrid':>12s} {'probes':>7s} {'updates':>8s} {'accepted':>9s} {'exit_reason':>14s}"
+    print(header)
+    print("-" * 70)
+    for r in results:
+        obj_id = r.get("obj_id", "?")
+        score = r.get("final_hybrid", 0.0)
+        probes = r.get("probes_run", "?")
+        updates = r.get("updates_run", "?")
+        accepted = "YES" if r.get("accepted", False) else "no"
+        # exit_reason from last state_log entry if present
+        state_log = r.get("state_log", [])
+        exit_reason = "?"
+        if state_log:
+            last = state_log[-1]
+            exit_reason = last.get("exit_reason", "max_rounds")
+        print(f"{obj_id:12s} {score:>12.4f} {str(probes):>7s} {str(updates):>8s} {accepted:>9s} {exit_reason:>14s}")
+    print("-" * 70)
+    accepted_total = sum(1 for r in results if r.get("accepted", False))
+    avg_score = sum(r.get("final_hybrid", 0.0) for r in results) / max(1, len(results))
+    print(f"{'TOTAL':12s} {avg_score:>12.4f} {'':>7s} {'':>8s} {accepted_total}/{len(results):>6d}")
 
 
-def render_markdown_table(headers: list[str], rows: list[list[Any]]) -> str:
-    string_rows = [[format_value(cell) for cell in row] for row in rows]
-    widths = [len(header) for header in headers]
-    for row in string_rows:
-        for idx, cell in enumerate(row):
-            widths[idx] = max(widths[idx], len(cell))
-
-    def render_row(cells: list[str]) -> str:
-        padded = [cell.ljust(widths[idx]) for idx, cell in enumerate(cells)]
-        return "| " + " | ".join(padded) + " |"
-
-    header_line = render_row(headers)
-    separator = "| " + " | ".join("-" * width for width in widths) + " |"
-    body = [render_row(row) for row in string_rows]
-    return "\n".join([header_line, separator, *body])
-
-
-def collect_obj_ids(summary: dict[str, Any], evolution_dir: Path) -> list[str]:
-    obj_ids: set[str] = set()
-    results = summary.get("results", {})
-    if isinstance(results, dict):
-        obj_ids.update(str(obj_id) for obj_id in results.keys())
-    final_scores = summary.get("final_scores", {})
-    if isinstance(final_scores, dict):
-        obj_ids.update(str(obj_id) for obj_id in final_scores.keys())
-    for child in evolution_dir.glob("obj_*"):
-        if child.is_dir():
-            obj_ids.add(child.name)
-    return sorted(obj_ids)
+def table2_tag_distribution(results: list):
+    print("\n" + "=" * 70)
+    print("TABLE 2: Issue Tag Distribution")
+    print("=" * 70)
+    all_tags = []
+    for r in results:
+        for entry in r.get("state_log", []):
+            tags = entry.get("issue_tags", [])
+            all_tags.extend([t for t in tags if t != "none"])
+    total = max(1, len(all_tags))
+    counter = Counter(all_tags)
+    print(f"{'tag':30s} {'count':>8s} {'pct':>8s}")
+    print("-" * 50)
+    for tag, cnt in counter.most_common():
+        print(f"{tag:30s} {cnt:>8d} {cnt/total*100:>7.1f}%")
+    print(f"\nTotal tag occurrences: {total}")
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Analyze evolution outputs and print three summary tables."
-    )
-    parser.add_argument(
-        "--evolution-dir",
-        default=".",
-        help="Directory containing evolution_summary.json and obj_*/evolution_result.json",
-    )
-    args = parser.parse_args()
-
-    evolution_dir = Path(args.evolution_dir).expanduser().resolve()
-    summary_path = evolution_dir / "evolution_summary.json"
-    summary = load_json(summary_path)
-    summary_results = summary.get("results", {})
-    if not isinstance(summary_results, dict):
-        summary_results = {}
-    final_scores = summary.get("final_scores", {})
-    if not isinstance(final_scores, dict):
-        final_scores = {}
-
-    per_object_rows: list[list[Any]] = []
-    issue_counter: Counter[str] = Counter()
-    exit_counter: Counter[str] = Counter()
-
-    for obj_id in collect_obj_ids(summary, evolution_dir):
-        result_path = evolution_dir / obj_id / "evolution_result.json"
-        if result_path.exists():
-            result = load_json(result_path)
+def table3_exit_reasons(results: list):
+    print("\n" + "=" * 70)
+    print("TABLE 3: Exit Reason Distribution")
+    print("=" * 70)
+    reasons = []
+    for r in results:
+        state_log = r.get("state_log", [])
+        if state_log:
+            last = state_log[-1]
+            reasons.append(last.get("exit_reason", "max_rounds"))
         else:
-            result = {}
+            reasons.append("no_data")
+    counter = Counter(reasons)
+    total = max(1, len(reasons))
+    print(f"{'exit_reason':20s} {'count':>8s} {'pct':>8s}")
+    print("-" * 40)
+    for reason, cnt in counter.most_common():
+        print(f"{reason:20s} {cnt:>8d} {cnt/total*100:>7.1f}%")
 
-        summary_result = summary_results.get(obj_id, {})
-        if not isinstance(summary_result, dict):
-            summary_result = {}
 
-        state_log = result.get("state_log", summary_result.get("state_log", []))
-        if not isinstance(state_log, list):
-            state_log = []
+def main():
+    import argparse
+    p = argparse.ArgumentParser(description="Analyze evolution results (3 tables)")
+    p.add_argument("--evolution-dir", required=True,
+                   help="Evolution output dir (contains evolution_summary.json + obj_*/)")
+    args = p.parse_args()
 
-        final_entry = state_log[-1] if state_log else {}
-        if not isinstance(final_entry, dict):
-            final_entry = {}
-        exit_reason = str(final_entry.get("exit_reason", "max_rounds"))
-        exit_counter[exit_reason] += 1
+    summary = load_summary(args.evolution_dir)
+    results = load_all_results(args.evolution_dir)
 
-        for entry in state_log:
-            if not isinstance(entry, dict):
-                continue
-            for tag in normalize_tags(entry.get("issue_tags")):
-                issue_counter[tag] += 1
+    if not results:
+        print("[analyze] No evolution_result.json files found.")
+        sys.exit(1)
 
-        obj_name = result.get("obj_id", summary_result.get("obj_id", obj_id))
-        final_hybrid = result.get(
-            "final_hybrid",
-            summary_result.get("final_hybrid", final_scores.get(obj_id, "")),
-        )
-        probes = result.get("probes_run", summary_result.get("probes_run", ""))
-        updates = result.get("updates_run", summary_result.get("updates_run", ""))
-        accepted = result.get("accepted", summary_result.get("accepted", ""))
+    print(f"\n[analyze] Loaded {len(results)} objects from {args.evolution_dir}")
+    print(f"[analyze] Summary: accepted={summary.get('accepted', '?')}/{summary.get('total', '?')}, "
+          f"rate={summary.get('acceptance_rate', 0):.1%}")
 
-        per_object_rows.append(
-            [obj_name, final_hybrid, probes, updates, accepted, exit_reason]
-        )
-
-    per_object_rows.sort(key=lambda row: str(row[0]))
-
-    total_tags = sum(issue_counter.values())
-    issue_rows = [
-        [tag, count, f"{(count / total_tags * 100) if total_tags else 0.0:.1f}%"]
-        for tag, count in sorted(issue_counter.items(), key=lambda item: (-item[1], item[0]))
-    ]
-
-    total_objects = len(per_object_rows)
-    exit_rows = [
-        [reason, count, f"{(count / total_objects * 100) if total_objects else 0.0:.1f}%"]
-        for reason, count in sorted(exit_counter.items(), key=lambda item: (-item[1], item[0]))
-    ]
-
-    print("Table 1: Per-object metrics")
-    print(
-        render_markdown_table(
-            ["obj_id", "final_hybrid", "probes", "updates", "accepted", "exit_reason"],
-            per_object_rows,
-        )
-    )
+    table1_per_object(results)
+    table2_tag_distribution(results)
+    table3_exit_reasons(results)
     print()
-    print("Table 2: Issue tag distribution")
-    print(render_markdown_table(["tag_name", "count", "percentage"], issue_rows))
-    print()
-    print("Table 3: Exit reason distribution")
-    print(render_markdown_table(["exit_reason", "count", "percentage"], exit_rows))
 
 
 if __name__ == "__main__":

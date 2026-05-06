@@ -1,0 +1,66 @@
+﻿{
+    "blend_path":  "/aaaidata/zhangqisong/blender/data/sence/4.blend",
+    "use_existing_world":  true,
+    "disable_existing_lights":  false,
+    "add_key_light":  true,
+    "scale_existing_lights":  0.16,
+    "scale_world_background":  0.1252,
+    "adaptive_brightness":  true,
+    "adaptive_brightness_damping":  0.45,
+    "adaptive_brightness_min_gain":  0.82,
+    "adaptive_brightness_max_gain":  1.18,
+    "adaptive_world_gain_scale":  0.55,
+    "render_engine":  "EEVEE",
+    "render_resolution":  256,
+    "cycles_samples":  512,
+    "cycles_preview_samples":  32,
+    "filmic_gamma":  0.5,
+    "target_brightness":  0.398,
+    "object_scale_mode":  "height_range",
+    "support_plane_mode":  "ground_object_raycast",
+    "support_object_name":  "Plane",
+    "target_bbox_height_range":  [
+                                     0.3021,
+                                     1.51
+                                 ],
+    "qc_views":  [
+                     [
+                         0,
+                         0
+                     ]
+                 ],
+    "camera_mode":  "scene_camera_match",
+    "camera_radius_ratio":  0.02,
+    "camera_height_ratio":  0.01,
+    "camera_object_span_multiplier":  2.8,
+    "camera_object_diag_multiplier":  2.2,
+    "camera_distance_min":  2.0,
+    "camera_distance_max":  8.0,
+    "camera_target_height_ratio":  0.45,
+    "camera_anchor_u":  0.5,
+    "camera_anchor_v":  0.22,
+    "camera_distance":  3.5,
+    "key_light_xyz":  [
+                          3.5,
+                          -3.5,
+                          5.0
+                      ],
+    "key_light_energy":  7.0,
+    "key_light_yaw_deg":  0.0,
+    "add_camera_fill_light":  true,
+    "camera_fill_energy":  316.326,
+    "camera_fill_size_multiplier":  4.0,
+    "camera_fill_forward_ratio":  0.08,
+    "camera_fill_up_ratio":  0.3,
+    "camera_fill_right_ratio":  0.18,
+    "camera_fill_color":  [
+                              1.0,
+                              0.992,
+                              0.985
+                          ],
+    "camera_fill_scene_match_kicker":  true,
+    "contact_shadow_distance":  0.015,
+    "ground_contact_epsilon":  0.0006,
+    "fallback_hdri_path":  "assets/hdri/neutral_studio_01_2k.exr",
+    "fallback_support_plane_size":  10.0
+}

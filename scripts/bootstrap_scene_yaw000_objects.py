@@ -11,6 +11,7 @@ The loop stops when:
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import os
 import subprocess
@@ -53,6 +54,7 @@ def parse_args():
     parser.add_argument("--meshes-dir", required=True)
     parser.add_argument("--profile", default=str(DEFAULT_PROFILE))
     parser.add_argument("--scene-template", default=str(DEFAULT_SCENE_TEMPLATE))
+    parser.add_argument("--render-prior-library", default=None)
     parser.add_argument("--max-rounds", type=int, default=10)
     parser.add_argument("--plateau-window", type=int, default=2)
     parser.add_argument("--plateau-eps", type=float, default=0.01)
@@ -95,6 +97,70 @@ def load_object_ids(objects_file: Path) -> List[str]:
     return obj_ids
 
 
+def load_object_categories(objects_file: Path) -> Dict[str, str]:
+    payload = load_json(objects_file, default=[]) or []
+    if not isinstance(payload, list):
+        return {}
+    return {
+        str(item.get("id")): str(item.get("category"))
+        for item in payload
+        if isinstance(item, dict) and item.get("id") and item.get("category")
+    }
+
+
+def deep_merge_dict(base: dict, override: Optional[dict]) -> dict:
+    result = copy.deepcopy(base)
+    if not isinstance(override, dict):
+        return result
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(result.get(key), dict):
+            result[key] = deep_merge_dict(result[key], value)
+        else:
+            result[key] = copy.deepcopy(value)
+    return result
+
+
+def default_control_state() -> dict:
+    action_space = load_json(REPO_ROOT / "configs" / "scene_action_space.json", default={}) or {}
+    return copy.deepcopy(action_space.get("default_control_state") or {})
+
+
+def select_render_prior(render_prior_library: Optional[dict], category: Optional[str]) -> tuple[Optional[dict], str]:
+    if not render_prior_library:
+        return None, "none"
+    categories = render_prior_library.get("categories") or {}
+    if category and category in categories:
+        return categories[category].get("control_state"), f"category:{category}"
+    return (render_prior_library.get("global") or {}).get("control_state"), "global"
+
+
+def materialize_prior_control_state(
+    *,
+    pair_dir: Path,
+    obj_id: str,
+    category: Optional[str],
+    render_prior_library: Optional[dict],
+) -> Optional[Path]:
+    prior_state, prior_source = select_render_prior(render_prior_library, category)
+    if not prior_state:
+        return None
+    state = deep_merge_dict(default_control_state(), prior_state)
+    state.setdefault("object", {})["yaw_deg"] = 0.0
+    prior_path = pair_dir / "states" / "round00_render_prior_input.json"
+    save_json(prior_path, state)
+    save_json(
+        pair_dir / "render_prior_selection.json",
+        {
+            "obj_id": obj_id,
+            "category": category,
+            "prior_source": prior_source,
+            "render_prior_schema": render_prior_library.get("schema_version") if render_prior_library else None,
+            "render_prior_record_count": render_prior_library.get("record_count") if render_prior_library else None,
+        },
+    )
+    return prior_path
+
+
 def shard_objects(obj_ids: List[str], gpus: List[str]) -> List[dict]:
     buckets = [{"gpu": gpu, "objects": []} for gpu in gpus]
     for idx, obj_id in enumerate(obj_ids):
@@ -135,6 +201,7 @@ def run_round0(
     meshes_dir: str,
     profile: str,
     scene_template: str,
+    control_state_in: Optional[Path] = None,
 ) -> int:
     cmd = [
         python_bin,
@@ -160,6 +227,8 @@ def run_round0(
         "--scene-template",
         scene_template,
     ]
+    if control_state_in is not None:
+        cmd.extend(["--control-state-in", str(control_state_in)])
     return subprocess.call(cmd, cwd=str(REPO_ROOT))
 
 
@@ -186,6 +255,8 @@ def bootstrap_object(
     meshes_dir: str,
     profile: str,
     scene_template: str,
+    render_prior_library: Optional[dict],
+    object_category: Optional[str],
     max_rounds: int,
     plateau_window: int,
     plateau_eps: float,
@@ -199,6 +270,12 @@ def bootstrap_object(
     while True:
         latest_agg, latest_trace, round_idx = monitor.find_round_files(pair_dir)
         if latest_agg is None:
+            control_state_in = materialize_prior_control_state(
+                pair_dir=pair_dir,
+                obj_id=obj_id,
+                category=object_category,
+                render_prior_library=render_prior_library,
+            )
             rc = run_round0(
                 pair_dir=pair_dir,
                 obj_id=obj_id,
@@ -207,6 +284,7 @@ def bootstrap_object(
                 meshes_dir=meshes_dir,
                 profile=profile,
                 scene_template=scene_template,
+                control_state_in=control_state_in,
             )
             launched_round00 = True
             if rc != 0:
@@ -290,6 +368,12 @@ def run_worker(args) -> int:
     output_root = Path(args.output_root).resolve()
     worker_log_path = Path(args.worker_log_path).resolve()
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.worker_gpu)
+    render_prior_library = (
+        load_json(Path(args.render_prior_library), default=None)
+        if args.render_prior_library
+        else None
+    )
+    object_categories = load_object_categories(Path(args.objects_file).resolve())
 
     summary = {
         "status": "running",
@@ -309,6 +393,8 @@ def run_worker(args) -> int:
             meshes_dir=args.meshes_dir,
             profile=args.profile,
             scene_template=args.scene_template,
+            render_prior_library=render_prior_library,
+            object_category=object_categories.get(obj_id),
             max_rounds=args.max_rounds,
             plateau_window=args.plateau_window,
             plateau_eps=args.plateau_eps,
@@ -337,6 +423,7 @@ def run_orchestrator(args) -> int:
         "objects_file": str(Path(args.objects_file).resolve()),
         "output_root": str(output_root),
         "meshes_dir": str(Path(args.meshes_dir).resolve()),
+        "render_prior_library": str(Path(args.render_prior_library).resolve()) if args.render_prior_library else None,
         "gpus": gpus,
         "objects": obj_ids,
         "max_rounds": args.max_rounds,
@@ -376,6 +463,11 @@ def run_orchestrator(args) -> int:
             args.profile,
             "--scene-template",
             args.scene_template,
+            *(
+                ["--render-prior-library", args.render_prior_library]
+                if args.render_prior_library
+                else []
+            ),
             "--max-rounds",
             str(args.max_rounds),
             "--plateau-window",

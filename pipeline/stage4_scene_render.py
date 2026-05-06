@@ -135,6 +135,8 @@ def load_scene_template(path: str) -> dict:
     data.setdefault("material_gate_min_colorfulness", 0.035)
     data.setdefault("material_gate_min_vertices", 24)
     data.setdefault("material_gate_min_bbox_height", 0.02)
+    data.setdefault("render_depth_normal", False)
+    data.setdefault("depth_output_format", "OPEN_EXR")
     return data
 
 
@@ -193,6 +195,142 @@ def setup_render_settings(scene, resolution: int, engine: str, template: dict | 
         scene.view_settings.view_transform = "Standard"
     scene.view_settings.exposure = 0.0
     scene.view_settings.gamma = float(template.get("filmic_gamma", 0.5 if "CYCLES" in scene.render.engine else 1.0))
+
+
+def convert_depth_exr_to_png(exr_path, png_path):
+    """Read depth EXR rendered by Blender, normalize to 16-bit grayscale PNG.
+
+    Closer objects are brighter (65535), background/infinity is 0 (black).
+    """
+    import numpy as np
+    from PIL import Image
+
+    img = bpy.data.images.load(exr_path, check_existing=False)
+    w, h = img.size
+    pixels = np.array(img.pixels[:], dtype=np.float32)
+
+    channels = len(pixels) // (w * h)
+    if channels >= 1:
+        pixels = pixels.reshape(h, w, channels)[:, :, 0]
+    else:
+        pixels = pixels.reshape(h, w)
+
+    # Blender stores images bottom-up
+    pixels = np.flipud(pixels)
+
+    INF_THRESHOLD = 1e9
+    valid = pixels < INF_THRESHOLD
+
+    if valid.any():
+        d_min = float(pixels[valid].min())
+        d_max = float(pixels[valid].max())
+        if d_max > d_min:
+            norm = np.zeros_like(pixels, dtype=np.float64)
+            # Invert: closer = brighter
+            norm[valid] = 1.0 - (pixels[valid] - d_min) / (d_max - d_min)
+            norm[~valid] = 0.0
+            uint16 = (norm * 65535).clip(0, 65535).astype(np.uint16)
+        else:
+            uint16 = np.full((h, w), 32768, dtype=np.uint16)
+            uint16[~valid] = 0
+    else:
+        uint16 = np.zeros((h, w), dtype=np.uint16)
+
+    pil_img = Image.fromarray(uint16, mode="I;16")
+    pil_img.save(png_path)
+
+    bpy.data.images.remove(img)
+    os.remove(exr_path)
+
+
+def setup_depth_normal_passes(scene, obj_out_dir, view_prefix, template):
+    """Enable depth + normal render passes and wire compositor File Output nodes.
+
+    Called once per view *before* ``bpy.ops.render.render()``.  The render
+    produces RGB via ``write_still=True`` as before; depth and normal are
+    written by the File Output node in the same render pass (zero extra cost).
+
+    Depth is always rendered as EXR (float32) to preserve precision.
+    If the user requests PNG via ``depth_output_format``, the caller must
+    post-convert using ``convert_depth_exr_to_png()``.
+
+    Returns a dict with paths and format info.
+    """
+    vl = scene.view_layers[0]
+    vl.use_pass_z = True
+    vl.use_pass_normal = True
+
+    scene.use_nodes = True
+    tree = scene.node_tree
+    nodes = tree.nodes
+    links = tree.links
+
+    # Remove old aux nodes from previous views
+    for n in list(nodes):
+        if n.name.startswith("_aux_"):
+            nodes.remove(n)
+
+    rl_node = None
+    for n in nodes:
+        if n.type == "R_LAYERS":
+            rl_node = n
+            break
+    if rl_node is None:
+        rl_node = nodes.new("CompositorNodeRLayers")
+
+    user_depth_fmt = str(template.get("depth_output_format", "PNG")).upper()
+
+    # --- Depth: always EXR for precision ---
+    depth_out = nodes.new("CompositorNodeOutputFile")
+    depth_out.name = "_aux_depth"
+    depth_out.base_path = obj_out_dir
+    depth_out.format.file_format = "OPEN_EXR"
+    depth_out.format.color_depth = "32"
+    depth_fname = f"{view_prefix}_depth"
+    depth_out.file_slots[0].path = depth_fname
+    links.new(rl_node.outputs["Depth"], depth_out.inputs[0])
+
+    # --- Normal ---
+    normal_out = nodes.new("CompositorNodeOutputFile")
+    normal_out.name = "_aux_normal"
+    normal_out.base_path = obj_out_dir
+    normal_out.format.file_format = "PNG"
+    normal_out.format.color_mode = "RGB"
+    normal_out.format.color_depth = "16"
+    normal_out.file_slots[0].path = f"{view_prefix}_normal"
+    links.new(rl_node.outputs["Normal"], normal_out.inputs[0])
+
+    # Blender appends a frame number; we render frame 1
+    frame_suffix = f"{scene.frame_current:04d}"
+    depth_exr_path = os.path.join(obj_out_dir, f"{depth_fname}{frame_suffix}.exr")
+
+    if user_depth_fmt == "PNG":
+        depth_final_path = os.path.join(obj_out_dir, f"{depth_fname}{frame_suffix}.png")
+        depth_final_fname = f"{depth_fname}{frame_suffix}.png"
+    else:
+        depth_final_path = depth_exr_path
+        depth_final_fname = f"{depth_fname}{frame_suffix}.exr"
+
+    normal_path = os.path.join(obj_out_dir, f"{view_prefix}_normal{frame_suffix}.png")
+
+    return {
+        "depth": depth_final_path,
+        "depth_exr": depth_exr_path,
+        "depth_fmt": user_depth_fmt,
+        "normal": normal_path,
+        "depth_fname": depth_final_fname,
+        "normal_fname": f"{view_prefix}_normal{frame_suffix}.png",
+    }
+
+
+def cleanup_depth_normal_nodes(scene):
+    """Remove aux compositor nodes after rendering."""
+    if not scene.use_nodes:
+        return
+    nodes = scene.node_tree.nodes
+    for n in list(nodes):
+        if n.name.startswith("_aux_"):
+            nodes.remove(n)
 
 
 def import_glb(glb_path: str):
@@ -2161,6 +2299,11 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
         camera_name = cam.name
         camera_dist = None
         camera_target = None
+        if template.get("disable_dof", False):
+            cam.data.dof.use_dof = False
+        lens_override = template.get("camera_lens_override")
+        if lens_override is not None:
+            cam.data.lens = float(lens_override)
         distance_scale = float(template.get("scene_camera_distance_scale", 1.0))
         if abs(distance_scale - 1.0) > 1e-6:
             cam_loc = cam.matrix_world.translation.copy()
@@ -2210,6 +2353,8 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
             world_gain_scale=float(template.get("adaptive_world_gain_scale", 0.55)),
         )
 
+    render_dn = bool(template.get("render_depth_normal", False))
+
     rendered_frames = []
     for az, el in qc_views:
         el_str = f"{el:+03d}"
@@ -2229,18 +2374,34 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
                 camera_target = target
             position_camera(cam, camera_target, az, el, camera_dist)
 
+        aux_info = None
+        if render_dn:
+            view_prefix = f"az{az:03d}_el{el_str}"
+            aux_info = setup_depth_normal_passes(scene, obj_out, view_prefix, template)
+
         scene.render.filepath = rgb_path
         bpy.ops.render.render(write_still=True)
         render_mask(scene, mask_path, imported_names)
 
-        rendered_frames.append({
+        if render_dn:
+            cleanup_depth_normal_nodes(scene)
+            if aux_info and aux_info.get("depth_fmt") == "PNG":
+                convert_depth_exr_to_png(aux_info["depth_exr"], aux_info["depth"])
+
+        frame_entry = {
             "filename": rgb_name,
             "mask_filename": mask_name,
             "azimuth": az,
             "elevation": el,
             "path": rgb_path,
             "mask_path": mask_path,
-        })
+        }
+        if aux_info:
+            frame_entry["depth_filename"] = aux_info["depth_fname"]
+            frame_entry["depth_path"] = aux_info["depth"]
+            frame_entry["normal_filename"] = aux_info["normal_fname"]
+            frame_entry["normal_path"] = aux_info["normal"]
+        rendered_frames.append(frame_entry)
 
     physics = compute_physics_metrics(mesh_objects, support)
     metadata = {

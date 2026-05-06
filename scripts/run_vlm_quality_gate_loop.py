@@ -40,7 +40,32 @@ from run_scene_agent_monitor import decide_actions, extract_trace_text  # noqa: 
 DEFAULT_BLENDER = "/aaaidata/zhangqisong/blender-4.24/blender"
 DEFAULT_PROFILE = REPO_ROOT / "configs" / "dataset_profiles" / "scene_v7.json"
 DEFAULT_SCENE_TEMPLATE = REPO_ROOT / "configs" / "scene_template.json"
+DEFAULT_SCENE_POOL = REPO_ROOT / "configs" / "scene_pool.json"
 DEFAULT_MESHES_DIR = REPO_ROOT / "pipeline" / "data" / "meshes"
+
+
+def load_scene_pool(pool_path: str | Path) -> list[dict]:
+    pool_path = Path(pool_path)
+    if not pool_path.exists():
+        raise FileNotFoundError(f"Scene pool not found: {pool_path}")
+    data = json.loads(pool_path.read_text(encoding="utf-8"))
+    scenes = data.get("scenes", [])
+    if not scenes:
+        raise ValueError(f"Scene pool is empty: {pool_path}")
+    return scenes
+
+
+def resolve_scene_template_for_obj(obj_id: str, scene_pool: list[dict] | None, default_template: str) -> str:
+    if not scene_pool:
+        return default_template
+    import re as _re
+    _m = _re.search(r"(\d+)", obj_id)
+    idx = (int(_m.group(1)) if _m else hash(obj_id)) % len(scene_pool)
+    scene = scene_pool[idx]
+    template = scene.get("template", default_template)
+    if not Path(template).is_absolute():
+        template = str(REPO_ROOT / template)
+    return template
 
 
 def parse_args() -> argparse.Namespace:
@@ -76,6 +101,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--meshes-dir", default=str(DEFAULT_MESHES_DIR))
     parser.add_argument("--profile", default=str(DEFAULT_PROFILE))
     parser.add_argument("--scene-template", default=str(DEFAULT_SCENE_TEMPLATE))
+    parser.add_argument("--scene-pool", default=None,
+                        help="Path to scene_pool.json. When set, each object gets a deterministic scene from the pool, "
+                             "overriding --scene-template.")
     parser.add_argument("--reject-abandon", action="store_true", help="Reject immediately when asset_viability=abandon")
     parser.add_argument("--disable-material-gate", action="store_true", help="Do not block acceptance on Stage4 mesh/material gate metadata")
     parser.add_argument("--resume", action="store_true")
@@ -219,9 +247,10 @@ def score_improved(score: Optional[float], best_score: Optional[float], eps: flo
     return float(score) > float(best_score) + float(eps)
 
 
-def run_pair(args: argparse.Namespace, obj_id: str, rotation_deg: int) -> dict:
+def run_pair(args: argparse.Namespace, obj_id: str, rotation_deg: int, scene_pool: list[dict] | None = None) -> dict:
     root_dir = Path(args.root_dir).resolve()
     pair_dir = root_dir / pair_name(obj_id, rotation_deg)
+    scene_template = resolve_scene_template_for_obj(obj_id, scene_pool, args.scene_template)
     if args.resume:
         status = existing_gate_status(pair_dir)
         if status and status.get("status") in {"accepted", "rejected"}:
@@ -262,7 +291,7 @@ def run_pair(args: argparse.Namespace, obj_id: str, rotation_deg: int) -> dict:
             blender_bin=args.blender_bin,
             meshes_dir=args.meshes_dir,
             profile_path=args.profile,
-            scene_template_path=args.scene_template,
+            scene_template_path=scene_template,
         )
 
         score = coerce_score(result.get(args.score_field))
@@ -479,6 +508,19 @@ def main() -> None:
 
     obj_ids = parse_ids(args)
 
+    scene_pool = None
+    if args.scene_pool:
+        scene_pool = load_scene_pool(args.scene_pool)
+        assignments = {
+            oid: resolve_scene_template_for_obj(oid, scene_pool, args.scene_template)
+            for oid in obj_ids
+        }
+        assign_path = root_dir / "scene_assignments.json"
+        if not assign_path.exists() or args.gpus:
+            save_json(assign_path, assignments)
+        for oid, tmpl in assignments.items():
+            print(f"[scene-pool] {oid} → {Path(tmpl).name}")
+
     if args.gpus and len(args.gpus.split(",")) > 1:
         run_multigpu(args, obj_ids, root_dir)
         return
@@ -488,7 +530,7 @@ def main() -> None:
     for obj_id in obj_ids:
         for rotation_deg in rotations:
             print(f"[gate] {obj_id} yaw{rotation_deg:03d}")
-            status = run_pair(args, obj_id, rotation_deg)
+            status = run_pair(args, obj_id, rotation_deg, scene_pool=scene_pool)
             print(
                 f"  -> {status.get('status')} score={status.get('accepted_score', status.get('last_score'))} "
                 f"threshold={status.get('accepted_threshold', status.get('last_threshold'))}"
@@ -516,10 +558,15 @@ def run_multigpu(args: argparse.Namespace, obj_ids: list[str], root_dir: Path) -
 
     print(f"[multigpu] {len(obj_ids)} objects → {n_gpus} GPUs: {[len(s) for s in shards]}")
 
+    VLM_LOAD_STAGGER_SECONDS = 90  # stagger worker starts to avoid simultaneous VLM loading OOM
+
     workers: list[tuple[_sp.Popen, int, Path]] = []
     for idx, (gpu, shard) in enumerate(zip(gpu_indices, shards)):
         if not shard:
             continue
+        if idx > 0:
+            print(f"  [multigpu] waiting {VLM_LOAD_STAGGER_SECONDS}s before launching worker {idx} (stagger VLM load)...")
+            time.sleep(VLM_LOAD_STAGGER_SECONDS)
         worker_dir = root_dir / f"_worker_{gpu}"
         worker_dir.mkdir(parents=True, exist_ok=True)
 
@@ -542,6 +589,8 @@ def run_multigpu(args: argparse.Namespace, obj_ids: list[str], root_dir: Path) -
             "--profile", args.profile,
             "--scene-template", args.scene_template,
         ]
+        if args.scene_pool:
+            cmd += ["--scene-pool", args.scene_pool]
         if args.min_vlm_only_score is not None:
             cmd += ["--min-vlm-only-score", str(args.min_vlm_only_score)]
         if args.reject_abandon:

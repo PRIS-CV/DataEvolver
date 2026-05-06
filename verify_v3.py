@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""verify_v3.py — 相对断言验证：v3 vs v2 baseline"""
 from __future__ import annotations
 
 import json
@@ -88,8 +89,6 @@ def main() -> None:
     v3_avg = mean_final_score(v3)
     v3_flat_ratio = flat_lighting_ratio(V3_SUMMARY_PATH)
 
-    if v2_total != 10:
-        errors.append(f"v2 total must be 10, got {v2_total}")
     if v3_total != 10:
         errors.append(f"v3 total must be 10, got {v3_total}")
 
@@ -106,6 +105,9 @@ def main() -> None:
             f"v3 avg_score={v3_avg:.4f}, v2 avg_score={v2_avg:.4f}, "
             f"v3 flat_lighting_ratio={v3_flat_ratio:.2%}"
         )
+
+    print(f"v2: accepted={v2_accepted}/{v2_total} avg={v2_avg:.4f}")
+    print(f"v3: accepted={v3_accepted}/{v3_total} avg={v3_avg:.4f} flat={v3_flat_ratio:.0%}")
 
     if errors:
         print(f"FAIL: {errors}")

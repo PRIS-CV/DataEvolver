@@ -481,6 +481,11 @@ def load_vlm(device: str = "cuda:0"):
     from transformers import AutoProcessor, Qwen3_5MoeForConditionalGeneration
     import transformers.modeling_utils as _mu
     import torch
+    import gc
+
+    # Free residual GPU memory from prior steps (Blender CYCLES, 3D recon, etc.)
+    gc.collect()
+    torch.cuda.empty_cache()
 
     # Disable caching_allocator_warmup: it estimates pre-allocation by total
     # param count (~65GB for 35B MoE) instead of active params (~7GB), causing OOM.

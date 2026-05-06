@@ -30,6 +30,7 @@
 #   --gate-max-rounds N      VLM 渲染优化最大轮数 (默认: 5)
 #   --gate-threshold FLOAT   VLM 接受阈值 (默认: 0.78)
 #   --template-only          使用预设概念列表，不调 LLM API
+#   --scene-pool PATH        场景池 JSON 文件路径，每个物体随机分配不同场景
 #   --augment-baseline       合并到已有 baseline 数据集
 #   --dry-run                仅打印命令，不执行
 # ============================================================================
@@ -44,6 +45,7 @@ RUNTIME_ROOT="/aaaidata/jiazhuangzhuang/ARIS_runtime"
 BASELINE_SPLIT="${REPO_ROOT}/pipeline/data/dataset_scene_v7_full50_rotation8_trainready_front2others_splitobj_seed42_final_20260410"
 GATE_PROFILE="${REPO_ROOT}/configs/dataset_profiles/scene_v7.json"
 SCENE_TEMPLATE="${REPO_ROOT}/configs/scene_template.json"
+SCENE_POOL=""
 
 # ── 默认参数 ──────────────────────────────────────────────────────────────────
 DEVICE="cuda:0"
@@ -89,6 +91,8 @@ while [[ $# -gt 0 ]]; do
         --no-augment)       AUGMENT_BASELINE=0; shift ;;
         --stop-after-gate)  STOP_AFTER_GATE=1; shift ;;
         --no-force-accept)  FORCE_ACCEPT=0; shift ;;
+        --scene-template)   SCENE_TEMPLATE="$2"; shift 2 ;;
+        --scene-pool)       SCENE_POOL="$2"; shift 2 ;;
         --target-rotations) TARGET_ROTATIONS="$2"; shift 2 ;;
         --export-rotations) EXPORT_ROTATIONS="$2"; shift 2 ;;
         --dry-run)          DRY_RUN=1; shift ;;
@@ -122,6 +126,11 @@ echo "[launch] 生成数量: ${SEED_COUNT}, 起始 ID: obj_${SEED_START_INDEX}"
 echo "[launch] VLM 最大轮数: ${GATE_MAX_ROUNDS}, 接受阈值: ${GATE_THRESHOLD}"
 echo "[launch] 强制进入 rotation8: 是（无论 VLM 是否接受）"
 echo "[launch] 角度质量门控: 阈值=${ANGLE_GATE_THRESHOLD}, 最大增强轮数=${ANGLE_GATE_MAX_ROUNDS}"
+if [[ -n "$SCENE_POOL" ]]; then
+echo "[launch] 场景池: ${SCENE_POOL}"
+else
+echo "[launch] 场景模板: ${SCENE_TEMPLATE}"
+fi
 echo "============================================================"
 
 SEED_FILE="${RUN_ROOT}/seed_concepts.json"
@@ -238,25 +247,31 @@ run_step "02" "build_stage1_assets" "${STAGE1_BUILD_ARGS[@]}"
 # ══════════════════════════════════════════════════════════════════════════════
 # STEP 3: VLM 质量门控 loop（最多 GATE_MAX_ROUNDS 轮渲染优化）
 # ══════════════════════════════════════════════════════════════════════════════
-run_step "03" "run_vlm_quality_gate" \
-    "$PYTHON" "${REPO_ROOT}/scripts/run_vlm_quality_gate_loop.py" \
-    --root-dir "$GATE_ROOT" \
-    --objects-file "$SEED_FILE" \
-    --rotations 0 \
-    --threshold-start "$GATE_THRESHOLD" \
-    --threshold-step 0.0 \
-    --threshold-max "$GATE_THRESHOLD" \
-    --score-field hybrid_score \
-    --max-rounds "$GATE_MAX_ROUNDS" \
-    --min-vlm-only-score 0.0 \
-    --step-scale 0.25 \
-    --patience "$GATE_PATIENCE" \
-    --rollback-score-drop-threshold 0.05 \
-    --device "$DEVICE" \
-    --gpus "$EXPORT_GPUS" \
-    --blender "$BLENDER" \
-    --meshes-dir "${ASSETS_ROOT}/meshes" \
+GATE_CMD=(
+    "$PYTHON" "${REPO_ROOT}/scripts/run_vlm_quality_gate_loop.py"
+    --root-dir "$GATE_ROOT"
+    --objects-file "$SEED_FILE"
+    --rotations 0
+    --threshold-start "$GATE_THRESHOLD"
+    --threshold-step 0.0
+    --threshold-max "$GATE_THRESHOLD"
+    --score-field hybrid_score
+    --max-rounds "$GATE_MAX_ROUNDS"
+    --min-vlm-only-score 0.0
+    --step-scale 0.25
+    --patience "$GATE_PATIENCE"
+    --rollback-score-drop-threshold 0.05
+    --device "$DEVICE"
+    --gpus "$EXPORT_GPUS"
+    --blender "$BLENDER"
+    --meshes-dir "${ASSETS_ROOT}/meshes"
     --profile "$GATE_PROFILE_LOCAL"
+    --scene-template "$SCENE_TEMPLATE"
+)
+if [[ -n "$SCENE_POOL" ]]; then
+    GATE_CMD+=(--scene-pool "$SCENE_POOL")
+fi
+run_step "03" "run_vlm_quality_gate" "${GATE_CMD[@]}"
 
 # ══════════════════════════════════════════════════════════════════════════════
 # STEP 3.5: 强制接受 — 将被拒绝的 object 也标记为 accepted
@@ -381,16 +396,26 @@ fi
 # ══════════════════════════════════════════════════════════════════════════════
 # STEP 5: 导出 rotation8 一致性数据集（8 个 yaw 角度渲染）
 # ══════════════════════════════════════════════════════════════════════════════
-run_step "05" "export_rotation8" \
-    "$PYTHON" "${REPO_ROOT}/scripts/export_rotation8_from_best_object_state.py" \
-    --source-root "$ACCEPTED_ROOT" \
-    --output-dir "$ROT8_ROOT" \
-    --python "$PYTHON" \
-    --blender "$BLENDER" \
-    --meshes-dir "${ASSETS_ROOT}/meshes" \
-    --gpus "$EXPORT_GPUS" \
-    --fallback-to-best-any-angle \
+ROT8_CMD=(
+    "$PYTHON" "${REPO_ROOT}/scripts/export_rotation8_from_best_object_state.py"
+    --source-root "$ACCEPTED_ROOT"
+    --output-dir "$ROT8_ROOT"
+    --python "$PYTHON"
+    --blender "$BLENDER"
+    --meshes-dir "${ASSETS_ROOT}/meshes"
+    --gpus "$EXPORT_GPUS"
+    --fallback-to-best-any-angle
     --rotations "$EXPORT_ROTATIONS"
+    --scene-template "$SCENE_TEMPLATE"
+)
+if [[ -n "$SCENE_POOL" ]]; then
+    ROT8_CMD+=(--scene-pool "$SCENE_POOL")
+    # Reuse gate loop's scene assignments if available
+    if [[ -f "${GATE_ROOT}/scene_assignments.json" ]]; then
+        ROT8_CMD+=(--scene-assignments "${GATE_ROOT}/scene_assignments.json")
+    fi
+fi
+run_step "05" "export_rotation8" "${ROT8_CMD[@]}"
 
 # ══════════════════════════════════════════════════════════════════════════════
 # STEP 5.5: Per-angle 质量门控 + 弱角度增强

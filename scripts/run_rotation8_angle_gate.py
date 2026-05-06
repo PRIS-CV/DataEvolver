@@ -98,7 +98,7 @@ def evaluate_all_angles(
     profile: dict,
     angle_threshold: float,
 ) -> Tuple[Dict[str, Dict[int, dict]], List[tuple]]:
-    from pipeline.stage5_5_vlm_review import run_vlm_review
+    from stage5_5_vlm_review import run_vlm_review
 
     angle_scores: Dict[str, Dict[int, dict]] = {}
     weak_angles: List[tuple] = []
