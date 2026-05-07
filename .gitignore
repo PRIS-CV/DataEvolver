@@ -29,9 +29,6 @@ feishu-claude-code/
 agent_loop_v72_upload/
 objects/
 plan-list/
-docs/logs/
-scripts/images/
-scripts/images_rgba/
 notion-weekly/
 *.safetensors
 *.ckpt
@@ -41,6 +38,32 @@ notion-weekly/
 *.jpg
 *.jpeg
 
-# Claude Code
+# Internal docs, intermediate results, and deliverables
+docs/
+deliverables/
+v6_staging/
+mcp-servers/
+tools/
+obsidian-skills
+pipeline/data/experiments/
+pipeline/data/meshes/
+pipeline/data/prompts.json
+pipeline/VLM_FEEDBACK_DIMENSIONS_AND_PARAM_TUNING.md
+pipeline/VLM_REVIEW_PRECONFIG.md
+vlm_render_evolution_summary.md
+analyze_evolution.py
+verify_v3.py
+task.md
+task.txt
+
+# Claude Code / AI agent configs (user-specific, do not commit)
 .claude/
 .plan
+CLAUDE.md
+AGENTS.md
+CODEX_RULES.md
+CONTRIBUTING.md
+CONTRIBUTING_CN.md
+README_CN.md
+memory/
+skills/

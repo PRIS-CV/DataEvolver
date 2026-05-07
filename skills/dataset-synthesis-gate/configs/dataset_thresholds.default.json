@@ -1,8 +1,0 @@
-{
-  "min_samples": 1000,
-  "min_resolution": [256, 256],
-  "min_label_completeness": 0.8,
-  "min_class_coverage": 2,
-  "max_bad_sample_rate": 0.05,
-  "require_splits": ["train", "val", "test"]
-}
