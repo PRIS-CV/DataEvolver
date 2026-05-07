@@ -20,7 +20,7 @@ DATA_DIR="${SCRIPT_DIR}/data"
 LOG_DIR="${DATA_DIR}/logs"
 CONDA_ENV="/home/wuwenzhuo/Qwen-VL-Series-Finetune/env"
 PYTHON="${CONDA_ENV}/bin/python"
-BLENDER_BIN="${BLENDER_BIN:-/usr/bin/blender}"
+BLENDER_BIN="${BLENDER_BIN:-/aaaidata/zhangqisong/blender-4.24/blender}"
 
 FROM_STAGE=1
 RUN_STAGES="1,2,2.5,3,4,5"

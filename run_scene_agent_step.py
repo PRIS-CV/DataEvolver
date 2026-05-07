@@ -79,114 +79,6 @@ def load_json(path: Path, default=None):
         return json.load(f)
 
 
-def _compact_json(payload, max_chars: int = 1800) -> str:
-    try:
-        text = json.dumps(payload, ensure_ascii=False, sort_keys=True)
-    except TypeError:
-        text = str(payload)
-    text = " ".join(text.split())
-    if len(text) > max_chars:
-        return text[:max_chars] + "...<truncated>"
-    return text
-
-
-def _latest_trace_text(reviews_dir: Path, prev_round_idx: int) -> str:
-    candidates = sorted(reviews_dir.glob(f"*_r{prev_round_idx:02d}_*_trace.json"))
-    if not candidates:
-        candidates = sorted(reviews_dir.glob("*_trace.json"))
-    if not candidates:
-        return ""
-    trace = load_json(candidates[-1], default={}) or {}
-    attempts = trace.get("attempts") or []
-    if attempts:
-        text = attempts[-1].get("assistant_text")
-        if isinstance(text, str) and text.strip():
-            return text.strip()
-    for key in ("assistant_text", "raw_text", "response_text", "content", "answer", "model_output"):
-        value = trace.get(key)
-        if isinstance(value, str) and value.strip():
-            return value.strip()
-    return ""
-
-
-def _build_review_context_appendix(
-    *,
-    pair_dir: Path,
-    reviews_dir: Path,
-    obj_id: str,
-    round_idx: int,
-    agent_note: str,
-    current_state: dict,
-    render_metadata: dict,
-    reference_image_path: Optional[str],
-) -> str:
-    """Context injected into the VLM review prompt so the freeform reviewer can diagnose, not just score."""
-    sections = [
-        "Additional review context for this iterative scene loop:",
-        "- Treat this as a local optimization loop for one object at one yaw.",
-        "- Prefer concrete visual diagnosis and concrete next actions over generic scoring comments.",
-    ]
-    if reference_image_path:
-        sections.append(f"- Original reference image path: {reference_image_path}")
-    if agent_note:
-        sections.append(f"- Agent / gate note from previous decision: {agent_note}")
-
-    if round_idx > 0:
-        prev_agg_path = reviews_dir / f"{obj_id}_r{round_idx - 1:02d}_agg.json"
-        prev_agg = load_json(prev_agg_path, default={}) or {}
-        if isinstance(prev_agg, dict) and prev_agg:
-            prev_summary = {
-                "hybrid_score": prev_agg.get("hybrid_score"),
-                "vlm_only_score": prev_agg.get("vlm_only_score"),
-                "issue_tags": prev_agg.get("issue_tags"),
-                "suggested_actions": prev_agg.get("suggested_actions"),
-                "advisor_actions": prev_agg.get("advisor_actions"),
-                "lighting_diagnosis": prev_agg.get("lighting_diagnosis"),
-                "structure_consistency": prev_agg.get("structure_consistency"),
-                "color_consistency": prev_agg.get("color_consistency"),
-                "physics_consistency": prev_agg.get("physics_consistency"),
-                "asset_viability": prev_agg.get("asset_viability"),
-                "abandon_reason": prev_agg.get("abandon_reason"),
-            }
-            sections.append("- Previous round aggregate review JSON summary:")
-            sections.append(_compact_json(prev_summary, max_chars=1400))
-        prev_trace = _latest_trace_text(reviews_dir, round_idx - 1)
-        if prev_trace:
-            sections.append("- Previous round freeform reviewer feedback excerpt:")
-            sections.append(" ".join(prev_trace.split())[:1800])
-
-    state_summary = {
-        "object": current_state.get("object"),
-        "lighting": current_state.get("lighting"),
-        "camera": current_state.get("camera"),
-        "scene": current_state.get("scene"),
-        "material": current_state.get("material"),
-    }
-    sections.append("- Current control_state summary:")
-    sections.append(_compact_json(state_summary, max_chars=1800))
-
-    metadata_summary = {}
-    if isinstance(render_metadata, dict):
-        for key in (
-            "mesh_material_quality",
-            "material_adaptation",
-            "object_bbox",
-            "programmatic_physics",
-            "control_state_path",
-        ):
-            if key in render_metadata:
-                metadata_summary[key] = render_metadata.get(key)
-    if metadata_summary:
-        sections.append("- Current render metadata summary:")
-        sections.append(_compact_json(metadata_summary, max_chars=1600))
-
-    sections.append(
-        "Required reviewer behavior: name the primary failure, compare against the reference, "
-        "judge scene integration, and propose up to three concrete next actions."
-    )
-    return "\n".join(sections)
-
-
 def _rotation_override(rotation_deg: int) -> dict:
     return {
         "object": {
@@ -302,9 +194,6 @@ def run_agent_step(
         p.name.endswith(".png") and not p.name.endswith("_mask.png")
         for p in obj_render_dir.iterdir()
     )
-    render_metadata = load_json(obj_render_dir / "metadata.json", default={}) if obj_render_dir.is_dir() else {}
-    if not isinstance(render_metadata, dict):
-        render_metadata = {}
     if not (ok and has_renders):
         result = {
             "success": False,
@@ -315,28 +204,12 @@ def run_agent_step(
             "render_dir": str(render_dir),
             "review_agg_path": None,
             "actions": action_results,
-            "material_adaptation": render_metadata.get("material_adaptation"),
-            "mesh_material_quality": render_metadata.get("mesh_material_quality"),
             "agent_note": agent_note,
             "elapsed_seconds": round(time.time() - started, 3),
             "error": "render_failed",
         }
         save_json(pair_dir / f"agent_{round_tag}.json", result)
         return result
-
-    profile_prompt_appendix = profile.get("prompt_appendix", "")
-    dynamic_review_appendix = _build_review_context_appendix(
-        pair_dir=pair_dir,
-        reviews_dir=reviews_dir,
-        obj_id=obj_id,
-        round_idx=round_idx,
-        agent_note=agent_note,
-        current_state=current_state,
-        render_metadata=render_metadata,
-        reference_image_path=reference_image_path,
-    )
-    prompt_appendix_parts = [part for part in (profile_prompt_appendix, dynamic_review_appendix) if part]
-    review_prompt_appendix = "\n\n".join(prompt_appendix_parts)
 
     review = scene_loop.review_object(
         obj_id=obj_id,
@@ -347,7 +220,7 @@ def run_agent_step(
         prev_renders_dir=effective_prev_renders,
         device=device,
         history_file=str(pair_dir / "sharpness_history.json"),
-        prompt_appendix=review_prompt_appendix,
+        prompt_appendix=profile.get("prompt_appendix", ""),
         issue_tags_whitelist=profile.get("issue_tags_whitelist"),
         reference_image_path=reference_image_path,
         pseudo_reference_path=scene_loop._resolve_pseudo_reference_image(obj_id, profile),
@@ -372,18 +245,8 @@ def run_agent_step(
         "hybrid_score": review.get("hybrid_score"),
         "vlm_only_score": review.get("vlm_only_score"),
         "lighting_diagnosis": review.get("lighting_diagnosis"),
-        "asset_viability": review.get("asset_viability"),
-        "abandon_reason": review.get("abandon_reason"),
-        "material_adaptation": render_metadata.get("material_adaptation"),
-        "mesh_material_quality": render_metadata.get("mesh_material_quality"),
         "issue_tags": review.get("issue_tags"),
         "suggested_actions": review.get("suggested_actions"),
-        "review_prompt_context": {
-            "has_agent_note": bool(agent_note),
-            "has_previous_review": round_idx > 0,
-            "has_render_metadata": bool(render_metadata),
-            "prompt_appendix_chars": len(review_prompt_appendix),
-        },
         "actions": action_results,
         "agent_note": agent_note,
         "elapsed_seconds": round(time.time() - started, 3),

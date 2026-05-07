@@ -65,8 +65,7 @@ def reset_scene():
 def setup_render_settings(resolution: int, engine: str):
     """Configure render engine, resolution, output format."""
     scene = bpy.context.scene
-    eevee_name = "BLENDER_EEVEE_NEXT" if int(bpy.app.version[0]) >= 4 else "BLENDER_EEVEE"
-    scene.render.engine = eevee_name if engine == "EEVEE" else engine
+    scene.render.engine = f"BLENDER_{engine}" if not engine.startswith("BLENDER_") else engine
     scene.render.resolution_x = resolution
     scene.render.resolution_y = resolution
     scene.render.resolution_percentage = 100

@@ -1,0 +1,15 @@
+{
+  "name": "scene_v71b_lighting_alignment",
+  "description": "v7.1 experiment B: lighting alignment only (ENV_ROTATE + L_KEY_YAW)",
+  "action_whitelist": [
+    "ENV_ROTATE_30",
+    "ENV_ROTATE_NEG_30",
+    "L_KEY_YAW_POS_15",
+    "L_KEY_YAW_NEG_15"
+  ],
+  "contact_gap_minor": 0.005,
+  "max_attempts": 3,
+  "stability_rounds": 2,
+  "unstable_variance_limit": 0.1,
+  "unstable_span_limit": 0.1
+}

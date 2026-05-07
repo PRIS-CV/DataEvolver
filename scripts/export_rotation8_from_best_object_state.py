@@ -38,8 +38,33 @@ REPO_ROOT = SCRIPT_PATH.parent.parent
 SCENE_RENDER_SCRIPT = REPO_ROOT / "pipeline" / "stage4_scene_render.py"
 DEFAULT_BLENDER = os.environ.get("BLENDER_BIN", "/home/wuwenzhuo/blender-4.24/blender")
 DEFAULT_TEMPLATE = REPO_ROOT / "configs" / "scene_template.json"
+DEFAULT_SCENE_POOL = REPO_ROOT / "configs" / "scene_pool.json"
 DEFAULT_MESHES_DIR = REPO_ROOT / "pipeline" / "data" / "meshes"
 DEFAULT_ROTATIONS = [0, 45, 90, 135, 180, 225, 270, 315]
+
+
+def load_scene_pool(pool_path: str | Path) -> list[dict]:
+    pool_path = Path(pool_path)
+    if not pool_path.exists():
+        raise FileNotFoundError(f"Scene pool not found: {pool_path}")
+    data = json.loads(pool_path.read_text(encoding="utf-8"))
+    scenes = data.get("scenes", [])
+    if not scenes:
+        raise ValueError(f"Scene pool is empty: {pool_path}")
+    return scenes
+
+
+def resolve_scene_template_for_obj(obj_id: str, scene_pool: list[dict] | None, default_template: str) -> str:
+    if not scene_pool:
+        return default_template
+    import re as _re
+    _m = _re.search(r"(\d+)", obj_id)
+    idx = (int(_m.group(1)) if _m else hash(obj_id)) % len(scene_pool)
+    scene = scene_pool[idx]
+    template = scene.get("template", default_template)
+    if not Path(template).is_absolute():
+        template = str(REPO_ROOT / template)
+    return template
 
 
 def parse_args():
@@ -51,6 +76,10 @@ def parse_args():
     parser.add_argument("--blender", dest="blender_bin", default=DEFAULT_BLENDER)
     parser.add_argument("--meshes-dir", default=str(DEFAULT_MESHES_DIR))
     parser.add_argument("--scene-template", default=str(DEFAULT_TEMPLATE))
+    parser.add_argument("--scene-pool", default=None,
+                        help="Path to scene_pool.json. When set, each object gets a deterministic scene from the pool.")
+    parser.add_argument("--scene-assignments", default=None,
+                        help="Path to scene_assignments.json from gate loop. Reuses same object→scene mapping.")
     parser.add_argument("--engine", choices=["EEVEE", "CYCLES"], default=None)
     parser.add_argument("--resolution", type=int, default=None)
     parser.add_argument("--rotations", default="0,45,90,135,180,225,270,315")
@@ -188,15 +217,15 @@ def shard_objects(records: List[dict], gpus: List[str]) -> List[Dict[str, object
     return [bucket for bucket in buckets if bucket["objects"]]
 
 
-def build_scene_template(base_template_path: Path, engine: Optional[str], resolution: Optional[int], output_root: Path) -> Path:
+def build_scene_template(base_template_path: Path, engine: Optional[str], resolution: Optional[int], output_root: Path, suffix: str = "") -> Path:
     template = load_json(base_template_path, default={}) or {}
     if engine:
         template["render_engine"] = engine
     if resolution:
         template["render_resolution"] = resolution
-    # Keep a single fixed camera render; we rotate the object itself.
     template["qc_views"] = [[0, 0]]
-    out_path = output_root / "scene_template_fixed_camera.json"
+    name = f"scene_template_fixed_camera{suffix}.json"
+    out_path = output_root / name
     save_json(out_path, template)
     return out_path
 
@@ -282,6 +311,15 @@ def render_one_rotation(
     meta_out = Path(_copy_if_exists(meta_src, obj_dir / f"{rot_slug}_render_metadata.json")) if meta_src.exists() else None
     control_out = Path(_copy_if_exists(temp_control_path, obj_dir / f"{rot_slug}_control.json"))
 
+    # Copy depth and normal maps if they were rendered
+    depth_out = None
+    normal_out = None
+    for f in render_obj_dir.iterdir():
+        if "depth" in f.name and f.suffix in (".exr", ".png"):
+            depth_out = Path(_copy_if_exists(f, obj_dir / f"{rot_slug}_depth{f.suffix}"))
+        elif "normal" in f.name and f.suffix == ".png":
+            normal_out = Path(_copy_if_exists(f, obj_dir / f"{rot_slug}_normal.png"))
+
     render_meta = load_json(meta_src, default={}) or {}
     result = {
         "obj_id": obj_id,
@@ -295,6 +333,8 @@ def render_one_rotation(
         "elapsed_seconds": round(time.time() - started, 3),
         "rgb_path": _relative_str(rgb_out, output_root),
         "mask_path": _relative_str(mask_out, output_root),
+        "depth_path": _relative_str(depth_out, output_root) if depth_out else None,
+        "normal_path": _relative_str(normal_out, output_root) if normal_out else None,
         "render_metadata_path": _relative_str(meta_out, output_root),
         "control_state_path": _relative_str(control_out, output_root),
         "camera_mode": render_meta.get("camera_mode"),
@@ -316,10 +356,11 @@ def run_worker(args) -> int:
     manifest = load_json(Path(args.worker_manifest_path), default={}) or {}
     rotations = manifest.get("rotations") or list(DEFAULT_ROTATIONS)
     records = manifest.get("objects") or []
+    scene_assignments = manifest.get("scene_assignments") or {}
+    default_scene_template = str((output_root / "scene_template_fixed_camera.json").resolve())
 
     env = os.environ.copy()
     env["CUDA_VISIBLE_DEVICES"] = str(args.worker_gpu)
-    scene_template_path = str((output_root / "scene_template_fixed_camera.json").resolve())
 
     worker_summary = {
         "gpu": args.worker_gpu,
@@ -332,6 +373,7 @@ def run_worker(args) -> int:
 
     for record in records:
         obj_id = str(record["obj_id"])
+        obj_template = scene_assignments.get(obj_id, default_scene_template)
         obj_results = []
         for rotation_deg in rotations:
             result = render_one_rotation(
@@ -341,7 +383,7 @@ def run_worker(args) -> int:
                 env=env,
                 blender_bin=args.blender_bin,
                 meshes_dir=args.meshes_dir,
-                scene_template_path=scene_template_path,
+                scene_template_path=obj_template,
                 resolution=int(args.resolution or 1024),
                 engine=str(args.engine or "CYCLES"),
                 output_root=output_root,
@@ -382,6 +424,31 @@ def run_orchestrator(args) -> int:
     effective_resolution = int(args.resolution or template.get("render_resolution", 1024))
     effective_engine = str(args.engine or template.get("render_engine", "CYCLES"))
 
+    scene_assignments: dict[str, str] = {}
+    _built_templates: dict[str, str] = {}
+    if args.scene_assignments:
+        raw = load_json(Path(args.scene_assignments), default={}) or {}
+        for oid, tmpl_path in raw.items():
+            if tmpl_path not in _built_templates:
+                suffix = f"_{Path(tmpl_path).stem}" if tmpl_path != args.scene_template else ""
+                built = build_scene_template(Path(tmpl_path), args.engine, args.resolution, output_root, suffix=suffix)
+                _built_templates[tmpl_path] = str(built.resolve())
+            scene_assignments[oid] = _built_templates[tmpl_path]
+        print(f"[export] Loaded {len(scene_assignments)} scene assignments from {args.scene_assignments}")
+    elif args.scene_pool:
+        pool = load_scene_pool(args.scene_pool)
+        obj_ids = [str(r["obj_id"]) for r in selected_objects]
+        for oid in obj_ids:
+            raw_tmpl = resolve_scene_template_for_obj(oid, pool, args.scene_template)
+            if raw_tmpl not in _built_templates:
+                suffix = f"_{Path(raw_tmpl).stem}" if raw_tmpl != args.scene_template else ""
+                built = build_scene_template(Path(raw_tmpl), args.engine, args.resolution, output_root, suffix=suffix)
+                _built_templates[raw_tmpl] = str(built.resolve())
+            scene_assignments[oid] = _built_templates[raw_tmpl]
+        save_json(output_root / "scene_assignments.json", scene_assignments)
+        for oid, tmpl in scene_assignments.items():
+            print(f"[scene-pool] {oid} → {Path(tmpl).name}")
+
     request = {
         "source_root": str(source_root),
         "output_dir": str(output_root),
@@ -406,7 +473,7 @@ def run_orchestrator(args) -> int:
         log_path = log_root / f"worker_gpu_{gpu_slug}.json"
         shard_dir = shard_root / f"shard_gpu_{gpu_slug}"
         shard_dir.mkdir(parents=True, exist_ok=True)
-        save_json(manifest_path, {"objects": shard["objects"], "rotations": rotations})
+        save_json(manifest_path, {"objects": shard["objects"], "rotations": rotations, "scene_assignments": scene_assignments})
 
         cmd = [
             args.python_bin,

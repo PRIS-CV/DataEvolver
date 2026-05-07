@@ -68,7 +68,6 @@ def parse_args():
     p.add_argument("--engine", default=DEFAULT_ENGINE, choices=["EEVEE", "CYCLES"])
     p.add_argument("--control-state", default=None)
     p.add_argument("--scene-template", default=DEFAULT_TEMPLATE_PATH)
-    p.add_argument("--reference-image", default=None)
     return p.parse_args(argv)
 
 
@@ -79,7 +78,7 @@ def load_scene_template(path: str) -> dict:
     data.setdefault("disable_existing_lights", False)  # changed: default False
     data.setdefault("add_key_light", False)             # new: no extra key light by default
     data.setdefault("scale_existing_lights", 1.0)       # keep the authored scene look by default
-    data.setdefault("scale_world_background", 0.24)
+    data.setdefault("scale_world_background", 1.0)      # keep the authored world brightness by default
     data.setdefault("fallback_hdri_path", "assets/hdri/neutral_studio_01_2k.exr")
     data.setdefault("support_plane_mode", "ground_object_raycast")  # changed default
     data.setdefault("support_object_name", "ground")    # new: name hint for ground search
@@ -89,15 +88,9 @@ def load_scene_template(path: str) -> dict:
     data.setdefault("render_engine", "CYCLES")
     data.setdefault("render_resolution", 1024)
     data.setdefault("cycles_samples", 512)
-    data.setdefault("cycles_device", "GPU")
-    data.setdefault("cycles_compute_device_type", "CUDA")
     data.setdefault("cycles_preview_samples", 32)
     data.setdefault("filmic_gamma", 0.5)
-    data.setdefault("target_brightness", 0.36)
-    data.setdefault("adaptive_brightness_damping", 0.45)
-    data.setdefault("adaptive_brightness_min_gain", 0.82)
-    data.setdefault("adaptive_brightness_max_gain", 1.18)
-    data.setdefault("adaptive_world_gain_scale", 0.55)
+    data.setdefault("target_brightness", 0.4)
     data.setdefault("camera_radius_ratio", 0.02)         # new
     data.setdefault("camera_height_ratio", 0.01)         # new
     data.setdefault("camera_object_span_multiplier", 2.8)
@@ -107,36 +100,22 @@ def load_scene_template(path: str) -> dict:
     data.setdefault("camera_target_height_ratio", 0.45)
     data.setdefault("camera_anchor_u", 0.5)
     data.setdefault("camera_anchor_v", 0.22)
-    data.setdefault("scene_camera_distance_scale", 1.0)
     data.setdefault("camera_distance", 3.5)
     data.setdefault("key_light_xyz", [3.5, -3.5, 5.0])
     data.setdefault("key_light_energy", 3.0)
     data.setdefault("key_light_yaw_deg", 0.0)
     data.setdefault("add_camera_fill_light", True)
-    data.setdefault("camera_fill_energy", 420.0)
+    data.setdefault("camera_fill_energy", 850.0)
     data.setdefault("camera_fill_size_multiplier", 4.0)
-    data.setdefault("camera_fill_forward_ratio", 0.08)
-    data.setdefault("camera_fill_up_ratio", 0.3)
-    data.setdefault("camera_fill_right_ratio", 0.18)
-    data.setdefault("camera_fill_color", [1.0, 0.985, 0.97])
-    data.setdefault("camera_fill_scene_match_kicker", True)
-    data.setdefault("camera_fill_scene_match_energy_scale", 0.6)
-    data.setdefault("contact_shadow_distance", 0.04)
-    data.setdefault("ground_contact_epsilon", 0.0014)
+    data.setdefault("camera_fill_forward_ratio", 0.22)
+    data.setdefault("camera_fill_up_ratio", 0.35)
+    data.setdefault("camera_fill_right_ratio", 0.08)
+    data.setdefault("camera_fill_color", [1.0, 0.94, 0.88])
+    data.setdefault("contact_shadow_distance", 0.1)
     data.setdefault("fallback_support_plane_size", 10.0)
     data.setdefault("adaptive_brightness", True)
     data.setdefault("object_scale_mode", "height_range")
     data.setdefault("preserve_blend_asset_materials", True)
-    data.setdefault("default_object_value_scale", 1.25)
-    data.setdefault("default_object_roughness_add", 0.0)
-    data.setdefault("default_object_specular_add", 0.0)
-    data.setdefault("reference_color_fallback", True)
-    data.setdefault("material_gate_enabled", True)
-    data.setdefault("material_gate_min_colorfulness", 0.035)
-    data.setdefault("material_gate_min_vertices", 24)
-    data.setdefault("material_gate_min_bbox_height", 0.02)
-    data.setdefault("render_depth_normal", False)
-    data.setdefault("depth_output_format", "OPEN_EXR")
     return data
 
 
@@ -172,21 +151,19 @@ def setup_render_settings(scene, resolution: int, engine: str, template: dict | 
                 scene.cycles.denoiser = "NLM"
             except TypeError:
                 pass
-        cycles_device = str(template.get("cycles_device", "GPU")).upper()
-        compute_device_type = str(template.get("cycles_compute_device_type", "CUDA")).upper()
-        scene.cycles.device = "CPU" if cycles_device == "CPU" else "GPU"
+        scene.cycles.device = "GPU"
         scene.cycles.tile_size = 512
         if hasattr(scene.cycles, "use_preview_denoising"):
             scene.cycles.use_preview_denoising = True
-        if cycles_device != "CPU":
-            try:
-                prefs = bpy.context.preferences.addons['cycles'].preferences
-                prefs.compute_device_type = compute_device_type
-                prefs.get_devices()
-                for d in prefs.devices:
-                    d.use = (d.type == compute_device_type)
-            except Exception:
-                pass
+        try:
+            prefs = bpy.context.preferences.addons['cycles'].preferences
+            prefs.compute_device_type = 'CUDA'
+            prefs.get_devices()
+            for d in prefs.devices:
+                if d.type == 'CUDA':
+                    d.use = True
+        except Exception:
+            pass
 
     try:
         scene.view_settings.view_transform = "Filmic"
@@ -195,142 +172,6 @@ def setup_render_settings(scene, resolution: int, engine: str, template: dict | 
         scene.view_settings.view_transform = "Standard"
     scene.view_settings.exposure = 0.0
     scene.view_settings.gamma = float(template.get("filmic_gamma", 0.5 if "CYCLES" in scene.render.engine else 1.0))
-
-
-def convert_depth_exr_to_png(exr_path, png_path):
-    """Read depth EXR rendered by Blender, normalize to 16-bit grayscale PNG.
-
-    Closer objects are brighter (65535), background/infinity is 0 (black).
-    """
-    import numpy as np
-    from PIL import Image
-
-    img = bpy.data.images.load(exr_path, check_existing=False)
-    w, h = img.size
-    pixels = np.array(img.pixels[:], dtype=np.float32)
-
-    channels = len(pixels) // (w * h)
-    if channels >= 1:
-        pixels = pixels.reshape(h, w, channels)[:, :, 0]
-    else:
-        pixels = pixels.reshape(h, w)
-
-    # Blender stores images bottom-up
-    pixels = np.flipud(pixels)
-
-    INF_THRESHOLD = 1e9
-    valid = pixels < INF_THRESHOLD
-
-    if valid.any():
-        d_min = float(pixels[valid].min())
-        d_max = float(pixels[valid].max())
-        if d_max > d_min:
-            norm = np.zeros_like(pixels, dtype=np.float64)
-            # Invert: closer = brighter
-            norm[valid] = 1.0 - (pixels[valid] - d_min) / (d_max - d_min)
-            norm[~valid] = 0.0
-            uint16 = (norm * 65535).clip(0, 65535).astype(np.uint16)
-        else:
-            uint16 = np.full((h, w), 32768, dtype=np.uint16)
-            uint16[~valid] = 0
-    else:
-        uint16 = np.zeros((h, w), dtype=np.uint16)
-
-    pil_img = Image.fromarray(uint16, mode="I;16")
-    pil_img.save(png_path)
-
-    bpy.data.images.remove(img)
-    os.remove(exr_path)
-
-
-def setup_depth_normal_passes(scene, obj_out_dir, view_prefix, template):
-    """Enable depth + normal render passes and wire compositor File Output nodes.
-
-    Called once per view *before* ``bpy.ops.render.render()``.  The render
-    produces RGB via ``write_still=True`` as before; depth and normal are
-    written by the File Output node in the same render pass (zero extra cost).
-
-    Depth is always rendered as EXR (float32) to preserve precision.
-    If the user requests PNG via ``depth_output_format``, the caller must
-    post-convert using ``convert_depth_exr_to_png()``.
-
-    Returns a dict with paths and format info.
-    """
-    vl = scene.view_layers[0]
-    vl.use_pass_z = True
-    vl.use_pass_normal = True
-
-    scene.use_nodes = True
-    tree = scene.node_tree
-    nodes = tree.nodes
-    links = tree.links
-
-    # Remove old aux nodes from previous views
-    for n in list(nodes):
-        if n.name.startswith("_aux_"):
-            nodes.remove(n)
-
-    rl_node = None
-    for n in nodes:
-        if n.type == "R_LAYERS":
-            rl_node = n
-            break
-    if rl_node is None:
-        rl_node = nodes.new("CompositorNodeRLayers")
-
-    user_depth_fmt = str(template.get("depth_output_format", "PNG")).upper()
-
-    # --- Depth: always EXR for precision ---
-    depth_out = nodes.new("CompositorNodeOutputFile")
-    depth_out.name = "_aux_depth"
-    depth_out.base_path = obj_out_dir
-    depth_out.format.file_format = "OPEN_EXR"
-    depth_out.format.color_depth = "32"
-    depth_fname = f"{view_prefix}_depth"
-    depth_out.file_slots[0].path = depth_fname
-    links.new(rl_node.outputs["Depth"], depth_out.inputs[0])
-
-    # --- Normal ---
-    normal_out = nodes.new("CompositorNodeOutputFile")
-    normal_out.name = "_aux_normal"
-    normal_out.base_path = obj_out_dir
-    normal_out.format.file_format = "PNG"
-    normal_out.format.color_mode = "RGB"
-    normal_out.format.color_depth = "16"
-    normal_out.file_slots[0].path = f"{view_prefix}_normal"
-    links.new(rl_node.outputs["Normal"], normal_out.inputs[0])
-
-    # Blender appends a frame number; we render frame 1
-    frame_suffix = f"{scene.frame_current:04d}"
-    depth_exr_path = os.path.join(obj_out_dir, f"{depth_fname}{frame_suffix}.exr")
-
-    if user_depth_fmt == "PNG":
-        depth_final_path = os.path.join(obj_out_dir, f"{depth_fname}{frame_suffix}.png")
-        depth_final_fname = f"{depth_fname}{frame_suffix}.png"
-    else:
-        depth_final_path = depth_exr_path
-        depth_final_fname = f"{depth_fname}{frame_suffix}.exr"
-
-    normal_path = os.path.join(obj_out_dir, f"{view_prefix}_normal{frame_suffix}.png")
-
-    return {
-        "depth": depth_final_path,
-        "depth_exr": depth_exr_path,
-        "depth_fmt": user_depth_fmt,
-        "normal": normal_path,
-        "depth_fname": depth_final_fname,
-        "normal_fname": f"{view_prefix}_normal{frame_suffix}.png",
-    }
-
-
-def cleanup_depth_normal_nodes(scene):
-    """Remove aux compositor nodes after rendering."""
-    if not scene.use_nodes:
-        return
-    nodes = scene.node_tree.nodes
-    for n in list(nodes):
-        if n.name.startswith("_aux_"):
-            nodes.remove(n)
 
 
 def import_glb(glb_path: str):
@@ -444,45 +285,6 @@ def percentile_bbox(objects, q_lo: float = 1.0, q_hi: float = 99.0):
     }
 
 
-def compute_ground_contact_epsilon(objects, template: dict) -> float:
-    base_epsilon = float(template.get("ground_contact_epsilon", 0.0014))
-    bbox = percentile_bbox(objects)
-    if bbox is None:
-        return max(0.0005, min(0.0025, base_epsilon))
-    bbox_height = max(float(bbox["size"][2]), 1e-3)
-    adaptive_epsilon = bbox_height * 0.0018
-    return max(0.0005, min(0.0025, max(base_epsilon * 0.55, adaptive_epsilon)))
-
-
-def stabilize_ground_contact(root, objects, support_z: float, ground_contact_epsilon: float) -> dict:
-    bbox = percentile_bbox(objects)
-    if bbox is None:
-        return {
-            "applied": False,
-            "correction_z": 0.0,
-            "min_allowed_z": None,
-            "max_allowed_z": None,
-        }
-    bbox_height = max(float(bbox["size"][2]), 1e-3)
-    min_allowed_z = support_z - min(0.0008, bbox_height * 0.0015)
-    max_allowed_z = support_z + max(ground_contact_epsilon * 1.15, min(0.0028, bbox_height * 0.0028))
-    current_min_z = float(bbox["min"][2])
-    correction_z = 0.0
-    if current_min_z < min_allowed_z:
-        correction_z = min_allowed_z - current_min_z
-    elif current_min_z > max_allowed_z:
-        correction_z = max_allowed_z - current_min_z
-    if abs(correction_z) > 1e-6:
-        root.location.z += correction_z
-        bpy.context.view_layer.update()
-    return {
-        "applied": abs(correction_z) > 1e-6,
-        "correction_z": round(float(correction_z), 6),
-        "min_allowed_z": round(float(min_allowed_z), 6),
-        "max_allowed_z": round(float(max_allowed_z), 6),
-    }
-
-
 def normalize_object_v2(objects):
     if not objects:
         return None
@@ -580,7 +382,7 @@ def fix_ground_orientation(ground_obj):
 
 
 def adjust_object_to_ground_with_ray(root, mesh_objects, ground_obj):
-    """Precision-land root via multiple downward rays against the detected ground."""
+    """Precision-land root via ray_cast against ground_obj (mirrors render_all.py:146-161)."""
     scene = bpy.context.scene
     depsgraph = bpy.context.evaluated_depsgraph_get()
 
@@ -590,98 +392,26 @@ def adjust_object_to_ground_with_ray(root, mesh_objects, ground_obj):
         for corner in obj.bound_box:
             pts.append(mat @ Vector(corner))
     if not pts:
-        return {
-            "success": False,
-            "sample_count": 0,
-            "hit_count": 0,
-            "support_z": None,
-        }
+        return False
 
     min_z = min(v.z for v in pts)
-    max_z = max(v.z for v in pts)
     center_x = sum(v.x for v in pts) / len(pts)
     center_y = sum(v.y for v in pts) / len(pts)
 
-    xs = [v.x for v in pts]
-    ys = [v.y for v in pts]
-    x_lo = float(np.percentile(xs, 18.0))
-    x_hi = float(np.percentile(xs, 82.0))
-    y_lo = float(np.percentile(ys, 18.0))
-    y_hi = float(np.percentile(ys, 82.0))
-    sample_xy = [
-        (center_x, center_y),
-        (x_lo, y_lo),
-        (x_lo, y_hi),
-        (x_hi, y_lo),
-        (x_hi, y_hi),
-    ]
-    ray_origin_z = min_z + max(0.01, (max_z - min_z) * 0.06)
+    ray_origin = Vector((center_x, center_y, min_z + 0.01))
     ray_dir = Vector((0, 0, -1))
-    hit_locations = []
+    hit, location, _, _, hit_obj, _ = scene.ray_cast(depsgraph, ray_origin, ray_dir, distance=2.0)
 
-    for sx, sy in sample_xy:
-        ray_origin = Vector((sx, sy, ray_origin_z))
-        hit, location, _, _, hit_obj, _ = scene.ray_cast(depsgraph, ray_origin, ray_dir, distance=2.0)
-        if hit and hit_obj == ground_obj:
-            hit_locations.append(float(location.z))
-
-    if not hit_locations:
-        print("[scene] Ray cast missed ground for all samples, skipping")
-        return {
-            "success": False,
-            "sample_count": len(sample_xy),
-            "hit_count": 0,
-            "support_z": None,
-        }
-
-    hit_locations.sort()
-    pick_idx = min(len(hit_locations) - 1, max(0, math.ceil(len(hit_locations) * 0.75) - 1))
-    support_z = hit_locations[pick_idx]
-    delta_z = support_z - min_z
-    root.location.z += delta_z
-    bpy.context.view_layer.update()
-    print(
-        f"[scene] Ray hit ground with {len(hit_locations)}/{len(sample_xy)} samples, "
-        f"support_z={support_z:.4f}, adjusted by {delta_z:.4f}"
-    )
-    return {
-        "success": True,
-        "sample_count": len(sample_xy),
-        "hit_count": len(hit_locations),
-        "support_z": float(support_z),
-    }
-
-
-def _configure_contact_shadow(light_obj, template: dict, control_scene: dict):
-    """Make contact-shadow control actually affect real scene lights.
-
-    The old code treated `contact_shadow_strength` like a distance multiplier,
-    which often widened the contact shadow footprint and visually worsened
-    grounding. Here we reinterpret larger strength as a *tighter* shadow
-    search distance plus slightly lower bias.
-    """
-    if light_obj is None or getattr(light_obj, "type", None) != "LIGHT":
-        return
-    light_data = light_obj.data
-    if light_data is None:
-        return
-    if hasattr(light_data, "use_contact_shadow"):
-        light_data.use_contact_shadow = True
-    strength_scale = max(0.6, float(control_scene.get("contact_shadow_strength", 1.0)))
-    base_distance = float(template.get("contact_shadow_distance", 0.04))
-    tuned_distance = base_distance / (strength_scale ** 0.85)
-    if hasattr(light_data, "contact_shadow_distance"):
-        light_data.contact_shadow_distance = max(0.002, min(base_distance * 1.05, tuned_distance))
-    if hasattr(light_data, "contact_shadow_bias"):
-        light_data.contact_shadow_bias = max(0.0005, min(0.003, 0.0022 / strength_scale))
-    if hasattr(light_data, "contact_shadow_thickness"):
-        light_data.contact_shadow_thickness = max(0.0008, min(0.018, 0.006 * strength_scale))
-
-
-def configure_existing_scene_lights(template: dict, control_scene: dict):
-    for obj in bpy.data.objects:
-        if obj.type == "LIGHT" and not obj.hide_get():
-            _configure_contact_shadow(obj, template, control_scene)
+    if hit and hit_obj == ground_obj:
+        delta_z = location.z - min_z
+        root.location.z += delta_z
+        bpy.context.view_layer.update()
+        print(f"[scene] Ray hit ground at z={location.z:.4f}, adjusted by {delta_z:.4f}")
+        return True
+    else:
+        hit_name = hit_obj.name if (hit and hit_obj) else "none"
+        print(f"[scene] Ray cast missed ground (hit: {hit_name}), skipping")
+        return False
 
 
 # ---------------------------------------------------------------------------
@@ -702,13 +432,9 @@ def scale_world_background(scene, factor: float):
                 node.inputs[1].default_value *= factor
 
 
-def adjust_lighting_to_target_brightness(target_brightness: float = 0.36,
+def adjust_lighting_to_target_brightness(target_brightness: float = 0.4,
                                           preview_res: int = 128,
-                                          preview_samples: int = 32,
-                                          damping: float = 0.45,
-                                          min_gain: float = 0.82,
-                                          max_gain: float = 1.18,
-                                          world_gain_scale: float = 0.55):
+                                          preview_samples: int = 32):
     """Adaptive brightness: render a quick preview, measure brightness, rescale lights.
 
     Ported from render_all.py:78-120. Requires PIL. Falls back silently if not available.
@@ -762,20 +488,17 @@ def adjust_lighting_to_target_brightness(target_brightness: float = 0.36,
                 arr = _np_ab.array(img, dtype=float)
                 actual = arr.mean() / 255.0
                 if actual > 1e-6:
-                    raw_ratio = target_brightness / actual
-                    ratio = 1.0 + (raw_ratio - 1.0) * damping
-                    ratio = max(min_gain, min(max_gain, ratio))
-                    world_ratio = 1.0 + (ratio - 1.0) * world_gain_scale
+                    ratio = target_brightness / actual
+                    ratio = max(0.1, min(10.0, ratio))
                     print(f"[scene] Adaptive brightness: actual={actual:.3f}, "
-                          f"target={target_brightness:.3f}, raw_ratio={raw_ratio:.3f}, "
-                          f"ratio={ratio:.3f}, world_ratio={world_ratio:.3f}")
+                          f"target={target_brightness:.3f}, ratio={ratio:.3f}")
                     for light in bpy.data.lights:
                         light.energy *= ratio
                     world = scene.world
                     if world and world.use_nodes:
                         for node in world.node_tree.nodes:
                             if node.type == "BACKGROUND":
-                                node.inputs[1].default_value *= world_ratio
+                                node.inputs[1].default_value *= ratio
                 else:
                     print("[scene] Adaptive brightness: preview too dark, skipping")
             except Exception as e:
@@ -984,212 +707,6 @@ def _clamp01(value: float) -> float:
     return min(max(float(value), 0.0), 1.0)
 
 
-def _safe_rgb_list(value):
-    if not isinstance(value, (list, tuple)) or len(value) < 3:
-        return None
-    try:
-        return [_clamp01(float(v)) for v in value[:3]]
-    except (TypeError, ValueError):
-        return None
-
-
-def _rgb_colorfulness(rgb) -> float:
-    rgb = _safe_rgb_list(rgb)
-    if rgb is None:
-        return 0.0
-    mx = max(rgb)
-    mn = min(rgb)
-    if mx <= 1e-6:
-        return 0.0
-    return float((mx - mn) / mx)
-
-
-def _resolve_segmented_reference(reference_image_path: str | None) -> str | None:
-    if not reference_image_path or not os.path.exists(reference_image_path):
-        return None
-    norm = reference_image_path.replace("\\", "/")
-    if "/images/" in norm:
-        rgba_path = norm.replace("/images/", "/images_rgba/")
-        if os.path.exists(rgba_path):
-            return rgba_path
-    return reference_image_path
-
-
-def _default_reference_image_path(obj_id: str) -> str | None:
-    candidates = [
-        os.path.join(DATA_BUILD_ROOT, "pipeline", "data", "images_rgba", f"{obj_id}.png"),
-        os.path.join(DATA_BUILD_ROOT, "pipeline", "data", "images", f"{obj_id}.png"),
-    ]
-    for path in candidates:
-        if os.path.exists(path):
-            return path
-    return None
-
-
-def _estimate_reference_color(reference_image_path: str | None) -> dict:
-    source_path = _resolve_segmented_reference(reference_image_path)
-    if not source_path:
-        return {
-            "rgb": None,
-            "source_path": reference_image_path,
-            "used_segmented_reference": False,
-            "pixel_count": 0,
-            "colorfulness": 0.0,
-            "reason": "missing_reference_image",
-        }
-    try:
-        from PIL import Image
-    except Exception:
-        return {
-            "rgb": None,
-            "source_path": source_path,
-            "used_segmented_reference": False,
-            "pixel_count": 0,
-            "colorfulness": 0.0,
-            "reason": "pil_unavailable",
-        }
-
-    try:
-        with Image.open(source_path) as im:
-            rgba = im.convert("RGBA")
-            arr = np.asarray(rgba).astype(np.float32) / 255.0
-    except Exception as exc:
-        return {
-            "rgb": None,
-            "source_path": source_path,
-            "used_segmented_reference": source_path != reference_image_path,
-            "pixel_count": 0,
-            "colorfulness": 0.0,
-            "reason": f"read_failed:{type(exc).__name__}",
-        }
-
-    rgb = arr[..., :3]
-    alpha = arr[..., 3]
-    mask = alpha > 0.2
-    if int(mask.sum()) < 32:
-        mask = ~(rgb.min(axis=-1) > 0.94)
-    if int(mask.sum()) < 32:
-        mask = np.ones(rgb.shape[:2], dtype=bool)
-
-    pixels = rgb[mask]
-    if pixels.size == 0:
-        return {
-            "rgb": None,
-            "source_path": source_path,
-            "used_segmented_reference": source_path != reference_image_path,
-            "pixel_count": 0,
-            "colorfulness": 0.0,
-            "reason": "empty_reference_mask",
-        }
-
-    mean_rgb = pixels.mean(axis=0)
-    low_mid_rgb = np.quantile(pixels, 0.35, axis=0)
-    ref_rgb = mean_rgb * 0.4 + low_mid_rgb * 0.6
-    rgb_list = [round(float(v), 4) for v in ref_rgb.tolist()]
-    return {
-        "rgb": rgb_list,
-        "source_path": source_path,
-        "used_segmented_reference": source_path != reference_image_path,
-        "pixel_count": int(pixels.shape[0]),
-        "colorfulness": round(_rgb_colorfulness(rgb_list), 6),
-        "reason": "ok",
-    }
-
-
-def _material_base_color_samples(objects):
-    samples = []
-    for mat in _material_slots_for_objects(objects):
-        if not mat.use_nodes:
-            diffuse = _safe_rgb_list(getattr(mat, "diffuse_color", None))
-            if diffuse is not None:
-                samples.append(diffuse)
-            continue
-        for node in mat.node_tree.nodes:
-            if node.type != "BSDF_PRINCIPLED":
-                continue
-            base_color = node.inputs.get("Base Color")
-            if base_color is None:
-                continue
-            samples.append(_safe_rgb_list(base_color.default_value) or [1.0, 1.0, 1.0])
-    return samples
-
-
-def _mesh_geometry_quality(objects, target_bbox: dict | None) -> dict:
-    mesh_count = len([obj for obj in objects if obj.type == "MESH"])
-    vertex_count = 0
-    face_count = 0
-    for obj in objects:
-        if obj.type != "MESH":
-            continue
-        vertex_count += len(getattr(obj.data, "vertices", []))
-        face_count += len(getattr(obj.data, "polygons", []))
-    bbox_height = float(target_bbox["size"][2]) if target_bbox else 0.0
-    return {
-        "mesh_count": int(mesh_count),
-        "vertex_count": int(vertex_count),
-        "face_count": int(face_count),
-        "bbox_height": round(bbox_height, 6),
-    }
-
-
-def assess_mesh_material_quality(objects, target_bbox, reference_color_info: dict, material_adaptation: dict, template: dict) -> dict:
-    had_image_texture = bool(
-        material_adaptation.get("had_image_texture")
-        if isinstance(material_adaptation, dict) and "had_image_texture" in material_adaptation
-        else any(_object_has_image_texture(obj) for obj in objects)
-    )
-    base_samples = _material_base_color_samples(objects)
-    base_colorfulness_values = [_rgb_colorfulness(rgb) for rgb in base_samples]
-    base_colorfulness = max(base_colorfulness_values) if base_colorfulness_values else 0.0
-    fallback_applied = bool(material_adaptation.get("applied"))
-    reference_rgb = reference_color_info.get("rgb") if isinstance(reference_color_info, dict) else None
-    reference_colorfulness = float((reference_color_info or {}).get("colorfulness") or _rgb_colorfulness(reference_rgb))
-
-    geometry = _mesh_geometry_quality(objects, target_bbox)
-    min_vertices = int(template.get("material_gate_min_vertices", 24))
-    min_bbox_height = float(template.get("material_gate_min_bbox_height", 0.02))
-    min_colorfulness = float(template.get("material_gate_min_colorfulness", 0.035))
-    enabled = bool(template.get("material_gate_enabled", True))
-    require_image_texture = bool(template.get("material_gate_require_image_texture", True))
-
-    gate_passed = True
-    reason = "ok"
-    if enabled:
-        if geometry["mesh_count"] <= 0 or geometry["vertex_count"] < min_vertices:
-            gate_passed = False
-            reason = "geometry_too_sparse"
-        elif geometry["bbox_height"] < min_bbox_height:
-            gate_passed = False
-            reason = "geometry_bbox_too_flat"
-        elif not had_image_texture:
-            if require_image_texture:
-                gate_passed = False
-                reason = "missing_image_texture"
-            else:
-                effective_colorfulness = reference_colorfulness if fallback_applied else base_colorfulness
-                if effective_colorfulness < min_colorfulness:
-                    gate_passed = False
-                    reason = "no_texture_low_colorfulness"
-
-    return {
-        **geometry,
-        "has_image_texture": bool(had_image_texture),
-        "fallback_material_applied": fallback_applied,
-        "reference_rgb": reference_rgb,
-        "reference_colorfulness": round(reference_colorfulness, 6),
-        "base_material_colorfulness": round(float(base_colorfulness), 6),
-        "material_gate_enabled": enabled,
-        "material_gate_passed": bool(gate_passed),
-        "material_gate_reason": reason,
-        "thresholds": {
-            "min_vertices": min_vertices,
-            "min_bbox_height": min_bbox_height,
-            "min_colorfulness": min_colorfulness,
-            "require_image_texture": require_image_texture,
-        },
-    }
-
-
 def _object_has_image_texture(obj) -> bool:
     if obj.type != "MESH":
         return False
@@ -1217,33 +734,7 @@ def _replace_all_materials(obj, mat):
         obj.material_slots[idx].material = mat
 
 
-def _set_first_existing_input(node, candidate_names, value):
-    for name in candidate_names:
-        sock = node.inputs.get(name)
-        if sock is not None:
-            sock.default_value = value
-            return True
-    return False
-
-
-def _set_socket_value_safe(sock, value):
-    if sock is None:
-        return False
-    try:
-        sock.default_value = value
-        return True
-    except (TypeError, ValueError):
-        current = getattr(sock, "default_value", None)
-        if isinstance(current, (tuple, list)):
-            try:
-                sock.default_value = tuple(value for _ in current)
-                return True
-            except (TypeError, ValueError):
-                return False
-        return False
-
-
-def _build_reference_wood_material(name: str, reference_rgb, roughness_add: float = 0.0, specular_add: float = 0.0):
+def _build_reference_fallback_material(name: str, reference_rgb, roughness_add: float = 0.0, specular_add: float = 0.0):
     base = [_clamp01(v) for v in reference_rgb[:3]]
     dark_rgb = tuple(_clamp01(v * 0.2 + 0.008) for v in base) + (1.0,)
     mid_rgb = tuple(_clamp01(v * 0.44 + 0.014) for v in base) + (1.0,)
@@ -1285,17 +776,18 @@ def _build_reference_wood_material(name: str, reference_rgb, roughness_add: floa
     color_ramp.color_ramp.elements[0].color = dark_rgb
     color_ramp.color_ramp.elements[1].position = 0.9
     color_ramp.color_ramp.elements[1].color = light_rgb
-    mid_elem = color_ramp.color_ramp.elements.new(0.52)
+    mid_elem = color_ramp.color_ramp.new(0.52)
     mid_elem.color = mid_rgb
     bump.inputs["Strength"].default_value = 0.09
     bump.inputs["Distance"].default_value = 0.08
 
-    bsdf.inputs["Roughness"].default_value = min(max(0.72 + roughness_add, 0.34), 0.96)
+    bsdf.inputs["Roughness"].default_value = min(max(0.68 + roughness_add, 0.28), 0.95)
     specular = bsdf.inputs.get("Specular IOR Level") or bsdf.inputs.get("Specular")
     if specular is not None:
-        specular.default_value = min(max(0.12 + specular_add, 0.0), 0.55)
+        specular.default_value = min(max(0.18 + specular_add, 0.0), 1.0)
     sheen = bsdf.inputs.get("Sheen Tint") or bsdf.inputs.get("Sheen")
-    _set_socket_value_safe(sheen, 0.05)
+    if sheen is not None:
+        sheen.default_value = 0.05
 
     links.new(texcoord.outputs["Object"], mapping.inputs["Vector"])
     links.new(mapping.outputs["Vector"], noise.inputs["Vector"])
@@ -1311,256 +803,20 @@ def _build_reference_wood_material(name: str, reference_rgb, roughness_add: floa
     return mat
 
 
-def _build_reference_ceramic_material(name: str, reference_rgb, roughness_add: float = 0.0, specular_add: float = 0.0):
-    base = [_clamp01(v) for v in reference_rgb[:3]]
-    darker = tuple(_clamp01(v * 0.78 + 0.01) for v in base) + (1.0,)
-    lighter = tuple(_clamp01(v * 1.05 + 0.015) for v in base) + (1.0,)
-    speck = tuple(_clamp01(v * 0.92 + 0.03) for v in base) + (1.0,)
-
-    mat = bpy.data.materials.new(name=name)
-    mat.use_nodes = True
-    nodes = mat.node_tree.nodes
-    links = mat.node_tree.links
-    nodes.clear()
-
-    out = nodes.new("ShaderNodeOutputMaterial")
-    bsdf = nodes.new("ShaderNodeBsdfPrincipled")
-    texcoord = nodes.new("ShaderNodeTexCoord")
-    mapping = nodes.new("ShaderNodeMapping")
-    noise_large = nodes.new("ShaderNodeTexNoise")
-    noise_small = nodes.new("ShaderNodeTexNoise")
-    large_ramp = nodes.new("ShaderNodeValToRGB")
-    speck_ramp = nodes.new("ShaderNodeValToRGB")
-    mix_rgb = nodes.new("ShaderNodeMixRGB")
-    bump = nodes.new("ShaderNodeBump")
-
-    mapping.inputs["Scale"].default_value = (2.2, 2.2, 2.2)
-    noise_large.inputs["Scale"].default_value = 5.0
-    noise_large.inputs["Detail"].default_value = 6.0
-    noise_large.inputs["Roughness"].default_value = 0.42
-    noise_small.inputs["Scale"].default_value = 58.0
-    noise_small.inputs["Detail"].default_value = 2.0
-    noise_small.inputs["Roughness"].default_value = 0.25
-
-    large_ramp.color_ramp.elements[0].position = 0.26
-    large_ramp.color_ramp.elements[0].color = darker
-    large_ramp.color_ramp.elements[1].position = 0.88
-    large_ramp.color_ramp.elements[1].color = lighter
-
-    speck_ramp.color_ramp.elements[0].position = 0.74
-    speck_ramp.color_ramp.elements[0].color = (0.0, 0.0, 0.0, 1.0)
-    speck_ramp.color_ramp.elements[1].position = 0.93
-    speck_ramp.color_ramp.elements[1].color = speck
-
-    mix_rgb.blend_type = "ADD"
-    mix_rgb.inputs["Fac"].default_value = 0.12
-    bump.inputs["Strength"].default_value = 0.018
-    bump.inputs["Distance"].default_value = 0.03
-
-    bsdf.inputs["Roughness"].default_value = min(max(0.32 + roughness_add, 0.16), 0.62)
-    _set_first_existing_input(bsdf, ["Specular IOR Level", "Specular"], min(max(0.34 + specular_add, 0.0), 0.7))
-    _set_first_existing_input(bsdf, ["Coat Weight", "Clearcoat"], 0.03)
-    _set_first_existing_input(bsdf, ["Coat Roughness", "Clearcoat Roughness"], 0.2)
-    _set_first_existing_input(bsdf, ["IOR"], 1.46)
-
-    links.new(texcoord.outputs["Object"], mapping.inputs["Vector"])
-    links.new(mapping.outputs["Vector"], noise_large.inputs["Vector"])
-    links.new(mapping.outputs["Vector"], noise_small.inputs["Vector"])
-    links.new(noise_large.outputs["Fac"], large_ramp.inputs["Fac"])
-    links.new(noise_small.outputs["Fac"], speck_ramp.inputs["Fac"])
-    links.new(large_ramp.outputs["Color"], mix_rgb.inputs["Color1"])
-    links.new(speck_ramp.outputs["Color"], mix_rgb.inputs["Color2"])
-    links.new(mix_rgb.outputs["Color"], bsdf.inputs["Base Color"])
-    links.new(noise_small.outputs["Fac"], bump.inputs["Height"])
-    links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
-    links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
-    return mat
-
-
-def _build_reference_plastic_material(name: str, reference_rgb, roughness_add: float = 0.0, specular_add: float = 0.0):
-    base = [_clamp01(v) for v in reference_rgb[:3]]
-    dark_rgb = tuple(_clamp01(v * 0.68 + 0.015) for v in base) + (1.0,)
-    mid_rgb = tuple(_clamp01(v * 0.92 + 0.02) for v in base) + (1.0,)
-    bright_rgb = tuple(_clamp01(v * 1.08 + 0.03) for v in base) + (1.0,)
-
-    mat = bpy.data.materials.new(name=name)
-    mat.use_nodes = True
-    nodes = mat.node_tree.nodes
-    links = mat.node_tree.links
-    nodes.clear()
-
-    out = nodes.new("ShaderNodeOutputMaterial")
-    bsdf = nodes.new("ShaderNodeBsdfPrincipled")
-    texcoord = nodes.new("ShaderNodeTexCoord")
-    mapping = nodes.new("ShaderNodeMapping")
-    noise_large = nodes.new("ShaderNodeTexNoise")
-    noise_small = nodes.new("ShaderNodeTexNoise")
-    grime_mix = nodes.new("ShaderNodeMixRGB")
-    color_ramp = nodes.new("ShaderNodeValToRGB")
-    speck_ramp = nodes.new("ShaderNodeValToRGB")
-    bump = nodes.new("ShaderNodeBump")
-
-    mapping.inputs["Scale"].default_value = (1.8, 1.8, 1.8)
-    noise_large.inputs["Scale"].default_value = 3.2
-    noise_large.inputs["Detail"].default_value = 7.0
-    noise_large.inputs["Roughness"].default_value = 0.44
-    noise_small.inputs["Scale"].default_value = 42.0
-    noise_small.inputs["Detail"].default_value = 3.0
-    noise_small.inputs["Roughness"].default_value = 0.34
-
-    color_ramp.color_ramp.elements[0].position = 0.24
-    color_ramp.color_ramp.elements[0].color = dark_rgb
-    color_ramp.color_ramp.elements[1].position = 0.88
-    color_ramp.color_ramp.elements[1].color = bright_rgb
-    mid_elem = color_ramp.color_ramp.elements.new(0.56)
-    mid_elem.color = mid_rgb
-
-    speck_ramp.color_ramp.elements[0].position = 0.72
-    speck_ramp.color_ramp.elements[0].color = (0.0, 0.0, 0.0, 1.0)
-    speck_ramp.color_ramp.elements[1].position = 0.94
-    speck_ramp.color_ramp.elements[1].color = (0.26, 0.22, 0.18, 1.0)
-
-    grime_mix.blend_type = "MULTIPLY"
-    grime_mix.inputs["Fac"].default_value = 0.18
-    bump.inputs["Strength"].default_value = 0.02
-    bump.inputs["Distance"].default_value = 0.02
-
-    bsdf.inputs["Roughness"].default_value = min(max(0.48 + roughness_add, 0.18), 0.82)
-    _set_first_existing_input(bsdf, ["Specular IOR Level", "Specular"], min(max(0.28 + specular_add, 0.0), 0.62))
-    _set_first_existing_input(bsdf, ["Coat Weight", "Clearcoat"], 0.02)
-    _set_first_existing_input(bsdf, ["Coat Roughness", "Clearcoat Roughness"], 0.28)
-    _set_first_existing_input(bsdf, ["IOR"], 1.48)
-
-    links.new(texcoord.outputs["Object"], mapping.inputs["Vector"])
-    links.new(mapping.outputs["Vector"], noise_large.inputs["Vector"])
-    links.new(mapping.outputs["Vector"], noise_small.inputs["Vector"])
-    links.new(noise_large.outputs["Fac"], color_ramp.inputs["Fac"])
-    links.new(color_ramp.outputs["Color"], grime_mix.inputs["Color1"])
-    links.new(noise_small.outputs["Fac"], speck_ramp.inputs["Fac"])
-    links.new(speck_ramp.outputs["Color"], grime_mix.inputs["Color2"])
-    links.new(grime_mix.outputs["Color"], bsdf.inputs["Base Color"])
-    links.new(noise_small.outputs["Fac"], bump.inputs["Height"])
-    links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
-    links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
-    return mat
-
-
-def _build_reference_generic_material(name: str, reference_rgb, roughness_add: float = 0.0, specular_add: float = 0.0):
-    base = [_clamp01(v) for v in reference_rgb[:3]]
-    shadow_rgb = tuple(_clamp01(v * 0.62 + 0.015) for v in base) + (1.0,)
-    mid_rgb = tuple(_clamp01(v * 0.94 + 0.02) for v in base) + (1.0,)
-    highlight_rgb = tuple(_clamp01(v * 1.08 + 0.025) for v in base) + (1.0,)
-
-    mat = bpy.data.materials.new(name=name)
-    mat.use_nodes = True
-    nodes = mat.node_tree.nodes
-    links = mat.node_tree.links
-    nodes.clear()
-
-    out = nodes.new("ShaderNodeOutputMaterial")
-    bsdf = nodes.new("ShaderNodeBsdfPrincipled")
-    texcoord = nodes.new("ShaderNodeTexCoord")
-    mapping = nodes.new("ShaderNodeMapping")
-    noise = nodes.new("ShaderNodeTexNoise")
-    ramp = nodes.new("ShaderNodeValToRGB")
-    bump = nodes.new("ShaderNodeBump")
-
-    mapping.inputs["Scale"].default_value = (1.6, 1.6, 1.6)
-    noise.inputs["Scale"].default_value = 4.0
-    noise.inputs["Detail"].default_value = 5.0
-    noise.inputs["Roughness"].default_value = 0.36
-    ramp.color_ramp.elements[0].position = 0.18
-    ramp.color_ramp.elements[0].color = shadow_rgb
-    ramp.color_ramp.elements[1].position = 0.92
-    ramp.color_ramp.elements[1].color = highlight_rgb
-    mid_elem = ramp.color_ramp.elements.new(0.55)
-    mid_elem.color = mid_rgb
-    bump.inputs["Strength"].default_value = 0.012
-    bump.inputs["Distance"].default_value = 0.025
-
-    bsdf.inputs["Roughness"].default_value = min(max(0.58 + roughness_add, 0.24), 0.9)
-    _set_first_existing_input(bsdf, ["Specular IOR Level", "Specular"], min(max(0.22 + specular_add, 0.0), 0.6))
-    _set_first_existing_input(bsdf, ["Coat Weight", "Clearcoat"], 0.015)
-    _set_first_existing_input(bsdf, ["Coat Roughness", "Clearcoat Roughness"], 0.35)
-
-    links.new(texcoord.outputs["Object"], mapping.inputs["Vector"])
-    links.new(mapping.outputs["Vector"], noise.inputs["Vector"])
-    links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
-    links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
-    links.new(noise.outputs["Fac"], bump.inputs["Height"])
-    links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
-    links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
-    return mat
-
-
-def _should_force_reference_material(control_material: dict, had_image_texture: bool) -> bool:
-    if not had_image_texture:
-        return False
-    if "force_reference_material" in control_material:
-        return bool(control_material.get("force_reference_material"))
-    return any((
-        abs(float(control_material.get("saturation_scale", 1.0)) - 1.0) >= 0.15,
-        abs(float(control_material.get("value_scale", 1.0)) - 1.0) >= 0.2,
-        abs(float(control_material.get("hue_offset", 0.0))) >= 0.02,
-        abs(float(control_material.get("roughness_add", 0.0))) >= 0.12,
-        abs(float(control_material.get("specular_add", 0.0))) >= 0.08,
-    ))
-
-
-def ensure_reference_material(
-    objects,
-    reference_rgb=None,
-    roughness_add: float = 0.0,
-    specular_add: float = 0.0,
-    force_reference_material: bool = False,
-    reference_material_mode: str = "auto",
-):
+def ensure_reference_material(objects, reference_rgb=None, roughness_add: float = 0.0, specular_add: float = 0.0):
     if not reference_rgb:
-        return {
-            "applied": False,
-            "used_mode": None,
-            "had_image_texture": False,
-            "forced_override": False,
-            "reason": "missing_reference_rgb",
-        }
-    had_image_texture = any(_object_has_image_texture(obj) for obj in objects)
-    if had_image_texture and not force_reference_material:
-        return {
-            "applied": False,
-            "used_mode": None,
-            "had_image_texture": True,
-            "forced_override": False,
-            "reason": "textured_mesh_preserved",
-        }
-
-    mode = (reference_material_mode or "auto").strip().lower()
-    if mode == "auto":
-        mode = "generic"
-
-    if mode == "ceramic":
-        builder = _build_reference_ceramic_material
-    elif mode == "plastic":
-        builder = _build_reference_plastic_material
-    elif mode == "wood":
-        builder = _build_reference_wood_material
-    else:
-        mode = "generic"
-        builder = _build_reference_generic_material
-    fallback = builder(
-        f"__ARISRef_{mode.title()}__",
+        return False
+    if any(_object_has_image_texture(obj) for obj in objects):
+        return False
+    fallback = _build_reference_fallback_material(
+        "__ARISRefFallback__",
         reference_rgb=reference_rgb,
         roughness_add=roughness_add,
         specular_add=specular_add,
     )
     for obj in objects:
         _replace_all_materials(obj, fallback)
-    return {
-        "applied": True,
-        "used_mode": mode,
-        "had_image_texture": had_image_texture,
-        "forced_override": bool(had_image_texture and force_reference_material),
-        "reason": "reference_override_applied",
-    }
+    return True
 
 
 def sanitize_materials(objects, roughness_add: float = 0.0, specular_add: float = 0.0):
@@ -1575,14 +831,11 @@ def sanitize_materials(objects, roughness_add: float = 0.0, specular_add: float 
             specular = node.inputs.get("Specular IOR Level") or node.inputs.get("Specular")
             emission_strength = node.inputs.get("Emission Strength")
             if metallic is not None:
-                metallic.default_value = min(metallic.default_value, 0.35)
+                metallic.default_value = min(metallic.default_value, 0.7)
             if roughness is not None:
-                roughness.default_value = min(max(roughness.default_value + roughness_add, 0.28), 0.96)
+                roughness.default_value = max(roughness.default_value + roughness_add, 0.15)
             if specular is not None:
-                specular.default_value = min(max(specular.default_value + specular_add, 0.0), 0.55)
-            clearcoat = node.inputs.get("Coat Weight") or node.inputs.get("Clearcoat")
-            if clearcoat is not None:
-                clearcoat.default_value = min(clearcoat.default_value, 0.08)
+                specular.default_value = min(max(specular.default_value + specular_add, 0.0), 1.0)
             if emission_strength is not None:
                 emission_strength.default_value = 0.0
 
@@ -1598,8 +851,7 @@ def adjust_material_hsv(
         and abs(value_scale - 1.0) < 1e-6
         and abs(hue_offset) < 1e-6
     ):
-        return 0
-    adjusted = 0
+        return
     for mat in _material_slots_for_objects(objects):
         if not mat.use_nodes:
             continue
@@ -1629,8 +881,6 @@ def adjust_material_hsv(
         else:
             hsv_node.inputs["Color"].default_value = list(base_color_input.default_value)
         tree.links.new(hsv_node.outputs["Color"], base_color_input)
-        adjusted += 1
-    return adjusted
 
 
 # ---------------------------------------------------------------------------
@@ -1648,11 +898,16 @@ def create_key_light(target: Vector, template: dict, control_lighting: dict, con
     light.data.energy = float(template.get("key_light_energy", 3.0)) * float(control_lighting.get("key_scale", 1.0))
     direction = target - loc
     light.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
-    _configure_contact_shadow(light, template, control_scene)
+    if hasattr(light.data, "use_contact_shadow"):
+        light.data.use_contact_shadow = True
+    if hasattr(light.data, "contact_shadow_distance"):
+        base_distance = float(template.get("contact_shadow_distance", 0.1))
+        strength_scale = float(control_scene.get("contact_shadow_strength", 1.0))
+        light.data.contact_shadow_distance = max(0.001, base_distance * strength_scale)
     return light
 
 
-def create_camera_fill_light(camera, target: Vector, target_bbox: dict | None, template: dict, control_scene: dict | None = None):
+def create_camera_fill_light(camera, target: Vector, target_bbox: dict | None, template: dict):
     cam_loc = camera.matrix_world.translation.copy()
     direction = target - cam_loc
     dist = max(direction.length, 1e-4)
@@ -1668,29 +923,19 @@ def create_camera_fill_light(camera, target: Vector, target_bbox: dict | None, t
         bbox_diag = 1.0
     bbox_diag = max(bbox_diag, 0.75)
 
-    forward_ratio = float(template.get("camera_fill_forward_ratio", 0.08))
-    up_ratio = float(template.get("camera_fill_up_ratio", 0.30))
-    right_ratio = float(template.get("camera_fill_right_ratio", 0.18))
-    fill_energy = float(template.get("camera_fill_energy", 420.0))
-    if template.get("camera_mode") == "scene_camera_match" and template.get("camera_fill_scene_match_kicker", True):
-        forward_ratio *= 0.4
-        up_ratio *= 1.1
-        right_ratio = max(right_ratio, 0.26)
-        fill_energy *= float(template.get("camera_fill_scene_match_energy_scale", 0.6))
-
     loc = (
         cam_loc
-        + direction * (dist * forward_ratio)
-        + up * (bbox_diag * up_ratio)
-        + right * (bbox_diag * right_ratio)
+        + direction * (dist * float(template.get("camera_fill_forward_ratio", 0.22)))
+        + up * (bbox_diag * float(template.get("camera_fill_up_ratio", 0.30)))
+        + right * (bbox_diag * float(template.get("camera_fill_right_ratio", 0.08)))
     )
 
     bpy.ops.object.light_add(type="AREA", location=loc)
     light = bpy.context.active_object
     light.name = "V7CameraFill"
     light.rotation_euler = (target - loc).to_track_quat("-Z", "Y").to_euler()
-    light.data.energy = fill_energy
-    color = template.get("camera_fill_color", [1.0, 0.985, 0.97])
+    light.data.energy = float(template.get("camera_fill_energy", 850.0))
+    color = template.get("camera_fill_color", [1.0, 0.94, 0.88])
     if hasattr(light.data, "color") and isinstance(color, (list, tuple)) and len(color) >= 3:
         light.data.color = tuple(float(v) for v in color[:3])
     size = max(2.5, bbox_diag * float(template.get("camera_fill_size_multiplier", 4.0)))
@@ -1700,7 +945,6 @@ def create_camera_fill_light(camera, target: Vector, target_bbox: dict | None, t
         light.data.size = size
     if hasattr(light.data, "size_y"):
         light.data.size_y = size * 0.8
-    _configure_contact_shadow(light, template, control_scene or {})
     return light
 
 
@@ -1911,11 +1155,8 @@ def compute_physics_metrics(objects, support):
     min_z = float(bbox["min"][2])
     max_z = float(bbox["max"][2])
     support_z = float(support.get("z", 0.0))
-    bbox_height = max(max_z - min_z, 0.0)
     gap = max(0.0, min_z - support_z)
     penetration = max(0.0, support_z - min_z)
-    floating_tol = max(0.0012, min(0.004, bbox_height * 0.005))
-    intersect_tol = max(0.0008, min(0.003, bbox_height * 0.004))
     bounds = support.get("bounds")
     out_of_bounds = False
     if bounds:
@@ -1927,10 +1168,8 @@ def compute_physics_metrics(objects, support):
         "bbox_height": round(max_z - min_z, 6),
         "contact_gap": round(gap, 6),
         "penetration_depth": round(penetration, 6),
-        "floating_tolerance": round(floating_tol, 6),
-        "intersect_tolerance": round(intersect_tol, 6),
-        "is_floating": gap > floating_tol,
-        "is_intersecting_support": penetration > intersect_tol,
+        "is_floating": gap > 1e-4,
+        "is_intersecting_support": penetration > 1e-4,
         "is_out_of_support_bounds": bool(out_of_bounds),
     }
 
@@ -2065,14 +1304,7 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
     control_scene = control_state.get("scene", {})
     control_lighting = control_state.get("lighting", {})
     control_material = control_state.get("material", {})
-    if control_material is not control_state.get("material"):
-        control_state["material"] = control_material
-    if not control_material.get("reference_image_path"):
-        default_reference = _default_reference_image_path(obj_id)
-        if default_reference:
-            control_material["reference_image_path"] = default_reference
     camera_mode = template.get("camera_mode", "scene_bounds_relative")
-    configure_existing_scene_lights(template, control_scene)
 
     support_plane_mode = template.get("support_plane_mode", "ground_object_raycast")
     extra_meta = {}
@@ -2142,25 +1374,12 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
             # Precision landing via ray cast
             ground_hit = adjust_object_to_ground_with_ray(root, mesh_objects, ground_obj)
 
-            # Apply Z offset from controller, then add a small size-aware epsilon
-            # to avoid visible asphalt intersection without making the object float.
+            # Apply Z offset from controller
             root.location.z += float(control_object.get("offset_z", 0.0))
-            ground_contact_epsilon = compute_ground_contact_epsilon(mesh_objects, template)
-            root.location.z += ground_contact_epsilon
             bpy.context.view_layer.update()
 
             # Build support dict for physics metrics
-            ground_z = (
-                float(ground_hit.get("support_z"))
-                if ground_hit.get("support_z") is not None
-                else min(v.z for v in ground_bbox)
-            )
-            grounding_stabilization = stabilize_ground_contact(
-                root,
-                mesh_objects,
-                support_z=ground_z,
-                ground_contact_epsilon=ground_contact_epsilon,
-            )
+            ground_z = min(v.z for v in ground_bbox)
             ground_bounds = [
                 min(v.x for v in ground_bbox), max(v.x for v in ground_bbox),
                 min(v.y for v in ground_bbox), max(v.y for v in ground_bbox),
@@ -2176,11 +1395,7 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
             extra_meta = {
                 "ground_object_name": ground_obj.name,
                 "ground_detection_mode": ground_detection_mode,
-                "ground_hit_success": bool(ground_hit.get("success")),
-                "ground_hit_sample_count": int(ground_hit.get("sample_count", 0)),
-                "ground_hit_count": int(ground_hit.get("hit_count", 0)),
-                "ground_contact_epsilon": round(float(ground_contact_epsilon), 6),
-                "grounding_stabilization": grounding_stabilization,
+                "ground_hit_success": ground_hit,
                 "placement_anchor_mode": anchor_mode,
                 "placement_anchor_xy": [
                     round(float(root.location.x), 6),
@@ -2210,81 +1425,28 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
 
     preserve_blend_materials = bool(template.get("preserve_blend_asset_materials", True))
     should_preserve_materials = asset_kind == "blend" and preserve_blend_materials
-    template_value_scale = max(0.1, float(template.get("default_object_value_scale", 1.0)))
-    template_roughness_add = float(template.get("default_object_roughness_add", 0.0))
-    template_specular_add = float(template.get("default_object_specular_add", 0.0))
-    control_value_scale = float(control_material.get("value_scale", 1.0))
-    control_roughness_add = float(control_material.get("roughness_add", 0.0))
-    control_specular_add = float(control_material.get("specular_add", 0.0))
-    effective_value_scale = template_value_scale * control_value_scale
-    effective_roughness_add = template_roughness_add + control_roughness_add
-    effective_specular_add = template_specular_add + control_specular_add
-    reference_color_info = {
-        "rgb": _safe_rgb_list(control_material.get("reference_rgb")),
-        "source_path": control_material.get("reference_image_path"),
-        "used_segmented_reference": None,
-        "pixel_count": None,
-        "colorfulness": round(_rgb_colorfulness(control_material.get("reference_rgb")), 6),
-        "reason": "control_state_reference_rgb" if control_material.get("reference_rgb") else "missing_reference_rgb",
-    }
-    if reference_color_info["rgb"] is None and template.get("reference_color_fallback", True):
-        reference_color_info = _estimate_reference_color(control_material.get("reference_image_path"))
-    material_adaptation = {
-        "applied": False,
-        "used_mode": None,
-        "had_image_texture": any(_object_has_image_texture(obj) for obj in mesh_objects),
-        "forced_override": False,
-        "template_value_scale": round(template_value_scale, 4),
-        "control_value_scale": round(control_value_scale, 4),
-        "effective_value_scale": round(effective_value_scale, 4),
-        "reason": "blend_asset_materials_preserved" if should_preserve_materials else "not_requested",
-    }
     if not should_preserve_materials:
-        force_reference_material = _should_force_reference_material(
-            control_material,
-            material_adaptation["had_image_texture"],
-        )
-        material_adaptation = ensure_reference_material(
+        ensure_reference_material(
             mesh_objects,
-            reference_rgb=reference_color_info.get("rgb"),
-            roughness_add=effective_roughness_add,
-            specular_add=effective_specular_add,
-            force_reference_material=force_reference_material,
-            reference_material_mode=str(control_material.get("reference_material_mode", "auto")),
+            reference_rgb=control_material.get("reference_rgb"),
+            roughness_add=float(control_material.get("roughness_add", 0.0)),
+            specular_add=float(control_material.get("specular_add", 0.0)),
         )
         sanitize_materials(
             mesh_objects,
-            roughness_add=effective_roughness_add,
-            specular_add=effective_specular_add,
+            roughness_add=float(control_material.get("roughness_add", 0.0)),
+            specular_add=float(control_material.get("specular_add", 0.0)),
         )
-        hsv_adjusted_materials = adjust_material_hsv(
+        adjust_material_hsv(
             mesh_objects,
             saturation_scale=float(control_material.get("saturation_scale", 1.0)),
-            value_scale=effective_value_scale,
+            value_scale=float(control_material.get("value_scale", 1.0)),
             hue_offset=float(control_material.get("hue_offset", 0.0)),
         )
-        material_adaptation["template_value_scale"] = round(template_value_scale, 4)
-        material_adaptation["template_roughness_add"] = round(template_roughness_add, 4)
-        material_adaptation["template_specular_add"] = round(template_specular_add, 4)
-        material_adaptation["control_value_scale"] = round(control_value_scale, 4)
-        material_adaptation["control_roughness_add"] = round(control_roughness_add, 4)
-        material_adaptation["control_specular_add"] = round(control_specular_add, 4)
-        material_adaptation["effective_value_scale"] = round(effective_value_scale, 4)
-        material_adaptation["effective_roughness_add"] = round(effective_roughness_add, 4)
-        material_adaptation["effective_specular_add"] = round(effective_specular_add, 4)
-        material_adaptation["hsv_adjusted_materials"] = int(hsv_adjusted_materials)
-    material_adaptation["reference_color"] = reference_color_info
 
     env_meta = ensure_world_environment(scene, template, control_scene)
 
     target_bbox = percentile_bbox(mesh_objects)
-    mesh_material_quality = assess_mesh_material_quality(
-        mesh_objects,
-        target_bbox,
-        reference_color_info,
-        material_adaptation,
-        template,
-    )
     target = Vector(target_bbox["center"]) if target_bbox else Vector((0.0, 0.0, 0.5))
 
     # Conditionally add key light (default: False — preserve 4.blend lights)
@@ -2299,19 +1461,6 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
         camera_name = cam.name
         camera_dist = None
         camera_target = None
-        if template.get("disable_dof", False):
-            cam.data.dof.use_dof = False
-        lens_override = template.get("camera_lens_override")
-        if lens_override is not None:
-            cam.data.lens = float(lens_override)
-        distance_scale = float(template.get("scene_camera_distance_scale", 1.0))
-        if abs(distance_scale - 1.0) > 1e-6:
-            cam_loc = cam.matrix_world.translation.copy()
-            offset = cam_loc - target
-            if offset.length > 1e-6:
-                cam.location = target + offset * distance_scale
-                bpy.context.view_layer.update()
-                camera_dist = offset.length * distance_scale
     else:
         cam = create_qc_camera(scene)
         if camera_mode == "object_bbox_relative" and target_bbox:
@@ -2324,7 +1473,7 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
         camera_name = cam.name
 
     if template.get("add_camera_fill_light", False):
-        create_camera_fill_light(cam, target, target_bbox, template, control_scene)
+        create_camera_fill_light(cam, target, target_bbox, template)
 
     obj_out = os.path.join(output_dir, obj_id)
     os.makedirs(obj_out, exist_ok=True)
@@ -2347,13 +1496,7 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
         adjust_lighting_to_target_brightness(
             target_brightness=float(template.get("target_brightness", 0.4)),
             preview_samples=int(template.get("cycles_preview_samples", 32)),
-            damping=float(template.get("adaptive_brightness_damping", 0.45)),
-            min_gain=float(template.get("adaptive_brightness_min_gain", 0.82)),
-            max_gain=float(template.get("adaptive_brightness_max_gain", 1.18)),
-            world_gain_scale=float(template.get("adaptive_world_gain_scale", 0.55)),
         )
-
-    render_dn = bool(template.get("render_depth_normal", False))
 
     rendered_frames = []
     for az, el in qc_views:
@@ -2374,34 +1517,18 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
                 camera_target = target
             position_camera(cam, camera_target, az, el, camera_dist)
 
-        aux_info = None
-        if render_dn:
-            view_prefix = f"az{az:03d}_el{el_str}"
-            aux_info = setup_depth_normal_passes(scene, obj_out, view_prefix, template)
-
         scene.render.filepath = rgb_path
         bpy.ops.render.render(write_still=True)
         render_mask(scene, mask_path, imported_names)
 
-        if render_dn:
-            cleanup_depth_normal_nodes(scene)
-            if aux_info and aux_info.get("depth_fmt") == "PNG":
-                convert_depth_exr_to_png(aux_info["depth_exr"], aux_info["depth"])
-
-        frame_entry = {
+        rendered_frames.append({
             "filename": rgb_name,
             "mask_filename": mask_name,
             "azimuth": az,
             "elevation": el,
             "path": rgb_path,
             "mask_path": mask_path,
-        }
-        if aux_info:
-            frame_entry["depth_filename"] = aux_info["depth_fname"]
-            frame_entry["depth_path"] = aux_info["depth"]
-            frame_entry["normal_filename"] = aux_info["normal_fname"]
-            frame_entry["normal_path"] = aux_info["normal"]
-        rendered_frames.append(frame_entry)
+        })
 
     physics = compute_physics_metrics(mesh_objects, support)
     metadata = {
@@ -2413,8 +1540,6 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
         "engine": engine,
         "control_state": control_state,
         "preserved_blend_materials": bool(should_preserve_materials),
-        "material_adaptation": material_adaptation,
-        "mesh_material_quality": mesh_material_quality,
         "support_plane_name": support.get("name"),
         "support_plane_z": support.get("z"),
         "support_bounds_xy": support.get("bounds"),
@@ -2439,9 +1564,6 @@ def main():
     args = parse_args()
     template = load_scene_template(args.scene_template)
     control_state = load_json(args.control_state, default={}) or {}
-    if args.reference_image:
-        control_state.setdefault("material", {})
-        control_state["material"]["reference_image_path"] = args.reference_image
 
     os.makedirs(args.output_dir, exist_ok=True)
     asset_files = sorted(
@@ -2477,9 +1599,6 @@ def main():
             "contact_gap": metadata["contact_gap"],
             "penetration_depth": metadata["penetration_depth"],
             "bbox_height": metadata["bbox_height"],
-            "has_image_texture": (metadata.get("mesh_material_quality") or {}).get("has_image_texture"),
-            "material_gate_passed": (metadata.get("mesh_material_quality") or {}).get("material_gate_passed"),
-            "material_gate_reason": (metadata.get("mesh_material_quality") or {}).get("material_gate_reason"),
             "support_plane_name": metadata["support_plane_name"],
             "frames": len(metadata["frames"]),
         }

@@ -34,11 +34,6 @@ from typing import List, Optional
 
 import numpy as np
 from PIL import Image
-from asset_lifecycle import (
-    ABANDON_CONFIDENCE_VALUES,
-    ASSET_VIABILITY_VALUES,
-    detect_asset_viability,
-)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Constants
@@ -439,25 +434,7 @@ def _dedupe_keep_order(items: list[str]) -> list[str]:
 def _resolve_vlm_load_kwargs(device: str) -> dict:
     import torch
 
-    force_single = os.environ.get("VLM_FORCE_SINGLE_GPU", "0").strip().lower() in {"1", "true", "yes", "on"}
-    allow_balanced = os.environ.get("VLM_ALLOW_BALANCED", "0").strip().lower() in {"1", "true", "yes", "on"}
-    visible_devices_env = [item.strip() for item in os.environ.get("CUDA_VISIBLE_DEVICES", "").split(",") if item.strip()]
     num_visible = torch.cuda.device_count() if torch.cuda.is_available() else 0
-    if force_single:
-        return {
-            "device_map": device,
-            "low_cpu_mem_usage": True,
-        }
-    if device.startswith("cuda:") and not allow_balanced:
-        return {
-            "device_map": device,
-            "low_cpu_mem_usage": True,
-        }
-    if len(visible_devices_env) == 1:
-        return {
-            "device_map": device,
-            "low_cpu_mem_usage": True,
-        }
     if num_visible > 1:
         max_mem_gib = os.environ.get("VLM_MAX_MEMORY_GIB", "75")
         max_memory = {idx: f"{max_mem_gib}GiB" for idx in range(num_visible)}
@@ -479,17 +456,7 @@ def load_vlm(device: str = "cuda:0"):
 
     print(f"[VLM] Loading {VLM_MODEL_NAME} from {VLM_MODEL_PATH} -> {device}")
     from transformers import AutoProcessor, Qwen3_5MoeForConditionalGeneration
-    import transformers.modeling_utils as _mu
     import torch
-    import gc
-
-    # Free residual GPU memory from prior steps (Blender CYCLES, 3D recon, etc.)
-    gc.collect()
-    torch.cuda.empty_cache()
-
-    # Disable caching_allocator_warmup: it estimates pre-allocation by total
-    # param count (~65GB for 35B MoE) instead of active params (~7GB), causing OOM.
-    _mu.caching_allocator_warmup = lambda *a, **kw: None
 
     _vlm_processor = AutoProcessor.from_pretrained(VLM_MODEL_PATH, trust_remote_code=True)
     load_kwargs = _resolve_vlm_load_kwargs(device)
@@ -625,9 +592,6 @@ def _build_common_prompt(sample_id: str, round_idx: int, active_group: str,
             "\"structure_consistency\": \"<good|minor_mismatch|major_mismatch>\","
             "\"color_consistency\": \"<good|minor_shift|major_shift>\","
             "\"physics_consistency\": \"<good|minor_issue|major_issue>\","
-            "\"asset_viability\": \"<continue|abandon|unclear>\","
-            "\"abandon_reason\": \"<short reason or null>\","
-            "\"abandon_confidence\": \"<low|medium|high|null>\","
             "\"pairwise_vs_prev\": {\"available\": " + ("true" if has_prev else "false") + ", \"winner\": \"<current|previous|tie|none>\", \"lighting\": \"<better|same|worse|na>\", \"object_integrity\": \"<better|same|worse|na>\", \"composition\": \"<better|same|worse|na>\", \"render_quality_semantic\": \"<better|same|worse|na>\"}"
             "}"
         )
@@ -681,9 +645,6 @@ def _build_common_prompt(sample_id: str, round_idx: int, active_group: str,
             "\"structure_consistency\": \"<good|minor_mismatch|major_mismatch>\","
             "\"color_consistency\": \"<good|minor_shift|major_shift>\","
             "\"physics_consistency\": \"<good|minor_issue|major_issue>\","
-            "\"asset_viability\": \"<continue|abandon|unclear>\","
-            "\"abandon_reason\": \"<short reason or null>\","
-            "\"abandon_confidence\": \"<low|medium|high|null>\","
             "\"pairwise_vs_prev\": {\"available\": " + ("true" if has_prev else "false") + ", \"winner\": \"<current|previous|tie|none>\", \"lighting\": \"<better|same|worse|na>\", \"object_integrity\": \"<better|same|worse|na>\", \"composition\": \"<better|same|worse|na>\", \"render_quality_semantic\": \"<better|same|worse|na>\"}"
             "}"
         )
@@ -786,9 +747,6 @@ def _build_freeform_prompt(sample_id: str, round_idx: int, active_group: str,
         f"{task_block}\n\n"
         "Please respond in plain text with exactly these sections:\n"
         "Verdict: keep / revise / reject\n"
-        "Asset viability: continue / abandon / unclear\n"
-        "Abandon reason: ... (write 'none' if not abandoning)\n"
-        "Abandon confidence: low / medium / high / none\n"
         "Major issues:\n"
         "- ...\n"
         "Suggested fixes:\n"
@@ -865,16 +823,13 @@ def _build_json_repair_prompt(raw_text: str, sample_id: str, round_idx: int,
         f"- structure_consistency: {', '.join(sorted(STRUCTURE_VALUES))}\n"
         f"- color_consistency: {', '.join(sorted(COLOR_VALUES))}\n"
         f"- physics_consistency: {', '.join(sorted(PHYSICS_VALUES))}\n"
-        f"- asset_viability: {', '.join(sorted(ASSET_VIABILITY_VALUES))}\n"
-        f"- abandon_confidence: {', '.join(sorted(ABANDON_CONFIDENCE_VALUES))}, null\n"
         "- pairwise_vs_prev.winner: current, previous, tie, none\n"
         "- pairwise_vs_prev subfields: better, same, worse, na\n"
         "- confidence values: low, medium, high\n"
         "- score values: integers 1 to 5\n\n"
         "Required JSON schema keys:\n"
         "schema_version, sample_id, round_idx, vlm_route, scores, confidence, issue_tags, suggested_actions, "
-        "lighting_diagnosis, structure_consistency, color_consistency, physics_consistency, "
-        "asset_viability, abandon_reason, abandon_confidence, pairwise_vs_prev\n\n"
+        "lighting_diagnosis, structure_consistency, color_consistency, physics_consistency, pairwise_vs_prev\n\n"
         "Previous output to convert:\n"
         f"{raw_text}"
     )
@@ -938,7 +893,6 @@ def _heuristic_review_from_freeform(raw_text: str, sample_id: str, round_idx: in
     color_consistency = "good"
     physics_consistency = "good"
     vlm_route = "needs_fix"
-    asset_viability, abandon_reason, abandon_confidence = detect_asset_viability(raw_text)
 
     def contains(*needles):
         return any(n in text for n in needles)
@@ -998,10 +952,6 @@ def _heuristic_review_from_freeform(raw_text: str, sample_id: str, round_idx: in
     if contains("different object", "wrong object", "不是同一个", "结构不一致"):
         structure_consistency = "major_mismatch"
         scores["object_integrity"] = min(scores["object_integrity"], 2)
-        if asset_viability != "abandon":
-            asset_viability = "abandon"
-            abandon_reason = abandon_reason or "wrong object geometry"
-            abandon_confidence = abandon_confidence or "high"
 
     if contains("keep", "acceptable", "good enough", "可以接受", "可接受", "能接受") and not issue_tags:
         vlm_route = "pass"
@@ -1010,10 +960,6 @@ def _heuristic_review_from_freeform(raw_text: str, sample_id: str, round_idx: in
     if contains("reject", "unusable", "不可用", "不行") and len(issue_tags) >= 2:
         vlm_route = "reject"
         scores["overall"] = 2
-
-    if asset_viability == "abandon" and vlm_route != "pass":
-        vlm_route = "reject"
-        scores["overall"] = min(scores["overall"], 2)
 
     issue_tags = _dedupe_keep_order(issue_tags)[:3] or ["none"]
     suggested_actions = _dedupe_keep_order(suggested_actions)[:2] or ["NO_OP"]
@@ -1031,9 +977,6 @@ def _heuristic_review_from_freeform(raw_text: str, sample_id: str, round_idx: in
         "structure_consistency": structure_consistency,
         "color_consistency": color_consistency,
         "physics_consistency": physics_consistency,
-        "asset_viability": asset_viability,
-        "abandon_reason": abandon_reason,
-        "abandon_confidence": abandon_confidence,
         "pairwise_vs_prev": {
             "available": False,
             "winner": "none",
@@ -1131,25 +1074,6 @@ def _validate_review(obj: dict, sample_id: str, round_idx: int,
     if pc not in PHYSICS_VALUES:
         pc = "good"
     obj["physics_consistency"] = pc
-
-    asset_viability = str(obj.get("asset_viability", "unclear") or "unclear").lower()
-    if asset_viability not in ASSET_VIABILITY_VALUES:
-        asset_viability = "unclear"
-    obj["asset_viability"] = asset_viability
-
-    abandon_reason = obj.get("abandon_reason")
-    if abandon_reason is not None:
-        abandon_reason = str(abandon_reason).strip() or None
-    if str(abandon_reason or "").lower() in {"none", "null", "n/a", "na"}:
-        abandon_reason = None
-    obj["abandon_reason"] = abandon_reason
-
-    abandon_confidence = str(obj.get("abandon_confidence") or "").lower() or None
-    if abandon_confidence in {"none", "null", "n/a", "na"}:
-        abandon_confidence = None
-    if abandon_confidence not in ABANDON_CONFIDENCE_VALUES:
-        abandon_confidence = None
-    obj["abandon_confidence"] = abandon_confidence
 
     ppv = obj.get("pairwise_vs_prev", {})
     if not isinstance(ppv, dict):
@@ -1534,29 +1458,6 @@ def _review_object_legacy(obj_id: str, renders_dir: str, output_dir: str,
     color_counts = _Counter(r.get("color_consistency", "good") for r in per_view_results)
     agg_color = color_counts.most_common(1)[0][0]
 
-    viability_values = [r.get("asset_viability", "unclear") for r in per_view_results]
-    if "abandon" in viability_values:
-        agg_asset_viability = "abandon"
-    elif "continue" in viability_values:
-        agg_asset_viability = "continue"
-    else:
-        agg_asset_viability = "unclear"
-
-    confidence_rank = {"low": 1, "medium": 2, "high": 3}
-    agg_abandon_reason = None
-    agg_abandon_confidence = None
-    for result in per_view_results:
-        if result.get("asset_viability") == "abandon" and result.get("abandon_reason"):
-            agg_abandon_reason = result.get("abandon_reason")
-            break
-    abandon_confidences = [
-        result.get("abandon_confidence")
-        for result in per_view_results
-        if result.get("asset_viability") == "abandon" and result.get("abandon_confidence") in confidence_rank
-    ]
-    if abandon_confidences:
-        agg_abandon_confidence = max(abandon_confidences, key=lambda item: confidence_rank[item])
-
     # Per-view CV summary for downstream checks
     per_view_cv = [
         {
@@ -1586,9 +1487,6 @@ def _review_object_legacy(obj_id: str, renders_dir: str, output_dir: str,
         "structure_consistency": agg_structure,
         "color_consistency": agg_color,
         "physics_consistency": agg_physics,
-        "asset_viability": agg_asset_viability,
-        "abandon_reason": agg_abandon_reason,
-        "abandon_confidence": agg_abandon_confidence,
         "per_view_cv":       per_view_cv,
         "per_view":          [
             {"az": r["sample_id"].split("_az")[1].split("_")[0],
@@ -1825,29 +1723,6 @@ def review_object(obj_id: str, renders_dir: str, output_dir: str,
     color_counts = _Counter(r.get("color_consistency", "good") for r in per_view_results)
     agg_color = color_counts.most_common(1)[0][0]
 
-    viability_values = [r.get("asset_viability", "unclear") for r in per_view_results]
-    if "abandon" in viability_values:
-        agg_asset_viability = "abandon"
-    elif "continue" in viability_values:
-        agg_asset_viability = "continue"
-    else:
-        agg_asset_viability = "unclear"
-
-    confidence_rank = {"low": 1, "medium": 2, "high": 3}
-    agg_abandon_reason = None
-    agg_abandon_confidence = None
-    for result in per_view_results:
-        if result.get("asset_viability") == "abandon" and result.get("abandon_reason"):
-            agg_abandon_reason = result.get("abandon_reason")
-            break
-    abandon_confidences = [
-        result.get("abandon_confidence")
-        for result in per_view_results
-        if result.get("asset_viability") == "abandon" and result.get("abandon_confidence") in confidence_rank
-    ]
-    if abandon_confidences:
-        agg_abandon_confidence = max(abandon_confidences, key=lambda item: confidence_rank[item])
-
     programmatic = {}
     if review_mode == "scene_insert":
         agg_physics, programmatic = _merge_programmatic_physics(scene_meta, agg_physics)
@@ -1902,9 +1777,6 @@ def review_object(obj_id: str, renders_dir: str, output_dir: str,
         "structure_consistency": agg_structure,
         "color_consistency": agg_color,
         "physics_consistency": agg_physics,
-        "asset_viability": agg_asset_viability,
-        "abandon_reason": agg_abandon_reason,
-        "abandon_confidence": agg_abandon_confidence,
         "programmatic_physics": programmatic if review_mode == "scene_insert" else None,
         "freeform_feedback_excerpt": [
             {
@@ -1935,8 +1807,7 @@ def review_object(obj_id: str, renders_dir: str, output_dir: str,
     print(
         f"  [{obj_id}] round={round_idx} | final_hybrid={final_hybrid:.3f} | "
         f"route={final_route} | tags={top_tags} | diagnosis={agg_diagnosis} | "
-        f"struct={agg_structure} | color={agg_color} | physics={agg_physics} | "
-        f"asset_viability={agg_asset_viability}"
+        f"struct={agg_structure} | color={agg_color} | physics={agg_physics}"
     )
     return aggregated
 
