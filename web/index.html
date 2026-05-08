@@ -4,402 +4,439 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DataEvolver — Let Your Data Build and Improve Itself via Goal-Driven Loop Agents</title>
-<meta name="description" content="DataEvolver: Let Your Data Build and Improve Itself via Goal-Driven Loop Agents. An autonomous synthetic data construction framework powered by goal-driven AI agents that iteratively refine rendering quality through VLM feedback loops.">
+<meta name="description" content="DataEvolver: Let Your Data Build and Improve Itself via Goal-Driven Loop Agents. An autonomous synthetic data construction framework powered by goal-driven AI agents.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Exo:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ===== CSS Variables (Design System — Light Theme) ===== */
+/* ===== Design System — Claude Warm-Canvas ===== */
 :root {
-  --bg-deep: #F8FAFC;
-  --bg-primary: #FFFFFF;
-  --bg-surface: #FFFFFF;
-  --bg-surface-hover: #F1F5F9;
-  --bg-elevated: #F8FAFC;
-  --border: #E2E8F0;
-  --border-accent: #CBD5E1;
-  --text-primary: #0F172A;
-  --text-secondary: #475569;
-  --text-tertiary: #64748B;
-  --color-primary: #1E40AF;
-  --color-primary-dim: #1E3A8A;
-  --color-secondary: #3B82F6;
-  --color-accent: #D97706;
-  --color-accent-light: #B45309;
-  --color-success: #16a34a;
-  --color-warning: #d97706;
-  --color-error: #dc2626;
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-card-hover: 0 4px 16px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-  --shadow-btn: 0 2px 12px rgba(30,64,175,0.18);
-  --font-heading: 'Exo', sans-serif;
-  --font-mono: 'Roboto Mono', monospace;
+  --canvas: #faf9f5;
+  --surface-soft: #f5f0e8;
+  --surface-card: #efe9de;
+  --surface-cream-strong: #e8e0d2;
+  --surface-dark: #181715;
+  --surface-dark-elevated: #252320;
+  --surface-dark-soft: #1f1e1b;
+  --primary: #cc785c;
+  --primary-active: #a9583e;
+  --primary-disabled: #e6dfd8;
+  --ink: #141413;
+  --body: #3d3d3a;
+  --body-strong: #252523;
+  --muted: #6c6a64;
+  --muted-soft: #8e8b82;
+  --hairline: #e6dfd8;
+  --hairline-soft: #ebe6df;
+  --on-primary: #ffffff;
+  --on-dark: #faf9f5;
+  --on-dark-soft: #a09d96;
+  --accent-teal: #5db8a6;
+  --accent-amber: #e8a55a;
+  --success: #5db872;
+  --warning: #d4a017;
+  --error: #c64545;
+  --font-display: 'Cormorant Garamond', 'Tiempos Headline', Garamond, 'Times New Roman', serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-code: 'JetBrains Mono', ui-monospace, monospace;
   --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 9999px;
   --transition: 200ms ease;
   --max-width: 1200px;
+  --section-pad: 96px;
 }
 
-/* ===== Reset & Base ===== */
+/* ===== Reset ===== */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{
-  font-family:var(--font-mono);
-  background:var(--bg-deep);
-  color:var(--text-primary);
-  line-height:1.7;
+  font-family:var(--font-body);
+  background:var(--canvas);
+  color:var(--ink);
+  line-height:1.55;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
+  font-size:16px;
+  font-weight:400;
 }
 
 /* ===== Typography ===== */
-h1,h2,h3,h4{font-family:var(--font-heading);line-height:1.25}
-h1{font-size:clamp(2.5rem,6vw,4rem);font-weight:700;letter-spacing:-0.02em}
-h2{font-size:clamp(1.75rem,4vw,2.5rem);font-weight:600}
-h3{font-size:1.25rem;font-weight:600}
-h4{font-size:1rem;font-weight:500}
-p{color:var(--text-secondary)}
-a{color:var(--color-secondary);text-decoration:none;transition:color var(--transition)}
-a:hover{color:var(--color-primary)}
+h1,h2,h3,h4{font-family:var(--font-display);line-height:1.15;font-weight:400;letter-spacing:-0.02em;color:var(--ink)}
+h1{font-size:clamp(2.5rem,5vw,4rem);letter-spacing:-0.025em;line-height:1.05}
+h2{font-size:clamp(1.75rem,3.5vw,2.25rem);letter-spacing:-0.015em;line-height:1.1}
+h3{font-size:1.125rem;font-weight:500;font-family:var(--font-body);letter-spacing:0;line-height:1.4}
+h4{font-size:1rem;font-weight:500;font-family:var(--font-body);letter-spacing:0}
+p{color:var(--body);line-height:1.55}
+a{color:var(--primary);text-decoration:none;transition:color var(--transition)}
+a:hover{color:var(--primary-active)}
 code{
-  font-family:var(--font-mono);
-  background:#F1F5F9;
+  font-family:var(--font-code);
+  background:var(--surface-soft);
   padding:2px 6px;
   border-radius:4px;
   font-size:0.875em;
-  color:var(--color-primary);
+  color:var(--primary);
 }
+em{font-style:italic;color:var(--body-strong)}
 
 /* ===== Navigation ===== */
 .nav{
   position:fixed;top:0;left:0;right:0;z-index:1000;
-  background:rgba(255,255,255,0.88);
+  background:rgba(250,249,245,0.92);
   backdrop-filter:blur(16px) saturate(180%);
   -webkit-backdrop-filter:blur(16px) saturate(180%);
-  border-bottom:1px solid var(--border);
-  box-shadow:0 1px 3px rgba(0,0,0,0.04);
+  border-bottom:1px solid var(--hairline);
+  height:64px;
 }
 .nav-inner{
   max-width:var(--max-width);margin:0 auto;
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 24px;height:60px;
+  padding:0 32px;height:100%;
 }
 .nav-logo{
-  font-family:var(--font-heading);
-  font-size:1.25rem;font-weight:700;
-  color:var(--text-primary);
-  display:flex;align-items:center;gap:8px;
+  font-family:var(--font-display);
+  font-size:1.375rem;font-weight:500;
+  color:var(--ink);
+  display:flex;align-items:center;gap:10px;
+  letter-spacing:-0.02em;
 }
-.nav-logo .logo-dot{
-  width:8px;height:8px;border-radius:50%;
-  background:var(--color-primary);
+.nav-logo .logo-img{
+  height:28px;width:auto;border-radius:4px;
 }
-.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links{display:flex;gap:32px;list-style:none}
 .nav-links a{
-  color:var(--text-secondary);font-size:0.875rem;font-weight:500;
+  color:var(--muted);font-size:0.875rem;font-weight:500;
+  font-family:var(--font-body);
   transition:color var(--transition);
 }
-.nav-links a:hover{color:var(--color-primary)}
+.nav-links a:hover{color:var(--ink)}
 .nav-cta{
-  background:var(--color-primary);
-  color:#fff!important;
-  padding:6px 18px;border-radius:20px;
-  font-weight:600;font-size:0.8125rem;
-  transition:background var(--transition),box-shadow var(--transition);
+  background:var(--primary)!important;
+  color:var(--on-primary)!important;
+  padding:10px 20px;border-radius:var(--radius-md);
+  font-weight:500;font-size:0.875rem;
+  transition:background var(--transition);
+  height:40px;display:inline-flex;align-items:center;
 }
-.nav-cta:hover{
-  background:var(--color-primary-dim);
-  box-shadow:var(--shadow-btn);
+.nav-cta:hover{background:var(--primary-active)!important}
+
+/* ===== Buttons ===== */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 20px;border-radius:var(--radius-md);
+  font-family:var(--font-body);font-weight:500;font-size:0.875rem;
+  cursor:pointer;transition:all var(--transition);
+  border:none;text-decoration:none;height:40px;
+}
+.btn-primary{
+  background:var(--primary);color:var(--on-primary);
+}
+.btn-primary:hover{
+  background:var(--primary-active);color:var(--on-primary);
+  transform:translateY(-1px);
+}
+.btn-secondary{
+  background:var(--canvas);color:var(--ink);
+  border:1px solid var(--hairline);
+}
+.btn-secondary:hover{
+  border-color:var(--primary);color:var(--primary);
+}
+.btn-on-dark{
+  background:var(--surface-dark-elevated);color:var(--on-dark);
+}
+.btn-on-dark:hover{
+  background:var(--surface-dark-soft);color:var(--on-dark);
+}
+.btn-outline-coral{
+  background:transparent;color:var(--on-primary);
+  border:1.5px solid rgba(255,255,255,0.4);
+}
+.btn-outline-coral:hover{
+  background:rgba(255,255,255,0.1);color:var(--on-primary);
+  border-color:rgba(255,255,255,0.7);
 }
 
-/* ===== Hero ===== */
+/* ===== Hero Band ===== */
 .hero{
   min-height:100vh;display:flex;align-items:center;
-  position:relative;overflow:hidden;
-  padding:100px 24px 80px;
-}
-.hero-bg{
-  position:absolute;inset:0;pointer-events:none;
-}
-.hero-bg .orb{
-  position:absolute;border-radius:50%;filter:blur(140px);opacity:0.25;
-}
-.hero-bg .orb-1{
-  width:600px;height:600px;background:#BFDBFE;
-  top:-200px;right:-100px;
-  animation:float 12s ease-in-out infinite;
-}
-.hero-bg .orb-2{
-  width:500px;height:500px;background:#FDE68A;
-  bottom:-150px;left:-100px;
-  animation:float 15s ease-in-out infinite reverse;
-}
-.hero-bg .orb-3{
-  width:300px;height:300px;background:#DDD6FE;
-  top:50%;left:40%;
-  animation:float 18s ease-in-out infinite;
-}
-@keyframes float{
-  0%,100%{transform:translate(0,0) scale(1)}
-  33%{transform:translate(30px,-30px) scale(1.05)}
-  66%{transform:translate(-20px,20px) scale(0.95)}
-}
-.hero-grid{
-  position:absolute;inset:0;pointer-events:none;opacity:0.06;
-  background-image:
-    linear-gradient(rgba(15,23,42,0.06) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(15,23,42,0.06) 1px,transparent 1px);
-  background-size:60px 60px;
+  position:relative;
+  padding:120px 32px 96px;
+  background:var(--canvas);
 }
 .hero-inner{
   max-width:var(--max-width);margin:0 auto;
-  position:relative;z-index:1;
+  display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;
 }
+.hero-content{position:relative;z-index:1}
 .hero-badge{
   display:inline-flex;align-items:center;gap:8px;
-  background:var(--bg-surface);
-  border:1px solid var(--border);
-  padding:6px 16px;border-radius:20px;
-  font-size:0.8125rem;color:var(--text-secondary);
-  margin-bottom:32px;
-  box-shadow:var(--shadow-card);
+  background:var(--surface-card);
+  border:1px solid var(--hairline);
+  padding:4px 12px;border-radius:var(--radius-pill);
+  font-size:0.75rem;font-weight:500;color:var(--muted);
+  margin-bottom:24px;
+  font-family:var(--font-body);
+  text-transform:uppercase;letter-spacing:0.08em;
 }
 .hero-badge .badge-dot{
   width:6px;height:6px;border-radius:50%;
-  background:var(--color-success);
+  background:var(--success);
 }
 .hero h1{
-  max-width:900px;margin-bottom:24px;
-  background:linear-gradient(135deg,var(--color-primary-dim) 0%,var(--color-primary) 40%,var(--color-accent) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
+  margin-bottom:24px;
+  color:var(--ink);
 }
 .hero-subtitle{
-  font-size:1.125rem;line-height:1.7;max-width:640px;
-  color:var(--text-secondary);margin-bottom:40px;
+  font-size:1.0625rem;line-height:1.6;max-width:560px;
+  color:var(--body);margin-bottom:32px;
 }
-.hero-actions{display:flex;gap:16px;flex-wrap:wrap}
-.btn{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:12px 28px;border-radius:28px;
-  font-family:var(--font-heading);font-weight:600;font-size:0.9375rem;
-  cursor:pointer;transition:all var(--transition);
-  border:none;text-decoration:none;
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+
+/* Hero illustration card */
+.hero-illustration{
+  background:var(--surface-dark);
+  border-radius:var(--radius-xl);
+  padding:32px;
+  position:relative;overflow:hidden;
 }
-.btn-primary{
-  background:var(--color-primary);color:#fff;
-  box-shadow:var(--shadow-btn);
+.hero-illustration::before{
+  content:'';position:absolute;inset:0;
+  background:
+    linear-gradient(135deg,rgba(204,120,92,0.08) 0%,transparent 50%),
+    linear-gradient(225deg,rgba(93,184,166,0.06) 0%,transparent 50%);
 }
-.btn-primary:hover{
-  background:var(--color-primary-dim);color:#fff;
-  box-shadow:0 4px 20px rgba(30,64,175,0.28);
-  transform:translateY(-1px);
+.hero-illustration-inner{
+  position:relative;z-index:1;
 }
-.btn-outline{
-  background:transparent;color:var(--text-primary);
-  border:1.5px solid var(--border-accent);
+.hero-code-header{
+  display:flex;align-items:center;gap:8px;margin-bottom:20px;
 }
-.btn-outline:hover{
-  border-color:var(--color-primary);color:var(--color-primary);
-  background:rgba(30,64,175,0.04);
+.hero-code-dot{width:10px;height:10px;border-radius:50%;background:var(--surface-dark-elevated)}
+.hero-code-dot.r{background:#c64545}
+.hero-code-dot.y{background:#d4a017}
+.hero-code-dot.g{background:#5db872}
+.hero-code-title{
+  font-family:var(--font-code);font-size:0.75rem;color:var(--on-dark-soft);
+  margin-left:8px;
 }
+.hero-code-block{
+  font-family:var(--font-code);font-size:0.8125rem;line-height:1.8;
+  color:var(--on-dark-soft);
+}
+.hero-code-block .kw{color:var(--accent-teal)}
+.hero-code-block .str{color:var(--accent-amber)}
+.hero-code-block .fn{color:var(--primary)}
+.hero-code-block .cm{color:var(--muted-soft)}
+.hero-code-block .num{color:var(--success)}
+
 .hero-stats{
-  display:flex;gap:48px;margin-top:64px;
-  padding-top:32px;border-top:1px solid var(--border);
+  display:flex;gap:32px;margin-top:40px;
+  padding-top:24px;border-top:1px solid var(--hairline);
 }
 .hero-stat-value{
-  font-family:var(--font-heading);font-size:2rem;font-weight:700;
-  color:var(--color-primary);
+  font-family:var(--font-display);font-size:2rem;font-weight:400;
+  color:var(--ink);letter-spacing:-0.02em;
 }
 .hero-stat-label{
-  font-size:0.8125rem;color:var(--text-tertiary);margin-top:4px;
+  font-size:0.75rem;color:var(--muted);margin-top:2px;
+  text-transform:uppercase;letter-spacing:0.06em;font-weight:500;
 }
 
-/* ===== Sections ===== */
-.section{padding:100px 24px}
+/* ===== Section Rhythm ===== */
+.section{padding:var(--section-pad) 32px}
 .section-inner{max-width:var(--max-width);margin:0 auto}
+.section-dark{
+  background:var(--surface-dark);
+}
+.section-dark h2,.section-dark h3,.section-dark h4{color:var(--on-dark)}
+.section-dark p{color:var(--on-dark-soft)}
+.section-dark .section-label{color:var(--primary)}
+.section-card{
+  background:var(--surface-card);
+}
 .section-label{
-  font-family:var(--font-mono);font-size:0.75rem;font-weight:500;
-  text-transform:uppercase;letter-spacing:0.12em;
-  color:var(--color-primary);margin-bottom:16px;
+  font-family:var(--font-body);font-size:0.75rem;font-weight:500;
+  text-transform:uppercase;letter-spacing:0.1em;
+  color:var(--primary);margin-bottom:16px;
 }
 .section-title{margin-bottom:16px}
 .section-desc{
   font-size:1.0625rem;max-width:720px;margin-bottom:48px;
-  color:var(--text-secondary);
+  color:var(--body);
 }
 
-/* ===== Pipeline ===== */
-.pipeline-visual{
-  display:flex;gap:0;align-items:stretch;overflow-x:auto;
-  padding:20px 0 40px;
-}
-.pipeline-step{
-  flex:1;min-width:140px;
-  background:var(--bg-surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius-lg);
-  padding:24px 16px;text-align:center;
-  position:relative;transition:all var(--transition);
-}
-.pipeline-step:hover{
-  border-color:var(--color-primary);
-  box-shadow:var(--shadow-card-hover);
-  transform:translateY(-4px);
-}
-.pipeline-step + .pipeline-step{margin-left:-1px;border-radius:0 var(--radius-lg) var(--radius-lg) 0}
-.pipeline-step:has(+ .pipeline-step){border-radius:var(--radius-lg) 0 0 var(--radius-lg)}
-.pipeline-step:not(:first-child):not(:last-child){border-radius:0}
-.pipeline-arrow{
-  display:flex;align-items:center;padding:0 8px;
-  color:var(--text-tertiary);font-size:1.5rem;
-  flex-shrink:0;
-}
-.pipeline-step-num{
-  font-family:var(--font-heading);font-size:1.75rem;font-weight:700;
-  color:var(--color-primary);margin-bottom:8px;
-}
-.pipeline-step-title{
-  font-family:var(--font-heading);font-weight:600;font-size:0.9375rem;
-  margin-bottom:4px;
-}
-.pipeline-step-desc{
-  font-size:0.75rem;color:var(--text-tertiary);
-}
-
-/* ===== Evolution Loop (Core Highlight) ===== */
-.loop-diagram{
-  display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;
-  align-items:center;gap:16px;
-  background:#F8FAFC;border:1px solid var(--border);
-  border-radius:var(--radius-xl);padding:40px 24px;
-  margin-bottom:32px;
-  box-shadow:var(--shadow-card);
-}
-.loop-node{
-  background:var(--bg-elevated);border:1px solid var(--border-accent);
-  border-radius:var(--radius-lg);padding:24px 16px;text-align:center;
-  transition:all var(--transition);
-}
-.loop-node:hover{
-  border-color:var(--color-primary);
-  box-shadow:var(--shadow-card-hover);
-}
-.loop-node-icon{
-  font-size:2rem;margin-bottom:8px;
-}
-.loop-node-title{
-  font-family:var(--font-heading);font-weight:600;font-size:0.875rem;
-  margin-bottom:4px;
-}
-.loop-node-desc{
-  font-size:0.75rem;color:var(--text-tertiary);
-}
-.loop-arrow{
-  color:var(--color-accent);font-size:1.5rem;
-  text-align:center;
-}
-.loop-feedback{
-  text-align:center;margin-top:4px;
-}
-.loop-feedback-line{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:10px 24px;
-  background:rgba(217,119,6,0.06);
-  border:1.5px dashed var(--color-accent);
-  border-radius:var(--radius-lg);
-  font-size:0.8125rem;color:var(--color-accent-light);
-}
-
-/* ===== Cards ===== */
+/* ===== Feature Cards ===== */
 .card-grid{
   display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
   gap:20px;
 }
 .card{
-  background:var(--bg-surface);
-  border:1px solid var(--border);
+  background:var(--surface-card);
   border-radius:var(--radius-lg);
-  padding:28px;transition:all var(--transition);
-  box-shadow:var(--shadow-card);
+  padding:32px;transition:all var(--transition);
 }
 .card:hover{
-  border-color:var(--color-primary);
-  box-shadow:var(--shadow-card-hover);
   transform:translateY(-2px);
+  box-shadow:0 4px 16px rgba(20,20,19,0.06);
 }
 .card-icon{
   width:44px;height:44px;display:flex;align-items:center;justify-content:center;
-  background:rgba(59,130,246,0.1);
-  border-radius:var(--radius-md);margin-bottom:16px;
+  border-radius:var(--radius-md);margin-bottom:20px;
   font-size:1.25rem;
 }
 .card-title{
-  font-family:var(--font-heading);font-weight:600;
-  margin-bottom:8px;
+  font-family:var(--font-body);font-weight:500;
+  margin-bottom:8px;color:var(--ink);
 }
-.card-desc{font-size:0.875rem;color:var(--text-secondary)}
+.card-desc{font-size:0.9375rem;color:var(--body);line-height:1.55}
 
-/* ===== Dataset Stats ===== */
+/* Dark cards */
+.card-dark{
+  background:var(--surface-dark-elevated);
+  border-radius:var(--radius-lg);
+  padding:32px;transition:all var(--transition);
+}
+.card-dark:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 16px rgba(0,0,0,0.2);
+}
+.card-dark .card-title{color:var(--on-dark)}
+.card-dark .card-desc{color:var(--on-dark-soft)}
+
+/* ===== Pipeline ===== */
+.pipeline-visual{
+  display:flex;gap:12px;align-items:stretch;overflow-x:auto;
+  padding:8px 0 16px;
+}
+.pipeline-step{
+  flex:1;min-width:160px;
+  background:var(--surface-card);
+  border-radius:var(--radius-lg);
+  padding:28px 20px;text-align:center;
+  transition:all var(--transition);
+}
+.pipeline-step:hover{
+  transform:translateY(-4px);
+  box-shadow:0 4px 16px rgba(20,20,19,0.08);
+}
+.pipeline-arrow{
+  display:flex;align-items:center;padding:0 4px;
+  color:var(--muted-soft);font-size:1.25rem;flex-shrink:0;
+}
+.pipeline-step-num{
+  font-family:var(--font-display);font-size:2rem;font-weight:400;
+  color:var(--primary);margin-bottom:8px;
+  letter-spacing:-0.02em;
+}
+.pipeline-step-title{
+  font-family:var(--font-body);font-weight:500;font-size:0.9375rem;
+  margin-bottom:4px;color:var(--ink);
+}
+.pipeline-step-desc{
+  font-size:0.8125rem;color:var(--muted);line-height:1.4;
+}
+
+/* ===== Evolution Loop ===== */
+.loop-diagram{
+  display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;
+  align-items:center;gap:16px;
+  background:var(--surface-dark-soft);
+  border-radius:var(--radius-xl);padding:40px 24px;
+  margin-bottom:24px;
+}
+.loop-node{
+  background:var(--surface-dark-elevated);
+  border-radius:var(--radius-lg);padding:28px 16px;text-align:center;
+  transition:all var(--transition);
+}
+.loop-node:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 16px rgba(0,0,0,0.2);
+}
+.loop-node-icon{font-size:1.75rem;margin-bottom:10px}
+.loop-node-title{
+  font-family:var(--font-body);font-weight:500;font-size:0.875rem;
+  margin-bottom:4px;color:var(--on-dark);
+}
+.loop-node-desc{
+  font-size:0.75rem;color:var(--on-dark-soft);line-height:1.4;
+}
+.loop-arrow{
+  color:var(--primary);font-size:1.25rem;text-align:center;
+}
+.loop-feedback{
+  text-align:center;margin-top:8px;
+}
+.loop-feedback-line{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 24px;
+  background:rgba(204,120,92,0.08);
+  border:1.5px dashed var(--primary);
+  border-radius:var(--radius-lg);
+  font-size:0.8125rem;color:var(--primary);
+}
+
+/* ===== Stats Grid ===== */
 .stats-grid{
   display:grid;grid-template-columns:repeat(4,1fr);
   gap:20px;margin-bottom:32px;
 }
 .stat-card{
-  background:var(--bg-surface);border:1px solid var(--border);
+  background:var(--canvas);
+  border:1px solid var(--hairline);
   border-radius:var(--radius-lg);padding:28px;text-align:center;
-  box-shadow:var(--shadow-card);
 }
 .stat-value{
-  font-family:var(--font-heading);font-size:2.25rem;font-weight:700;
-  color:var(--color-primary);
+  font-family:var(--font-display);font-size:2.5rem;font-weight:400;
+  color:var(--ink);letter-spacing:-0.02em;
 }
 .stat-label{
-  font-size:0.8125rem;color:var(--text-tertiary);margin-top:4px;
+  font-size:0.75rem;color:var(--muted);margin-top:4px;
+  text-transform:uppercase;letter-spacing:0.06em;font-weight:500;
 }
 
-/* ===== Code Block ===== */
+/* ===== Code Window Card ===== */
 .code-block{
-  background:#F8FAFC;border:1px solid var(--border);
+  background:var(--surface-dark);
   border-radius:var(--radius-lg);overflow:hidden;
-  box-shadow:var(--shadow-card);
 }
 .code-block-header{
   display:flex;align-items:center;justify-content:space-between;
   padding:12px 20px;
-  background:#F1F5F9;
-  border-bottom:1px solid var(--border);
+  background:var(--surface-dark-elevated);
+  border-bottom:1px solid rgba(255,255,255,0.06);
 }
+.code-block-dots{display:flex;gap:6px}
+.code-block-dot{width:10px;height:10px;border-radius:50%}
+.code-block-dot.r{background:#c64545}
+.code-block-dot.y{background:#d4a017}
+.code-block-dot.g{background:#5db872}
 .code-block-lang{
-  font-size:0.75rem;color:var(--text-tertiary);
-  text-transform:uppercase;letter-spacing:0.08em;
+  font-family:var(--font-code);font-size:0.75rem;color:var(--on-dark-soft);
 }
 .code-block-body{
-  padding:20px;overflow-x:auto;
+  padding:24px;overflow-x:auto;
 }
 .code-block-body pre{
-  font-family:var(--font-mono);font-size:0.8125rem;
-  line-height:1.8;color:var(--text-secondary);
+  font-family:var(--font-code);font-size:0.8125rem;
+  line-height:1.8;color:var(--on-dark-soft);
+  margin:0;white-space:pre;
 }
+.code-block-body .kw{color:var(--accent-teal)}
+.code-block-body .str{color:var(--accent-amber)}
+.code-block-body .fn{color:var(--primary)}
+.code-block-body .cm{color:var(--muted-soft)}
+.code-block-body .num{color:var(--success)}
 
-/* ===== Footer ===== */
-.footer{
-  border-top:1px solid var(--border);
-  padding:48px 24px;text-align:center;
-}
-.footer-inner{max-width:var(--max-width);margin:0 auto}
-.footer-links{display:flex;justify-content:center;gap:32px;list-style:none;margin-bottom:24px}
-.footer-links a{color:var(--text-tertiary);font-size:0.875rem}
-.footer-links a:hover{color:var(--text-primary)}
-.footer-text{font-size:0.8125rem;color:var(--text-tertiary)}
-
-/* ===== Gallery (Horizontal Scroll) ===== */
+/* ===== Gallery ===== */
 .gallery-scroll-wrapper{
   position:relative;
-  margin:0 -24px;
-  padding:0 24px;
+  margin:0 -32px;
+  padding:0 32px;
 }
 .gallery-scroll{
   display:flex;
@@ -415,91 +452,161 @@ code{
 .gallery-card{
   flex:0 0 320px;
   scroll-snap-align:start;
-  background:var(--bg-surface);border:1px solid var(--border);
+  background:var(--canvas);
+  border:1px solid var(--hairline);
   border-radius:var(--radius-lg);overflow:hidden;
-  transition:all var(--transition);box-shadow:var(--shadow-card);
+  transition:all var(--transition);
 }
 .gallery-card:hover{
-  border-color:var(--color-primary);
-  box-shadow:var(--shadow-card-hover);
   transform:translateY(-4px);
+  box-shadow:0 4px 16px rgba(20,20,19,0.08);
 }
 .gallery-card img{
   width:100%;aspect-ratio:1;object-fit:cover;display:block;cursor:pointer;
 }
 .gallery-card .gallery-info{padding:16px 20px}
 .gallery-tag{
-  display:inline-block;font-size:0.6875rem;font-weight:600;
+  display:inline-block;font-size:0.6875rem;font-weight:500;
   text-transform:uppercase;letter-spacing:0.08em;
-  padding:3px 10px;border-radius:4px;
-  background:rgba(30,64,175,0.08);color:var(--color-primary);
-  margin-bottom:8px;font-family:var(--font-mono);
+  padding:3px 10px;border-radius:var(--radius-sm);
+  background:var(--surface-card);color:var(--muted);
+  margin-bottom:8px;font-family:var(--font-body);
 }
-.gallery-obj-name{font-family:var(--font-heading);font-weight:600;font-size:1rem}
-.gallery-meta{font-size:0.78rem;color:var(--text-tertiary);margin-top:4px}
+.gallery-obj-name{font-family:var(--font-body);font-weight:500;font-size:1rem;color:var(--ink)}
+.gallery-meta{font-size:0.78rem;color:var(--muted);margin-top:4px}
 
-/* Gallery scroll controls */
 .gallery-scroll-btn{
   position:absolute;top:50%;transform:translateY(-50%);
-  z-index:10;width:44px;height:44px;
-  border-radius:50%;border:1px solid var(--border);
-  background:rgba(255,255,255,0.92);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  box-shadow:0 2px 12px rgba(0,0,0,0.1);
+  z-index:10;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--hairline);
+  background:rgba(250,249,245,0.95);
+  backdrop-filter:blur(8px);
+  box-shadow:0 2px 8px rgba(20,20,19,0.08);
   cursor:pointer;display:flex;align-items:center;justify-content:center;
-  color:var(--text-primary);font-size:1.25rem;
+  color:var(--ink);font-size:1.125rem;
   transition:all var(--transition);
 }
 .gallery-scroll-btn:hover{
-  background:var(--color-primary);color:#fff;
-  box-shadow:var(--shadow-btn);
+  background:var(--primary);color:var(--on-primary);
+  border-color:var(--primary);
 }
-.gallery-scroll-btn.left{left:8px}
-.gallery-scroll-btn.right{right:8px}
+.gallery-scroll-btn.left{left:12px}
+.gallery-scroll-btn.right{right:12px}
 .gallery-scroll-indicator{
   display:flex;justify-content:center;gap:6px;margin-top:4px;
 }
 .gallery-scroll-indicator .dot{
   width:8px;height:8px;border-radius:50%;
-  background:var(--border-accent);
+  background:var(--hairline);
   transition:all var(--transition);
 }
 .gallery-scroll-indicator .dot.active{
-  background:var(--color-primary);width:24px;border-radius:4px;
+  background:var(--primary);width:24px;border-radius:var(--radius-sm);
 }
 
-/* ===== Rotation Strip ===== */
-.rotation-block{margin-bottom:40px}
-.rotation-block:last-child{margin-bottom:0}
-.rotation-block h3{
-  font-family:var(--font-heading);font-size:1.1rem;font-weight:600;margin-bottom:16px;
+/* ===== Tags / Badges ===== */
+.tag-grid{
+  display:flex;flex-wrap:wrap;gap:10px;
 }
-.rotation-strip{
-  display:grid;grid-template-columns:repeat(8,1fr);gap:8px;
+.tag{
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-pill);
+  padding:8px 18px;
+  font-size:0.8125rem;font-family:var(--font-body);
+  color:var(--body);font-weight:400;
 }
-.rotation-strip img{
-  width:100%;aspect-ratio:1;object-fit:cover;
-  border-radius:var(--radius-sm);border:1px solid var(--border);
-  cursor:pointer;transition:all var(--transition);
+.tag-dark{
+  background:var(--surface-dark-elevated);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:var(--radius-pill);
+  padding:8px 18px;
+  font-size:0.8125rem;font-family:var(--font-body);
+  color:var(--on-dark-soft);font-weight:400;
 }
-.rotation-strip img:hover{
-  border-color:var(--color-primary);transform:scale(1.04);
-  box-shadow:var(--shadow-card-hover);
+
+/* ===== CTA Band ===== */
+.cta-band{
+  background:var(--primary);
+  border-radius:var(--radius-lg);
+  padding:64px;
+  text-align:center;
 }
-.yaw-labels{
-  display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-top:6px;
+.cta-band h2{
+  color:var(--on-primary);margin-bottom:16px;
 }
-.yaw-labels span{
-  text-align:center;font-size:0.6875rem;color:var(--text-tertiary);
-  font-family:var(--font-mono);
+.cta-band p{
+  color:rgba(255,255,255,0.85);margin-bottom:32px;
+  max-width:560px;margin-left:auto;margin-right:auto;
+}
+.cta-band .btn-secondary{
+  background:rgba(255,255,255,0.15);color:var(--on-primary);
+  border:1.5px solid rgba(255,255,255,0.3);
+}
+.cta-band .btn-secondary:hover{
+  background:rgba(255,255,255,0.25);color:var(--on-primary);
+}
+
+/* ===== Connector Tile (Action Space) ===== */
+.connector-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:12px;
+}
+.connector-tile{
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-lg);
+  padding:20px;
+  transition:all var(--transition);
+}
+.connector-tile:hover{
+  border-color:var(--primary);
+  transform:translateY(-2px);
+}
+.connector-tile h4{
+  font-size:0.9375rem;font-weight:500;margin-bottom:4px;color:var(--ink);
+}
+.connector-tile p{
+  font-size:0.8125rem;color:var(--muted);line-height:1.4;
+}
+
+/* ===== Footer ===== */
+.footer{
+  background:var(--surface-dark);
+  padding:64px 32px;
+}
+.footer-inner{max-width:var(--max-width);margin:0 auto}
+.footer-brand{
+  font-family:var(--font-display);font-size:1.25rem;font-weight:500;
+  color:var(--on-dark);margin-bottom:24px;
+  display:flex;align-items:center;gap:8px;
+  letter-spacing:-0.02em;
+}
+.footer-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:48px;
+  margin-bottom:48px;
+}
+.footer-col h4{
+  font-size:0.75rem;font-weight:500;text-transform:uppercase;
+  letter-spacing:0.1em;color:var(--on-dark);margin-bottom:16px;
+}
+.footer-col a{
+  display:block;font-size:0.875rem;color:var(--on-dark-soft);
+  margin-bottom:10px;transition:color var(--transition);
+}
+.footer-col a:hover{color:var(--on-dark)}
+.footer-bottom{
+  border-top:1px solid rgba(255,255,255,0.08);
+  padding-top:24px;
+  font-size:0.8125rem;color:var(--muted-soft);
 }
 
 /* ===== Lightbox ===== */
 .lightbox-overlay{
   display:none;position:fixed;inset:0;z-index:2000;
-  background:rgba(0,0,0,0.88);
+  background:rgba(20,20,19,0.92);
   justify-content:center;align-items:center;cursor:zoom-out;
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(8px);
 }
 .lightbox-overlay.open{display:flex}
 .lightbox-overlay img{
@@ -508,25 +615,35 @@ code{
 }
 
 /* ===== Responsive ===== */
+@media(max-width:1024px){
+  .hero-inner{grid-template-columns:1fr;gap:48px}
+  .hero-illustration{max-width:560px}
+}
 @media(max-width:768px){
+  :root{--section-pad:64px}
   .nav-links{display:none}
+  .hero{padding:100px 24px 64px}
+  .section{padding:64px 24px}
   .hero-stats{flex-wrap:wrap;gap:24px}
   .pipeline-visual{flex-wrap:wrap;gap:12px;justify-content:center}
   .pipeline-arrow{display:none}
-  .pipeline-step{min-width:120px;flex:0 0 auto;border-radius:var(--radius-md)!important}
-  .loop-diagram{grid-template-columns:1fr 1fr;gap:12px}
+  .pipeline-step{min-width:130px;flex:0 0 auto}
+  .loop-diagram{grid-template-columns:1fr;gap:12px}
   .loop-arrow{display:none}
   .stats-grid{grid-template-columns:repeat(2,1fr)}
   .card-grid{grid-template-columns:1fr}
+  .connector-grid{grid-template-columns:repeat(2,1fr)}
   .gallery-card{flex:0 0 280px}
   .gallery-scroll-btn{display:none}
-  .rotation-strip{grid-template-columns:repeat(4,1fr)}
-  .yaw-labels{grid-template-columns:repeat(4,1fr)}
+  .footer-grid{grid-template-columns:repeat(2,1fr);gap:32px}
+  .cta-band{padding:48px 24px}
 }
 @media(max-width:480px){
   .hero-actions{flex-direction:column}
-  .btn{justify-content:center}
+  .btn{justify-content:center;width:100%}
   .stats-grid{grid-template-columns:1fr}
+  .connector-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -536,7 +653,8 @@ code{
 <nav class="nav">
   <div class="nav-inner">
     <a href="#" class="nav-logo">
-      <span class="logo-dot"></span>DataEvolver
+      <img src="logo.png" alt="DataEvolver" class="logo-img">
+      DataEvolver
     </a>
     <ul class="nav-links">
       <li><a href="#pipeline">Pipeline</a></li>
@@ -545,82 +663,109 @@ code{
       <li><a href="#gallery">Gallery</a></li>
       <li><a href="#start">Get Started</a></li>
     </ul>
-    <a href="https://github.com/Kamisato520/DataEvolver" class="nav-cta" target="_blank" rel="noopener">View on GitHub</a>
+    <a href="https://github.com/Kamisato520/DataEvolver" class="nav-cta" target="_blank" rel="noopener">GitHub</a>
   </div>
 </nav>
 
 <!-- Hero -->
 <section class="hero">
-  <div class="hero-bg">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-    <div class="hero-grid"></div>
-  </div>
   <div class="hero-inner">
-    <div class="hero-badge">
-      <span class="badge-dot"></span>Technical Report &middot; 2026
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>Technical Report · 2026
+      </div>
+      <h1>Let Your Data Build and Improve Itself</h1>
+      <p class="hero-subtitle">
+        DataEvolver is an autonomous synthetic data construction framework where <em>goal-driven loop agents</em> orchestrate the full pipeline — from text-to-image generation through 3D reconstruction to scene-aware rendering — and iteratively refine output quality via VLM feedback loops.
+      </p>
+      <div class="hero-actions">
+        <a href="https://github.com/Kamisato520/DataEvolver" class="btn btn-primary" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          View on GitHub
+        </a>
+        <a href="#pipeline" class="btn btn-secondary">How It Works</a>
+        <a href="https://arxiv.org/abs/2605.01789" class="btn btn-secondary" target="_blank" rel="noopener">Read Paper</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-value">350</div>
+          <div class="hero-stat-label">Training Pairs</div>
+        </div>
+        <div>
+          <div class="hero-stat-value">50</div>
+          <div class="hero-stat-label">Unique Objects</div>
+        </div>
+        <div>
+          <div class="hero-stat-value">24</div>
+          <div class="hero-stat-label">Atomic Actions</div>
+        </div>
+        <div>
+          <div class="hero-stat-value">6</div>
+          <div class="hero-stat-label">Pipeline Stages</div>
+        </div>
+      </div>
     </div>
-    <h1>Let Your Data Build and Improve Itself via Goal-Driven Loop Agents</h1>
-    <p class="hero-subtitle">
-      DataEvolver is an autonomous synthetic data construction framework where <em>goal-driven loop agents</em> orchestrate the full pipeline — from text-to-image generation through 3D reconstruction to scene-aware rendering — and iteratively refine output quality by reading VLM feedback, diagnosing visual failures, and adjusting rendering parameters until the data meets production standards.
-    </p>
-    <div class="hero-actions">
-      <a href="https://github.com/Kamisato520/DataEvolver" class="btn btn-primary" target="_blank" rel="noopener">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-        GitHub
-      </a>
-      <a href="#pipeline" class="btn btn-outline">How It Works</a>
-      <a href="paper/DataEvolver_technical_report.pdf" class="btn btn-outline">Read Paper</a>
-    </div>
-    <div class="hero-stats">
-      <div>
-        <div class="hero-stat-value">350</div>
-        <div class="hero-stat-label">Training Pairs</div>
-      </div>
-      <div>
-        <div class="hero-stat-value">50</div>
-        <div class="hero-stat-label">Unique 3D Objects</div>
-      </div>
-      <div>
-        <div class="hero-stat-value">24</div>
-        <div class="hero-stat-label">Atomic Actions</div>
-      </div>
-      <div>
-        <div class="hero-stat-value">6</div>
-        <div class="hero-stat-label">Pipeline Stages</div>
+
+    <!-- Hero Illustration — Code Window Card -->
+    <div class="hero-illustration">
+      <div class="hero-illustration-inner">
+        <div class="hero-code-header">
+          <span class="hero-code-dot r"></span>
+          <span class="hero-code-dot y"></span>
+          <span class="hero-code-dot g"></span>
+          <span class="hero-code-title">pipeline/agent_loop.py</span>
+        </div>
+        <div class="hero-code-block">
+<pre><span class="cm"># Goal-driven loop agent core</span>
+<span class="kw">class</span> <span class="fn">EvolutionAgent</span>:
+    <span class="kw">def</span> <span class="fn">run_loop</span>(self, scene, obj):
+        <span class="kw">for</span> round <span class="kw">in</span> <span class="fn">range</span>(self.max_rounds):
+            render = self.<span class="fn">blender_render</span>(scene, obj)
+            review = self.<span class="fn">vlm_review</span>(render)
+
+            <span class="kw">if</span> review.verdict == <span class="str">"keep"</span>:
+                <span class="kw">return</span> render  <span class="cm"># quality met</span>
+
+            action = self.<span class="fn">agent_decide</span>(
+                review.text,
+                self.action_space
+            )
+            self.<span class="fn">apply_action</span>(scene, action)
+
+        <span class="kw">return</span> render  <span class="cm"># best effort</span></pre>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Problem / Solution -->
-<section class="section" style="background:var(--bg-primary)">
+<!-- Problem / Solution — Cream Card Section -->
+<section class="section section-card" id="problem">
   <div class="section-inner">
     <div class="section-label">The Problem</div>
-    <h2 class="section-title">Why Goal-Driven Agents Are the Missing Piece in Synthetic Data</h2>
+    <h2 class="section-title">Why Goal-Driven Agents Are the Missing Piece</h2>
     <p class="section-desc">
-      Naive automated rendering produces artifacts — flat lighting, color shifts, floating objects, missing shadows. Traditional pipelines rely on rigid scoring rules that lack semantic understanding. Manual tuning doesn't scale. What's needed are <em>goal-driven agents</em> that can perceive, diagnose, and act — closing the loop between data generation and quality control.
+      Naive automated rendering produces artifacts — flat lighting, color shifts, floating objects. Traditional pipelines rely on rigid scoring rules that lack semantic understanding. What's needed are <em>goal-driven agents</em> that can perceive, diagnose, and act.
     </p>
 
     <div class="card-grid">
       <div class="card">
-        <div class="card-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-error)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <div class="card-icon" style="background:rgba(198,69,69,0.1)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         </div>
         <h3 class="card-title">Naive Renders Have Artifacts</h3>
         <p class="card-desc">Auto-rendered 3D objects often exhibit flat lighting, implausible shadows, and color mismatches with the scene environment.</p>
       </div>
       <div class="card">
-        <div class="card-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        <div class="card-icon" style="background:rgba(212,160,23,0.1)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
         </div>
         <h3 class="card-title">Rule-Based QC Lacks Semantics</h3>
         <p class="card-desc">Rigid numeric thresholds can't diagnose "this lighting feels flat" or "the object appears to float." Goal-driven agents with VLM perception can.</p>
       </div>
       <div class="card">
-        <div class="card-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <div class="card-icon" style="background:rgba(204,120,92,0.1)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
         <h3 class="card-title">Manual Tuning Can't Scale</h3>
         <p class="card-desc">Human artists spend minutes per object adjusting Blender parameters. At 50+ objects with 8+ viewpoints, this becomes infeasible.</p>
@@ -629,123 +774,123 @@ code{
   </div>
 </section>
 
-<!-- Pipeline -->
+<!-- Pipeline — Cream Canvas -->
 <section class="section" id="pipeline">
   <div class="section-inner">
     <div class="section-label">Pipeline</div>
     <h2 class="section-title">The Goal-Driven Data Construction Pipeline</h2>
     <p class="section-desc">
-      From a natural language seed concept to quality-verified rendered pairs — fully automated by goal-driven loop agents, no human intervention required between stages.
+      From a natural language seed concept to quality-verified rendered pairs — fully automated by goal-driven loop agents, no human intervention required.
     </p>
 
     <div class="pipeline-visual">
       <div class="pipeline-step">
         <div class="pipeline-step-num">1</div>
         <div class="pipeline-step-title">Text Expansion</div>
-        <div class="pipeline-step-desc">LLM expands seed concept into detailed T2I prompt</div>
+        <div class="pipeline-step-desc">LLM expands seed into T2I prompt</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">2</div>
         <div class="pipeline-step-title">T2I Generation</div>
-        <div class="pipeline-step-desc">Qwen-Image-2512 generates 1024×1024 object image</div>
+        <div class="pipeline-step-desc">Qwen-Image-2512 at 1024×1024</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">2.5</div>
         <div class="pipeline-step-title">Segmentation</div>
-        <div class="pipeline-step-desc">SAM3 extracts RGBA foreground, removes background</div>
+        <div class="pipeline-step-desc">SAM3 extracts RGBA foreground</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">3</div>
         <div class="pipeline-step-title">3D Reconstruction</div>
-        <div class="pipeline-step-desc">Hunyuan3D-2.1 reconstructs textured mesh from single image</div>
+        <div class="pipeline-step-desc">Hunyuan3D-2.1 textured mesh</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">4</div>
         <div class="pipeline-step-title">Scene Rendering</div>
-        <div class="pipeline-step-desc">Blender 4.24 + Cycles 512spp scene-aware insertion</div>
+        <div class="pipeline-step-desc">Blender 4.24 + Cycles 512spp</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">5</div>
         <div class="pipeline-step-title">VLM Review Loop</div>
-        <div class="pipeline-step-desc">Free-form review → agent action → re-render until keep</div>
+        <div class="pipeline-step-desc">Review → act → re-render until keep</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- VLM Evolution Loop -->
-<section class="section" id="evolution" style="background:var(--bg-primary)">
+<!-- VLM Evolution Loop — Dark Navy Section -->
+<section class="section section-dark" id="evolution">
   <div class="section-inner">
     <div class="section-label">Core Innovation</div>
     <h2 class="section-title">Goal-Driven Loop Agents: Perceive, Diagnose, Act, Repeat</h2>
     <p class="section-desc">
-      The heart of DataEvolver: not a scripted parameter scan, but a <em>goal-driven loop agent</em> that perceives rendered outputs via VLM review, diagnoses semantic issues like "flat lighting" or "weak grounding," selects targeted rendering adjustments from a structured action space, and repeats until quality goals are met.
+      The heart of DataEvolver: a <em style="color:var(--on-dark)">goal-driven loop agent</em> that perceives rendered outputs via VLM review, diagnoses semantic issues, selects targeted rendering adjustments from a structured action space, and repeats until quality goals are met.
     </p>
 
     <div class="loop-diagram">
       <div class="loop-node">
         <div class="loop-node-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
         <div class="loop-node-title">Blender Render</div>
-        <div class="loop-node-desc">Cycles 512spp at 1024×1024 with scene-aware lighting</div>
+        <div class="loop-node-desc">Cycles 512spp at 1024×1024</div>
       </div>
       <div class="loop-arrow">→</div>
       <div class="loop-node">
         <div class="loop-node-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
         <div class="loop-node-title">VLM Review</div>
-        <div class="loop-node-desc">Qwen3.5-35B-A3B free-form critique with thinking mode</div>
+        <div class="loop-node-desc">Qwen3.5-35B free-form critique</div>
       </div>
       <div class="loop-arrow">→</div>
       <div class="loop-node">
         <div class="loop-node-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </div>
-        <div class="loop-node-title">AI Agent Decision</div>
-        <div class="loop-node-desc">Reads reviewer text, selects action from 24-action space</div>
+        <div class="loop-node-title">Agent Decision</div>
+        <div class="loop-node-desc">Reads review, selects from 24 actions</div>
       </div>
       <div class="loop-arrow">→</div>
       <div class="loop-node">
         <div class="loop-node-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <div class="loop-node-title">Quality Gate</div>
-        <div class="loop-node-desc">Reviewer verdict: keep / revise / reject</div>
+        <div class="loop-node-desc">Verdict: keep / revise / reject</div>
       </div>
     </div>
     <div class="loop-feedback">
       <div class="loop-feedback-line">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-        Loop continues with revised parameters until reviewer says <strong>keep</strong>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        Loop continues until reviewer says <strong>keep</strong>
       </div>
     </div>
 
-    <div class="card-grid" style="margin-top:40px">
-      <div class="card">
+    <div class="card-grid" style="margin-top:48px">
+      <div class="card-dark">
         <h3 class="card-title">Anti-Oscillation Control</h3>
-        <p class="card-desc">Sign-flip tracking (freeze after 3 flips), dead-zone detection, and step-scale scheduling (Round 0: 100%, Round 1: 70%, Round 2: 50%, Round 3+: 40%, with score-adaptive ×1.2 boost when hybrid_score &lt; 0.65) prevent infinite loops and parameter thrashing.</p>
+        <p class="card-desc">Sign-flip tracking, dead-zone detection, and step-scale scheduling prevent infinite loops and parameter thrashing.</p>
       </div>
-      <div class="card">
+      <div class="card-dark">
         <h3 class="card-title">Scene-Aware Rendering</h3>
-        <p class="card-desc">Objects placed in real Blender scenes with HDRI environments. Raycast ground detection ensures physical plausibility. Original scene lighting preserved — no artificial studio setups.</p>
+        <p class="card-desc">Objects placed in real Blender scenes with HDRI environments. Raycast ground detection ensures physical plausibility.</p>
       </div>
-      <div class="card">
+      <div class="card-dark">
         <h3 class="card-title">24 Atomic Actions</h3>
-        <p class="card-desc">Structured action space across 5 groups: lighting (key intensity & yaw), object (elevation, yaw, scale), scene (env rotation, env intensity, contact shadow), and material (saturation, value, hue, roughness, specular/sheen).</p>
+        <p class="card-desc">Structured action space across lighting, object transform, scene environment, and material property groups.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Dataset -->
-<section class="section" id="dataset">
+<!-- Dataset — Cream Card -->
+<section class="section section-card" id="dataset">
   <div class="section-inner">
     <div class="section-label">Dataset</div>
     <h2 class="section-title">DataEvolver-Rotate: View-Controlled Rotation Editing</h2>
@@ -760,49 +905,54 @@ code{
       </div>
       <div class="stat-card">
         <div class="stat-value">8</div>
-        <div class="stat-label">Viewpoints per Object</div>
+        <div class="stat-label">Viewpoints / Object</div>
       </div>
       <div class="stat-card">
         <div class="stat-value">350</div>
-        <div class="stat-label">Training Pairs (front→7 views)</div>
+        <div class="stat-label">Training Pairs</div>
       </div>
       <div class="stat-card">
         <div class="stat-value">3×A800</div>
-        <div class="stat-label">Training Infrastructure</div>
+        <div class="stat-label">Infrastructure</div>
       </div>
     </div>
 
     <div class="code-block">
       <div class="code-block-header">
-        <span class="code-block-lang">Python — Load DataEvolver-Rotate Dataset</span>
+        <div class="code-block-dots">
+          <span class="code-block-dot r"></span>
+          <span class="code-block-dot y"></span>
+          <span class="code-block-dot g"></span>
+        </div>
+        <span class="code-block-lang">Python — Load Dataset</span>
       </div>
       <div class="code-block-body">
-<pre><span style="color:var(--text-tertiary)">import</span> json
-<span style="color:var(--text-tertiary)">from</span> pathlib <span style="color:var(--text-tertiary)">import</span> Path
-<span style="color:var(--text-tertiary)">from</span> PIL <span style="color:var(--text-tertiary)">import</span> Image
+<pre><span class="kw">import</span> json
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+<span class="kw">from</span> PIL <span class="kw">import</span> Image
 
-root = Path(<span style="color:var(--color-success)">"dataset_scene_v7_full50_rotation8_trainready_front2others_splitobj_seed42_final_20260410"</span>)
+root = Path(<span class="str">"dataset_scene_v7_full50_rotation8_..."</span>)
 rows = []
-<span style="color:var(--text-tertiary)">with</span> (root / <span style="color:var(--color-success)">"pairs/train_pairs.jsonl"</span>).open(<span style="color:var(--color-success)">"r"</span>) <span style="color:var(--text-tertiary)">as</span> f:
-    <span style="color:var(--text-tertiary)">for</span> line <span style="color:var(--text-tertiary)">in</span> f:
+<span class="kw">with</span> (root / <span class="str">"pairs/train_pairs.jsonl"</span>).open(<span class="str">"r"</span>) <span class="kw">as</span> f:
+    <span class="kw">for</span> line <span class="kw">in</span> f:
         rows.append(json.loads(line))
 
-row = rows[0]
-source = Image.open(root / row[<span style="color:var(--color-success)">"source_image"</span>]).convert(<span style="color:var(--color-success)">"RGB"</span>)
-target = Image.open(root / row[<span style="color:var(--color-success)">"target_image"</span>]).convert(<span style="color:var(--color-success)">"RGB"</span>)
-instruction = row[<span style="color:var(--color-success)">"instruction"</span>]</pre>
+row = rows[<span class="num">0</span>]
+source = Image.open(root / row[<span class="str">"source_image"</span>]).convert(<span class="str">"RGB"</span>)
+target = Image.open(root / row[<span class="str">"target_image"</span>]).convert(<span class="str">"RGB"</span>)
+instruction = row[<span class="str">"instruction"</span>]</pre>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Rendering Gallery -->
-<section class="section" id="gallery" style="background:var(--bg-primary)">
+<!-- Gallery — Cream Canvas -->
+<section class="section" id="gallery">
   <div class="section-inner">
     <div class="section-label">Gallery</div>
     <h2 class="section-title">Scene-Aware Rendering Showcase</h2>
     <p class="section-desc">
-      Best VLM-gated renders across 7 diverse Blender scenes. Each object is automatically placed, lit, and iteratively refined by goal-driven loop agents until quality standards are met.
+      Best VLM-gated renders across 7 diverse Blender scenes. Each object is automatically placed, lit, and iteratively refined by goal-driven loop agents.
     </p>
 
     <div class="gallery-scroll-wrapper">
@@ -810,199 +960,185 @@ instruction = row[<span style="color:var(--color-success)">"instruction"</span>]
       <button class="gallery-scroll-btn right" onclick="scrollGallery(1)" aria-label="Scroll right">&#8250;</button>
       <div class="gallery-scroll" id="galleryScroll">
 
-      <!-- ── Indoor (4.blend) ── -->
+      <!-- Indoor (4.blend) -->
       <div class="gallery-card">
         <img src="images/gallery/obj_1539_indoor4_v1.jpg" alt="Cordless Screwdriver" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Indoor (4.blend)</span>
           <div class="gallery-obj-name">Cordless Screwdriver</div>
-          <div class="gallery-meta">obj_1539 &middot; score 0.623 &middot; Round 0</div>
+          <div class="gallery-meta">obj_1539 · score 0.623 · Round 0</div>
         </div>
       </div>
-
       <div class="gallery-card">
         <img src="images/gallery/obj_1560_indoor4_v1.jpg" alt="Nightstand" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Indoor (4.blend)</span>
           <div class="gallery-obj-name">Nightstand</div>
-          <div class="gallery-meta">obj_1560 &middot; score 0.609 &middot; Round 0</div>
+          <div class="gallery-meta">obj_1560 · score 0.609 · Round 0</div>
         </div>
       </div>
-
       <div class="gallery-card">
         <img src="images/gallery/obj_1575_indoor4_best.jpg" alt="Folding Table" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Indoor (4.blend)</span>
           <div class="gallery-obj-name">Folding Table</div>
-          <div class="gallery-meta">obj_1575 &middot; score 0.471 &middot; Round 1</div>
+          <div class="gallery-meta">obj_1575 · score 0.471 · Round 1</div>
         </div>
       </div>
-
       <div class="gallery-card">
         <img src="images/gallery/obj_1530_indoor4_v1.jpg" alt="Pickup Truck" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Indoor (4.blend)</span>
           <div class="gallery-obj-name">Pickup Truck</div>
-          <div class="gallery-meta">obj_1530 &middot; score 0.592 &middot; Round 0</div>
+          <div class="gallery-meta">obj_1530 · score 0.592 · Round 0</div>
         </div>
       </div>
 
-      <!-- ── Outdoor 7 — Desert Highway ── -->
+      <!-- Outdoor 7 — Desert Highway -->
       <div class="gallery-card">
         <img src="images/gallery/obj_1552_outdoor7_v1.jpg" alt="Toaster Oven" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 7 &mdash; Desert Highway</span>
+          <span class="gallery-tag">Desert Highway</span>
           <div class="gallery-obj-name">Toaster Oven</div>
-          <div class="gallery-meta">obj_1552 &middot; score 0.578 &middot; Round 2</div>
+          <div class="gallery-meta">obj_1552 · score 0.578 · Round 2</div>
         </div>
       </div>
-
       <div class="gallery-card">
         <img src="images/gallery/obj_1531_outdoor7_v1.jpg" alt="Table Lamp" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 7 &mdash; Desert Highway</span>
+          <span class="gallery-tag">Desert Highway</span>
           <div class="gallery-obj-name">Table Lamp</div>
-          <div class="gallery-meta">obj_1531 &middot; score 0.477 &middot; Round 0</div>
+          <div class="gallery-meta">obj_1531 · score 0.477 · Round 0</div>
         </div>
       </div>
 
-      <!-- ── Outdoor 9 — Coastal Bridge ── -->
+      <!-- Outdoor 9 — Coastal Bridge -->
       <div class="gallery-card">
         <img src="images/gallery/obj_1528_outdoor9_v1.jpg" alt="Park Bench" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 9 &mdash; Coastal Bridge</span>
+          <span class="gallery-tag">Coastal Bridge</span>
           <div class="gallery-obj-name">Park Bench</div>
-          <div class="gallery-meta">obj_1528 &middot; score 0.574 &middot; Round 0</div>
+          <div class="gallery-meta">obj_1528 · score 0.574 · Round 0</div>
         </div>
       </div>
-
       <div class="gallery-card">
         <img src="images/gallery/obj_1549_outdoor9_v1.jpg" alt="Parking Meter" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 9 &mdash; Coastal Bridge</span>
+          <span class="gallery-tag">Coastal Bridge</span>
           <div class="gallery-obj-name">Parking Meter</div>
-          <div class="gallery-meta">obj_1549 &middot; score 0.564 &middot; Round 0</div>
+          <div class="gallery-meta">obj_1549 · score 0.564 · Round 0</div>
         </div>
       </div>
-
       <div class="gallery-card">
         <img src="images/gallery/obj_1506_indoor4_v0.jpg" alt="Sledgehammer" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 9 &mdash; Coastal Bridge</span>
+          <span class="gallery-tag">Coastal Bridge</span>
           <div class="gallery-obj-name">Sledgehammer</div>
-          <div class="gallery-meta">obj_1506 &middot; score 0.577 &middot; Round 0</div>
+          <div class="gallery-meta">obj_1506 · score 0.577 · Round 0</div>
         </div>
       </div>
-
       <div class="gallery-card">
         <img src="images/gallery/obj_1511_indoor4_v0.jpg" alt="Rocking Chair" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 9 &mdash; Coastal Bridge</span>
+          <span class="gallery-tag">Coastal Bridge</span>
           <div class="gallery-obj-name">Rocking Chair</div>
-          <div class="gallery-meta">obj_1511 &middot; score 0.576 &middot; Round 3</div>
+          <div class="gallery-meta">obj_1511 · score 0.576 · Round 3</div>
         </div>
       </div>
 
-      <!-- ── Outdoor 11 — Industrial Yard ── -->
+      <!-- Outdoor 11 — Industrial Yard -->
       <div class="gallery-card">
         <img src="images/gallery/obj_1546_outdoor11_v1.jpg" alt="Retro Telephone" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 11 &mdash; Industrial Yard</span>
+          <span class="gallery-tag">Industrial Yard</span>
           <div class="gallery-obj-name">Retro Telephone</div>
-          <div class="gallery-meta">obj_1546 &middot; score 0.591 &middot; Round 0</div>
+          <div class="gallery-meta">obj_1546 · score 0.591 · Round 0</div>
         </div>
       </div>
-
       <div class="gallery-card">
         <img src="images/gallery/obj_1567_outdoor11_v1.jpg" alt="Concrete Barrier" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 11 &mdash; Industrial Yard</span>
+          <span class="gallery-tag">Industrial Yard</span>
           <div class="gallery-obj-name">Concrete Barrier</div>
-          <div class="gallery-meta">obj_1567 &middot; score 0.565 &middot; Round 2</div>
+          <div class="gallery-meta">obj_1567 · score 0.565 · Round 2</div>
         </div>
       </div>
 
-      <!-- ── Outdoor 13 — Neon Wetland ── -->
+      <!-- Outdoor 13 — Neon Wetland -->
       <div class="gallery-card">
         <img src="images/gallery/obj_1564_outdoor13_v1.jpg" alt="Espresso Machine" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 13 &mdash; Neon Wetland</span>
+          <span class="gallery-tag">Neon Wetland</span>
           <div class="gallery-obj-name">Espresso Machine</div>
-          <div class="gallery-meta">obj_1564 &middot; score 0.552 &middot; Round 0</div>
+          <div class="gallery-meta">obj_1564 · score 0.552 · Round 0</div>
         </div>
       </div>
-
       <div class="gallery-card">
         <img src="images/gallery/obj_1543_outdoor13_v1.jpg" alt="Traffic Cone" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 13 &mdash; Neon Wetland</span>
+          <span class="gallery-tag">Neon Wetland</span>
           <div class="gallery-obj-name">Traffic Cone</div>
-          <div class="gallery-meta">obj_1543 &middot; score 0.518 &middot; Round 1</div>
+          <div class="gallery-meta">obj_1543 · score 0.518 · Round 1</div>
         </div>
       </div>
-
       <div class="gallery-card">
         <img src="images/gallery/obj_1578_outdoor13_best.jpg" alt="Electric Drill" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 13 &mdash; Neon Wetland</span>
+          <span class="gallery-tag">Neon Wetland</span>
           <div class="gallery-obj-name">Electric Drill</div>
-          <div class="gallery-meta">obj_1578 &middot; score 0.447 &middot; Round 2</div>
+          <div class="gallery-meta">obj_1578 · score 0.447 · Round 2</div>
         </div>
       </div>
-
       <div class="gallery-card">
         <img src="images/gallery/obj_1536_indoor4_v1.jpg" alt="Cement Mixer Truck" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 13 &mdash; Neon Wetland</span>
+          <span class="gallery-tag">Neon Wetland</span>
           <div class="gallery-obj-name">Cement Mixer Truck</div>
-          <div class="gallery-meta">obj_1536 &middot; score 0.600 &middot; Round 1</div>
+          <div class="gallery-meta">obj_1536 · score 0.600 · Round 1</div>
         </div>
       </div>
 
-      <!-- ── Outdoor 15 — Misty Forest ── -->
+      <!-- Outdoor 15 — Misty Forest -->
       <div class="gallery-card">
         <img src="images/gallery/obj_1534_outdoor15_v1.jpg" alt="Desk Stapler" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 15 &mdash; Misty Forest</span>
+          <span class="gallery-tag">Misty Forest</span>
           <div class="gallery-obj-name">Desk Stapler</div>
-          <div class="gallery-meta">obj_1534 &middot; score 0.601 &middot; Round 0</div>
+          <div class="gallery-meta">obj_1534 · score 0.601 · Round 0</div>
         </div>
       </div>
-
       <div class="gallery-card">
         <img src="images/gallery/obj_1569_outdoor15_best.jpg" alt="Ceramic Teapot" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 15 &mdash; Misty Forest</span>
+          <span class="gallery-tag">Misty Forest</span>
           <div class="gallery-obj-name">Ceramic Teapot</div>
-          <div class="gallery-meta">obj_1569 &middot; score 0.572 &middot; Round 2</div>
+          <div class="gallery-meta">obj_1569 · score 0.572 · Round 2</div>
         </div>
       </div>
-
       <div class="gallery-card">
         <img src="images/gallery/obj_1555_outdoor15_v1.jpg" alt="Street Bench" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 15 &mdash; Misty Forest</span>
+          <span class="gallery-tag">Misty Forest</span>
           <div class="gallery-obj-name">Street Bench</div>
-          <div class="gallery-meta">obj_1555 &middot; score 0.523 &middot; Round 2</div>
+          <div class="gallery-meta">obj_1555 · score 0.523 · Round 2</div>
         </div>
       </div>
 
-      <!-- ── Outdoor 16 — Urban Concrete ── -->
+      <!-- Outdoor 16 — Urban Concrete -->
       <div class="gallery-card">
         <img src="images/gallery/obj_1572_outdoor16_best.jpg" alt="Rolling Office Chair" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 16 &mdash; Urban Concrete</span>
+          <span class="gallery-tag">Urban Concrete</span>
           <div class="gallery-obj-name">Rolling Office Chair</div>
-          <div class="gallery-meta">obj_1572 &middot; score 0.549 &middot; Round 0</div>
+          <div class="gallery-meta">obj_1572 · score 0.549 · Round 0</div>
         </div>
       </div>
-
       <div class="gallery-card">
         <img src="images/gallery/obj_1558_outdoor16_v1.jpg" alt="Sewing Machine" onclick="openLightbox(this)">
         <div class="gallery-info">
-          <span class="gallery-tag">Outdoor 16 &mdash; Urban Concrete</span>
+          <span class="gallery-tag">Urban Concrete</span>
           <div class="gallery-obj-name">Sewing Machine</div>
-          <div class="gallery-meta">obj_1558 &middot; score 0.567 &middot; Round 2</div>
+          <div class="gallery-meta">obj_1558 · score 0.567 · Round 2</div>
         </div>
       </div>
 
@@ -1012,8 +1148,8 @@ instruction = row[<span style="color:var(--color-success)">"instruction"</span>]
   </div>
 </section>
 
-<!-- Action Space -->
-<section class="section" style="background:var(--bg-primary)">
+<!-- Action Space — Cream Card -->
+<section class="section section-card">
   <div class="section-inner">
     <div class="section-label">Action Space</div>
     <h2 class="section-title">24 Structured Atomic Actions</h2>
@@ -1021,40 +1157,40 @@ instruction = row[<span style="color:var(--color-success)">"instruction"</span>]
       The AI agent selects from a discrete, structured action space to address VLM-identified issues. Each action targets a specific rendering parameter.
     </p>
 
-    <div class="card-grid">
-      <div class="card">
+    <div class="connector-grid">
+      <div class="connector-tile">
         <h4>Key Light Intensity</h4>
-        <p class="card-desc">×1.2 / ×0.8 multiplicative, bounded [0.5, 2.0]</p>
+        <p>×1.2 / ×0.8 multiplicative, bounded [0.5, 2.0]</p>
       </div>
-      <div class="card">
-        <h4>Key Light Rotation (Yaw)</h4>
-        <p class="card-desc">±15° step, bounded [-90°, 90°]</p>
+      <div class="connector-tile">
+        <h4>Key Light Rotation</h4>
+        <p>±15° yaw step, bounded [-90°, 90°]</p>
       </div>
-      <div class="card">
+      <div class="connector-tile">
         <h4>Env Light Intensity</h4>
-        <p class="card-desc">×1.2 / ×0.8 multiplicative, bounded [0.5, 2.0]</p>
+        <p>×1.2 / ×0.8 multiplicative, bounded [0.5, 2.0]</p>
       </div>
-      <div class="card">
+      <div class="connector-tile">
         <h4>Env Rotation (Z)</h4>
-        <p class="card-desc">±30° step, bounded [-180°, 180°]</p>
+        <p>±30° step, bounded [-180°, 180°]</p>
       </div>
-      <div class="card">
+      <div class="connector-tile">
         <h4>Object Elevation</h4>
-        <p class="card-desc">±0.02 step, bounded [-0.1, 0.1]</p>
+        <p>±0.02 step, bounded [-0.1, 0.1]</p>
       </div>
-      <div class="card">
+      <div class="connector-tile">
         <h4>Material Roughness</h4>
-        <p class="card-desc">±0.08 step, bounded [-0.3, 0.6]</p>
+        <p>±0.08 step, bounded [-0.3, 0.6]</p>
       </div>
     </div>
-    <p style="text-align:center;margin-top:20px;font-size:0.8125rem;color:var(--text-tertiary)">
-      + 18 more actions covering object yaw, object scale, contact shadow, color saturation, value/brightness, hue offset, specular/sheen, and more — see <a href="https://github.com/Kamisato520/DataEvolver/blob/main/configs/scene_action_space.json" target="_blank" rel="noopener">scene_action_space.json</a>
+    <p style="text-align:center;margin-top:24px;font-size:0.8125rem;color:var(--muted)">
+      + 18 more actions — see <a href="https://github.com/Kamisato520/DataEvolver/blob/main/configs/scene_action_space.json" target="_blank" rel="noopener">scene_action_space.json</a>
     </p>
   </div>
 </section>
 
-<!-- Key Highlights -->
-<section class="section">
+<!-- Key Highlights — Dark Navy -->
+<section class="section section-dark">
   <div class="section-inner">
     <div class="section-label">Why DataEvolver</div>
     <h2 class="section-title">Key Differentiators</h2>
@@ -1063,100 +1199,98 @@ instruction = row[<span style="color:var(--color-success)">"instruction"</span>]
     </p>
 
     <div class="card-grid">
-      <div class="card">
-        <div class="card-icon" style="background:rgba(34,197,94,0.1)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div class="card-dark">
+        <div class="card-icon" style="background:rgba(93,184,114,0.15)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
         <h3 class="card-title">VLM-as-Feedback, Not Score</h3>
-        <p class="card-desc">Free-form natural language feedback provides semantic diagnosis that numeric scores cannot. The reviewer identifies <em>why</em> a render fails, not just <em>that</em> it fails.</p>
+        <p class="card-desc">Free-form natural language feedback provides semantic diagnosis that numeric scores cannot. The reviewer identifies <em style="color:var(--on-dark)">why</em> a render fails.</p>
       </div>
-      <div class="card">
-        <div class="card-icon" style="background:rgba(168,85,247,0.1)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <div class="card-dark">
+        <div class="card-icon" style="background:rgba(204,120,92,0.15)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </div>
         <h3 class="card-title">AI Agent Autonomy</h3>
-        <p class="card-desc">The agent reads raw review text and reasons about which action to take — no scripted rule engine, no score-threshold mapping. Full decision autonomy with bounded safety constraints.</p>
+        <p class="card-desc">The agent reads raw review text and reasons about which action to take — no scripted rule engine, no score-threshold mapping.</p>
       </div>
-      <div class="card">
-        <div class="card-icon" style="background:rgba(59,130,246,0.1)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <div class="card-dark">
+        <div class="card-icon" style="background:rgba(93,184,166,0.15)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
         <h3 class="card-title">Proven Downstream Value</h3>
-        <p class="card-desc">LoRA fine-tuning on DataEvolver-Rotate demonstrably improves Qwen Image Edit 2511 on PSNR, SSIM, and LPIPS vs. the base model, confirming real training utility.</p>
+        <p class="card-desc">LoRA fine-tuning on DataEvolver-Rotate improves Qwen Image Edit 2511 on PSNR, SSIM, and LPIPS vs. the base model.</p>
       </div>
-      <div class="card">
-        <div class="card-icon" style="background:rgba(217,119,6,0.1)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <div class="card-dark">
+        <div class="card-icon" style="background:rgba(232,165,90,0.15)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
         <h3 class="card-title">Multi-Modal Data Support</h3>
-        <p class="card-desc">Beyond RGB pairs: mask, depth, normal maps, and geometry metadata — enabling research on multi-modal conditioning for image editing models.</p>
+        <p class="card-desc">Beyond RGB pairs: mask, depth, normal maps, and geometry metadata — enabling multi-modal conditioning research.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Tech Stack -->
-<section class="section" style="background:var(--bg-primary)">
+<!-- Tech Stack — Cream Card -->
+<section class="section section-card">
   <div class="section-inner">
     <div class="section-label">Tech Stack</div>
     <h2 class="section-title">Built With</h2>
     <p class="section-desc">The models, frameworks, and infrastructure powering the DataEvolver pipeline.</p>
 
-    <div style="display:flex;flex-wrap:wrap;gap:12px">
-      <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:8px 18px;font-size:0.8125rem;font-family:var(--font-mono);color:var(--text-secondary)">Python 3.10+</span>
-      <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:8px 18px;font-size:0.8125rem;font-family:var(--font-mono);color:var(--text-secondary)">Blender 4.24</span>
-      <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:8px 18px;font-size:0.8125rem;font-family:var(--font-mono);color:var(--text-secondary)">Cycles Path Tracing</span>
-      <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:8px 18px;font-size:0.8125rem;font-family:var(--font-mono);color:var(--text-secondary)">PyTorch 2.8</span>
-      <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:8px 18px;font-size:0.8125rem;font-family:var(--font-mono);color:var(--text-secondary)">Qwen-Image-2512</span>
-      <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:8px 18px;font-size:0.8125rem;font-family:var(--font-mono);color:var(--text-secondary)">SAM3</span>
-      <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:8px 18px;font-size:0.8125rem;font-family:var(--font-mono);color:var(--text-secondary)">Hunyuan3D-2.1</span>
-      <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:8px 18px;font-size:0.8125rem;font-family:var(--font-mono);color:var(--text-secondary)">Qwen3.5-35B-A3B</span>
-      <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:8px 18px;font-size:0.8125rem;font-family:var(--font-mono);color:var(--text-secondary)">Qwen-Image-Edit-2511</span>
-      <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:8px 18px;font-size:0.8125rem;font-family:var(--font-mono);color:var(--text-secondary)">DiffSynth-Studio</span>
-      <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:8px 18px;font-size:0.8125rem;font-family:var(--font-mono);color:var(--text-secondary)">LoRA (PEFT)</span>
-      <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:8px 18px;font-size:0.8125rem;font-family:var(--font-mono);color:var(--text-secondary)">3×A800 80GB</span>
+    <div class="tag-grid">
+      <span class="tag">Python 3.10+</span>
+      <span class="tag">Blender 4.24</span>
+      <span class="tag">Cycles Path Tracing</span>
+      <span class="tag">PyTorch 2.8</span>
+      <span class="tag">Qwen-Image-2512</span>
+      <span class="tag">SAM3</span>
+      <span class="tag">Hunyuan3D-2.1</span>
+      <span class="tag">Qwen3.5-35B-A3B</span>
+      <span class="tag">Qwen-Image-Edit-2511</span>
+      <span class="tag">DiffSynth-Studio</span>
+      <span class="tag">LoRA (PEFT)</span>
+      <span class="tag">3×A800 80GB</span>
     </div>
   </div>
 </section>
 
-<!-- Getting Started -->
+<!-- Getting Started — Cream Canvas -->
 <section class="section" id="start">
   <div class="section-inner">
     <div class="section-label">Get Started</div>
     <h2 class="section-title">Quick Start</h2>
     <p class="section-desc">
-      DataEvolver is designed to run on a Linux server with GPU access and Blender. Clone the repo and start building self-improving data pipelines.
+      DataEvolver runs on a Linux server with GPU access and Blender. Clone the repo and start building self-improving data pipelines.
     </p>
 
     <div class="code-block">
       <div class="code-block-header">
+        <div class="code-block-dots">
+          <span class="code-block-dot r"></span>
+          <span class="code-block-dot y"></span>
+          <span class="code-block-dot g"></span>
+        </div>
         <span class="code-block-lang">Shell — Setup</span>
       </div>
       <div class="code-block-body">
 <pre>git clone https://github.com/Kamisato520/DataEvolver.git
-<span style="color:var(--text-tertiary)">cd</span> DataEvolver
+<span class="kw">cd</span> DataEvolver
 
-<span style="color:var(--text-tertiary)"># Explore the pipeline</span>
-<span style="color:var(--text-tertiary)">ls</span> pipeline/     <span style="color:var(--text-tertiary)"># 6-stage data synthesis (stage1 → stage5)</span>
-<span style="color:var(--text-tertiary)">ls</span> configs/      <span style="color:var(--text-tertiary)"># Action space, scene templates, dataset profiles</span>
-<span style="color:var(--text-tertiary)">ls</span> scripts/      <span style="color:var(--text-tertiary)"># Agent monitor, dataset builders, eval tools</span>
+<span class="cm"># Explore the pipeline</span>
+<span class="kw">ls</span> pipeline/     <span class="cm"># 6-stage data synthesis</span>
+<span class="kw">ls</span> configs/      <span class="cm"># Action space, scene templates</span>
+<span class="kw">ls</span> scripts/      <span class="cm"># Agent monitor, dataset builders</span>
 
-<span style="color:var(--text-tertiary)"># Read the full documentation</span>
-<span style="color:var(--text-tertiary)">cat</span> CLAUDE.md     <span style="color:var(--text-tertiary)"># Comprehensive project guide</span></pre>
+<span class="cm"># Read the full documentation</span>
+<span class="kw">cat</span> CLAUDE.md     <span class="cm"># Comprehensive project guide</span></pre>
       </div>
     </div>
-
-    <p style="margin-top:24px;text-align:center">
-      <a href="https://github.com/Kamisato520/DataEvolver" class="btn btn-primary" target="_blank" rel="noopener">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-        Explore the Repository
-      </a>
-    </p>
   </div>
 </section>
 
-<!-- Citation -->
-<section class="section" style="background:var(--bg-primary)">
+<!-- Citation — Cream Card -->
+<section class="section section-card">
   <div class="section-inner" style="text-align:center">
     <div class="section-label">Cite</div>
     <h2 class="section-title">Citation</h2>
@@ -1166,32 +1300,82 @@ instruction = row[<span style="color:var(--color-success)">"instruction"</span>]
 
     <div class="code-block" style="text-align:left;max-width:720px;margin:0 auto">
       <div class="code-block-header">
+        <div class="code-block-dots">
+          <span class="code-block-dot r"></span>
+          <span class="code-block-dot y"></span>
+          <span class="code-block-dot g"></span>
+        </div>
         <span class="code-block-lang">BibTeX</span>
       </div>
       <div class="code-block-body">
-<pre>@misc{dataevolver2026,
-  title        = {{DataEvolver}: Let Your Data Build and Improve
+<pre>@misc{zhang2026dataevolverletdatabuild,
+  title        = {DataEvolver: Let Your Data Build and Improve
                   Itself via Goal-Driven Loop Agents},
-  author       = {Zhang, Qisong and Wu, Wenzhuo},
+  author       = {Qisong Zhang and Wenzhuo Wu and Zhuangzhuang Jia
+                  and Yunhao Yang and Huayu Zhang and Xianghao Zang
+                  and Zhixiang He and Zhongjiang He and Kongming Liang
+                  and Zhanyu Ma},
   year         = {2026},
-  howpublished = {\url{https://github.com/Kamisato520/DataEvolver}},
-  note         = {Technical Report}
+  eprint       = {2605.01789},
+  archivePrefix= {arXiv},
+  primaryClass = {cs.AI},
+  url          = {https://arxiv.org/abs/2605.01789}
 }</pre>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Footer -->
+<!-- CTA Band — Coral -->
+<section class="section">
+  <div class="section-inner">
+    <div class="cta-band">
+      <h2>Ready to Build Self-Improving Data?</h2>
+      <p>Clone the repository and start running goal-driven loop agents on your own scenes and objects.</p>
+      <a href="https://github.com/Kamisato520/DataEvolver" class="btn btn-secondary" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        Get Started on GitHub
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer — Dark Navy -->
 <footer class="footer">
   <div class="footer-inner">
-    <ul class="footer-links">
-      <li><a href="https://github.com/Kamisato520/DataEvolver" target="_blank" rel="noopener">GitHub</a></li>
-      <li><a href="paper/DataEvolver_technical_report.pdf">Paper (PDF)</a></li>
-      <li><a href="https://github.com/Kamisato520/DataEvolver/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
-      <li><a href="https://github.com/Kamisato520/DataEvolver/blob/main/LICENSE" target="_blank" rel="noopener">License</a></li>
-    </ul>
-    <p class="footer-text">DataEvolver — Let Your Data Build and Improve Itself via Goal-Driven Loop Agents &copy; 2026</p>
+    <div class="footer-brand">
+      <img src="logo.png" alt="DataEvolver" style="height:24px;width:auto;border-radius:3px">
+      DataEvolver
+    </div>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Project</h4>
+        <a href="https://github.com/Kamisato520/DataEvolver" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://arxiv.org/abs/2605.01789" target="_blank" rel="noopener">Technical Report</a>
+        <a href="https://github.com/Kamisato520/DataEvolver/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="https://github.com/Kamisato520/DataEvolver/blob/main/CLAUDE.md" target="_blank" rel="noopener">Documentation</a>
+        <a href="https://github.com/Kamisato520/DataEvolver/blob/main/configs/scene_action_space.json" target="_blank" rel="noopener">Action Space</a>
+        <a href="https://github.com/Kamisato520/DataEvolver/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
+      </div>
+      <div class="footer-col">
+        <h4>Pipeline</h4>
+        <a href="#pipeline">Overview</a>
+        <a href="#evolution">VLM Loop</a>
+        <a href="#dataset">Dataset</a>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <a href="https://github.com/Kamisato520/DataEvolver" target="_blank" rel="noopener">GitHub</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#start">Get Started</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      DataEvolver — Let Your Data Build and Improve Itself via Goal-Driven Loop Agents © 2026
+    </div>
   </div>
 </footer>
 
@@ -1210,7 +1394,6 @@ function closeLightbox(){
 }
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox();});
 
-/* Gallery horizontal scroll */
 function scrollGallery(dir){
   var el=document.getElementById('galleryScroll');
   if(!el)return;
@@ -1257,7 +1440,6 @@ function scrollGallery(dir){
   scroll.addEventListener('scroll',updateDots);
   window.addEventListener('resize',function(){buildDots();updateDots();});
 
-  /* keyboard navigation */
   document.addEventListener('keydown',function(e){
     var rect=scroll.getBoundingClientRect();
     var inView=rect.top<window.innerHeight&&rect.bottom>0;
@@ -1266,7 +1448,6 @@ function scrollGallery(dir){
     if(e.key==='ArrowRight')scrollGallery(1);
   });
 
-  /* auto-scroll animation */
   var autoScrollTimer;
   var paused=false;
   function startAutoScroll(){
