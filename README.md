@@ -295,6 +295,20 @@ Claude Code will read your `CLAUDE.md` and understand the full project context. 
 }
 ```
 
+## Roadmap
+
+### Internal Enhancement — perception, understanding, and decision-making
+
+- [ ] **Structured VLM knowledge base** — build a prior-knowledge store to anchor VLM quality assessment with objective criteria, reducing reliance on subjective judgment when evaluating data quality, task suitability, and assessment direction
+- [ ] **WebSearch-integrated AI Agent** — add pre-task web retrieval: when the agent receives a user request, it searches for relevant datasets, papers, and existing methods to understand the data construction landscape before acting. Combine with local deep-research tools to establish background knowledge, preventing the model from working in an information vacuum
+
+### External Expansion — richer dataset types and construction modalities
+
+- [ ] **Multi-object scenes** — extend the rendering system to support multiple objects per scene, enabling composite geometry editing (rotation, insertion, removal, translation) within a single render
+- [ ] **Video object datasets** — expand from image-based datasets to video-level object editing: removal, translation, and attribute editing across frames
+- [ ] **Auto-generated reasoning-evaluation datasets** — after user training, automatically produce evaluation benchmarks with training–eval information alignment, customized rendering, and automated metric computation
+- [ ] **Real-world dataset ingestion** — use WebSearch to discover real-world datasets, then crawl, clean, process, and construct structured datasets, broadening data source coverage and downstream applicability
+
 ## License
 
 [MIT](LICENSE)
