@@ -300,4 +300,4 @@ Claude Code will read your `CLAUDE.md` and understand the full project context. 
 
 ## License
 
-[MIT](LICENSE)
+[Apache-2.0](LICENSE)
