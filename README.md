@@ -20,10 +20,7 @@ DataEvolver is a goal-driven data synthesis pipeline that generates high-quality
 
 ## Pipeline Overview
 
-```
-Seed Concept ─→ T2I Generation ─→ Segmentation ─→ 3D Reconstruction ─→ Scene Rendering ─→ VLM Review Loop
-  (Stage 1)       (Stage 2)       (Stage 2.5)        (Stage 3)           (Stage 4)          (Stage 5)
-```
+![Pipeline Overview](assets/pipeline_show.svg)
 
 | Stage | What it does | Model / Tool |
 |-------|-------------|-------------|
@@ -38,15 +35,7 @@ Seed Concept ─→ T2I Generation ─→ Segmentation ─→ 3D Reconstruction 
 
 The core innovation: a **goal-driven loop agent** that iteratively improves rendering quality.
 
-```
-┌─────────────┐     ┌──────────────┐     ┌──────────────────┐     ┌──────────────┐
-│   Blender   │────→│  VLM Review  │────→│  AI Agent        │────→│ Quality Gate │
-│   Render    │     │  (free-form  │     │  Decision        │     │ keep/revise  │
-│             │     │   critique)  │     │  (select action) │     │              │
-└─────────────┘     └──────────────┘     └──────────────────┘     └──────┬───────┘
-       ↑                                                                  │
-       └──────────────── loop until reviewer says "keep" ─────────────────┘
-```
+![VLM Review Loop](assets/stage5.svg)
 
 **Anti-oscillation control** prevents parameter thrashing:
 - Sign-flip tracking: freeze a parameter after 3 direction reversals
