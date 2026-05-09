@@ -7,43 +7,35 @@
 <meta name="description" content="DataEvolver: Let Your Data Build and Improve Itself via Goal-Driven Loop Agents. An autonomous synthetic data construction framework powered by goal-driven AI agents.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;320;340;400;480;500;540;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ===== Design System — Claude Warm-Canvas ===== */
+/* ===== Design System — Figma Monochrome + Pastel ===== */
 :root {
-  --canvas: #faf9f5;
-  --surface-soft: #f5f0e8;
-  --surface-card: #efe9de;
-  --surface-cream-strong: #e8e0d2;
-  --surface-dark: #181715;
-  --surface-dark-elevated: #252320;
-  --surface-dark-soft: #1f1e1b;
-  --primary: #cc785c;
-  --primary-active: #a9583e;
-  --primary-disabled: #e6dfd8;
-  --ink: #141413;
-  --body: #3d3d3a;
-  --body-strong: #252523;
-  --muted: #6c6a64;
-  --muted-soft: #8e8b82;
-  --hairline: #e6dfd8;
-  --hairline-soft: #ebe6df;
+  --primary: #000000;
   --on-primary: #ffffff;
-  --on-dark: #faf9f5;
-  --on-dark-soft: #a09d96;
-  --accent-teal: #5db8a6;
-  --accent-amber: #e8a55a;
-  --success: #5db872;
-  --warning: #d4a017;
-  --error: #c64545;
-  --font-display: 'Cormorant Garamond', 'Tiempos Headline', Garamond, 'Times New Roman', serif;
+  --ink: #000000;
+  --canvas: #ffffff;
+  --surface-soft: #f7f7f5;
+  --hairline: #e6e6e6;
+  --hairline-soft: #f1f1f1;
+  --block-lime: #dceeb1;
+  --block-lilac: #c5b0f4;
+  --block-cream: #f4ecd6;
+  --block-mint: #c8e6cd;
+  --block-pink: #efd4d4;
+  --block-coral: #f3c9b6;
+  --block-navy: #1f1d3d;
+  --accent-magenta: #ff3d8b;
+  --success: #1ea64a;
+  --body: #3a3a3a;
+  --muted: #787878;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-code: 'JetBrains Mono', ui-monospace, monospace;
   --radius-sm: 6px;
   --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-pill: 9999px;
+  --radius-lg: 24px;
+  --radius-pill: 50px;
   --transition: 200ms ease;
   --max-width: 1200px;
   --section-pad: 96px;
@@ -56,36 +48,57 @@ body{
   font-family:var(--font-body);
   background:var(--canvas);
   color:var(--ink);
-  line-height:1.55;
+  font-size:18px;
+  font-weight:320;
+  line-height:1.45;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
-  font-size:16px;
-  font-weight:400;
 }
 
 /* ===== Typography ===== */
-h1,h2,h3,h4{font-family:var(--font-display);line-height:1.15;font-weight:400;letter-spacing:-0.02em;color:var(--ink)}
-h1{font-size:clamp(2.5rem,5vw,4rem);letter-spacing:-0.025em;line-height:1.05}
-h2{font-size:clamp(1.75rem,3.5vw,2.25rem);letter-spacing:-0.015em;line-height:1.1}
-h3{font-size:1.125rem;font-weight:500;font-family:var(--font-body);letter-spacing:0;line-height:1.4}
-h4{font-size:1rem;font-weight:500;font-family:var(--font-body);letter-spacing:0}
-p{color:var(--body);line-height:1.55}
-a{color:var(--primary);text-decoration:none;transition:color var(--transition)}
-a:hover{color:var(--primary-active)}
+h1,h2,h3,h4{font-family:var(--font-display);color:var(--ink)}
+h1{
+  font-size:86px;
+  font-weight:340;
+  line-height:1.00;
+  letter-spacing:-1.72px;
+}
+h2{
+  font-size:clamp(36px,5vw,56px);
+  font-weight:340;
+  line-height:1.1;
+  letter-spacing:-1.08px;
+}
+h3{
+  font-size:1.125rem;
+  font-weight:480;
+  font-family:var(--font-body);
+  letter-spacing:0;
+  line-height:1.4;
+}
+h4{
+  font-size:1rem;
+  font-weight:480;
+  font-family:var(--font-body);
+  letter-spacing:0;
+}
+p{color:var(--body);line-height:1.45;font-weight:320}
+a{color:var(--ink);text-decoration:none;transition:color var(--transition)}
+a:hover{color:var(--accent-magenta)}
 code{
   font-family:var(--font-code);
   background:var(--surface-soft);
   padding:2px 6px;
   border-radius:4px;
   font-size:0.875em;
-  color:var(--primary);
+  color:var(--ink);
 }
-em{font-style:italic;color:var(--body-strong)}
+em{font-style:italic;color:var(--body)}
 
 /* ===== Navigation ===== */
 .nav{
   position:fixed;top:0;left:0;right:0;z-index:1000;
-  background:rgba(250,249,245,0.92);
+  background:rgba(255,255,255,0.92);
   backdrop-filter:blur(16px) saturate(180%);
   -webkit-backdrop-filter:blur(16px) saturate(180%);
   border-bottom:1px solid var(--hairline);
@@ -97,8 +110,8 @@ em{font-style:italic;color:var(--body-strong)}
   padding:0 32px;height:100%;
 }
 .nav-logo{
-  font-family:var(--font-display);
-  font-size:1.375rem;font-weight:500;
+  font-family:var(--font-body);
+  font-size:1.375rem;font-weight:540;
   color:var(--ink);
   display:flex;align-items:center;gap:10px;
   letter-spacing:-0.02em;
@@ -108,7 +121,7 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .nav-links{display:flex;gap:32px;list-style:none}
 .nav-links a{
-  color:var(--muted);font-size:0.875rem;font-weight:500;
+  color:var(--muted);font-size:0.875rem;font-weight:480;
   font-family:var(--font-body);
   transition:color var(--transition);
 }
@@ -116,48 +129,40 @@ em{font-style:italic;color:var(--body-strong)}
 .nav-cta{
   background:var(--primary)!important;
   color:var(--on-primary)!important;
-  padding:10px 20px;border-radius:var(--radius-md);
-  font-weight:500;font-size:0.875rem;
+  padding:10px 24px;border-radius:var(--radius-pill);
+  font-weight:480;font-size:0.875rem;
   transition:background var(--transition);
   height:40px;display:inline-flex;align-items:center;
 }
-.nav-cta:hover{background:var(--primary-active)!important}
+.nav-cta:hover{background:#333!important}
 
 /* ===== Buttons ===== */
 .btn{
   display:inline-flex;align-items:center;gap:8px;
-  padding:12px 20px;border-radius:var(--radius-md);
-  font-family:var(--font-body);font-weight:500;font-size:0.875rem;
+  padding:12px 28px;border-radius:var(--radius-pill);
+  font-family:var(--font-body);font-weight:480;font-size:0.9375rem;
   cursor:pointer;transition:all var(--transition);
-  border:none;text-decoration:none;height:40px;
+  border:none;text-decoration:none;height:48px;
 }
 .btn-primary{
   background:var(--primary);color:var(--on-primary);
 }
 .btn-primary:hover{
-  background:var(--primary-active);color:var(--on-primary);
+  background:#333;color:var(--on-primary);
   transform:translateY(-1px);
 }
 .btn-secondary{
   background:var(--canvas);color:var(--ink);
-  border:1px solid var(--hairline);
+  border:none;
 }
 .btn-secondary:hover{
-  border-color:var(--primary);color:var(--primary);
+  background:var(--surface-soft);color:var(--ink);
 }
 .btn-on-dark{
-  background:var(--surface-dark-elevated);color:var(--on-dark);
+  background:rgba(255,255,255,0.15);color:var(--on-primary);
 }
 .btn-on-dark:hover{
-  background:var(--surface-dark-soft);color:var(--on-dark);
-}
-.btn-outline-coral{
-  background:transparent;color:var(--on-primary);
-  border:1.5px solid rgba(255,255,255,0.4);
-}
-.btn-outline-coral:hover{
-  background:rgba(255,255,255,0.1);color:var(--on-primary);
-  border-color:rgba(255,255,255,0.7);
+  background:rgba(255,255,255,0.25);color:var(--on-primary);
 }
 
 /* ===== Hero Band ===== */
@@ -174,13 +179,13 @@ em{font-style:italic;color:var(--body-strong)}
 .hero-content{position:relative;z-index:1}
 .hero-badge{
   display:inline-flex;align-items:center;gap:8px;
-  background:var(--surface-card);
+  background:var(--surface-soft);
   border:1px solid var(--hairline);
-  padding:4px 12px;border-radius:var(--radius-pill);
-  font-size:0.75rem;font-weight:500;color:var(--muted);
+  padding:4px 16px;border-radius:var(--radius-pill);
+  font-size:0.75rem;font-weight:480;color:var(--muted);
   margin-bottom:24px;
-  font-family:var(--font-body);
-  text-transform:uppercase;letter-spacing:0.08em;
+  font-family:var(--font-code);
+  text-transform:uppercase;letter-spacing:0.54px;
 }
 .hero-badge .badge-dot{
   width:6px;height:6px;border-radius:50%;
@@ -191,46 +196,39 @@ em{font-style:italic;color:var(--body-strong)}
   color:var(--ink);
 }
 .hero-subtitle{
-  font-size:1.0625rem;line-height:1.6;max-width:560px;
+  font-size:18px;line-height:1.45;max-width:560px;
   color:var(--body);margin-bottom:32px;
+  font-weight:320;
 }
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
 
 /* Hero illustration card */
 .hero-illustration{
-  background:var(--surface-dark);
-  border-radius:var(--radius-xl);
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-lg);
   padding:32px;
   position:relative;overflow:hidden;
-}
-.hero-illustration::before{
-  content:'';position:absolute;inset:0;
-  background:
-    linear-gradient(135deg,rgba(204,120,92,0.08) 0%,transparent 50%),
-    linear-gradient(225deg,rgba(93,184,166,0.06) 0%,transparent 50%);
-}
-.hero-illustration-inner{
-  position:relative;z-index:1;
 }
 .hero-code-header{
   display:flex;align-items:center;gap:8px;margin-bottom:20px;
 }
-.hero-code-dot{width:10px;height:10px;border-radius:50%;background:var(--surface-dark-elevated)}
+.hero-code-dot{width:10px;height:10px;border-radius:50%;background:var(--hairline)}
 .hero-code-dot.r{background:#c64545}
 .hero-code-dot.y{background:#d4a017}
-.hero-code-dot.g{background:#5db872}
+.hero-code-dot.g{background:var(--success)}
 .hero-code-title{
-  font-family:var(--font-code);font-size:0.75rem;color:var(--on-dark-soft);
-  margin-left:8px;
+  font-family:var(--font-code);font-size:0.75rem;color:var(--muted);
+  margin-left:8px;text-transform:uppercase;letter-spacing:0.54px;
 }
 .hero-code-block{
   font-family:var(--font-code);font-size:0.8125rem;line-height:1.8;
-  color:var(--on-dark-soft);
+  color:var(--body);
 }
-.hero-code-block .kw{color:var(--accent-teal)}
-.hero-code-block .str{color:var(--accent-amber)}
-.hero-code-block .fn{color:var(--primary)}
-.hero-code-block .cm{color:var(--muted-soft)}
+.hero-code-block .kw{color:#7c5cbf}
+.hero-code-block .str{color:#b87333}
+.hero-code-block .fn{color:var(--ink)}
+.hero-code-block .cm{color:var(--muted)}
 .hero-code-block .num{color:var(--success)}
 
 .hero-stats{
@@ -238,35 +236,41 @@ em{font-style:italic;color:var(--body-strong)}
   padding-top:24px;border-top:1px solid var(--hairline);
 }
 .hero-stat-value{
-  font-family:var(--font-display);font-size:2rem;font-weight:400;
+  font-family:var(--font-display);font-size:2rem;font-weight:340;
   color:var(--ink);letter-spacing:-0.02em;
 }
 .hero-stat-label{
   font-size:0.75rem;color:var(--muted);margin-top:2px;
-  text-transform:uppercase;letter-spacing:0.06em;font-weight:500;
+  text-transform:uppercase;letter-spacing:0.54px;font-weight:480;
+  font-family:var(--font-code);
 }
 
 /* ===== Section Rhythm ===== */
 .section{padding:var(--section-pad) 32px}
 .section-inner{max-width:var(--max-width);margin:0 auto}
-.section-dark{
-  background:var(--surface-dark);
+.section-block{
+  border-radius:var(--radius-lg);
+  padding:48px;
 }
-.section-dark h2,.section-dark h3,.section-dark h4{color:var(--on-dark)}
-.section-dark p{color:var(--on-dark-soft)}
-.section-dark .section-label{color:var(--primary)}
-.section-card{
-  background:var(--surface-card);
-}
+.section-block-lime{background:var(--block-lime)}
+.section-block-cream{background:var(--block-cream)}
+.section-block-navy{background:var(--block-navy)}
+.section-block-navy h2,.section-block-navy h3,.section-block-navy h4{color:var(--on-primary)}
+.section-block-navy p{color:rgba(255,255,255,0.75)}
+.section-block-navy .section-label{color:rgba(255,255,255,0.5)}
+.section-block-lilac{background:var(--block-lilac)}
+.section-block-coral{background:var(--block-coral)}
+.section-block-mint{background:var(--block-mint)}
+.section-block-pink{background:var(--block-pink)}
 .section-label{
-  font-family:var(--font-body);font-size:0.75rem;font-weight:500;
-  text-transform:uppercase;letter-spacing:0.1em;
-  color:var(--primary);margin-bottom:16px;
+  font-family:var(--font-code);font-size:18px;font-weight:400;
+  text-transform:uppercase;letter-spacing:0.54px;
+  color:var(--muted);margin-bottom:16px;
 }
 .section-title{margin-bottom:16px}
 .section-desc{
-  font-size:1.0625rem;max-width:720px;margin-bottom:48px;
-  color:var(--body);
+  font-size:18px;max-width:720px;margin-bottom:48px;
+  color:var(--body);font-weight:320;line-height:1.45;
 }
 
 /* ===== Feature Cards ===== */
@@ -275,13 +279,13 @@ em{font-style:italic;color:var(--body-strong)}
   gap:20px;
 }
 .card{
-  background:var(--surface-card);
+  background:var(--canvas);
+  border:1px solid var(--hairline);
   border-radius:var(--radius-lg);
   padding:32px;transition:all var(--transition);
 }
 .card:hover{
   transform:translateY(-2px);
-  box-shadow:0 4px 16px rgba(20,20,19,0.06);
 }
 .card-icon{
   width:44px;height:44px;display:flex;align-items:center;justify-content:center;
@@ -289,23 +293,23 @@ em{font-style:italic;color:var(--body-strong)}
   font-size:1.25rem;
 }
 .card-title{
-  font-family:var(--font-body);font-weight:500;
+  font-family:var(--font-body);font-weight:480;
   margin-bottom:8px;color:var(--ink);
 }
-.card-desc{font-size:0.9375rem;color:var(--body);line-height:1.55}
+.card-desc{font-size:1rem;color:var(--body);line-height:1.45;font-weight:320}
 
-/* Dark cards */
+/* Dark cards (on navy) */
 .card-dark{
-  background:var(--surface-dark-elevated);
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.12);
   border-radius:var(--radius-lg);
   padding:32px;transition:all var(--transition);
 }
 .card-dark:hover{
   transform:translateY(-2px);
-  box-shadow:0 4px 16px rgba(0,0,0,0.2);
 }
-.card-dark .card-title{color:var(--on-dark)}
-.card-dark .card-desc{color:var(--on-dark-soft)}
+.card-dark .card-title{color:var(--on-primary)}
+.card-dark .card-desc{color:rgba(255,255,255,0.75)}
 
 /* ===== Pipeline ===== */
 .pipeline-visual{
@@ -314,26 +318,26 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .pipeline-step{
   flex:1;min-width:160px;
-  background:var(--surface-card);
+  background:var(--canvas);
+  border:1px solid var(--hairline);
   border-radius:var(--radius-lg);
   padding:28px 20px;text-align:center;
   transition:all var(--transition);
 }
 .pipeline-step:hover{
   transform:translateY(-4px);
-  box-shadow:0 4px 16px rgba(20,20,19,0.08);
 }
 .pipeline-arrow{
   display:flex;align-items:center;padding:0 4px;
-  color:var(--muted-soft);font-size:1.25rem;flex-shrink:0;
+  color:var(--muted);font-size:1.25rem;flex-shrink:0;
 }
 .pipeline-step-num{
-  font-family:var(--font-display);font-size:2rem;font-weight:400;
-  color:var(--primary);margin-bottom:8px;
+  font-family:var(--font-display);font-size:2rem;font-weight:340;
+  color:var(--ink);margin-bottom:8px;
   letter-spacing:-0.02em;
 }
 .pipeline-step-title{
-  font-family:var(--font-body);font-weight:500;font-size:0.9375rem;
+  font-family:var(--font-body);font-weight:480;font-size:0.9375rem;
   margin-bottom:4px;color:var(--ink);
 }
 .pipeline-step-desc{
@@ -344,29 +348,28 @@ em{font-style:italic;color:var(--body-strong)}
 .loop-diagram{
   display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;
   align-items:center;gap:16px;
-  background:var(--surface-dark-soft);
-  border-radius:var(--radius-xl);padding:40px 24px;
+  border-radius:var(--radius-lg);padding:40px 24px;
   margin-bottom:24px;
 }
 .loop-node{
-  background:var(--surface-dark-elevated);
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.12);
   border-radius:var(--radius-lg);padding:28px 16px;text-align:center;
   transition:all var(--transition);
 }
 .loop-node:hover{
   transform:translateY(-2px);
-  box-shadow:0 4px 16px rgba(0,0,0,0.2);
 }
 .loop-node-icon{font-size:1.75rem;margin-bottom:10px}
 .loop-node-title{
-  font-family:var(--font-body);font-weight:500;font-size:0.875rem;
-  margin-bottom:4px;color:var(--on-dark);
+  font-family:var(--font-body);font-weight:480;font-size:0.875rem;
+  margin-bottom:4px;color:var(--on-primary);
 }
 .loop-node-desc{
-  font-size:0.75rem;color:var(--on-dark-soft);line-height:1.4;
+  font-size:0.75rem;color:rgba(255,255,255,0.65);line-height:1.4;
 }
 .loop-arrow{
-  color:var(--primary);font-size:1.25rem;text-align:center;
+  color:rgba(255,255,255,0.4);font-size:1.25rem;text-align:center;
 }
 .loop-feedback{
   text-align:center;margin-top:8px;
@@ -374,10 +377,10 @@ em{font-style:italic;color:var(--body-strong)}
 .loop-feedback-line{
   display:inline-flex;align-items:center;gap:8px;
   padding:10px 24px;
-  background:rgba(204,120,92,0.08);
-  border:1.5px dashed var(--primary);
+  background:rgba(255,255,255,0.08);
+  border:1px dashed rgba(255,255,255,0.25);
   border-radius:var(--radius-lg);
-  font-size:0.8125rem;color:var(--primary);
+  font-size:0.8125rem;color:rgba(255,255,255,0.75);
 }
 
 /* ===== Stats Grid ===== */
@@ -391,45 +394,47 @@ em{font-style:italic;color:var(--body-strong)}
   border-radius:var(--radius-lg);padding:28px;text-align:center;
 }
 .stat-value{
-  font-family:var(--font-display);font-size:2.5rem;font-weight:400;
+  font-family:var(--font-display);font-size:2.5rem;font-weight:340;
   color:var(--ink);letter-spacing:-0.02em;
 }
 .stat-label{
   font-size:0.75rem;color:var(--muted);margin-top:4px;
-  text-transform:uppercase;letter-spacing:0.06em;font-weight:500;
+  text-transform:uppercase;letter-spacing:0.54px;font-weight:480;
+  font-family:var(--font-code);
 }
 
 /* ===== Code Window Card ===== */
 .code-block{
-  background:var(--surface-dark);
+  background:var(--canvas);
+  border:1px solid var(--hairline);
   border-radius:var(--radius-lg);overflow:hidden;
 }
 .code-block-header{
   display:flex;align-items:center;justify-content:space-between;
   padding:12px 20px;
-  background:var(--surface-dark-elevated);
-  border-bottom:1px solid rgba(255,255,255,0.06);
+  border-bottom:1px solid var(--hairline);
 }
 .code-block-dots{display:flex;gap:6px}
 .code-block-dot{width:10px;height:10px;border-radius:50%}
 .code-block-dot.r{background:#c64545}
 .code-block-dot.y{background:#d4a017}
-.code-block-dot.g{background:#5db872}
+.code-block-dot.g{background:var(--success)}
 .code-block-lang{
-  font-family:var(--font-code);font-size:0.75rem;color:var(--on-dark-soft);
+  font-family:var(--font-code);font-size:0.75rem;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.54px;
 }
 .code-block-body{
   padding:24px;overflow-x:auto;
 }
 .code-block-body pre{
   font-family:var(--font-code);font-size:0.8125rem;
-  line-height:1.8;color:var(--on-dark-soft);
+  line-height:1.8;color:var(--body);
   margin:0;white-space:pre;
 }
-.code-block-body .kw{color:var(--accent-teal)}
-.code-block-body .str{color:var(--accent-amber)}
-.code-block-body .fn{color:var(--primary)}
-.code-block-body .cm{color:var(--muted-soft)}
+.code-block-body .kw{color:#7c5cbf}
+.code-block-body .str{color:#b87333}
+.code-block-body .fn{color:var(--ink)}
+.code-block-body .cm{color:var(--muted)}
 .code-block-body .num{color:var(--success)}
 
 /* ===== Gallery ===== */
@@ -459,29 +464,27 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .gallery-card:hover{
   transform:translateY(-4px);
-  box-shadow:0 4px 16px rgba(20,20,19,0.08);
 }
 .gallery-card img{
   width:100%;aspect-ratio:1;object-fit:cover;display:block;cursor:pointer;
 }
 .gallery-card .gallery-info{padding:16px 20px}
 .gallery-tag{
-  display:inline-block;font-size:0.6875rem;font-weight:500;
-  text-transform:uppercase;letter-spacing:0.08em;
-  padding:3px 10px;border-radius:var(--radius-sm);
-  background:var(--surface-card);color:var(--muted);
-  margin-bottom:8px;font-family:var(--font-body);
+  display:inline-block;font-size:0.6875rem;font-weight:480;
+  text-transform:uppercase;letter-spacing:0.54px;
+  padding:3px 10px;border-radius:var(--radius-pill);
+  background:var(--surface-soft);color:var(--muted);
+  margin-bottom:8px;font-family:var(--font-code);
 }
-.gallery-obj-name{font-family:var(--font-body);font-weight:500;font-size:1rem;color:var(--ink)}
+.gallery-obj-name{font-family:var(--font-body);font-weight:480;font-size:1rem;color:var(--ink)}
 .gallery-meta{font-size:0.78rem;color:var(--muted);margin-top:4px}
 
 .gallery-scroll-btn{
   position:absolute;top:50%;transform:translateY(-50%);
   z-index:10;width:40px;height:40px;
   border-radius:50%;border:1px solid var(--hairline);
-  background:rgba(250,249,245,0.95);
+  background:rgba(255,255,255,0.95);
   backdrop-filter:blur(8px);
-  box-shadow:0 2px 8px rgba(20,20,19,0.08);
   cursor:pointer;display:flex;align-items:center;justify-content:center;
   color:var(--ink);font-size:1.125rem;
   transition:all var(--transition);
@@ -501,7 +504,7 @@ em{font-style:italic;color:var(--body-strong)}
   transition:all var(--transition);
 }
 .gallery-scroll-indicator .dot.active{
-  background:var(--primary);width:24px;border-radius:var(--radius-sm);
+  background:var(--ink);width:24px;border-radius:var(--radius-sm);
 }
 
 /* ===== Tags / Badges ===== */
@@ -517,34 +520,34 @@ em{font-style:italic;color:var(--body-strong)}
   color:var(--body);font-weight:400;
 }
 .tag-dark{
-  background:var(--surface-dark-elevated);
-  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.12);
   border-radius:var(--radius-pill);
   padding:8px 18px;
   font-size:0.8125rem;font-family:var(--font-body);
-  color:var(--on-dark-soft);font-weight:400;
+  color:rgba(255,255,255,0.75);font-weight:400;
 }
 
 /* ===== CTA Band ===== */
 .cta-band{
-  background:var(--primary);
+  background:var(--block-coral);
   border-radius:var(--radius-lg);
   padding:64px;
   text-align:center;
 }
 .cta-band h2{
-  color:var(--on-primary);margin-bottom:16px;
+  color:var(--ink);margin-bottom:16px;
 }
 .cta-band p{
-  color:rgba(255,255,255,0.85);margin-bottom:32px;
+  color:var(--body);margin-bottom:32px;
   max-width:560px;margin-left:auto;margin-right:auto;
 }
 .cta-band .btn-secondary{
-  background:rgba(255,255,255,0.15);color:var(--on-primary);
-  border:1.5px solid rgba(255,255,255,0.3);
+  background:var(--ink);color:var(--on-primary);
+  border:none;
 }
 .cta-band .btn-secondary:hover{
-  background:rgba(255,255,255,0.25);color:var(--on-primary);
+  background:#333;color:var(--on-primary);
 }
 
 /* ===== Connector Tile (Action Space) ===== */
@@ -560,11 +563,11 @@ em{font-style:italic;color:var(--body-strong)}
   transition:all var(--transition);
 }
 .connector-tile:hover{
-  border-color:var(--primary);
+  border-color:var(--ink);
   transform:translateY(-2px);
 }
 .connector-tile h4{
-  font-size:0.9375rem;font-weight:500;margin-bottom:4px;color:var(--ink);
+  font-size:0.9375rem;font-weight:480;margin-bottom:4px;color:var(--ink);
 }
 .connector-tile p{
   font-size:0.8125rem;color:var(--muted);line-height:1.4;
@@ -572,13 +575,14 @@ em{font-style:italic;color:var(--body-strong)}
 
 /* ===== Footer ===== */
 .footer{
-  background:var(--surface-dark);
+  background:var(--canvas);
   padding:64px 32px;
+  border-top:1px solid var(--hairline);
 }
 .footer-inner{max-width:var(--max-width);margin:0 auto}
 .footer-brand{
-  font-family:var(--font-display);font-size:1.25rem;font-weight:500;
-  color:var(--on-dark);margin-bottom:24px;
+  font-family:var(--font-body);font-size:1.25rem;font-weight:540;
+  color:var(--ink);margin-bottom:24px;
   display:flex;align-items:center;gap:8px;
   letter-spacing:-0.02em;
 }
@@ -587,43 +591,45 @@ em{font-style:italic;color:var(--body-strong)}
   margin-bottom:48px;
 }
 .footer-col h4{
-  font-size:0.75rem;font-weight:500;text-transform:uppercase;
-  letter-spacing:0.1em;color:var(--on-dark);margin-bottom:16px;
+  font-size:0.75rem;font-weight:480;text-transform:uppercase;
+  letter-spacing:0.54px;color:var(--ink);margin-bottom:16px;
+  font-family:var(--font-code);
 }
 .footer-col a{
-  display:block;font-size:0.875rem;color:var(--on-dark-soft);
+  display:block;font-size:0.875rem;color:var(--muted);
   margin-bottom:10px;transition:color var(--transition);
 }
-.footer-col a:hover{color:var(--on-dark)}
+.footer-col a:hover{color:var(--ink)}
 .footer-bottom{
-  border-top:1px solid rgba(255,255,255,0.08);
+  border-top:1px solid var(--hairline);
   padding-top:24px;
-  font-size:0.8125rem;color:var(--muted-soft);
+  font-size:0.8125rem;color:var(--muted);
 }
 
 /* ===== Lightbox ===== */
 .lightbox-overlay{
   display:none;position:fixed;inset:0;z-index:2000;
-  background:rgba(20,20,19,0.92);
+  background:rgba(0,0,0,0.9);
   justify-content:center;align-items:center;cursor:zoom-out;
   backdrop-filter:blur(8px);
 }
 .lightbox-overlay.open{display:flex}
 .lightbox-overlay img{
-  max-width:92vw;max-height:92vh;border-radius:var(--radius-md);
-  box-shadow:0 8px 48px rgba(0,0,0,0.5);
+  max-width:92vw;max-height:92vh;border-radius:var(--radius-lg);
 }
 
 /* ===== Responsive ===== */
 @media(max-width:1024px){
   .hero-inner{grid-template-columns:1fr;gap:48px}
   .hero-illustration{max-width:560px}
+  h1{font-size:clamp(48px,8vw,86px)}
 }
 @media(max-width:768px){
   :root{--section-pad:64px}
   .nav-links{display:none}
   .hero{padding:100px 24px 64px}
   .section{padding:64px 24px}
+  .section-block{padding:32px 24px}
   .hero-stats{flex-wrap:wrap;gap:24px}
   .pipeline-visual{flex-wrap:wrap;gap:12px;justify-content:center}
   .pipeline-arrow{display:none}
@@ -637,6 +643,7 @@ em{font-style:italic;color:var(--body-strong)}
   .gallery-scroll-btn{display:none}
   .footer-grid{grid-template-columns:repeat(2,1fr);gap:32px}
   .cta-band{padding:48px 24px}
+  h1{font-size:clamp(36px,10vw,56px)}
 }
 @media(max-width:480px){
   .hero-actions{flex-direction:column}
@@ -672,7 +679,7 @@ em{font-style:italic;color:var(--body-strong)}
   <div class="hero-inner">
     <div class="hero-content">
       <div class="hero-badge">
-        <span class="badge-dot"></span>Technical Report · 2026
+        <span class="badge-dot"></span>Technical Report &middot; 2026
       </div>
       <h1>Let Your Data Build and Improve Itself</h1>
       <p class="hero-subtitle">
@@ -739,194 +746,201 @@ em{font-style:italic;color:var(--body-strong)}
   </div>
 </section>
 
-<!-- Problem / Solution — Cream Card Section -->
-<section class="section section-card" id="problem">
+<!-- Problem — Lime Color Block -->
+<section class="section" id="problem">
   <div class="section-inner">
-    <div class="section-label">The Problem</div>
-    <h2 class="section-title">Why Goal-Driven Agents Are the Missing Piece</h2>
-    <p class="section-desc">
-      Naive automated rendering produces artifacts — flat lighting, color shifts, floating objects. Traditional pipelines rely on rigid scoring rules that lack semantic understanding. What's needed are <em>goal-driven agents</em> that can perceive, diagnose, and act.
-    </p>
+    <div class="section-block section-block-lime">
+      <div class="section-label">The Problem</div>
+      <h2 class="section-title">Why Goal-Driven Agents Are the Missing Piece</h2>
+      <p class="section-desc">
+        Naive automated rendering produces artifacts — flat lighting, color shifts, floating objects. Traditional pipelines rely on rigid scoring rules that lack semantic understanding. What's needed are <em>goal-driven agents</em> that can perceive, diagnose, and act.
+      </p>
 
-    <div class="card-grid">
-      <div class="card">
-        <div class="card-icon" style="background:rgba(198,69,69,0.1)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-icon" style="background:rgba(0,0,0,0.06)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c64545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          </div>
+          <h3 class="card-title">Naive Renders Have Artifacts</h3>
+          <p class="card-desc">Auto-rendered 3D objects often exhibit flat lighting, implausible shadows, and color mismatches with the scene environment.</p>
         </div>
-        <h3 class="card-title">Naive Renders Have Artifacts</h3>
-        <p class="card-desc">Auto-rendered 3D objects often exhibit flat lighting, implausible shadows, and color mismatches with the scene environment.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon" style="background:rgba(212,160,23,0.1)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(0,0,0,0.06)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d4a017" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          </div>
+          <h3 class="card-title">Rule-Based QC Lacks Semantics</h3>
+          <p class="card-desc">Rigid numeric thresholds can't diagnose "this lighting feels flat" or "the object appears to float." Goal-driven agents with VLM perception can.</p>
         </div>
-        <h3 class="card-title">Rule-Based QC Lacks Semantics</h3>
-        <p class="card-desc">Rigid numeric thresholds can't diagnose "this lighting feels flat" or "the object appears to float." Goal-driven agents with VLM perception can.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon" style="background:rgba(204,120,92,0.1)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(0,0,0,0.06)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <h3 class="card-title">Manual Tuning Can't Scale</h3>
+          <p class="card-desc">Human artists spend minutes per object adjusting Blender parameters. At 50+ objects with 8+ viewpoints, this becomes infeasible.</p>
         </div>
-        <h3 class="card-title">Manual Tuning Can't Scale</h3>
-        <p class="card-desc">Human artists spend minutes per object adjusting Blender parameters. At 50+ objects with 8+ viewpoints, this becomes infeasible.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Pipeline — Cream Canvas -->
+<!-- Pipeline — Cream Color Block -->
 <section class="section" id="pipeline">
   <div class="section-inner">
-    <div class="section-label">Pipeline</div>
-    <h2 class="section-title">The Goal-Driven Data Construction Pipeline</h2>
-    <p class="section-desc">
-      From a natural language seed concept to quality-verified rendered pairs — fully automated by goal-driven loop agents, no human intervention required.
-    </p>
+    <div class="section-block section-block-cream">
+      <div class="section-label">Pipeline</div>
+      <h2 class="section-title">The Goal-Driven Data Construction Pipeline</h2>
+      <p class="section-desc">
+        From a natural language seed concept to quality-verified rendered pairs — fully automated by goal-driven loop agents, no human intervention required.
+      </p>
 
-    <div class="pipeline-visual">
-      <div class="pipeline-step">
-        <div class="pipeline-step-num">1</div>
-        <div class="pipeline-step-title">Text Expansion</div>
-        <div class="pipeline-step-desc">LLM expands seed into T2I prompt</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step">
-        <div class="pipeline-step-num">2</div>
-        <div class="pipeline-step-title">T2I Generation</div>
-        <div class="pipeline-step-desc">Qwen-Image-2512 at 1024×1024</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step">
-        <div class="pipeline-step-num">2.5</div>
-        <div class="pipeline-step-title">Segmentation</div>
-        <div class="pipeline-step-desc">SAM3 extracts RGBA foreground</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step">
-        <div class="pipeline-step-num">3</div>
-        <div class="pipeline-step-title">3D Reconstruction</div>
-        <div class="pipeline-step-desc">Hunyuan3D-2.1 textured mesh</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step">
-        <div class="pipeline-step-num">4</div>
-        <div class="pipeline-step-title">Scene Rendering</div>
-        <div class="pipeline-step-desc">Blender 4.24 + Cycles 512spp</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step">
-        <div class="pipeline-step-num">5</div>
-        <div class="pipeline-step-title">VLM Review Loop</div>
-        <div class="pipeline-step-desc">Review → act → re-render until keep</div>
+      <div class="pipeline-visual">
+        <div class="pipeline-step">
+          <div class="pipeline-step-num">1</div>
+          <div class="pipeline-step-title">Text Expansion</div>
+          <div class="pipeline-step-desc">LLM expands seed into T2I prompt</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <div class="pipeline-step-num">2</div>
+          <div class="pipeline-step-title">T2I Generation</div>
+          <div class="pipeline-step-desc">Qwen-Image-2512 at 1024×1024</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <div class="pipeline-step-num">2.5</div>
+          <div class="pipeline-step-title">Segmentation</div>
+          <div class="pipeline-step-desc">SAM3 extracts RGBA foreground</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <div class="pipeline-step-num">3</div>
+          <div class="pipeline-step-title">3D Reconstruction</div>
+          <div class="pipeline-step-desc">Hunyuan3D-2.1 textured mesh</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <div class="pipeline-step-num">4</div>
+          <div class="pipeline-step-title">Scene Rendering</div>
+          <div class="pipeline-step-desc">Blender 4.24 + Cycles 512spp</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <div class="pipeline-step-num">5</div>
+          <div class="pipeline-step-title">VLM Review Loop</div>
+          <div class="pipeline-step-desc">Review → act → re-render until keep</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- VLM Evolution Loop — Dark Navy Section -->
-<section class="section section-dark" id="evolution">
+<!-- VLM Evolution Loop — Navy Color Block -->
+<section class="section" id="evolution">
   <div class="section-inner">
-    <div class="section-label">Core Innovation</div>
-    <h2 class="section-title">Goal-Driven Loop Agents: Perceive, Diagnose, Act, Repeat</h2>
-    <p class="section-desc">
-      The heart of DataEvolver: a <em style="color:var(--on-dark)">goal-driven loop agent</em> that perceives rendered outputs via VLM review, diagnoses semantic issues, selects targeted rendering adjustments from a structured action space, and repeats until quality goals are met.
-    </p>
+    <div class="section-block section-block-navy">
+      <div class="section-label">Core Innovation</div>
+      <h2 class="section-title">Goal-Driven Loop Agents: Perceive, Diagnose, Act, Repeat</h2>
+      <p class="section-desc">
+        The heart of DataEvolver: a <em style="color:rgba(255,255,255,0.9)">goal-driven loop agent</em> that perceives rendered outputs via VLM review, diagnoses semantic issues, selects targeted rendering adjustments from a structured action space, and repeats until quality goals are met.
+      </p>
 
-    <div class="loop-diagram">
-      <div class="loop-node">
-        <div class="loop-node-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <div class="loop-diagram">
+        <div class="loop-node">
+          <div class="loop-node-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div class="loop-node-title">Blender Render</div>
+          <div class="loop-node-desc">Cycles 512spp at 1024×1024</div>
         </div>
-        <div class="loop-node-title">Blender Render</div>
-        <div class="loop-node-desc">Cycles 512spp at 1024×1024</div>
-      </div>
-      <div class="loop-arrow">→</div>
-      <div class="loop-node">
-        <div class="loop-node-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div class="loop-arrow">→</div>
+        <div class="loop-node">
+          <div class="loop-node-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="loop-node-title">VLM Review</div>
+          <div class="loop-node-desc">Qwen3.5-35B free-form critique</div>
         </div>
-        <div class="loop-node-title">VLM Review</div>
-        <div class="loop-node-desc">Qwen3.5-35B free-form critique</div>
-      </div>
-      <div class="loop-arrow">→</div>
-      <div class="loop-node">
-        <div class="loop-node-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <div class="loop-arrow">→</div>
+        <div class="loop-node">
+          <div class="loop-node-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <div class="loop-node-title">Agent Decision</div>
+          <div class="loop-node-desc">Reads review, selects from 24 actions</div>
         </div>
-        <div class="loop-node-title">Agent Decision</div>
-        <div class="loop-node-desc">Reads review, selects from 24 actions</div>
-      </div>
-      <div class="loop-arrow">→</div>
-      <div class="loop-node">
-        <div class="loop-node-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <div class="loop-arrow">→</div>
+        <div class="loop-node">
+          <div class="loop-node-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="loop-node-title">Quality Gate</div>
+          <div class="loop-node-desc">Verdict: keep / revise / reject</div>
         </div>
-        <div class="loop-node-title">Quality Gate</div>
-        <div class="loop-node-desc">Verdict: keep / revise / reject</div>
       </div>
-    </div>
-    <div class="loop-feedback">
-      <div class="loop-feedback-line">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-        Loop continues until reviewer says <strong>keep</strong>
+      <div class="loop-feedback">
+        <div class="loop-feedback-line">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          Loop continues until reviewer says <strong>keep</strong>
+        </div>
       </div>
-    </div>
 
-    <div class="card-grid" style="margin-top:48px">
-      <div class="card-dark">
-        <h3 class="card-title">Anti-Oscillation Control</h3>
-        <p class="card-desc">Sign-flip tracking, dead-zone detection, and step-scale scheduling prevent infinite loops and parameter thrashing.</p>
-      </div>
-      <div class="card-dark">
-        <h3 class="card-title">Scene-Aware Rendering</h3>
-        <p class="card-desc">Objects placed in real Blender scenes with HDRI environments. Raycast ground detection ensures physical plausibility.</p>
-      </div>
-      <div class="card-dark">
-        <h3 class="card-title">24 Atomic Actions</h3>
-        <p class="card-desc">Structured action space across lighting, object transform, scene environment, and material property groups.</p>
+      <div class="card-grid" style="margin-top:48px">
+        <div class="card-dark">
+          <h3 class="card-title">Anti-Oscillation Control</h3>
+          <p class="card-desc">Sign-flip tracking, dead-zone detection, and step-scale scheduling prevent infinite loops and parameter thrashing.</p>
+        </div>
+        <div class="card-dark">
+          <h3 class="card-title">Scene-Aware Rendering</h3>
+          <p class="card-desc">Objects placed in real Blender scenes with HDRI environments. Raycast ground detection ensures physical plausibility.</p>
+        </div>
+        <div class="card-dark">
+          <h3 class="card-title">24 Atomic Actions</h3>
+          <p class="card-desc">Structured action space across lighting, object transform, scene environment, and material property groups.</p>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Dataset — Cream Card -->
-<section class="section section-card" id="dataset">
+<!-- Dataset — Lilac Color Block -->
+<section class="section" id="dataset">
   <div class="section-inner">
-    <div class="section-label">Dataset</div>
-    <h2 class="section-title">DataEvolver-Rotate: View-Controlled Rotation Editing</h2>
-    <p class="section-desc">
-      A benchmark dataset for rotation-conditioned image editing. Each sample pairs a canonical front-view image with a target view specified in natural language.
-    </p>
+    <div class="section-block section-block-lilac">
+      <div class="section-label">Dataset</div>
+      <h2 class="section-title">DataEvolver-Rotate: View-Controlled Rotation Editing</h2>
+      <p class="section-desc">
+        A benchmark dataset for rotation-conditioned image editing. Each sample pairs a canonical front-view image with a target view specified in natural language.
+      </p>
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-value">50</div>
-        <div class="stat-label">Unique Objects</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">8</div>
-        <div class="stat-label">Viewpoints / Object</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">350</div>
-        <div class="stat-label">Training Pairs</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">3×A800</div>
-        <div class="stat-label">Infrastructure</div>
-      </div>
-    </div>
-
-    <div class="code-block">
-      <div class="code-block-header">
-        <div class="code-block-dots">
-          <span class="code-block-dot r"></span>
-          <span class="code-block-dot y"></span>
-          <span class="code-block-dot g"></span>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">50</div>
+          <div class="stat-label">Unique Objects</div>
         </div>
-        <span class="code-block-lang">Python — Load Dataset</span>
+        <div class="stat-card">
+          <div class="stat-value">8</div>
+          <div class="stat-label">Viewpoints / Object</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">350</div>
+          <div class="stat-label">Training Pairs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">3×A800</div>
+          <div class="stat-label">Infrastructure</div>
+        </div>
       </div>
-      <div class="code-block-body">
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <div class="code-block-dots">
+            <span class="code-block-dot r"></span>
+            <span class="code-block-dot y"></span>
+            <span class="code-block-dot g"></span>
+          </div>
+          <span class="code-block-lang">Python — Load Dataset</span>
+        </div>
+        <div class="code-block-body">
 <pre><span class="kw">import</span> json
 <span class="kw">from</span> pathlib <span class="kw">import</span> Path
 <span class="kw">from</span> PIL <span class="kw">import</span> Image
@@ -941,12 +955,13 @@ row = rows[<span class="num">0</span>]
 source = Image.open(root / row[<span class="str">"source_image"</span>]).convert(<span class="str">"RGB"</span>)
 target = Image.open(root / row[<span class="str">"target_image"</span>]).convert(<span class="str">"RGB"</span>)
 instruction = row[<span class="str">"instruction"</span>]</pre>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Gallery — Cream Canvas -->
+<!-- Gallery — White Canvas -->
 <section class="section" id="gallery">
   <div class="section-inner">
     <div class="section-label">Gallery</div>
@@ -1148,91 +1163,95 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- Action Space — Cream Card -->
-<section class="section section-card">
+<!-- Action Space — Mint Color Block -->
+<section class="section">
   <div class="section-inner">
-    <div class="section-label">Action Space</div>
-    <h2 class="section-title">24 Structured Atomic Actions</h2>
-    <p class="section-desc">
-      The AI agent selects from a discrete, structured action space to address VLM-identified issues. Each action targets a specific rendering parameter.
-    </p>
+    <div class="section-block section-block-mint">
+      <div class="section-label">Action Space</div>
+      <h2 class="section-title">24 Structured Atomic Actions</h2>
+      <p class="section-desc">
+        The AI agent selects from a discrete, structured action space to address VLM-identified issues. Each action targets a specific rendering parameter.
+      </p>
 
-    <div class="connector-grid">
-      <div class="connector-tile">
-        <h4>Key Light Intensity</h4>
-        <p>×1.2 / ×0.8 multiplicative, bounded [0.5, 2.0]</p>
-      </div>
-      <div class="connector-tile">
-        <h4>Key Light Rotation</h4>
-        <p>±15° yaw step, bounded [-90°, 90°]</p>
-      </div>
-      <div class="connector-tile">
-        <h4>Env Light Intensity</h4>
-        <p>×1.2 / ×0.8 multiplicative, bounded [0.5, 2.0]</p>
-      </div>
-      <div class="connector-tile">
-        <h4>Env Rotation (Z)</h4>
-        <p>±30° step, bounded [-180°, 180°]</p>
-      </div>
-      <div class="connector-tile">
-        <h4>Object Elevation</h4>
-        <p>±0.02 step, bounded [-0.1, 0.1]</p>
-      </div>
-      <div class="connector-tile">
-        <h4>Material Roughness</h4>
-        <p>±0.08 step, bounded [-0.3, 0.6]</p>
-      </div>
-    </div>
-    <p style="text-align:center;margin-top:24px;font-size:0.8125rem;color:var(--muted)">
-      + 18 more actions — see <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/configs/scene_action_space.json" target="_blank" rel="noopener">scene_action_space.json</a>
-    </p>
-  </div>
-</section>
-
-<!-- Key Highlights — Dark Navy -->
-<section class="section section-dark">
-  <div class="section-inner">
-    <div class="section-label">Why DataEvolver</div>
-    <h2 class="section-title">Key Differentiators</h2>
-    <p class="section-desc">
-      What sets DataEvolver apart from other synthetic data pipelines and why goal-driven loop agents produce better training data.
-    </p>
-
-    <div class="card-grid">
-      <div class="card-dark">
-        <div class="card-icon" style="background:rgba(93,184,114,0.15)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div class="connector-grid">
+        <div class="connector-tile">
+          <h4>Key Light Intensity</h4>
+          <p>×1.2 / ×0.8 multiplicative, bounded [0.5, 2.0]</p>
         </div>
-        <h3 class="card-title">VLM-as-Feedback, Not Score</h3>
-        <p class="card-desc">Free-form natural language feedback provides semantic diagnosis that numeric scores cannot. The reviewer identifies <em style="color:var(--on-dark)">why</em> a render fails.</p>
-      </div>
-      <div class="card-dark">
-        <div class="card-icon" style="background:rgba(204,120,92,0.15)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <div class="connector-tile">
+          <h4>Key Light Rotation</h4>
+          <p>±15° yaw step, bounded [-90°, 90°]</p>
         </div>
-        <h3 class="card-title">AI Agent Autonomy</h3>
-        <p class="card-desc">The agent reads raw review text and reasons about which action to take — no scripted rule engine, no score-threshold mapping.</p>
-      </div>
-      <div class="card-dark">
-        <div class="card-icon" style="background:rgba(93,184,166,0.15)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <div class="connector-tile">
+          <h4>Env Light Intensity</h4>
+          <p>×1.2 / ×0.8 multiplicative, bounded [0.5, 2.0]</p>
         </div>
-        <h3 class="card-title">Proven Downstream Value</h3>
-        <p class="card-desc">LoRA fine-tuning on DataEvolver-Rotate improves Qwen Image Edit 2511 on PSNR, SSIM, and LPIPS vs. the base model.</p>
-      </div>
-      <div class="card-dark">
-        <div class="card-icon" style="background:rgba(232,165,90,0.15)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <div class="connector-tile">
+          <h4>Env Rotation (Z)</h4>
+          <p>±30° step, bounded [-180°, 180°]</p>
         </div>
-        <h3 class="card-title">Multi-Modal Data Support</h3>
-        <p class="card-desc">Beyond RGB pairs: mask, depth, normal maps, and geometry metadata — enabling multi-modal conditioning research.</p>
+        <div class="connector-tile">
+          <h4>Object Elevation</h4>
+          <p>±0.02 step, bounded [-0.1, 0.1]</p>
+        </div>
+        <div class="connector-tile">
+          <h4>Material Roughness</h4>
+          <p>±0.08 step, bounded [-0.3, 0.6]</p>
+        </div>
       </div>
+      <p style="text-align:center;margin-top:24px;font-size:0.8125rem;color:var(--muted)">
+        + 18 more actions — see <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/configs/scene_action_space.json" target="_blank" rel="noopener">scene_action_space.json</a>
+      </p>
     </div>
   </div>
 </section>
 
-<!-- Tech Stack — Cream Card -->
-<section class="section section-card">
+<!-- Key Highlights — Coral Color Block -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-block section-block-coral">
+      <div class="section-label">Why DataEvolver</div>
+      <h2 class="section-title">Key Differentiators</h2>
+      <p class="section-desc">
+        What sets DataEvolver apart from other synthetic data pipelines and why goal-driven loop agents produce better training data.
+      </p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-icon" style="background:rgba(0,0,0,0.06)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1ea64a" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3 class="card-title">VLM-as-Feedback, Not Score</h3>
+          <p class="card-desc">Free-form natural language feedback provides semantic diagnosis that numeric scores cannot. The reviewer identifies <em>why</em> a render fails.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(0,0,0,0.06)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </div>
+          <h3 class="card-title">AI Agent Autonomy</h3>
+          <p class="card-desc">The agent reads raw review text and reasons about which action to take — no scripted rule engine, no score-threshold mapping.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(0,0,0,0.06)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5db8a6" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <h3 class="card-title">Proven Downstream Value</h3>
+          <p class="card-desc">LoRA fine-tuning on DataEvolver-Rotate improves Qwen Image Edit 2511 on PSNR, SSIM, and LPIPS vs. the base model.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(0,0,0,0.06)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e8a55a" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h3 class="card-title">Multi-Modal Data Support</h3>
+          <p class="card-desc">Beyond RGB pairs: mask, depth, normal maps, and geometry metadata — enabling multi-modal conditioning research.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Tech Stack — White Canvas -->
+<section class="section">
   <div class="section-inner">
     <div class="section-label">Tech Stack</div>
     <h2 class="section-title">Built With</h2>
@@ -1255,25 +1274,26 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- Getting Started — Cream Canvas -->
+<!-- Getting Started — Pink Color Block -->
 <section class="section" id="start">
   <div class="section-inner">
-    <div class="section-label">Get Started</div>
-    <h2 class="section-title">Quick Start</h2>
-    <p class="section-desc">
-      DataEvolver runs on a Linux server with GPU access and Blender. Clone the repo and start building self-improving data pipelines.
-    </p>
+    <div class="section-block section-block-pink">
+      <div class="section-label">Get Started</div>
+      <h2 class="section-title">Quick Start</h2>
+      <p class="section-desc">
+        DataEvolver runs on a Linux server with GPU access and Blender. Clone the repo and start building self-improving data pipelines.
+      </p>
 
-    <div class="code-block">
-      <div class="code-block-header">
-        <div class="code-block-dots">
-          <span class="code-block-dot r"></span>
-          <span class="code-block-dot y"></span>
-          <span class="code-block-dot g"></span>
+      <div class="code-block">
+        <div class="code-block-header">
+          <div class="code-block-dots">
+            <span class="code-block-dot r"></span>
+            <span class="code-block-dot y"></span>
+            <span class="code-block-dot g"></span>
+          </div>
+          <span class="code-block-lang">Shell — Setup</span>
         </div>
-        <span class="code-block-lang">Shell — Setup</span>
-      </div>
-      <div class="code-block-body">
+        <div class="code-block-body">
 <pre>git clone https://github.com/PRIS-CV/DataEvolver.git
 <span class="kw">cd</span> DataEvolver
 
@@ -1284,13 +1304,14 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 
 <span class="cm"># Read the full documentation</span>
 <span class="kw">cat</span> CLAUDE.md     <span class="cm"># Comprehensive project guide</span></pre>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Citation — Cream Card -->
-<section class="section section-card">
+<!-- Citation — White Canvas -->
+<section class="section">
   <div class="section-inner" style="text-align:center">
     <div class="section-label">Cite</div>
     <h2 class="section-title">Citation</h2>
@@ -1340,7 +1361,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- Footer — Dark Navy -->
+<!-- Footer — White Canvas -->
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-brand">
@@ -1374,7 +1395,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
       </div>
     </div>
     <div class="footer-bottom">
-      DataEvolver — Let Your Data Build and Improve Itself via Goal-Driven Loop Agents © 2026
+      DataEvolver — Let Your Data Build and Improve Itself via Goal-Driven Loop Agents &copy; 2026
     </div>
   </div>
 </footer>

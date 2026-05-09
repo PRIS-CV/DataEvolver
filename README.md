@@ -4,7 +4,7 @@
 
 DataEvolver is a goal-driven data synthesis pipeline that generates high-quality training datasets through an automated loop of 3D rendering, VLM (Vision-Language Model) quality review, and intelligent parameter adjustment. Unlike traditional pipelines with rigid scoring rules, DataEvolver uses free-form VLM feedback to perceive, diagnose, and fix rendering issues — producing photorealistic, scene-aware training data without human intervention.
 
-[Website](https://kamisato520.github.io/DataEvolver/) &middot; [Paper](paper/main.tex) &middot; [Dataset: DataEvolver-Rotate](#dataevolver-rotate)
+[Website](https://pris-cv.github.io/DataEvolver/) &middot; [Paper](https://arxiv.org/abs/2605.01789) &middot; [Dataset: DataEvolver-Rotate](#dataevolver-rotate)
 
 ---
 
@@ -79,7 +79,7 @@ The core innovation: a **goal-driven loop agent** that iteratively improves rend
 
 ```bash
 # Clone the repo
-git clone https://github.com/Kamisato520/DataEvolver.git
+git clone https://github.com/PRIS-CV/DataEvolver.git
 cd DataEvolver
 
 # Configure model paths in each pipeline stage:
@@ -284,11 +284,14 @@ Claude Code will read your `CLAUDE.md` and understand the full project context. 
 ## Citation
 
 ```bibtex
-@misc{dataevolver2026,
-  title   = {DataEvolver: Autonomous Synthetic Data Construction
-             via VLM-Guided Iterative Rendering},
-  year    = {2026},
-  url     = {https://github.com/Kamisato520/DataEvolver}
+@misc{zhang2026dataevolverletdatabuild,
+  title={DataEvolver: Let Your Data Build and Improve Itself via Goal-Driven Loop Agents},
+  author={Qisong Zhang and Wenzhuo Wu and Zhuangzhuang Jia and Yunhao Yang and Huayu Zhang and Xianghao Zang and Zhixiang He and Zhongjiang He and Kongming Liang and Zhanyu Ma},
+  year={2026},
+  eprint={2605.01789},
+  archivePrefix={arXiv},
+  primaryClass={cs.AI},
+  url={https://arxiv.org/abs/2605.01789},
 }
 ```
 

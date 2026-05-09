@@ -7,46 +7,45 @@
 <meta name="description" content="DataEvolver: Let Your Data Build and Improve Itself via Goal-Driven Loop Agents. An autonomous synthetic data construction framework powered by goal-driven AI agents.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ===== Design System — Claude Warm-Canvas ===== */
+/* ===== Design System — Cursor ===== */
 :root {
-  --canvas: #faf9f5;
-  --surface-soft: #f5f0e8;
-  --surface-card: #efe9de;
-  --surface-cream-strong: #e8e0d2;
-  --surface-dark: #181715;
-  --surface-dark-elevated: #252320;
-  --surface-dark-soft: #1f1e1b;
-  --primary: #cc785c;
-  --primary-active: #a9583e;
-  --primary-disabled: #e6dfd8;
-  --ink: #141413;
-  --body: #3d3d3a;
-  --body-strong: #252523;
-  --muted: #6c6a64;
-  --muted-soft: #8e8b82;
-  --hairline: #e6dfd8;
-  --hairline-soft: #ebe6df;
+  --canvas: #f7f7f4;
+  --canvas-soft: #fafaf7;
+  --surface-card: #ffffff;
+  --surface-strong: #e6e5e0;
+  --primary: #f54e00;
+  --primary-active: #d04200;
+  --ink: #26251e;
+  --body: #5a5852;
+  --body-strong: #26251e;
+  --muted: #807d72;
+  --muted-soft: #a09c92;
+  --hairline: #e6e5e0;
+  --hairline-soft: #efeee8;
+  --hairline-strong: #cfcdc4;
   --on-primary: #ffffff;
-  --on-dark: #faf9f5;
-  --on-dark-soft: #a09d96;
-  --accent-teal: #5db8a6;
-  --accent-amber: #e8a55a;
-  --success: #5db872;
-  --warning: #d4a017;
-  --error: #c64545;
-  --font-display: 'Cormorant Garamond', 'Tiempos Headline', Garamond, 'Times New Roman', serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --success: #1f8a65;
+  --error: #cf2d56;
+  /* AI timeline pastels */
+  --pastel-peach: #dfa88f;
+  --pastel-mint: #9fc9a2;
+  --pastel-blue: #9fbbe0;
+  --pastel-lavender: #c0a8dd;
+  --pastel-gold: #c08532;
+
+  --font-display: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --font-code: 'JetBrains Mono', ui-monospace, monospace;
-  --radius-sm: 6px;
+  --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-pill: 9999px;
   --transition: 200ms ease;
   --max-width: 1200px;
-  --section-pad: 96px;
+  --section-pad: 80px;
 }
 
 /* ===== Reset ===== */
@@ -64,8 +63,8 @@ body{
 }
 
 /* ===== Typography ===== */
-h1,h2,h3,h4{font-family:var(--font-display);line-height:1.15;font-weight:400;letter-spacing:-0.02em;color:var(--ink)}
-h1{font-size:clamp(2.5rem,5vw,4rem);letter-spacing:-0.025em;line-height:1.05}
+h1,h2,h3,h4{font-family:var(--font-display);line-height:1.15;font-weight:400;letter-spacing:-0.018em;color:var(--ink)}
+h1{font-size:clamp(2.5rem,5vw,4rem);letter-spacing:-0.02em;line-height:1.05}
 h2{font-size:clamp(1.75rem,3.5vw,2.25rem);letter-spacing:-0.015em;line-height:1.1}
 h3{font-size:1.125rem;font-weight:500;font-family:var(--font-body);letter-spacing:0;line-height:1.4}
 h4{font-size:1rem;font-weight:500;font-family:var(--font-body);letter-spacing:0}
@@ -74,7 +73,7 @@ a{color:var(--primary);text-decoration:none;transition:color var(--transition)}
 a:hover{color:var(--primary-active)}
 code{
   font-family:var(--font-code);
-  background:var(--surface-soft);
+  background:var(--hairline-soft);
   padding:2px 6px;
   border-radius:4px;
   font-size:0.875em;
@@ -85,7 +84,7 @@ em{font-style:italic;color:var(--body-strong)}
 /* ===== Navigation ===== */
 .nav{
   position:fixed;top:0;left:0;right:0;z-index:1000;
-  background:rgba(250,249,245,0.92);
+  background:rgba(247,247,244,0.92);
   backdrop-filter:blur(16px) saturate(180%);
   -webkit-backdrop-filter:blur(16px) saturate(180%);
   border-bottom:1px solid var(--hairline);
@@ -136,7 +135,6 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .btn-primary:hover{
   background:var(--primary-active);color:var(--on-primary);
-  transform:translateY(-1px);
 }
 .btn-secondary{
   background:var(--canvas);color:var(--ink);
@@ -144,20 +142,6 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .btn-secondary:hover{
   border-color:var(--primary);color:var(--primary);
-}
-.btn-on-dark{
-  background:var(--surface-dark-elevated);color:var(--on-dark);
-}
-.btn-on-dark:hover{
-  background:var(--surface-dark-soft);color:var(--on-dark);
-}
-.btn-outline-coral{
-  background:transparent;color:var(--on-primary);
-  border:1.5px solid rgba(255,255,255,0.4);
-}
-.btn-outline-coral:hover{
-  background:rgba(255,255,255,0.1);color:var(--on-primary);
-  border-color:rgba(255,255,255,0.7);
 }
 
 /* ===== Hero Band ===== */
@@ -196,18 +180,13 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
 
-/* Hero illustration card */
+/* Hero illustration card — white bg, hairline border */
 .hero-illustration{
-  background:var(--surface-dark);
-  border-radius:var(--radius-xl);
+  background:var(--surface-card);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-lg);
   padding:32px;
   position:relative;overflow:hidden;
-}
-.hero-illustration::before{
-  content:'';position:absolute;inset:0;
-  background:
-    linear-gradient(135deg,rgba(204,120,92,0.08) 0%,transparent 50%),
-    linear-gradient(225deg,rgba(93,184,166,0.06) 0%,transparent 50%);
 }
 .hero-illustration-inner{
   position:relative;z-index:1;
@@ -215,21 +194,21 @@ em{font-style:italic;color:var(--body-strong)}
 .hero-code-header{
   display:flex;align-items:center;gap:8px;margin-bottom:20px;
 }
-.hero-code-dot{width:10px;height:10px;border-radius:50%;background:var(--surface-dark-elevated)}
-.hero-code-dot.r{background:#c64545}
-.hero-code-dot.y{background:#d4a017}
-.hero-code-dot.g{background:#5db872}
+.hero-code-dot{width:10px;height:10px;border-radius:50%;background:var(--hairline)}
+.hero-code-dot.r{background:#cf2d56}
+.hero-code-dot.y{background:#c08532}
+.hero-code-dot.g{background:#1f8a65}
 .hero-code-title{
-  font-family:var(--font-code);font-size:0.75rem;color:var(--on-dark-soft);
+  font-family:var(--font-code);font-size:0.75rem;color:var(--muted);
   margin-left:8px;
 }
 .hero-code-block{
   font-family:var(--font-code);font-size:0.8125rem;line-height:1.8;
-  color:var(--on-dark-soft);
+  color:var(--body);
 }
-.hero-code-block .kw{color:var(--accent-teal)}
-.hero-code-block .str{color:var(--accent-amber)}
-.hero-code-block .fn{color:var(--primary)}
+.hero-code-block .kw{color:var(--primary)}
+.hero-code-block .str{color:var(--pastel-gold)}
+.hero-code-block .fn{color:var(--ink)}
 .hero-code-block .cm{color:var(--muted-soft)}
 .hero-code-block .num{color:var(--success)}
 
@@ -249,18 +228,19 @@ em{font-style:italic;color:var(--body-strong)}
 /* ===== Section Rhythm ===== */
 .section{padding:var(--section-pad) 32px}
 .section-inner{max-width:var(--max-width);margin:0 auto}
-.section-dark{
-  background:var(--surface-dark);
-}
-.section-dark h2,.section-dark h3,.section-dark h4{color:var(--on-dark)}
-.section-dark p{color:var(--on-dark-soft)}
-.section-dark .section-label{color:var(--primary)}
 .section-card{
   background:var(--surface-card);
+  border:1px solid var(--hairline-soft);
+  border-radius:var(--radius-lg);
+  margin:0 auto;
+  max-width:var(--max-width);
+}
+.section-card .section-inner{
+  padding:0;
 }
 .section-label{
-  font-family:var(--font-body);font-size:0.75rem;font-weight:500;
-  text-transform:uppercase;letter-spacing:0.1em;
+  font-family:var(--font-body);font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.08em;
   color:var(--primary);margin-bottom:16px;
 }
 .section-title{margin-bottom:16px}
@@ -276,12 +256,12 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .card{
   background:var(--surface-card);
+  border:1px solid var(--hairline);
   border-radius:var(--radius-lg);
   padding:32px;transition:all var(--transition);
 }
 .card:hover{
-  transform:translateY(-2px);
-  box-shadow:0 4px 16px rgba(20,20,19,0.06);
+  border-color:var(--hairline-strong);
 }
 .card-icon{
   width:44px;height:44px;display:flex;align-items:center;justify-content:center;
@@ -294,19 +274,6 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .card-desc{font-size:0.9375rem;color:var(--body);line-height:1.55}
 
-/* Dark cards */
-.card-dark{
-  background:var(--surface-dark-elevated);
-  border-radius:var(--radius-lg);
-  padding:32px;transition:all var(--transition);
-}
-.card-dark:hover{
-  transform:translateY(-2px);
-  box-shadow:0 4px 16px rgba(0,0,0,0.2);
-}
-.card-dark .card-title{color:var(--on-dark)}
-.card-dark .card-desc{color:var(--on-dark-soft)}
-
 /* ===== Pipeline ===== */
 .pipeline-visual{
   display:flex;gap:12px;align-items:stretch;overflow-x:auto;
@@ -315,13 +282,13 @@ em{font-style:italic;color:var(--body-strong)}
 .pipeline-step{
   flex:1;min-width:160px;
   background:var(--surface-card);
+  border:1px solid var(--hairline);
   border-radius:var(--radius-lg);
   padding:28px 20px;text-align:center;
   transition:all var(--transition);
 }
 .pipeline-step:hover{
-  transform:translateY(-4px);
-  box-shadow:0 4px 16px rgba(20,20,19,0.08);
+  border-color:var(--hairline-strong);
 }
 .pipeline-arrow{
   display:flex;align-items:center;padding:0 4px;
@@ -344,26 +311,27 @@ em{font-style:italic;color:var(--body-strong)}
 .loop-diagram{
   display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;
   align-items:center;gap:16px;
-  background:var(--surface-dark-soft);
-  border-radius:var(--radius-xl);padding:40px 24px;
+  background:var(--canvas);
+  border:1px solid var(--hairline-soft);
+  border-radius:var(--radius-lg);padding:40px 24px;
   margin-bottom:24px;
 }
 .loop-node{
-  background:var(--surface-dark-elevated);
+  background:var(--surface-card);
+  border:1px solid var(--hairline);
   border-radius:var(--radius-lg);padding:28px 16px;text-align:center;
   transition:all var(--transition);
 }
 .loop-node:hover{
-  transform:translateY(-2px);
-  box-shadow:0 4px 16px rgba(0,0,0,0.2);
+  border-color:var(--hairline-strong);
 }
 .loop-node-icon{font-size:1.75rem;margin-bottom:10px}
 .loop-node-title{
   font-family:var(--font-body);font-weight:500;font-size:0.875rem;
-  margin-bottom:4px;color:var(--on-dark);
+  margin-bottom:4px;color:var(--ink);
 }
 .loop-node-desc{
-  font-size:0.75rem;color:var(--on-dark-soft);line-height:1.4;
+  font-size:0.75rem;color:var(--muted);line-height:1.4;
 }
 .loop-arrow{
   color:var(--primary);font-size:1.25rem;text-align:center;
@@ -374,8 +342,8 @@ em{font-style:italic;color:var(--body-strong)}
 .loop-feedback-line{
   display:inline-flex;align-items:center;gap:8px;
   padding:10px 24px;
-  background:rgba(204,120,92,0.08);
-  border:1.5px dashed var(--primary);
+  background:rgba(245,78,0,0.06);
+  border:1px dashed var(--primary);
   border-radius:var(--radius-lg);
   font-size:0.8125rem;color:var(--primary);
 }
@@ -401,34 +369,35 @@ em{font-style:italic;color:var(--body-strong)}
 
 /* ===== Code Window Card ===== */
 .code-block{
-  background:var(--surface-dark);
+  background:var(--surface-card);
+  border:1px solid var(--hairline);
   border-radius:var(--radius-lg);overflow:hidden;
 }
 .code-block-header{
   display:flex;align-items:center;justify-content:space-between;
   padding:12px 20px;
-  background:var(--surface-dark-elevated);
-  border-bottom:1px solid rgba(255,255,255,0.06);
+  background:var(--canvas-soft);
+  border-bottom:1px solid var(--hairline);
 }
 .code-block-dots{display:flex;gap:6px}
 .code-block-dot{width:10px;height:10px;border-radius:50%}
-.code-block-dot.r{background:#c64545}
-.code-block-dot.y{background:#d4a017}
-.code-block-dot.g{background:#5db872}
+.code-block-dot.r{background:#cf2d56}
+.code-block-dot.y{background:#c08532}
+.code-block-dot.g{background:#1f8a65}
 .code-block-lang{
-  font-family:var(--font-code);font-size:0.75rem;color:var(--on-dark-soft);
+  font-family:var(--font-code);font-size:0.75rem;color:var(--muted);
 }
 .code-block-body{
   padding:24px;overflow-x:auto;
 }
 .code-block-body pre{
   font-family:var(--font-code);font-size:0.8125rem;
-  line-height:1.8;color:var(--on-dark-soft);
+  line-height:1.8;color:var(--body);
   margin:0;white-space:pre;
 }
-.code-block-body .kw{color:var(--accent-teal)}
-.code-block-body .str{color:var(--accent-amber)}
-.code-block-body .fn{color:var(--primary)}
+.code-block-body .kw{color:var(--primary)}
+.code-block-body .str{color:var(--pastel-gold)}
+.code-block-body .fn{color:var(--ink)}
 .code-block-body .cm{color:var(--muted-soft)}
 .code-block-body .num{color:var(--success)}
 
@@ -452,14 +421,13 @@ em{font-style:italic;color:var(--body-strong)}
 .gallery-card{
   flex:0 0 320px;
   scroll-snap-align:start;
-  background:var(--canvas);
+  background:var(--surface-card);
   border:1px solid var(--hairline);
   border-radius:var(--radius-lg);overflow:hidden;
   transition:all var(--transition);
 }
 .gallery-card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 4px 16px rgba(20,20,19,0.08);
+  border-color:var(--hairline-strong);
 }
 .gallery-card img{
   width:100%;aspect-ratio:1;object-fit:cover;display:block;cursor:pointer;
@@ -469,7 +437,7 @@ em{font-style:italic;color:var(--body-strong)}
   display:inline-block;font-size:0.6875rem;font-weight:500;
   text-transform:uppercase;letter-spacing:0.08em;
   padding:3px 10px;border-radius:var(--radius-sm);
-  background:var(--surface-card);color:var(--muted);
+  background:var(--canvas);color:var(--muted);
   margin-bottom:8px;font-family:var(--font-body);
 }
 .gallery-obj-name{font-family:var(--font-body);font-weight:500;font-size:1rem;color:var(--ink)}
@@ -479,9 +447,8 @@ em{font-style:italic;color:var(--body-strong)}
   position:absolute;top:50%;transform:translateY(-50%);
   z-index:10;width:40px;height:40px;
   border-radius:50%;border:1px solid var(--hairline);
-  background:rgba(250,249,245,0.95);
+  background:rgba(255,255,255,0.95);
   backdrop-filter:blur(8px);
-  box-shadow:0 2px 8px rgba(20,20,19,0.08);
   cursor:pointer;display:flex;align-items:center;justify-content:center;
   color:var(--ink);font-size:1.125rem;
   transition:all var(--transition);
@@ -516,19 +483,11 @@ em{font-style:italic;color:var(--body-strong)}
   font-size:0.8125rem;font-family:var(--font-body);
   color:var(--body);font-weight:400;
 }
-.tag-dark{
-  background:var(--surface-dark-elevated);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:var(--radius-pill);
-  padding:8px 18px;
-  font-size:0.8125rem;font-family:var(--font-body);
-  color:var(--on-dark-soft);font-weight:400;
-}
 
 /* ===== CTA Band ===== */
 .cta-band{
   background:var(--primary);
-  border-radius:var(--radius-lg);
+  border-radius:var(--radius-md);
   padding:64px;
   text-align:center;
 }
@@ -541,7 +500,7 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .cta-band .btn-secondary{
   background:rgba(255,255,255,0.15);color:var(--on-primary);
-  border:1.5px solid rgba(255,255,255,0.3);
+  border:1px solid rgba(255,255,255,0.3);
 }
 .cta-band .btn-secondary:hover{
   background:rgba(255,255,255,0.25);color:var(--on-primary);
@@ -561,7 +520,6 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .connector-tile:hover{
   border-color:var(--primary);
-  transform:translateY(-2px);
 }
 .connector-tile h4{
   font-size:0.9375rem;font-weight:500;margin-bottom:4px;color:var(--ink);
@@ -570,15 +528,15 @@ em{font-style:italic;color:var(--body-strong)}
   font-size:0.8125rem;color:var(--muted);line-height:1.4;
 }
 
-/* ===== Footer ===== */
+/* ===== Footer — Cream Canvas ===== */
 .footer{
-  background:var(--surface-dark);
+  background:var(--canvas);
   padding:64px 32px;
 }
 .footer-inner{max-width:var(--max-width);margin:0 auto}
 .footer-brand{
   font-family:var(--font-display);font-size:1.25rem;font-weight:500;
-  color:var(--on-dark);margin-bottom:24px;
+  color:var(--ink);margin-bottom:24px;
   display:flex;align-items:center;gap:8px;
   letter-spacing:-0.02em;
 }
@@ -588,30 +546,29 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .footer-col h4{
   font-size:0.75rem;font-weight:500;text-transform:uppercase;
-  letter-spacing:0.1em;color:var(--on-dark);margin-bottom:16px;
+  letter-spacing:0.1em;color:var(--ink);margin-bottom:16px;
 }
 .footer-col a{
-  display:block;font-size:0.875rem;color:var(--on-dark-soft);
+  display:block;font-size:0.875rem;color:var(--muted);
   margin-bottom:10px;transition:color var(--transition);
 }
-.footer-col a:hover{color:var(--on-dark)}
+.footer-col a:hover{color:var(--ink)}
 .footer-bottom{
-  border-top:1px solid rgba(255,255,255,0.08);
+  border-top:1px solid var(--hairline);
   padding-top:24px;
-  font-size:0.8125rem;color:var(--muted-soft);
+  font-size:0.8125rem;color:var(--muted);
 }
 
 /* ===== Lightbox ===== */
 .lightbox-overlay{
   display:none;position:fixed;inset:0;z-index:2000;
-  background:rgba(20,20,19,0.92);
+  background:rgba(38,37,30,0.92);
   justify-content:center;align-items:center;cursor:zoom-out;
   backdrop-filter:blur(8px);
 }
 .lightbox-overlay.open{display:flex}
 .lightbox-overlay img{
   max-width:92vw;max-height:92vh;border-radius:var(--radius-md);
-  box-shadow:0 8px 48px rgba(0,0,0,0.5);
 }
 
 /* ===== Responsive ===== */
@@ -739,8 +696,8 @@ em{font-style:italic;color:var(--body-strong)}
   </div>
 </section>
 
-<!-- Problem / Solution — Cream Card Section -->
-<section class="section section-card" id="problem">
+<!-- Problem / Solution — Cream Canvas -->
+<section class="section" id="problem">
   <div class="section-inner">
     <div class="section-label">The Problem</div>
     <h2 class="section-title">Why Goal-Driven Agents Are the Missing Piece</h2>
@@ -750,21 +707,21 @@ em{font-style:italic;color:var(--body-strong)}
 
     <div class="card-grid">
       <div class="card">
-        <div class="card-icon" style="background:rgba(198,69,69,0.1)">
+        <div class="card-icon" style="background:rgba(207,45,86,0.08)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         </div>
         <h3 class="card-title">Naive Renders Have Artifacts</h3>
         <p class="card-desc">Auto-rendered 3D objects often exhibit flat lighting, implausible shadows, and color mismatches with the scene environment.</p>
       </div>
       <div class="card">
-        <div class="card-icon" style="background:rgba(212,160,23,0.1)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        <div class="card-icon" style="background:rgba(192,133,50,0.1)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--pastel-gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
         </div>
         <h3 class="card-title">Rule-Based QC Lacks Semantics</h3>
         <p class="card-desc">Rigid numeric thresholds can't diagnose "this lighting feels flat" or "the object appears to float." Goal-driven agents with VLM perception can.</p>
       </div>
       <div class="card">
-        <div class="card-icon" style="background:rgba(204,120,92,0.1)">
+        <div class="card-icon" style="background:rgba(245,78,0,0.08)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
         <h3 class="card-title">Manual Tuning Can't Scale</h3>
@@ -823,19 +780,19 @@ em{font-style:italic;color:var(--body-strong)}
   </div>
 </section>
 
-<!-- VLM Evolution Loop — Dark Navy Section -->
-<section class="section section-dark" id="evolution">
+<!-- VLM Evolution Loop — Cream Canvas (no dark) -->
+<section class="section" id="evolution">
   <div class="section-inner">
     <div class="section-label">Core Innovation</div>
     <h2 class="section-title">Goal-Driven Loop Agents: Perceive, Diagnose, Act, Repeat</h2>
     <p class="section-desc">
-      The heart of DataEvolver: a <em style="color:var(--on-dark)">goal-driven loop agent</em> that perceives rendered outputs via VLM review, diagnoses semantic issues, selects targeted rendering adjustments from a structured action space, and repeats until quality goals are met.
+      The heart of DataEvolver: a <em>goal-driven loop agent</em> that perceives rendered outputs via VLM review, diagnoses semantic issues, selects targeted rendering adjustments from a structured action space, and repeats until quality goals are met.
     </p>
 
     <div class="loop-diagram">
       <div class="loop-node">
         <div class="loop-node-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--pastel-mint)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
         <div class="loop-node-title">Blender Render</div>
         <div class="loop-node-desc">Cycles 512spp at 1024×1024</div>
@@ -843,7 +800,7 @@ em{font-style:italic;color:var(--body-strong)}
       <div class="loop-arrow">→</div>
       <div class="loop-node">
         <div class="loop-node-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--pastel-peach)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
         <div class="loop-node-title">VLM Review</div>
         <div class="loop-node-desc">Qwen3.5-35B free-form critique</div>
@@ -851,7 +808,7 @@ em{font-style:italic;color:var(--body-strong)}
       <div class="loop-arrow">→</div>
       <div class="loop-node">
         <div class="loop-node-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--pastel-lavender)" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </div>
         <div class="loop-node-title">Agent Decision</div>
         <div class="loop-node-desc">Reads review, selects from 24 actions</div>
@@ -859,7 +816,7 @@ em{font-style:italic;color:var(--body-strong)}
       <div class="loop-arrow">→</div>
       <div class="loop-node">
         <div class="loop-node-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--pastel-blue)" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <div class="loop-node-title">Quality Gate</div>
         <div class="loop-node-desc">Verdict: keep / revise / reject</div>
@@ -873,15 +830,15 @@ em{font-style:italic;color:var(--body-strong)}
     </div>
 
     <div class="card-grid" style="margin-top:48px">
-      <div class="card-dark">
+      <div class="card">
         <h3 class="card-title">Anti-Oscillation Control</h3>
         <p class="card-desc">Sign-flip tracking, dead-zone detection, and step-scale scheduling prevent infinite loops and parameter thrashing.</p>
       </div>
-      <div class="card-dark">
+      <div class="card">
         <h3 class="card-title">Scene-Aware Rendering</h3>
         <p class="card-desc">Objects placed in real Blender scenes with HDRI environments. Raycast ground detection ensures physical plausibility.</p>
       </div>
-      <div class="card-dark">
+      <div class="card">
         <h3 class="card-title">24 Atomic Actions</h3>
         <p class="card-desc">Structured action space across lighting, object transform, scene environment, and material property groups.</p>
       </div>
@@ -889,8 +846,8 @@ em{font-style:italic;color:var(--body-strong)}
   </div>
 </section>
 
-<!-- Dataset — Cream Card -->
-<section class="section section-card" id="dataset">
+<!-- Dataset — Cream Canvas -->
+<section class="section" id="dataset">
   <div class="section-inner">
     <div class="section-label">Dataset</div>
     <h2 class="section-title">DataEvolver-Rotate: View-Controlled Rotation Editing</h2>
@@ -1148,8 +1105,8 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- Action Space — Cream Card -->
-<section class="section section-card">
+<!-- Action Space — Cream Canvas -->
+<section class="section">
   <div class="section-inner">
     <div class="section-label">Action Space</div>
     <h2 class="section-title">24 Structured Atomic Actions</h2>
@@ -1189,8 +1146,8 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- Key Highlights — Dark Navy -->
-<section class="section section-dark">
+<!-- Key Highlights — Cream Canvas (no dark) -->
+<section class="section">
   <div class="section-inner">
     <div class="section-label">Why DataEvolver</div>
     <h2 class="section-title">Key Differentiators</h2>
@@ -1199,30 +1156,30 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
     </p>
 
     <div class="card-grid">
-      <div class="card-dark">
-        <div class="card-icon" style="background:rgba(93,184,114,0.15)">
+      <div class="card">
+        <div class="card-icon" style="background:rgba(31,138,101,0.08)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
         <h3 class="card-title">VLM-as-Feedback, Not Score</h3>
-        <p class="card-desc">Free-form natural language feedback provides semantic diagnosis that numeric scores cannot. The reviewer identifies <em style="color:var(--on-dark)">why</em> a render fails.</p>
+        <p class="card-desc">Free-form natural language feedback provides semantic diagnosis that numeric scores cannot. The reviewer identifies <em>why</em> a render fails.</p>
       </div>
-      <div class="card-dark">
-        <div class="card-icon" style="background:rgba(204,120,92,0.15)">
+      <div class="card">
+        <div class="card-icon" style="background:rgba(245,78,0,0.08)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </div>
         <h3 class="card-title">AI Agent Autonomy</h3>
         <p class="card-desc">The agent reads raw review text and reasons about which action to take — no scripted rule engine, no score-threshold mapping.</p>
       </div>
-      <div class="card-dark">
-        <div class="card-icon" style="background:rgba(93,184,166,0.15)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(159,201,162,0.15)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--pastel-mint)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
         <h3 class="card-title">Proven Downstream Value</h3>
         <p class="card-desc">LoRA fine-tuning on DataEvolver-Rotate improves Qwen Image Edit 2511 on PSNR, SSIM, and LPIPS vs. the base model.</p>
       </div>
-      <div class="card-dark">
-        <div class="card-icon" style="background:rgba(232,165,90,0.15)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(159,187,224,0.15)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--pastel-blue)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
         <h3 class="card-title">Multi-Modal Data Support</h3>
         <p class="card-desc">Beyond RGB pairs: mask, depth, normal maps, and geometry metadata — enabling multi-modal conditioning research.</p>
@@ -1231,8 +1188,8 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- Tech Stack — Cream Card -->
-<section class="section section-card">
+<!-- Tech Stack — Cream Canvas -->
+<section class="section">
   <div class="section-inner">
     <div class="section-label">Tech Stack</div>
     <h2 class="section-title">Built With</h2>
@@ -1289,8 +1246,8 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- Citation — Cream Card -->
-<section class="section section-card">
+<!-- Citation — Cream Canvas -->
+<section class="section">
   <div class="section-inner" style="text-align:center">
     <div class="section-label">Cite</div>
     <h2 class="section-title">Citation</h2>
@@ -1326,7 +1283,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- CTA Band — Coral -->
+<!-- CTA Band — Cursor Orange -->
 <section class="section">
   <div class="section-inner">
     <div class="cta-band">
@@ -1340,7 +1297,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- Footer — Dark Navy -->
+<!-- Footer — Cream Canvas -->
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-brand">

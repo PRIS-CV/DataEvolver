@@ -7,46 +7,31 @@
 <meta name="description" content="DataEvolver: Let Your Data Build and Improve Itself via Goal-Driven Loop Agents. An autonomous synthetic data construction framework powered by goal-driven AI agents.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ===== Design System — Claude Warm-Canvas ===== */
+/* ===== Design System — NVIDIA ===== */
 :root {
-  --canvas: #faf9f5;
-  --surface-soft: #f5f0e8;
-  --surface-card: #efe9de;
-  --surface-cream-strong: #e8e0d2;
-  --surface-dark: #181715;
-  --surface-dark-elevated: #252320;
-  --surface-dark-soft: #1f1e1b;
-  --primary: #cc785c;
-  --primary-active: #a9583e;
-  --primary-disabled: #e6dfd8;
-  --ink: #141413;
-  --body: #3d3d3a;
-  --body-strong: #252523;
-  --muted: #6c6a64;
-  --muted-soft: #8e8b82;
-  --hairline: #e6dfd8;
-  --hairline-soft: #ebe6df;
-  --on-primary: #ffffff;
-  --on-dark: #faf9f5;
-  --on-dark-soft: #a09d96;
-  --accent-teal: #5db8a6;
-  --accent-amber: #e8a55a;
-  --success: #5db872;
-  --warning: #d4a017;
-  --error: #c64545;
-  --font-display: 'Cormorant Garamond', 'Tiempos Headline', Garamond, 'Times New Roman', serif;
+  --primary: #76b900;
+  --on-primary: #000000;
+  --primary-dark: #5a8d00;
+  --ink: #000000;
+  --canvas: #ffffff;
+  --surface-dark: #000000;
+  --surface-soft: #f7f7f7;
+  --hairline: #cccccc;
+  --hairline-strong: #5e5e5e;
+  --body: #1a1a1a;
+  --mute: #757575;
+  --stone: #898989;
+  --on-dark: #ffffff;
+  --on-dark-mute: rgba(255,255,255,0.7);
+  --link-blue: #0046a4;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-code: 'JetBrains Mono', ui-monospace, monospace;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-pill: 9999px;
+  --radius: 2px;
   --transition: 200ms ease;
   --max-width: 1200px;
-  --section-pad: 96px;
+  --section-pad: 64px;
 }
 
 /* ===== Reset ===== */
@@ -55,8 +40,8 @@ html{scroll-behavior:smooth}
 body{
   font-family:var(--font-body);
   background:var(--canvas);
-  color:var(--ink);
-  line-height:1.55;
+  color:var(--body);
+  line-height:1.5;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
   font-size:16px;
@@ -64,31 +49,28 @@ body{
 }
 
 /* ===== Typography ===== */
-h1,h2,h3,h4{font-family:var(--font-display);line-height:1.15;font-weight:400;letter-spacing:-0.02em;color:var(--ink)}
-h1{font-size:clamp(2.5rem,5vw,4rem);letter-spacing:-0.025em;line-height:1.05}
-h2{font-size:clamp(1.75rem,3.5vw,2.25rem);letter-spacing:-0.015em;line-height:1.1}
-h3{font-size:1.125rem;font-weight:500;font-family:var(--font-body);letter-spacing:0;line-height:1.4}
-h4{font-size:1rem;font-weight:500;font-family:var(--font-body);letter-spacing:0}
-p{color:var(--body);line-height:1.55}
-a{color:var(--primary);text-decoration:none;transition:color var(--transition)}
-a:hover{color:var(--primary-active)}
+h1,h2,h3,h4{font-family:var(--font-body);font-weight:700;line-height:1.25;color:var(--ink)}
+h1{font-size:48px;letter-spacing:-0.02em}
+h2{font-size:clamp(1.75rem,3.5vw,2.25rem);letter-spacing:-0.01em}
+h3{font-size:1.125rem;font-weight:700;line-height:1.4}
+h4{font-size:1rem;font-weight:700}
+p{color:var(--body);line-height:1.5}
+a{color:var(--link-blue);text-decoration:none;transition:color var(--transition)}
+a:hover{color:var(--primary-dark)}
 code{
   font-family:var(--font-code);
   background:var(--surface-soft);
   padding:2px 6px;
-  border-radius:4px;
+  border-radius:var(--radius);
   font-size:0.875em;
-  color:var(--primary);
+  color:var(--ink);
 }
-em{font-style:italic;color:var(--body-strong)}
+em{font-style:italic;color:var(--body)}
 
 /* ===== Navigation ===== */
 .nav{
   position:fixed;top:0;left:0;right:0;z-index:1000;
-  background:rgba(250,249,245,0.92);
-  backdrop-filter:blur(16px) saturate(180%);
-  -webkit-backdrop-filter:blur(16px) saturate(180%);
-  border-bottom:1px solid var(--hairline);
+  background:var(--surface-dark);
   height:64px;
 }
 .nav-inner{
@@ -97,37 +79,36 @@ em{font-style:italic;color:var(--body-strong)}
   padding:0 32px;height:100%;
 }
 .nav-logo{
-  font-family:var(--font-display);
-  font-size:1.375rem;font-weight:500;
-  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:1.25rem;font-weight:700;
+  color:var(--on-dark);
   display:flex;align-items:center;gap:10px;
-  letter-spacing:-0.02em;
 }
 .nav-logo .logo-img{
   height:28px;width:auto;border-radius:4px;
 }
 .nav-links{display:flex;gap:32px;list-style:none}
 .nav-links a{
-  color:var(--muted);font-size:0.875rem;font-weight:500;
+  color:var(--on-dark-mute);font-size:0.875rem;font-weight:400;
   font-family:var(--font-body);
   transition:color var(--transition);
 }
-.nav-links a:hover{color:var(--ink)}
+.nav-links a:hover{color:var(--on-dark)}
 .nav-cta{
   background:var(--primary)!important;
   color:var(--on-primary)!important;
-  padding:10px 20px;border-radius:var(--radius-md);
-  font-weight:500;font-size:0.875rem;
+  padding:10px 20px;border-radius:var(--radius);
+  font-weight:700;font-size:0.875rem;
   transition:background var(--transition);
   height:40px;display:inline-flex;align-items:center;
 }
-.nav-cta:hover{background:var(--primary-active)!important}
+.nav-cta:hover{background:var(--primary-dark)!important}
 
 /* ===== Buttons ===== */
 .btn{
   display:inline-flex;align-items:center;gap:8px;
-  padding:12px 20px;border-radius:var(--radius-md);
-  font-family:var(--font-body);font-weight:500;font-size:0.875rem;
+  padding:12px 20px;border-radius:var(--radius);
+  font-family:var(--font-body);font-weight:700;font-size:0.875rem;
   cursor:pointer;transition:all var(--transition);
   border:none;text-decoration:none;height:40px;
 }
@@ -135,29 +116,29 @@ em{font-style:italic;color:var(--body-strong)}
   background:var(--primary);color:var(--on-primary);
 }
 .btn-primary:hover{
-  background:var(--primary-active);color:var(--on-primary);
-  transform:translateY(-1px);
+  background:var(--primary-dark);color:var(--on-primary);
 }
 .btn-secondary{
-  background:var(--canvas);color:var(--ink);
-  border:1px solid var(--hairline);
+  background:transparent;color:var(--ink);
+  border:2px solid var(--primary);
 }
 .btn-secondary:hover{
-  border-color:var(--primary);color:var(--primary);
+  background:var(--primary);color:var(--on-primary);
+  border-color:var(--primary);
 }
 .btn-on-dark{
-  background:var(--surface-dark-elevated);color:var(--on-dark);
+  background:var(--on-dark);color:var(--ink);
 }
 .btn-on-dark:hover{
-  background:var(--surface-dark-soft);color:var(--on-dark);
+  background:var(--hairline);color:var(--ink);
 }
 .btn-outline-coral{
-  background:transparent;color:var(--on-primary);
-  border:1.5px solid rgba(255,255,255,0.4);
+  background:transparent;color:var(--on-dark);
+  border:2px solid var(--primary);
 }
 .btn-outline-coral:hover{
-  background:rgba(255,255,255,0.1);color:var(--on-primary);
-  border-color:rgba(255,255,255,0.7);
+  background:var(--primary);color:var(--on-primary);
+  border-color:var(--primary);
 }
 
 /* ===== Hero Band ===== */
@@ -165,7 +146,7 @@ em{font-style:italic;color:var(--body-strong)}
   min-height:100vh;display:flex;align-items:center;
   position:relative;
   padding:120px 32px 96px;
-  background:var(--canvas);
+  background:var(--surface-dark);
 }
 .hero-inner{
   max-width:var(--max-width);margin:0 auto;
@@ -174,40 +155,35 @@ em{font-style:italic;color:var(--body-strong)}
 .hero-content{position:relative;z-index:1}
 .hero-badge{
   display:inline-flex;align-items:center;gap:8px;
-  background:var(--surface-card);
-  border:1px solid var(--hairline);
-  padding:4px 12px;border-radius:var(--radius-pill);
-  font-size:0.75rem;font-weight:500;color:var(--muted);
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.2);
+  padding:4px 12px;border-radius:var(--radius);
+  font-size:0.75rem;font-weight:700;color:var(--on-dark-mute);
   margin-bottom:24px;
   font-family:var(--font-body);
   text-transform:uppercase;letter-spacing:0.08em;
 }
 .hero-badge .badge-dot{
   width:6px;height:6px;border-radius:50%;
-  background:var(--success);
+  background:var(--primary);
 }
 .hero h1{
   margin-bottom:24px;
-  color:var(--ink);
+  color:var(--on-dark);
 }
 .hero-subtitle{
   font-size:1.0625rem;line-height:1.6;max-width:560px;
-  color:var(--body);margin-bottom:32px;
+  color:var(--on-dark-mute);margin-bottom:32px;
 }
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
 
 /* Hero illustration card */
 .hero-illustration{
-  background:var(--surface-dark);
-  border-radius:var(--radius-xl);
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:var(--radius);
   padding:32px;
   position:relative;overflow:hidden;
-}
-.hero-illustration::before{
-  content:'';position:absolute;inset:0;
-  background:
-    linear-gradient(135deg,rgba(204,120,92,0.08) 0%,transparent 50%),
-    linear-gradient(225deg,rgba(93,184,166,0.06) 0%,transparent 50%);
 }
 .hero-illustration-inner{
   position:relative;z-index:1;
@@ -215,35 +191,35 @@ em{font-style:italic;color:var(--body-strong)}
 .hero-code-header{
   display:flex;align-items:center;gap:8px;margin-bottom:20px;
 }
-.hero-code-dot{width:10px;height:10px;border-radius:50%;background:var(--surface-dark-elevated)}
+.hero-code-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.15)}
 .hero-code-dot.r{background:#c64545}
 .hero-code-dot.y{background:#d4a017}
-.hero-code-dot.g{background:#5db872}
+.hero-code-dot.g{background:var(--primary)}
 .hero-code-title{
-  font-family:var(--font-code);font-size:0.75rem;color:var(--on-dark-soft);
+  font-family:var(--font-code);font-size:0.75rem;color:var(--on-dark-mute);
   margin-left:8px;
 }
 .hero-code-block{
   font-family:var(--font-code);font-size:0.8125rem;line-height:1.8;
-  color:var(--on-dark-soft);
+  color:var(--on-dark-mute);
 }
-.hero-code-block .kw{color:var(--accent-teal)}
-.hero-code-block .str{color:var(--accent-amber)}
-.hero-code-block .fn{color:var(--primary)}
-.hero-code-block .cm{color:var(--muted-soft)}
-.hero-code-block .num{color:var(--success)}
+.hero-code-block .kw{color:var(--primary)}
+.hero-code-block .str{color:#e8a55a}
+.hero-code-block .fn{color:var(--on-dark)}
+.hero-code-block .cm{color:var(--stone)}
+.hero-code-block .num{color:var(--primary)}
 
 .hero-stats{
   display:flex;gap:32px;margin-top:40px;
-  padding-top:24px;border-top:1px solid var(--hairline);
+  padding-top:24px;border-top:1px solid rgba(255,255,255,0.15);
 }
 .hero-stat-value{
-  font-family:var(--font-display);font-size:2rem;font-weight:400;
-  color:var(--ink);letter-spacing:-0.02em;
+  font-family:var(--font-body);font-size:2rem;font-weight:700;
+  color:var(--primary);letter-spacing:-0.02em;
 }
 .hero-stat-label{
-  font-size:0.75rem;color:var(--muted);margin-top:2px;
-  text-transform:uppercase;letter-spacing:0.06em;font-weight:500;
+  font-size:0.75rem;color:var(--on-dark-mute);margin-top:2px;
+  text-transform:uppercase;letter-spacing:0.06em;font-weight:400;
 }
 
 /* ===== Section Rhythm ===== */
@@ -253,13 +229,13 @@ em{font-style:italic;color:var(--body-strong)}
   background:var(--surface-dark);
 }
 .section-dark h2,.section-dark h3,.section-dark h4{color:var(--on-dark)}
-.section-dark p{color:var(--on-dark-soft)}
+.section-dark p{color:var(--on-dark-mute)}
 .section-dark .section-label{color:var(--primary)}
 .section-card{
-  background:var(--surface-card);
+  background:var(--surface-soft);
 }
 .section-label{
-  font-family:var(--font-body);font-size:0.75rem;font-weight:500;
+  font-family:var(--font-body);font-size:14px;font-weight:700;
   text-transform:uppercase;letter-spacing:0.1em;
   color:var(--primary);margin-bottom:16px;
 }
@@ -275,37 +251,55 @@ em{font-style:italic;color:var(--body-strong)}
   gap:20px;
 }
 .card{
-  background:var(--surface-card);
-  border-radius:var(--radius-lg);
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius);
   padding:32px;transition:all var(--transition);
+  position:relative;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;
+  width:12px;height:12px;background:var(--primary);
+}
+.card::after{
+  content:'';position:absolute;bottom:0;right:0;
+  width:12px;height:12px;background:var(--primary);
 }
 .card:hover{
-  transform:translateY(-2px);
-  box-shadow:0 4px 16px rgba(20,20,19,0.06);
+  border-color:var(--primary);
 }
 .card-icon{
   width:44px;height:44px;display:flex;align-items:center;justify-content:center;
-  border-radius:var(--radius-md);margin-bottom:20px;
+  border-radius:var(--radius);margin-bottom:20px;
   font-size:1.25rem;
 }
 .card-title{
-  font-family:var(--font-body);font-weight:500;
+  font-family:var(--font-body);font-weight:700;
   margin-bottom:8px;color:var(--ink);
 }
-.card-desc{font-size:0.9375rem;color:var(--body);line-height:1.55}
+.card-desc{font-size:0.9375rem;color:var(--body);line-height:1.5}
 
 /* Dark cards */
 .card-dark{
-  background:var(--surface-dark-elevated);
-  border-radius:var(--radius-lg);
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:var(--radius);
   padding:32px;transition:all var(--transition);
+  position:relative;
+}
+.card-dark::before{
+  content:'';position:absolute;top:0;left:0;
+  width:12px;height:12px;background:var(--primary);
+}
+.card-dark::after{
+  content:'';position:absolute;bottom:0;right:0;
+  width:12px;height:12px;background:var(--primary);
 }
 .card-dark:hover{
-  transform:translateY(-2px);
-  box-shadow:0 4px 16px rgba(0,0,0,0.2);
+  border-color:var(--primary);
 }
 .card-dark .card-title{color:var(--on-dark)}
-.card-dark .card-desc{color:var(--on-dark-soft)}
+.card-dark .card-desc{color:var(--on-dark-mute)}
 
 /* ===== Pipeline ===== */
 .pipeline-visual{
@@ -314,56 +308,65 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .pipeline-step{
   flex:1;min-width:160px;
-  background:var(--surface-card);
-  border-radius:var(--radius-lg);
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius);
   padding:28px 20px;text-align:center;
   transition:all var(--transition);
 }
 .pipeline-step:hover{
-  transform:translateY(-4px);
-  box-shadow:0 4px 16px rgba(20,20,19,0.08);
+  border-color:var(--primary);
 }
 .pipeline-arrow{
   display:flex;align-items:center;padding:0 4px;
-  color:var(--muted-soft);font-size:1.25rem;flex-shrink:0;
+  color:var(--mute);font-size:1.25rem;flex-shrink:0;
 }
 .pipeline-step-num{
-  font-family:var(--font-display);font-size:2rem;font-weight:400;
+  font-family:var(--font-body);font-size:2rem;font-weight:700;
   color:var(--primary);margin-bottom:8px;
-  letter-spacing:-0.02em;
 }
 .pipeline-step-title{
-  font-family:var(--font-body);font-weight:500;font-size:0.9375rem;
+  font-family:var(--font-body);font-weight:700;font-size:0.9375rem;
   margin-bottom:4px;color:var(--ink);
 }
 .pipeline-step-desc{
-  font-size:0.8125rem;color:var(--muted);line-height:1.4;
+  font-size:0.8125rem;color:var(--mute);line-height:1.4;
 }
 
 /* ===== Evolution Loop ===== */
 .loop-diagram{
   display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;
   align-items:center;gap:16px;
-  background:var(--surface-dark-soft);
-  border-radius:var(--radius-xl);padding:40px 24px;
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius);padding:40px 24px;
   margin-bottom:24px;
 }
 .loop-node{
-  background:var(--surface-dark-elevated);
-  border-radius:var(--radius-lg);padding:28px 16px;text-align:center;
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius);padding:28px 16px;text-align:center;
   transition:all var(--transition);
+  position:relative;
+}
+.loop-node::before{
+  content:'';position:absolute;top:0;left:0;
+  width:12px;height:12px;background:var(--primary);
+}
+.loop-node::after{
+  content:'';position:absolute;bottom:0;right:0;
+  width:12px;height:12px;background:var(--primary);
 }
 .loop-node:hover{
-  transform:translateY(-2px);
-  box-shadow:0 4px 16px rgba(0,0,0,0.2);
+  border-color:var(--primary);
 }
 .loop-node-icon{font-size:1.75rem;margin-bottom:10px}
 .loop-node-title{
-  font-family:var(--font-body);font-weight:500;font-size:0.875rem;
-  margin-bottom:4px;color:var(--on-dark);
+  font-family:var(--font-body);font-weight:700;font-size:0.875rem;
+  margin-bottom:4px;color:var(--ink);
 }
 .loop-node-desc{
-  font-size:0.75rem;color:var(--on-dark-soft);line-height:1.4;
+  font-size:0.75rem;color:var(--mute);line-height:1.4;
 }
 .loop-arrow{
   color:var(--primary);font-size:1.25rem;text-align:center;
@@ -374,9 +377,9 @@ em{font-style:italic;color:var(--body-strong)}
 .loop-feedback-line{
   display:inline-flex;align-items:center;gap:8px;
   padding:10px 24px;
-  background:rgba(204,120,92,0.08);
-  border:1.5px dashed var(--primary);
-  border-radius:var(--radius-lg);
+  background:rgba(118,185,0,0.08);
+  border:2px dashed var(--primary);
+  border-radius:var(--radius);
   font-size:0.8125rem;color:var(--primary);
 }
 
@@ -388,49 +391,59 @@ em{font-style:italic;color:var(--body-strong)}
 .stat-card{
   background:var(--canvas);
   border:1px solid var(--hairline);
-  border-radius:var(--radius-lg);padding:28px;text-align:center;
+  border-radius:var(--radius);padding:28px;text-align:center;
+  position:relative;
+}
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;
+  width:12px;height:12px;background:var(--primary);
+}
+.stat-card::after{
+  content:'';position:absolute;bottom:0;right:0;
+  width:12px;height:12px;background:var(--primary);
 }
 .stat-value{
-  font-family:var(--font-display);font-size:2.5rem;font-weight:400;
-  color:var(--ink);letter-spacing:-0.02em;
+  font-family:var(--font-body);font-size:36px;font-weight:700;
+  color:var(--primary);
 }
 .stat-label{
-  font-size:0.75rem;color:var(--muted);margin-top:4px;
-  text-transform:uppercase;letter-spacing:0.06em;font-weight:500;
+  font-size:0.75rem;color:var(--mute);margin-top:4px;
+  text-transform:uppercase;letter-spacing:0.06em;font-weight:400;
 }
 
 /* ===== Code Window Card ===== */
 .code-block{
-  background:var(--surface-dark);
-  border-radius:var(--radius-lg);overflow:hidden;
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius);overflow:hidden;
 }
 .code-block-header{
   display:flex;align-items:center;justify-content:space-between;
   padding:12px 20px;
-  background:var(--surface-dark-elevated);
-  border-bottom:1px solid rgba(255,255,255,0.06);
+  background:var(--surface-soft);
+  border-bottom:1px solid var(--hairline);
 }
 .code-block-dots{display:flex;gap:6px}
 .code-block-dot{width:10px;height:10px;border-radius:50%}
 .code-block-dot.r{background:#c64545}
 .code-block-dot.y{background:#d4a017}
-.code-block-dot.g{background:#5db872}
+.code-block-dot.g{background:var(--primary)}
 .code-block-lang{
-  font-family:var(--font-code);font-size:0.75rem;color:var(--on-dark-soft);
+  font-family:var(--font-code);font-size:0.75rem;color:var(--mute);
 }
 .code-block-body{
   padding:24px;overflow-x:auto;
 }
 .code-block-body pre{
   font-family:var(--font-code);font-size:0.8125rem;
-  line-height:1.8;color:var(--on-dark-soft);
+  line-height:1.8;color:var(--body);
   margin:0;white-space:pre;
 }
-.code-block-body .kw{color:var(--accent-teal)}
-.code-block-body .str{color:var(--accent-amber)}
-.code-block-body .fn{color:var(--primary)}
-.code-block-body .cm{color:var(--muted-soft)}
-.code-block-body .num{color:var(--success)}
+.code-block-body .kw{color:var(--primary-dark)}
+.code-block-body .str{color:var(--link-blue)}
+.code-block-body .fn{color:var(--ink)}
+.code-block-body .cm{color:var(--mute)}
+.code-block-body .num{color:var(--primary)}
 
 /* ===== Gallery ===== */
 .gallery-scroll-wrapper{
@@ -454,34 +467,31 @@ em{font-style:italic;color:var(--body-strong)}
   scroll-snap-align:start;
   background:var(--canvas);
   border:1px solid var(--hairline);
-  border-radius:var(--radius-lg);overflow:hidden;
+  border-radius:var(--radius);overflow:hidden;
   transition:all var(--transition);
 }
 .gallery-card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 4px 16px rgba(20,20,19,0.08);
+  border-color:var(--primary);
 }
 .gallery-card img{
   width:100%;aspect-ratio:1;object-fit:cover;display:block;cursor:pointer;
 }
 .gallery-card .gallery-info{padding:16px 20px}
 .gallery-tag{
-  display:inline-block;font-size:0.6875rem;font-weight:500;
+  display:inline-block;font-size:0.6875rem;font-weight:700;
   text-transform:uppercase;letter-spacing:0.08em;
-  padding:3px 10px;border-radius:var(--radius-sm);
-  background:var(--surface-card);color:var(--muted);
+  padding:3px 10px;border-radius:var(--radius);
+  background:var(--surface-soft);color:var(--mute);
   margin-bottom:8px;font-family:var(--font-body);
 }
-.gallery-obj-name{font-family:var(--font-body);font-weight:500;font-size:1rem;color:var(--ink)}
-.gallery-meta{font-size:0.78rem;color:var(--muted);margin-top:4px}
+.gallery-obj-name{font-family:var(--font-body);font-weight:700;font-size:1rem;color:var(--ink)}
+.gallery-meta{font-size:0.78rem;color:var(--mute);margin-top:4px}
 
 .gallery-scroll-btn{
   position:absolute;top:50%;transform:translateY(-50%);
   z-index:10;width:40px;height:40px;
-  border-radius:50%;border:1px solid var(--hairline);
-  background:rgba(250,249,245,0.95);
-  backdrop-filter:blur(8px);
-  box-shadow:0 2px 8px rgba(20,20,19,0.08);
+  border-radius:var(--radius);border:1px solid var(--hairline);
+  background:rgba(255,255,255,0.95);
   cursor:pointer;display:flex;align-items:center;justify-content:center;
   color:var(--ink);font-size:1.125rem;
   transition:all var(--transition);
@@ -501,7 +511,7 @@ em{font-style:italic;color:var(--body-strong)}
   transition:all var(--transition);
 }
 .gallery-scroll-indicator .dot.active{
-  background:var(--primary);width:24px;border-radius:var(--radius-sm);
+  background:var(--primary);width:24px;border-radius:var(--radius);
 }
 
 /* ===== Tags / Badges ===== */
@@ -509,26 +519,26 @@ em{font-style:italic;color:var(--body-strong)}
   display:flex;flex-wrap:wrap;gap:10px;
 }
 .tag{
-  background:var(--canvas);
+  background:var(--surface-soft);
   border:1px solid var(--hairline);
-  border-radius:var(--radius-pill);
+  border-radius:var(--radius);
   padding:8px 18px;
   font-size:0.8125rem;font-family:var(--font-body);
   color:var(--body);font-weight:400;
 }
 .tag-dark{
-  background:var(--surface-dark-elevated);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:var(--radius-pill);
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:var(--radius);
   padding:8px 18px;
   font-size:0.8125rem;font-family:var(--font-body);
-  color:var(--on-dark-soft);font-weight:400;
+  color:var(--on-dark-mute);font-weight:400;
 }
 
 /* ===== CTA Band ===== */
 .cta-band{
   background:var(--primary);
-  border-radius:var(--radius-lg);
+  border-radius:var(--radius);
   padding:64px;
   text-align:center;
 }
@@ -536,15 +546,15 @@ em{font-style:italic;color:var(--body-strong)}
   color:var(--on-primary);margin-bottom:16px;
 }
 .cta-band p{
-  color:rgba(255,255,255,0.85);margin-bottom:32px;
+  color:rgba(0,0,0,0.7);margin-bottom:32px;
   max-width:560px;margin-left:auto;margin-right:auto;
 }
 .cta-band .btn-secondary{
-  background:rgba(255,255,255,0.15);color:var(--on-primary);
-  border:1.5px solid rgba(255,255,255,0.3);
+  background:transparent;color:var(--on-primary);
+  border:2px solid var(--on-primary);
 }
 .cta-band .btn-secondary:hover{
-  background:rgba(255,255,255,0.25);color:var(--on-primary);
+  background:var(--on-primary);color:var(--primary);
 }
 
 /* ===== Connector Tile (Action Space) ===== */
@@ -555,19 +565,18 @@ em{font-style:italic;color:var(--body-strong)}
 .connector-tile{
   background:var(--canvas);
   border:1px solid var(--hairline);
-  border-radius:var(--radius-lg);
+  border-radius:var(--radius);
   padding:20px;
   transition:all var(--transition);
 }
 .connector-tile:hover{
   border-color:var(--primary);
-  transform:translateY(-2px);
 }
 .connector-tile h4{
-  font-size:0.9375rem;font-weight:500;margin-bottom:4px;color:var(--ink);
+  font-size:0.9375rem;font-weight:700;margin-bottom:4px;color:var(--ink);
 }
 .connector-tile p{
-  font-size:0.8125rem;color:var(--muted);line-height:1.4;
+  font-size:0.8125rem;color:var(--mute);line-height:1.4;
 }
 
 /* ===== Footer ===== */
@@ -577,41 +586,38 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .footer-inner{max-width:var(--max-width);margin:0 auto}
 .footer-brand{
-  font-family:var(--font-display);font-size:1.25rem;font-weight:500;
+  font-family:var(--font-body);font-size:1.25rem;font-weight:700;
   color:var(--on-dark);margin-bottom:24px;
   display:flex;align-items:center;gap:8px;
-  letter-spacing:-0.02em;
 }
 .footer-grid{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:48px;
+  display:grid;grid-template-columns:repeat(6,1fr);gap:32px;
   margin-bottom:48px;
 }
 .footer-col h4{
-  font-size:0.75rem;font-weight:500;text-transform:uppercase;
+  font-size:0.75rem;font-weight:700;text-transform:uppercase;
   letter-spacing:0.1em;color:var(--on-dark);margin-bottom:16px;
 }
 .footer-col a{
-  display:block;font-size:0.875rem;color:var(--on-dark-soft);
+  display:block;font-size:0.875rem;color:var(--on-dark-mute);
   margin-bottom:10px;transition:color var(--transition);
 }
 .footer-col a:hover{color:var(--on-dark)}
 .footer-bottom{
-  border-top:1px solid rgba(255,255,255,0.08);
+  border-top:1px solid rgba(255,255,255,0.12);
   padding-top:24px;
-  font-size:0.8125rem;color:var(--muted-soft);
+  font-size:0.8125rem;color:var(--stone);
 }
 
 /* ===== Lightbox ===== */
 .lightbox-overlay{
   display:none;position:fixed;inset:0;z-index:2000;
-  background:rgba(20,20,19,0.92);
+  background:rgba(0,0,0,0.92);
   justify-content:center;align-items:center;cursor:zoom-out;
-  backdrop-filter:blur(8px);
 }
 .lightbox-overlay.open{display:flex}
 .lightbox-overlay img{
-  max-width:92vw;max-height:92vh;border-radius:var(--radius-md);
-  box-shadow:0 8px 48px rgba(0,0,0,0.5);
+  max-width:92vw;max-height:92vh;border-radius:var(--radius);
 }
 
 /* ===== Responsive ===== */
@@ -620,10 +626,10 @@ em{font-style:italic;color:var(--body-strong)}
   .hero-illustration{max-width:560px}
 }
 @media(max-width:768px){
-  :root{--section-pad:64px}
+  :root{--section-pad:48px}
   .nav-links{display:none}
   .hero{padding:100px 24px 64px}
-  .section{padding:64px 24px}
+  .section{padding:48px 24px}
   .hero-stats{flex-wrap:wrap;gap:24px}
   .pipeline-visual{flex-wrap:wrap;gap:12px;justify-content:center}
   .pipeline-arrow{display:none}
@@ -635,7 +641,7 @@ em{font-style:italic;color:var(--body-strong)}
   .connector-grid{grid-template-columns:repeat(2,1fr)}
   .gallery-card{flex:0 0 280px}
   .gallery-scroll-btn{display:none}
-  .footer-grid{grid-template-columns:repeat(2,1fr);gap:32px}
+  .footer-grid{grid-template-columns:repeat(3,1fr);gap:24px}
   .cta-band{padding:48px 24px}
 }
 @media(max-width:480px){
@@ -643,7 +649,7 @@ em{font-style:italic;color:var(--body-strong)}
   .btn{justify-content:center;width:100%}
   .stats-grid{grid-template-columns:1fr}
   .connector-grid{grid-template-columns:1fr}
-  .footer-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:repeat(2,1fr)}
 }
 </style>
 </head>
@@ -683,8 +689,8 @@ em{font-style:italic;color:var(--body-strong)}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
           View on GitHub
         </a>
-        <a href="#pipeline" class="btn btn-secondary">How It Works</a>
-        <a href="https://arxiv.org/abs/2605.01789" class="btn btn-secondary" target="_blank" rel="noopener">Read Paper</a>
+        <a href="#pipeline" class="btn btn-outline-coral">How It Works</a>
+        <a href="https://arxiv.org/abs/2605.01789" class="btn btn-outline-coral" target="_blank" rel="noopener">Read Paper</a>
       </div>
       <div class="hero-stats">
         <div>
@@ -739,7 +745,7 @@ em{font-style:italic;color:var(--body-strong)}
   </div>
 </section>
 
-<!-- Problem / Solution — Cream Card Section -->
+<!-- Problem / Solution — Soft Gray Section -->
 <section class="section section-card" id="problem">
   <div class="section-inner">
     <div class="section-label">The Problem</div>
@@ -751,20 +757,20 @@ em{font-style:italic;color:var(--body-strong)}
     <div class="card-grid">
       <div class="card">
         <div class="card-icon" style="background:rgba(198,69,69,0.1)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c64545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         </div>
         <h3 class="card-title">Naive Renders Have Artifacts</h3>
         <p class="card-desc">Auto-rendered 3D objects often exhibit flat lighting, implausible shadows, and color mismatches with the scene environment.</p>
       </div>
       <div class="card">
         <div class="card-icon" style="background:rgba(212,160,23,0.1)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d4a017" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
         </div>
         <h3 class="card-title">Rule-Based QC Lacks Semantics</h3>
         <p class="card-desc">Rigid numeric thresholds can't diagnose "this lighting feels flat" or "the object appears to float." Goal-driven agents with VLM perception can.</p>
       </div>
       <div class="card">
-        <div class="card-icon" style="background:rgba(204,120,92,0.1)">
+        <div class="card-icon" style="background:rgba(118,185,0,0.1)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
         <h3 class="card-title">Manual Tuning Can't Scale</h3>
@@ -774,7 +780,7 @@ em{font-style:italic;color:var(--body-strong)}
   </div>
 </section>
 
-<!-- Pipeline — Cream Canvas -->
+<!-- Pipeline — White Canvas -->
 <section class="section" id="pipeline">
   <div class="section-inner">
     <div class="section-label">Pipeline</div>
@@ -823,7 +829,7 @@ em{font-style:italic;color:var(--body-strong)}
   </div>
 </section>
 
-<!-- VLM Evolution Loop — Dark Navy Section -->
+<!-- VLM Evolution Loop — Dark Section -->
 <section class="section section-dark" id="evolution">
   <div class="section-inner">
     <div class="section-label">Core Innovation</div>
@@ -835,7 +841,7 @@ em{font-style:italic;color:var(--body-strong)}
     <div class="loop-diagram">
       <div class="loop-node">
         <div class="loop-node-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
         <div class="loop-node-title">Blender Render</div>
         <div class="loop-node-desc">Cycles 512spp at 1024×1024</div>
@@ -843,7 +849,7 @@ em{font-style:italic;color:var(--body-strong)}
       <div class="loop-arrow">→</div>
       <div class="loop-node">
         <div class="loop-node-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
         <div class="loop-node-title">VLM Review</div>
         <div class="loop-node-desc">Qwen3.5-35B free-form critique</div>
@@ -859,7 +865,7 @@ em{font-style:italic;color:var(--body-strong)}
       <div class="loop-arrow">→</div>
       <div class="loop-node">
         <div class="loop-node-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <div class="loop-node-title">Quality Gate</div>
         <div class="loop-node-desc">Verdict: keep / revise / reject</div>
@@ -889,7 +895,7 @@ em{font-style:italic;color:var(--body-strong)}
   </div>
 </section>
 
-<!-- Dataset — Cream Card -->
+<!-- Dataset — Soft Gray -->
 <section class="section section-card" id="dataset">
   <div class="section-inner">
     <div class="section-label">Dataset</div>
@@ -946,7 +952,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- Gallery — Cream Canvas -->
+<!-- Gallery — White Canvas -->
 <section class="section" id="gallery">
   <div class="section-inner">
     <div class="section-label">Gallery</div>
@@ -1148,7 +1154,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- Action Space — Cream Card -->
+<!-- Action Space — Soft Gray -->
 <section class="section section-card">
   <div class="section-inner">
     <div class="section-label">Action Space</div>
@@ -1183,13 +1189,13 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         <p>±0.08 step, bounded [-0.3, 0.6]</p>
       </div>
     </div>
-    <p style="text-align:center;margin-top:24px;font-size:0.8125rem;color:var(--muted)">
+    <p style="text-align:center;margin-top:24px;font-size:0.8125rem;color:var(--mute)">
       + 18 more actions — see <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/configs/scene_action_space.json" target="_blank" rel="noopener">scene_action_space.json</a>
     </p>
   </div>
 </section>
 
-<!-- Key Highlights — Dark Navy -->
+<!-- Key Highlights — Dark -->
 <section class="section section-dark">
   <div class="section-inner">
     <div class="section-label">Why DataEvolver</div>
@@ -1200,29 +1206,29 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 
     <div class="card-grid">
       <div class="card-dark">
-        <div class="card-icon" style="background:rgba(93,184,114,0.15)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <div class="card-icon" style="background:rgba(118,185,0,0.15)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
         <h3 class="card-title">VLM-as-Feedback, Not Score</h3>
         <p class="card-desc">Free-form natural language feedback provides semantic diagnosis that numeric scores cannot. The reviewer identifies <em style="color:var(--on-dark)">why</em> a render fails.</p>
       </div>
       <div class="card-dark">
-        <div class="card-icon" style="background:rgba(204,120,92,0.15)">
+        <div class="card-icon" style="background:rgba(118,185,0,0.15)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </div>
         <h3 class="card-title">AI Agent Autonomy</h3>
         <p class="card-desc">The agent reads raw review text and reasons about which action to take — no scripted rule engine, no score-threshold mapping.</p>
       </div>
       <div class="card-dark">
-        <div class="card-icon" style="background:rgba(93,184,166,0.15)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <div class="card-icon" style="background:rgba(118,185,0,0.15)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
         <h3 class="card-title">Proven Downstream Value</h3>
         <p class="card-desc">LoRA fine-tuning on DataEvolver-Rotate improves Qwen Image Edit 2511 on PSNR, SSIM, and LPIPS vs. the base model.</p>
       </div>
       <div class="card-dark">
-        <div class="card-icon" style="background:rgba(232,165,90,0.15)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <div class="card-icon" style="background:rgba(118,185,0,0.15)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
         <h3 class="card-title">Multi-Modal Data Support</h3>
         <p class="card-desc">Beyond RGB pairs: mask, depth, normal maps, and geometry metadata — enabling multi-modal conditioning research.</p>
@@ -1231,7 +1237,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- Tech Stack — Cream Card -->
+<!-- Tech Stack — Soft Gray -->
 <section class="section section-card">
   <div class="section-inner">
     <div class="section-label">Tech Stack</div>
@@ -1255,7 +1261,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- Getting Started — Cream Canvas -->
+<!-- Getting Started — White Canvas -->
 <section class="section" id="start">
   <div class="section-inner">
     <div class="section-label">Get Started</div>
@@ -1289,7 +1295,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- Citation — Cream Card -->
+<!-- Citation — Soft Gray -->
 <section class="section section-card">
   <div class="section-inner" style="text-align:center">
     <div class="section-label">Cite</div>
@@ -1326,7 +1332,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- CTA Band — Coral -->
+<!-- CTA Band — Green -->
 <section class="section">
   <div class="section-inner">
     <div class="cta-band">
@@ -1340,7 +1346,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
-<!-- Footer — Dark Navy -->
+<!-- Footer — Black, 6-Column -->
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-brand">
@@ -1371,6 +1377,16 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         <a href="https://github.com/PRIS-CV/DataEvolver" target="_blank" rel="noopener">GitHub</a>
         <a href="#gallery">Gallery</a>
         <a href="#start">Get Started</a>
+      </div>
+      <div class="footer-col">
+        <h4>Models</h4>
+        <a href="https://arxiv.org/abs/2605.01789" target="_blank" rel="noopener">arXiv Paper</a>
+        <a href="#dataset">Dataset</a>
+      </div>
+      <div class="footer-col">
+        <h4>Community</h4>
+        <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
+        <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
       </div>
     </div>
     <div class="footer-bottom">
