@@ -6,6 +6,8 @@ DataEvolver is a goal-driven data synthesis pipeline that generates high-quality
 
 [中文](README_zh.md) &middot; [Website](https://pris-cv.github.io/DataEvolver/) &middot; [Paper](https://arxiv.org/abs/2605.01789) &middot; [Dataset: DataEvolver-Rotate](#dataevolver-rotate)
 
+![Data Synthesis Pipeline](assets/pipeline_show.svg)
+
 ---
 
 ## Key Features
