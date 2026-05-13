@@ -1,3 +1,5 @@
+![DataEvolver Showcase](assets/showcase.png)
+
 # DataEvolver
 
 **Autonomous Synthetic Data Construction via VLM-Guided Iterative Rendering**
@@ -5,8 +7,6 @@
 DataEvolver is a goal-driven data synthesis pipeline that generates high-quality training datasets through an automated loop of 3D rendering, VLM (Vision-Language Model) quality review, and intelligent parameter adjustment. Unlike traditional pipelines with rigid scoring rules, DataEvolver uses free-form VLM feedback to perceive, diagnose, and fix rendering issues — producing photorealistic, scene-aware training data without human intervention.
 
 [中文](README_zh.md) &middot; [Website](https://pris-cv.github.io/DataEvolver/) &middot; [Paper](https://arxiv.org/abs/2605.01789) &middot; [Dataset: DataEvolver-Rotate](#dataevolver-rotate)
-
-![DataEvolver Showcase](assets/showcase.png)
 
 ---
 
