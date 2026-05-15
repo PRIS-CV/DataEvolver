@@ -1,0 +1,107 @@
+\section{ARIS-Rotate Dataset}
+\label{sec:dataset}
+
+\subsection{Construction}
+\label{sec:dataset:construction}
+
+We apply the \aris{} pipeline to construct \textbf{ARIS-Rotate},
+a dataset for rotation-conditioned image editing.
+Each sample in ARIS-Rotate pairs a canonical front-view image of an object
+with a target-view image and a natural-language editing instruction.
+
+\paragraph{Object selection and diversity.}
+We generate 50 objects spanning diverse categories including furniture, household items,
+tools, decorative objects, and outdoor equipment.
+Object descriptions are generated to cover a range of materials (wood, metal, plastic, fabric),
+shapes (compact, elongated, symmetric, asymmetric),
+and color profiles.
+This diversity is intended to stress-test the rendering pipeline
+across a range of 3D reconstruction and lighting scenarios.
+
+\paragraph{Viewpoint specification.}
+Each object is rendered at eight equally-spaced horizontal azimuths.
+We represent viewpoints using natural-language labels rather than numeric angles,
+reflecting how users would naturally describe rotation instructions:
+
+\begin{center}
+\begin{tabular}{cl}
+\toprule
+Azimuth & View Label \\
+\midrule
+$0^\circ$   & front view \\
+$45^\circ$  & front-right view \\
+$90^\circ$  & right side view \\
+$135^\circ$ & back-right view \\
+$180^\circ$ & back view \\
+$225^\circ$ & back-left view \\
+$270^\circ$ & left side view \\
+$315^\circ$ & front-left view \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Editing pairs and instruction templates.}
+We designate the $0^\circ$ (front view) render as the canonical source image.
+For each of the remaining seven target views,
+we form an editing pair with the following instruction template:
+
+\begin{center}
+\texttt{Rotate this object from front view to \{target\_view\}.}
+\end{center}
+
+Each of the 50 objects contributes 7 editing pairs,
+for a total of \textbf{350 training pairs}.
+The full rendered image set comprises \textbf{400 images} (50 objects $\times$ 8 views).
+
+\begin{figure}[t]
+  \centering
+  % TODO: Insert dataset sample grid figure
+  \fbox{\parbox{0.95\linewidth}{\centering\vspace{3cm}
+    \textbf{[Figure 3: Dataset Sample Grid]}\\
+    Grid: rows = 4 representative objects,
+    columns = 8 viewpoints (front view $\to$ front-left view).\\
+    Each cell shows the rendered image at that viewpoint after VLM evolution.
+    \vspace{3cm}}}
+  \caption{
+    Sample images from ARIS-Rotate.
+    Each row shows one object rendered at all eight horizontal viewpoints,
+    from front view ($0^\circ$) to front-left view ($315^\circ$).
+    All images have been approved by the VLM reviewer through the evolution loop.
+  }
+  \label{fig:dataset_grid}
+\end{figure}
+
+\subsection{Data Split}
+\label{sec:dataset:split}
+
+We partition objects using an \emph{object-disjoint} split:
+the same object cannot appear in both training and test sets.
+This ensures that evaluation measures generalization to unseen objects,
+not memorization of seen objects from different viewpoints.
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Split & Objects & Pairs & Images \\
+\midrule
+Train & 35 & 245 & 280 \\
+Val   & 5  & 35  & 40  \\
+Test  & 10 & 70  & 80  \\
+\midrule
+\textbf{Total} & \textbf{50} & \textbf{350} & \textbf{400} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Dataset Statistics}
+\label{sec:dataset:stats}
+
+\tbd{Fill in after data generation completes.}
+Statistics to report:
+\begin{itemize}
+  \item Distribution of VLM evolution rounds per object (histogram)
+  \item Distribution of final VLM quality scores
+  \item Fraction of objects requiring $\geq$1, $\geq$3, $\geq$5 refinement rounds
+  \item Breakdown of primary issue types diagnosed across all objects
+    (flat\_lighting, color\_shift, scene\_light\_mismatch, etc.)
+\end{itemize}

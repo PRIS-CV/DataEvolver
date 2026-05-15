@@ -1,0 +1,10 @@
+{
+  "name": "scene_v71a_baseline",
+  "description": "v7.1 experiment A: current v7 baseline as control",
+  "action_whitelist": null,
+  "contact_gap_minor": 0.005,
+  "max_attempts": 3,
+  "stability_rounds": 2,
+  "unstable_variance_limit": 0.1,
+  "unstable_span_limit": 0.1
+}

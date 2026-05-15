@@ -1,0 +1,43 @@
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Synthetic data for image editing.}
+A large body of work has explored automatically constructing paired training data
+for instruction-following image editing.
+InstructPix2Pix~\cite{PLACEHOLDER_brooks2023instructpix2pix_verify}
+generates training pairs by combining GPT-4 \cite{PLACEHOLDER_gpt4_verify}
+to produce editing instructions with Stable Diffusion~\cite{PLACEHOLDER_rombach2022latentdiffusion_verify}
+to render source/target image pairs.
+MagicBrush~\cite{PLACEHOLDER_zhang2024magicbrush_verify} introduces human-annotated
+real editing pairs to address distributional gaps in purely synthetic data.
+Emu Edit~\cite{PLACEHOLDER_sheynin2024emuedit_verify} scales instruction-following editing
+using a diverse multi-task dataset.
+These approaches focus on 2D semantic editing tasks;
+constructing \emph{geometrically controlled} pairs---especially multi-view rotation---
+requires explicit 3D modeling that 2D diffusion-based pipelines cannot provide.
+\aris{} fills this gap through a full 3D-to-render pipeline with iterative quality control.
+
+\paragraph{3D-aware data generation.}
+Objaverse~\cite{PLACEHOLDER_deitke2023objaverse_verify} and its successors provide
+large-scale 3D asset libraries for rendering synthetic multi-view data.
+Methods such as Zero-1-to-3~\cite{PLACEHOLDER_liu2023zero123_verify},
+SyncDreamer~\cite{PLACEHOLDER_liu2023syncdreamer_verify},
+and Wonder3D~\cite{PLACEHOLDER_long2024wonder3d_verify}
+train novel view synthesis models on such data.
+These works focus on geometry reconstruction and view synthesis,
+but do not address scene-aware rendering quality or the iterative quality control
+needed to produce \emph{training-ready} edited pairs suitable for instruction-following models.
+\aris{} bridges this gap by integrating 3D reconstruction with scene-aware Blender rendering
+and VLM-based quality evolution.
+
+\paragraph{VLM as feedback and judge.}
+Using language models to evaluate or improve the outputs of other systems
+has gained significant traction.
+LLM-as-a-Judge~\cite{PLACEHOLDER_zheng2024llamajudge_verify} and related work show
+that strong LLMs can serve as proxies for human evaluation.
+In the multimodal setting, recent work has explored VLMs for image quality assessment
+\cite{PLACEHOLDER_ku2024imagereward_verify} and preference alignment~\cite{PLACEHOLDER_xu2024imagereward2_verify}.
+Our approach differs in that the VLM feedback is not used for
+\emph{post-hoc evaluation} but as an \emph{active signal} in an iterative rendering loop:
+the AI agent reads the reviewer's free-form text and directly decides
+which rendering parameters to adjust, closing the loop between evaluation and generation.

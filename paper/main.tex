@@ -1,0 +1,58 @@
+\documentclass{article}
+
+\usepackage[nonatbib, final]{neurips}
+\usepackage[numbers]{natbib}
+
+\makeatletter
+\renewcommand{\@noticestring}{
+  \centering
+  Technical Report
+}
+\makeatother
+
+\input{extra_pkgs}
+
+\usepackage{physics}
+\usepackage{mathtools}
+\DeclarePairedDelimiter\p{(}{)}
+\DeclarePairedDelimiter\n{|}{|}
+\DeclarePairedDelimiter\B{[}{]}
+
+% ---- custom commands ----
+\newcommand{\aris}{\textsc{ARIS}}
+\newcommand{\tbd}[1]{\textcolor{red}{[#1]}}
+\newcommand{\todo}[1]{\textcolor{orange}{\textbf{TODO:} #1}}
+
+\title{\aris: Free-Form VLM-Guided Synthetic Data Construction\\
+       for View-Controlled Image Editing}
+
+\author{
+  % Authors omitted for anonymity
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+\input{sections/introduction}
+
+\input{sections/related_work}
+
+\input{sections/method}
+
+\input{sections/dataset}
+
+\input{sections/experiments}
+
+\input{sections/limitations}
+
+\input{sections/conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

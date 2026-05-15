@@ -1,0 +1,19 @@
+We present \aris{} (\textbf{A}utonomous \textbf{R}endering with \textbf{I}terative \textbf{S}cene-aware feedback),
+a fully automated pipeline for constructing training-ready synthetic datasets for image editing tasks.
+Building high-quality paired training data for 3D-aware image editing---such as view-controlled rotation---
+has traditionally required extensive manual tuning of rendering parameters in tools like Blender,
+an effort that is both time-consuming and difficult to scale.
+\aris{} addresses this by introducing a \emph{free-form VLM-guided rendering evolution loop}:
+a vision-language model reviews rendered scenes using natural language feedback,
+and an AI agent reads this feedback directly to select the next rendering action
+from a structured action space, iteratively improving visual quality
+until the reviewer confirms the result is acceptable.
+We instantiate this pipeline to construct \textbf{ARIS-Rotate},
+a 50-object, 350-pair rotation editing dataset in which each sample pairs
+a canonical front-view image with a target view specified by a natural-language prompt
+(e.g., \textit{``Rotate this object from front view to right side view''}).
+Ablation experiments demonstrate that the VLM evolution loop substantially improves
+rendering quality over single-pass rendering without iterative refinement.
+Fine-tuning Qwen Image Edit 2511~\cite{PLACEHOLDER_qwen_image_edit_verify} with LoRA on ARIS-Rotate
+yields measurable improvements over the base model in PSNR, SSIM, and LPIPS on a held-out test set,
+validating the downstream training value of automatically constructed data.

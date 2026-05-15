@@ -1,0 +1,22 @@
+[
+  {"id": "obj_001", "name": "wooden_chair", "category": "daily_item"},
+  {"id": "obj_002", "name": "ceramic_mug", "category": "daily_item"},
+  {"id": "obj_003", "name": "desk_lamp", "category": "daily_item"},
+  {"id": "obj_004", "name": "sedan_car", "category": "vehicle"},
+  {"id": "obj_005", "name": "motorcycle", "category": "vehicle"},
+  {"id": "obj_006", "name": "bicycle", "category": "vehicle"},
+  {"id": "obj_007", "name": "backpack", "category": "daily_item"},
+  {"id": "obj_008", "name": "suitcase", "category": "daily_item"},
+  {"id": "obj_009", "name": "traffic_cone", "category": "street_object"},
+  {"id": "obj_010", "name": "fire_hydrant", "category": "street_object"},
+  {"id": "obj_011", "name": "mailbox", "category": "street_object"},
+  {"id": "obj_012", "name": "park_bench", "category": "street_object"},
+  {"id": "obj_013", "name": "potted_plant", "category": "daily_item"},
+  {"id": "obj_014", "name": "skateboard", "category": "sports_item"},
+  {"id": "obj_015", "name": "bicycle_helmet", "category": "sports_item"},
+  {"id": "obj_016", "name": "watering_can", "category": "daily_item"},
+  {"id": "obj_017", "name": "acoustic_guitar", "category": "daily_item"},
+  {"id": "obj_018", "name": "office_trash_bin", "category": "daily_item"},
+  {"id": "obj_019", "name": "wooden_stool", "category": "daily_item"},
+  {"id": "obj_020", "name": "tool_box", "category": "daily_item"}
+]

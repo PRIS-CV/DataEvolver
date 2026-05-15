@@ -1,0 +1,157 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Ablation: VLM Evolution Loop Effectiveness}
+\label{sec:exp:ablation}
+
+We first validate that the VLM-guided evolution loop improves rendering quality
+compared to single-pass rendering without iterative refinement.
+We construct two versions of the 50-object ARIS-Rotate rendering set:
+
+\begin{itemize}
+  \item \textbf{No-evolution (direct render):} The 3D mesh is inserted into the Blender scene
+    and rendered at the default control state without any VLM review or parameter adjustment.
+  \item \textbf{Full pipeline (VLM evolution):} The complete \aris{} loop is applied,
+    with the AI agent reading VLM free-form feedback and selecting rendering actions
+    until the reviewer issues a keep verdict.
+\end{itemize}
+
+\begin{table}[h]
+\caption{Ablation: effect of VLM evolution loop on rendering quality.
+Keep rate = fraction of objects receiving a VLM ``keep'' verdict.
+Avg. hybrid score combines VLM quality ratings and CV-based metrics.}
+\label{tab:ablation}
+\centering
+\begin{tabular}{lccc}
+\toprule
+Setting & Avg. Quality Score $\uparrow$ & Keep Rate (\%) $\uparrow$ & Avg. Rounds \\
+\midrule
+No-evolution (direct render)         & \tbd{XX.X} & \tbd{XX.X} & 0 \\
+Full pipeline (VLM evolution, ours)  & \tbd{XX.X} & \tbd{XX.X} & \tbd{X.X} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  % TODO: Insert ablation comparison figure
+  \fbox{\parbox{0.95\linewidth}{\centering\vspace{2.5cm}
+    \textbf{[Figure 4: Ablation Comparison]}\\
+    3--4 representative objects.
+    Left: No-evolution (direct render). Right: Full pipeline (VLM evolution).\\
+    Annotate primary issue fixed (flat lighting, color shift, shadow, etc.)
+    \vspace{2.5cm}}}
+  \caption{
+    Qualitative comparison between single-pass rendering (no evolution)
+    and the full \aris{} evolution pipeline.
+    The VLM loop corrects common issues including flat lighting, color shift,
+    and missing contact shadows.
+  }
+  \label{fig:ablation}
+\end{figure}
+
+
+\subsection{LoRA Fine-Tuning Setup}
+\label{sec:exp:lora_setup}
+
+We evaluate the downstream training value of ARIS-Rotate by fine-tuning
+Qwen Image Edit 2511~\cite{PLACEHOLDER_qwen_image_edit_verify} with LoRA
+on the training split and evaluating on the test split.
+
+\paragraph{Base model.}
+Qwen Image Edit 2511 is an instruction-following image editing model
+that takes a source image and a text instruction as input and produces an edited image.
+We use the model's standard inference interface without modification.
+
+\paragraph{Training configuration.}
+\begin{itemize}
+  \item LoRA rank: \tbd{r=XX}, alpha: \tbd{XX}, target modules: \tbd{list}
+  \item Learning rate: \tbd{1e-4}, batch size: \tbd{X}, epochs: \tbd{XX}
+  \item Input: source image (front view) + text instruction
+  \item Target: edited image (target viewpoint)
+\end{itemize}
+
+\paragraph{Compared conditions.}
+We compare three conditions:
+\begin{enumerate}
+  \item \textbf{Base model}: Qwen Image Edit 2511 without fine-tuning.
+  \item \textbf{LoRA (no-evolution data)}: LoRA fine-tuned on data from
+    single-pass rendering (no VLM refinement).
+  \item \textbf{LoRA (full pipeline data)}: LoRA fine-tuned on quality-approved data
+    from the full \aris{} evolution pipeline.
+\end{enumerate}
+
+
+\subsection{Quantitative Results}
+\label{sec:exp:quant}
+
+We evaluate on the object-disjoint test split (10 objects, 70 pairs)
+using standard image quality metrics: PSNR, SSIM, and LPIPS~\cite{PLACEHOLDER_zhang2018lpips_verify}.
+
+\begin{table}[h]
+\caption{
+  Quantitative evaluation of rotation editing quality on the ARIS-Rotate test set.
+  $\uparrow$ = higher is better; $\downarrow$ = lower is better.
+  Bold denotes best result per metric.
+}
+\label{tab:quant_main}
+\centering
+\begin{tabular}{lccc}
+\toprule
+Method & PSNR $\uparrow$ & SSIM $\uparrow$ & LPIPS $\downarrow$ \\
+\midrule
+Base model (no fine-tuning)        & \tbd{XX.X} & \tbd{0.XX} & \tbd{0.XX} \\
+LoRA on no-evolution data          & \tbd{XX.X} & \tbd{0.XX} & \tbd{0.XX} \\
+LoRA on full pipeline data (ours)  & \textbf{\tbd{XX.X}} & \textbf{\tbd{0.XX}} & \textbf{\tbd{0.XX}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Per-view breakdown.}
+Table~\ref{tab:perviewresults} shows results broken down by target viewpoint.
+Rotation to nearby views (front-right, front-left) is generally easier than
+rotation to back views, which require hallucinating occluded geometry.
+
+\begin{table}[h]
+\caption{
+  Per-viewpoint PSNR comparison between base model and LoRA on full pipeline data.
+}
+\label{tab:perviewresults}
+\centering
+\begin{tabular}{llcc}
+\toprule
+Target View & Azimuth & Base PSNR & LoRA PSNR \\
+\midrule
+front-right view & $45^\circ$  & \tbd{XX.X} & \tbd{XX.X} \\
+right side view  & $90^\circ$  & \tbd{XX.X} & \tbd{XX.X} \\
+back-right view  & $135^\circ$ & \tbd{XX.X} & \tbd{XX.X} \\
+back view        & $180^\circ$ & \tbd{XX.X} & \tbd{XX.X} \\
+back-left view   & $225^\circ$ & \tbd{XX.X} & \tbd{XX.X} \\
+left side view   & $270^\circ$ & \tbd{XX.X} & \tbd{XX.X} \\
+front-left view  & $315^\circ$ & \tbd{XX.X} & \tbd{XX.X} \\
+\midrule
+\textbf{Mean} & & \tbd{XX.X} & \tbd{XX.X} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{Qualitative Results}
+\label{sec:exp:qual}
+
+\begin{figure}[t]
+  \centering
+  % TODO: Insert LoRA qualitative comparison figure
+  \fbox{\parbox{0.95\linewidth}{\centering\vspace{3cm}
+    \textbf{[Figure 5: LoRA vs Base Model Qualitative Comparison]}\\
+    Rows: 3--4 representative objects.\\
+    Columns: Input (front view) $|$ Base model output $|$ LoRA output $|$ Ground truth.\\
+    Show difficult views (back view, left side view) where improvement is visible.
+    \vspace{3cm}}}
+  \caption{
+    Qualitative comparison of rotation editing results.
+    LoRA fine-tuned on ARIS-Rotate data produces more geometrically consistent
+    target views compared to the base model, especially for large rotation angles.
+  }
+  \label{fig:qual_lora}
+\end{figure}

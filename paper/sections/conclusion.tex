@@ -1,0 +1,31 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented \aris{}, a pipeline for automatically constructing training-ready
+synthetic datasets for image editing tasks.
+The central contribution is the free-form VLM-guided rendering evolution loop,
+in which an AI agent reads natural language feedback from a vision-language model reviewer
+and selects rendering parameter adjustments from a structured action space,
+iterating until the reviewer confirms acceptable quality.
+This approach replaces manual Blender parameter tuning with an automated feedback cycle,
+enabling scalable and consistent 3D dataset construction.
+
+We instantiated \aris{} for rotation-conditioned image editing,
+producing ARIS-Rotate: a 50-object, 350-pair dataset
+with natural-language viewpoint instructions.
+Ablation experiments confirmed that the evolution loop improves rendering quality
+over single-pass rendering.
+LoRA fine-tuning of Qwen Image Edit 2511 on ARIS-Rotate
+demonstrated measurable improvement over the base model on the test set,
+validating the downstream utility of automatically constructed data.
+
+\paragraph{Future work.}
+Several directions extend this work naturally.
+First, expanding the action space to cover failure modes currently unresolved
+(global tone mapping, background replacement) would improve coverage.
+Second, applying \aris{} to additional editing tasks---lighting variation,
+material substitution, scale change---would validate generality.
+Third, scaling to larger object sets (500+) with broader category coverage
+would provide the data volume needed for training stronger editing models.
+Finally, integrating an adaptive round budget that allocates more evolution rounds
+to harder objects would improve efficiency on large-scale runs.

@@ -1,0 +1,20 @@
+{
+  "schema": "dual_placement_state_v1",
+  "source": "generated",
+  "seed": 12511,
+  "template": "foreground_background",
+  "obj1_position": [
+    8.516843,
+    44.482231,
+    0.049861
+  ],
+  "obj2_position": [
+    6.468007,
+    43.788738,
+    0.258684
+  ],
+  "separation": 2.163021,
+  "height_offset": 0.208823,
+  "side": 1,
+  "camera_azimuth": 1.8971729168
+}

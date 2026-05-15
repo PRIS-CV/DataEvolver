@@ -1,0 +1,43 @@
+﻿# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+.ruff_cache/
+
+# Secrets / local env
+.env
+*.local
+
+# Runtime, caches, generated large artifacts
+runtime/
+_runtime/
+_tmp/
+_remote_artifacts/
+_remote_patch/
+outputs/*
+!outputs/aris_stage0_and_visual_results_20260515/
+!outputs/aris_stage0_and_visual_results_20260515/**
+gallery/
+objects/
+DiffSynth-Studio/
+refine-logs/
+remote_results/
+
+# Heavy assets/models
+*.blend
+*.safetensors
+*.ckpt
+*.bin
+*.pt
+*.pth
+*.zip

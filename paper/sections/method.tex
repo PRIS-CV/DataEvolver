@@ -1,0 +1,192 @@
+\section{Method}
+\label{sec:method}
+
+\subsection{Pipeline Overview}
+\label{sec:method:pipeline}
+
+\aris{} transforms a natural-language object description into a set of
+high-quality rendered images through six stages (Figure~\ref{fig:pipeline}).
+The pipeline is fully automated: no human intervention is required between
+the initial concept description and the final quality-approved renders.
+
+\paragraph{Stage 1: Text expansion.}
+Given a seed concept (e.g., \textit{``wooden chair''}),
+a language model expands it into a detailed text-to-image (T2I) prompt
+that specifies material, color, geometry, and surface texture.
+This step increases prompt specificity, improving the quality and diversity
+of downstream generated images.
+
+\paragraph{Stage 2: Object image generation.}
+A T2I model (Qwen-Image-2512~\cite{PLACEHOLDER_qwen_image_2512_verify})
+generates a $1024 \times 1024$ reference image of the object
+against a clean background, using the expanded prompt.
+
+\paragraph{Stage 2.5: Foreground segmentation.}
+SAM3~\cite{PLACEHOLDER_sam3_verify} segments the object foreground from the background,
+producing an RGBA image with transparent background.
+This removes any incidental background content while preserving the object with high fidelity.
+Critically, SAM3 operates on the object region only, so the resulting 3D reconstruction
+(Stage 3) does not contain background geometry such as a floor plane,
+eliminating the need for post-hoc mesh cleaning.
+
+\paragraph{Stage 3: Single-image 3D reconstruction.}
+Hunyuan3D-2.1~\cite{PLACEHOLDER_hunyuan3d_verify} reconstructs a textured 3D mesh (GLB format)
+from the RGBA image using a feedforward single-image reconstruction model.
+The resulting mesh includes physically-based rendering (PBR) texture maps,
+enabling realistic rendering under varied lighting conditions.
+
+\paragraph{Stage 4: Scene-aware Blender rendering.}
+The reconstructed mesh is inserted into a real Blender scene and rendered using
+Cycles path tracing.
+Section~\ref{sec:method:blender} describes this stage in detail.
+
+\paragraph{Stage 5.5--5.6: VLM review and rendering evolution.}
+Rendered images are reviewed by a VLM (Qwen3.5-35B-A3B~\cite{PLACEHOLDER_qwen35_verify})
+using free-form natural language.
+An AI agent reads this review and selects rendering parameter adjustments
+to address identified quality issues.
+This loop repeats until the reviewer explicitly confirms the result is acceptable.
+Section~\ref{sec:method:evolution} describes this stage in detail.
+
+\begin{figure}[t]
+  \centering
+  % TODO: Insert pipeline overview figure
+  \fbox{\parbox{0.95\linewidth}{\centering\vspace{2cm}
+    \textbf{[Figure 1: Pipeline Overview]}\\
+    Horizontal flowchart: Text Expansion $\to$ T2I Generation $\to$ SAM3 Segmentation
+    $\to$ 3D Reconstruction $\to$ Scene-Aware Rendering $\to$ VLM Review Loop
+    \vspace{2cm}}}
+  \caption{
+    Overview of the \aris{} pipeline.
+    Starting from a natural-language object description,
+    the pipeline automatically generates a high-quality RGBA image,
+    reconstructs a textured 3D mesh, renders it in a real Blender scene,
+    and iteratively refines rendering parameters through free-form VLM feedback.
+  }
+  \label{fig:pipeline}
+\end{figure}
+
+
+\subsection{Scene-Aware Blender Rendering}
+\label{sec:method:blender}
+
+Rendering each 3D object requires placing it plausibly within a scene,
+matching the scene's lighting environment, and rendering from consistent viewpoints.
+We use a fixed Blender scene file (a furnished indoor scene) as the background environment.
+
+\paragraph{Scene environment preservation.}
+A key design principle is \emph{not} to overwrite the scene's existing lighting:
+the world environment (HDRI) and existing lights are preserved from the scene file.
+Key lights are scaled by a fixed factor (0.3) rather than disabled,
+ensuring the object receives natural scene illumination.
+This avoids the common failure mode of rendering objects under artificial studio lighting
+that clashes with the scene background.
+
+\paragraph{Object placement.}
+The object mesh is placed on the scene ground plane using a raycast procedure:
+the system casts a ray downward from the object's bounding box to detect
+the real ground surface height, ensuring physical plausibility.
+The object is positioned such that its base rests on the scene floor,
+with a configurable vertical offset for fine adjustment.
+
+\paragraph{Rendering configuration.}
+All renders use Cycles path tracing with 512 samples at $1024 \times 1024$ resolution,
+providing high-quality global illumination and shadow detail.
+For each object, we render eight horizontal viewpoints at
+$0^\circ$, $45^\circ$, $90^\circ$, $135^\circ$, $180^\circ$, $225^\circ$, $270^\circ$, and $315^\circ$ azimuth,
+corresponding to the natural-language view labels defined in Section~\ref{sec:dataset}.
+
+
+\subsection{Free-Form VLM-Guided Rendering Evolution}
+\label{sec:method:evolution}
+
+The core contribution of \aris{} is the iterative quality refinement loop
+that drives rendered images toward acceptable visual quality through VLM feedback.
+
+\paragraph{VLM review.}
+After each rendering round, a VLM (Qwen3.5-35B-A3B, with extended thinking enabled)
+reviews the rendered images and produces a free-form natural language assessment.
+The reviewer is prompted to identify specific visual problems,
+including: flat or low-contrast lighting (\texttt{flat\_low\_contrast}),
+color inconsistency between object and scene (\texttt{color\_shift}),
+scene lighting mismatch (\texttt{scene\_light\_mismatch}),
+missing or weak contact shadows (\texttt{shadow\_missing}),
+physically implausible object placement (\texttt{floating}, \texttt{ground\_intersection}),
+scale implausibility (\texttt{scale\_implausible}),
+and overly smooth or plastic-looking materials (\texttt{material\_too\_plastic}).
+The reviewer concludes with one of three verdicts:
+\emph{keep} (result is acceptable), \emph{revise} (specific changes recommended),
+or \emph{reject} (fundamental problems requiring re-rendering).
+
+\paragraph{AI agent decision.}
+An AI agent reads the full free-form reviewer text from the trace record
+and identifies the primary diagnosed issue.
+Based on the diagnosis, the agent selects one or more actions from the rendering action space
+(Table~\ref{tab:action_space}).
+This design differs from rigid score-based controllers:
+the agent interprets semantic descriptions of visual failures
+rather than responding mechanically to numeric thresholds.
+
+\paragraph{Action space.}
+The rendering action space contains 24 atomic actions organized into four groups:
+
+\begin{table}[h]
+\caption{Rendering action space. Each action adjusts one rendering parameter
+by a fixed delta within enforced bounds.}
+\label{tab:action_space}
+\centering
+\begin{tabular}{llcp{5.5cm}}
+\toprule
+Group & Example Actions & Count & Target Parameters \\
+\midrule
+Lighting & \texttt{L\_KEY\_UP}, \texttt{L\_KEY\_YAW\_POS\_15} & 4 &
+  Key light scale, key light yaw angle \\
+Object & \texttt{O\_LIFT\_SMALL}, \texttt{O\_SCALE\_UP\_10} & 6 &
+  Vertical offset, yaw rotation, scale \\
+Scene & \texttt{ENV\_ROTATE\_30}, \texttt{ENV\_STRENGTH\_UP} & 5 &
+  HDRI yaw, environment strength, contact shadow \\
+Material & \texttt{M\_VALUE\_DOWN}, \texttt{M\_ROUGHNESS\_UP} & 9 &
+  Saturation, value, hue offset, roughness, specular \\
+\midrule
+\textbf{Total} & & \textbf{24} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Issue-to-action mapping.}
+The agent uses a structured mapping from diagnosed issues to candidate actions.
+For example, \texttt{flat\_low\_contrast} triggers environment strength adjustment (\texttt{ENV\_STRENGTH\_UP});
+\texttt{color\_shift} triggers material value and saturation correction
+(\texttt{M\_VALUE\_DOWN\_STRONG}, \texttt{M\_SATURATION\_DOWN});
+\texttt{scene\_light\_mismatch} triggers environment and key light rotation
+(\texttt{ENV\_ROTATE\_30}, \texttt{L\_KEY\_YAW\_POS\_15}).
+
+\paragraph{Anti-oscillation and step decay.}
+To prevent the agent from oscillating between opposing actions,
+the system tracks the sign of each parameter's adjustment history.
+If a parameter's sign has reversed three or more times, that parameter is frozen
+for the remainder of the optimization.
+Action step sizes decay with round number (100\% at round 0, 70\% at round 1, 50\% at round 2+)
+to achieve fine-grained convergence near the optimum.
+
+\paragraph{Termination.}
+The loop terminates when the VLM reviewer explicitly produces a \emph{keep} verdict,
+or after a maximum of five rounds.
+Only results with an explicit keep verdict are considered quality-approved.
+
+\begin{figure}[t]
+  \centering
+  % TODO: Insert VLM evolution loop detail figure
+  \fbox{\parbox{0.95\linewidth}{\centering\vspace{2.5cm}
+    \textbf{[Figure 2: VLM Evolution Loop]}\\
+    Left column: Round 0 render $\to$ Round 1 render $\to$ $\cdots$ $\to$ Final (keep).\\
+    Right column: VLM free-form text summary + agent-selected action at each round.
+    \vspace{2.5cm}}}
+  \caption{
+    Illustration of the VLM-guided rendering evolution loop on a representative object.
+    At each round, the VLM produces a free-form assessment of visual quality;
+    the AI agent reads this text and selects a rendering action to address the primary issue.
+    The loop continues until the reviewer issues a keep verdict.
+  }
+  \label{fig:evolution_loop}
+\end{figure}

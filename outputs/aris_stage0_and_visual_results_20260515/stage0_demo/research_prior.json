@@ -1,0 +1,300 @@
+{
+  "schema_version": "dataevolver_research_prior_v1",
+  "prior_id": "20260515-agentic-dataset-construction",
+  "title": "derive an ARIS dataset construction method from multiple agentic test-time scaling and self-improvement papers",
+  "tags": [
+    "agentic-dataset",
+    "stage0-synthesis"
+  ],
+  "source_links": [
+    "https://arxiv.org/abs/2605.08083",
+    "https://arxiv.org/abs/2604.04373",
+    "https://arxiv.org/abs/2604.16529",
+    "https://arxiv.org/abs/2601.23228",
+    "https://arxiv.org/abs/2501.05707",
+    "https://arxiv.org/abs/2303.17651"
+  ],
+  "summary": "Synthesis from multiple agentic/test-time/self-improvement papers suggests ARIS should build datasets through budgeted candidate generation, trajectory logging, explicit feedback/critique, process-level quality gates, diversity preservation, and provenance-aware promotion. The construction loop should generate multiple candidate samples or policies, evaluate them with cheap validators or structured AI feedback, repair or reject with recorded reasons, and only promote batches that satisfy reproducibility, diversity, and downstream utility checks.",
+  "stage1_seed_guidance": [
+    "Generate diverse candidate data policies rather than single examples; each seed should carry intended task, environment assumptions, and expected failure modes.",
+    "Prefer seeds that include before/after state, action rationale, and observable consequence.",
+    "Seed examples should have machine-checkable constraints where possible.",
+    "Seed tasks should expose intermediate decisions that can receive process feedback.",
+    "Force variation across scenario type, reasoning path, object relation, constraints, and failure mode.",
+    "Include explicit constraints so critique has concrete targets."
+  ],
+  "stage1_prompt_guidance": [
+    "Ask Stage1 to log every generation/edit/evaluation decision as a trajectory and to include rejection reasons.",
+    "When producing dataset items, include concise rationales and trace metadata, not only final answers.",
+    "Ask Stage1 to generate N candidates per item and preserve validator outputs and selection rationale.",
+    "Use role-specific prompts and store per-action feedback in artifact_lineage where possible.",
+    "Ask Stage1 to report diversity dimensions covered by each batch.",
+    "Every accepted sample should include its final constraint checklist and any unresolved caveats."
+  ],
+  "risks_or_unknowns": [
+    "Needs a low-cost proxy evaluator; without it the loop becomes subjective."
+  ],
+  "promotion_candidate": true,
+  "stage0_metadata": {
+    "research_mode": "agent_websearch_webfetch",
+    "framework": "dataevolver_stage0_websearch",
+    "inspired_by": "local-deep-research source-based framework",
+    "framework_references": [
+      {
+        "name": "source_based_strategy",
+        "path": "local-deep-research/src/local_deep_research/advanced_search_system/strategies/source_based_strategy.py",
+        "used_for": [
+          "iteration loop",
+          "original query plus generated follow-up questions",
+          "accumulated source results",
+          "final citation-aware synthesis"
+        ],
+        "available": false
+      },
+      {
+        "name": "standard_question_generator",
+        "path": "local-deep-research/src/local_deep_research/advanced_search_system/questions/standard_question.py",
+        "used_for": [
+          "first-pass search question generation",
+          "context-aware unanswered follow-up questions"
+        ],
+        "available": false
+      },
+      {
+        "name": "report_generator",
+        "path": "local-deep-research/src/local_deep_research/report_generator.py",
+        "used_for": [
+          "content-specific report structure",
+          "section-level synthesis",
+          "separate sources section"
+        ],
+        "available": false
+      },
+      {
+        "name": "citation_handler",
+        "path": "local-deep-research/src/local_deep_research/citation_handler.py",
+        "used_for": [
+          "source-indexed evidence",
+          "citation-aware findings"
+        ],
+        "available": false
+      }
+    ],
+    "questions_by_iteration": [
+      {
+        "iteration": 1,
+        "rationale": "Initial source-based pass: original query plus generated high-value searches.",
+        "questions": [
+          "derive an ARIS dataset construction method from multiple agentic test-time scaling and self-improvement papers",
+          "derive an ARIS dataset construction method from multiple agentic test-time scaling and self-improvement papers methodology dataset construction benchmark",
+          "derive an ARIS dataset construction method from multiple agentic test-time scaling and self-improvement papers arxiv HTML methodology dataset generation",
+          "derive an ARIS dataset construction method from multiple agentic test-time scaling and self-improvement papers official code dataset annotation filtering evaluation"
+        ]
+      }
+    ],
+    "evidence_count": 6,
+    "finalized_at": "2026-05-15 16:03:19"
+  },
+  "evidence": [
+    {
+      "citation_id": 1,
+      "url": "https://arxiv.org/abs/2605.08083",
+      "title": "LLMs Improving LLMs: Agentic Discovery for Test-Time Scaling",
+      "source_type": "paper",
+      "iteration": 1,
+      "question": "",
+      "summary": "AutoTTS frames test-time scaling design as agentic discovery: sample candidate strategies, execute/evaluate them in a task environment, feed back execution traces, and iterate toward better strategies.",
+      "methodology_notes": [
+        "Useful abstraction for ARIS: represent dataset construction as a search environment with actions, observations, feedback, trajectory logs, and explicit stopping criteria."
+      ],
+      "dataset_workflow": [
+        "Define candidate construction policies, run small proxy evaluations, record traces, diagnose failures, refine policies, and promote only policies that improve downstream quality under budget."
+      ],
+      "quality_gates": [
+        "Require task-grounded evaluation, trajectory inspection, and explicit comparison against baseline/manual strategies before promoting a construction method."
+      ],
+      "failure_modes": [
+        "Can overfit to proxy feedback or improve benchmark performance without improving real dataset value."
+      ],
+      "stage1_seed_guidance": [
+        "Generate diverse candidate data policies rather than single examples; each seed should carry intended task, environment assumptions, and expected failure modes."
+      ],
+      "stage1_prompt_guidance": [
+        "Ask Stage1 to log every generation/edit/evaluation decision as a trajectory and to include rejection reasons."
+      ],
+      "risks_or_unknowns": [
+        "Needs a low-cost proxy evaluator; without it the loop becomes subjective."
+      ],
+      "warnings": [],
+      "tags": [
+        "autotts"
+      ],
+      "added_at": "2026-05-15 16:02:16"
+    },
+    {
+      "citation_id": 2,
+      "url": "https://arxiv.org/abs/2604.04373",
+      "title": "Decocted Experience: Reformatting Human Demonstrations for Longer-Horizon Tasks",
+      "source_type": "paper",
+      "iteration": 1,
+      "question": "",
+      "summary": "Decocted Experience compresses and reformats long demonstrations into more useful experience units for agent learning, emphasizing trajectory transformation rather than raw data accumulation.",
+      "methodology_notes": [
+        "For ARIS, raw examples should be decomposed into state/action/outcome/failure annotations and then distilled into reusable construction patterns."
+      ],
+      "dataset_workflow": [
+        "Collect or generate raw trajectories, segment into meaningful subepisodes, summarize decision points, remove redundant low-signal steps, and keep provenance back to original demonstrations."
+      ],
+      "quality_gates": [
+        "Check that compressed examples preserve causal decision information and do not erase failure context."
+      ],
+      "failure_modes": [
+        "Over-compression may remove the exact conditions that make a sample useful."
+      ],
+      "stage1_seed_guidance": [
+        "Prefer seeds that include before/after state, action rationale, and observable consequence."
+      ],
+      "stage1_prompt_guidance": [
+        "When producing dataset items, include concise rationales and trace metadata, not only final answers."
+      ],
+      "risks_or_unknowns": [],
+      "warnings": [],
+      "tags": [
+        "trajectory-distillation"
+      ],
+      "added_at": "2026-05-15 16:02:17"
+    },
+    {
+      "citation_id": 3,
+      "url": "https://arxiv.org/abs/2604.16529",
+      "title": "Scaling Test-Time Compute for Agentic Coding",
+      "source_type": "paper",
+      "iteration": 1,
+      "question": "",
+      "summary": "This work studies test-time search for coding agents, comparing ways to spend inference budget across candidate generation, validation, and selection.",
+      "methodology_notes": [
+        "The useful pattern is budgeted candidate generation plus executable validation, not blind one-shot generation."
+      ],
+      "dataset_workflow": [
+        "For each task, generate multiple candidates, run cheap validators, rank or filter candidates, retain both accepted outputs and high-value rejected cases with failure labels."
+      ],
+      "quality_gates": [
+        "Use executable or automated checks whenever available; separate candidate diversity from candidate correctness."
+      ],
+      "failure_modes": [
+        "If validators are weak, search may select superficial artifacts that pass checks."
+      ],
+      "stage1_seed_guidance": [
+        "Seed examples should have machine-checkable constraints where possible."
+      ],
+      "stage1_prompt_guidance": [
+        "Ask Stage1 to generate N candidates per item and preserve validator outputs and selection rationale."
+      ],
+      "risks_or_unknowns": [],
+      "warnings": [],
+      "tags": [
+        "test-time-search"
+      ],
+      "added_at": "2026-05-15 16:02:18"
+    },
+    {
+      "citation_id": 4,
+      "url": "https://arxiv.org/abs/2601.23228",
+      "title": "Scaling Multiagent Systems with Process Rewards",
+      "source_type": "paper",
+      "iteration": 1,
+      "question": "",
+      "summary": "This work studies multiagent systems with per-action process rewards from AI feedback, addressing credit assignment and sample efficiency in expensive multiagent rollouts.",
+      "methodology_notes": [
+        "For ARIS dataset construction, assign credit at the step/action level rather than only at final sample acceptance; this makes multi-role generation, critique, repair, and arbitration auditable."
+      ],
+      "dataset_workflow": [
+        "Planner proposes sample specs, generator creates candidates, critic assigns step-level process feedback, repairer fixes candidates, arbiter records accept/reject decision and provenance."
+      ],
+      "quality_gates": [
+        "Require step-level process reward or critique traces, not only a final pass/fail label."
+      ],
+      "failure_modes": [
+        "Process rewards can be noisy or biased if the feedback model rewards style over real correctness."
+      ],
+      "stage1_seed_guidance": [
+        "Seed tasks should expose intermediate decisions that can receive process feedback."
+      ],
+      "stage1_prompt_guidance": [
+        "Use role-specific prompts and store per-action feedback in artifact_lineage where possible."
+      ],
+      "risks_or_unknowns": [],
+      "warnings": [],
+      "tags": [
+        "multi-agent"
+      ],
+      "added_at": "2026-05-15 16:02:19"
+    },
+    {
+      "citation_id": 5,
+      "url": "https://arxiv.org/abs/2501.05707",
+      "title": "Multiagent Finetuning: Self Improvement with Diverse Reasoning Chains",
+      "source_type": "paper",
+      "iteration": 1,
+      "question": "",
+      "summary": "Multiagent finetuning emphasizes diverse reasoning chains and self-improvement from multiple generated solutions or perspectives.",
+      "methodology_notes": [
+        "The transferable idea is diversity before filtering: construct datasets from varied solution paths, not just the most likely path."
+      ],
+      "dataset_workflow": [
+        "Generate diverse candidate chains, cluster or compare them, filter low-quality ones, and preserve diversity among accepted samples."
+      ],
+      "quality_gates": [
+        "Measure or manually audit diversity, not only correctness."
+      ],
+      "failure_modes": [
+        "Filtering can collapse the dataset back to a narrow style."
+      ],
+      "stage1_seed_guidance": [
+        "Force variation across scenario type, reasoning path, object relation, constraints, and failure mode."
+      ],
+      "stage1_prompt_guidance": [
+        "Ask Stage1 to report diversity dimensions covered by each batch."
+      ],
+      "risks_or_unknowns": [],
+      "warnings": [],
+      "tags": [
+        "diversity"
+      ],
+      "added_at": "2026-05-15 16:02:20"
+    },
+    {
+      "citation_id": 6,
+      "url": "https://arxiv.org/abs/2303.17651",
+      "title": "Self-Refine: Iterative Refinement with Self-Feedback",
+      "source_type": "paper",
+      "iteration": 1,
+      "question": "",
+      "summary": "Self-Refine uses generation, feedback, and refinement loops to improve outputs without additional training.",
+      "methodology_notes": [
+        "For ARIS this supports a minimal generation-critique-repair loop for each dataset item or batch."
+      ],
+      "dataset_workflow": [
+        "Generate candidate, critique against explicit constraints, repair, repeat until pass/fail/stopping budget, then store full revision history."
+      ],
+      "quality_gates": [
+        "Feedback must be specific and tied to constraints; stop after budget or when no material improvement appears."
+      ],
+      "failure_modes": [
+        "Self-feedback can become generic or self-confirming without external checks."
+      ],
+      "stage1_seed_guidance": [
+        "Include explicit constraints so critique has concrete targets."
+      ],
+      "stage1_prompt_guidance": [
+        "Every accepted sample should include its final constraint checklist and any unresolved caveats."
+      ],
+      "risks_or_unknowns": [],
+      "warnings": [],
+      "tags": [
+        "self-refine"
+      ],
+      "added_at": "2026-05-15 16:02:21"
+    }
+  ]
+}
