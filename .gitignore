@@ -1,0 +1,7 @@
+﻿# Ignore local/runtime artifacts
+.env
+*.pyc
+__pycache__/
+_runtime/
+_tmp/
+*.zip
