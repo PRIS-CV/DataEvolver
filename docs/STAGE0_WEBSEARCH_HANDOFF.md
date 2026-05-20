@@ -12,6 +12,7 @@ of arXiv links plus a summary document. The next pipeline step should consume:
 ARXIV_LINKS_AND_SUMMARY.md
 arxiv_links_and_summary.json
 NEXT_AI_REPRO_PROMPT.md
+DATASET_WORKFLOW_HANDOFF.md
 ```
 
 `research_prior.json` is also generated for Stage1 soft guidance, but it is not
@@ -44,6 +45,8 @@ It does:
 - produce a Markdown links-plus-summary file
 - produce a JSON links-plus-summary file
 - produce a downstream AI reproduction prompt aligned with runtime templates
+- produce a dataset workflow handoff for either single-paper reproduction or
+  multi-paper universal dataset construction
 - produce a `research_prior.json` for Stage1 soft guidance
 
 It does not:
@@ -86,13 +89,24 @@ Mapping:
 
 ## Standard Workflow
 
-Create a session:
+Create a session for a single-paper reproduction:
 
 ```bash
 python scripts/stage0_web_research.py init \
   --query "<research task>" \
   --output-dir runtime/research_priors/<batch>/<task_slug> \
+  --dataset-mode single-paper \
   --tag <tag>
+```
+
+Create a session for a multi-paper universal dataset contract:
+
+```bash
+python scripts/stage0_web_research.py init \
+  --query "SeeThrough3D: Occlusion Aware 3D Control in Text-to-Image Generation" \
+  --output-dir runtime/research_priors/<batch>/universal_3d_layout \
+  --dataset-mode universal \
+  --tag universal-3d-layout
 ```
 
 Search and fetch papers with the active Codex or Claude Code agent. Then record
@@ -126,6 +140,7 @@ The formal output is:
 runtime/research_priors/<batch>/<task_slug>/ARXIV_LINKS_AND_SUMMARY.md
 runtime/research_priors/<batch>/<task_slug>/arxiv_links_and_summary.json
 runtime/research_priors/<batch>/<task_slug>/NEXT_AI_REPRO_PROMPT.md
+runtime/research_priors/<batch>/<task_slug>/DATASET_WORKFLOW_HANDOFF.md
 ```
 
 `NEXT_AI_REPRO_PROMPT.md` is the bridge to
@@ -134,6 +149,14 @@ It takes the selected arXiv links and Stage0 summary, then asks the downstream
 agent to perform method-line decomposition, artifact labeling, small-scale
 reproduction, `METHOD_CONSTRAINT_CARD.md`, `REPRO_STATUS.json`, and final
 reproduction-level judgment.
+
+`DATASET_WORKFLOW_HANDOFF.md` is the bridge to dataset construction:
+
+- In `single-paper` mode, it keeps the handoff focused on one paper-specific
+  small-scale reproduction and artifact lineage.
+- In `universal` mode, it treats selected papers as a related paper family and
+  maps their common data needs into the universal dataset contract documented in
+  `docs/UNIVERSAL_3D_LAYOUT_DATASET.md`.
 
 ## Local Test Package
 

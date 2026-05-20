@@ -21,6 +21,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SESSION_SCHEMA_VERSION = "dataevolver_stage0_websearch_v1"
 PRIOR_SCHEMA_VERSION = "dataevolver_research_prior_v1"
+DATASET_MODES = ("single-paper", "universal")
 
 LDR_FRAMEWORK_REFERENCES = [
     {
@@ -68,6 +69,21 @@ DATAEVOLVER_READING_GOALS = [
     "methodology choices that should affect Stage1 generation",
     "risks, unknowns, and assumptions",
 ]
+
+DATASET_MODE_GOALS = {
+    "single-paper": [
+        "identify the one paper to reproduce",
+        "extract paper-specific dataset inputs, labels, outputs, and validation metrics",
+        "separate official artifacts from self-generated or synthetic proxy artifacts",
+        "produce a small-scale reproduction handoff before any full-scale run",
+    ],
+    "universal": [
+        "identify common dataset requirements across multiple related papers",
+        "merge target, mask, structure, camera, relation, and validation fields into one contract",
+        "record which paper motivates each field in the universal schema",
+        "produce a Blender-backed generation handoff for reusable dataset construction",
+    ],
+}
 
 GAP_FOLLOW_UPS = [
     (
@@ -302,7 +318,9 @@ def render_agent_brief(session_dir: Path, session: dict[str, Any]) -> str:
         f"- {ref['name']}: {ref['path']} ({'available' if ref.get('available') else 'missing'})"
         for ref in session["framework_references"]
     )
-    goals = "\n".join(f"- {goal}" for goal in DATAEVOLVER_READING_GOALS)
+    dataset_mode = session.get("dataset_mode", "single-paper")
+    mode_goals = DATASET_MODE_GOALS.get(dataset_mode, [])
+    goals = "\n".join(f"- {goal}" for goal in DATAEVOLVER_READING_GOALS + mode_goals)
     questions = "\n".join(
         f"- {question}"
         for question in session["questions_by_iteration"][0]["questions"]
@@ -321,6 +339,7 @@ session framework.
 
 Prior id: `{session["prior_id"]}`
 Tags: {", ".join(session.get("tags", [])) or "none"}
+Dataset mode: `{dataset_mode}`
 
 ## Framework References
 
@@ -400,6 +419,7 @@ def write_session_outputs(session_dir: Path, session: dict[str, Any]) -> None:
                 "research_mode": "agent_websearch_webfetch",
                 "no_extra_api_keys_required": True,
                 "framework": "dataevolver_stage0_websearch",
+                "dataset_mode": session.get("dataset_mode", "single-paper"),
                 "framework_references": session["framework_references"],
                 "outputs": {
                     "session": str(session_path(session_dir)),
@@ -408,6 +428,7 @@ def write_session_outputs(session_dir: Path, session: dict[str, Any]) -> None:
                     "schema": str(session_dir / "research_prior.schema.json"),
                     "prior": str(session_dir / "research_prior.json"),
                     "report": str(session_dir / "RESEARCH_PRIOR.md"),
+                    "dataset_workflow_handoff": str(session_dir / "DATASET_WORKFLOW_HANDOFF.md"),
                 },
             }
         )
@@ -435,6 +456,7 @@ def cmd_init(args: argparse.Namespace) -> int:
         "updated_at": now_text(),
         "research_mode": "agent_websearch_webfetch",
         "framework": "dataevolver_stage0_websearch",
+        "dataset_mode": args.dataset_mode,
         "framework_references": framework_references(),
         "iteration_config": {
             "iterations": int(args.iterations),
@@ -609,6 +631,7 @@ def build_prior(session: dict[str, Any], args: argparse.Namespace) -> dict[str, 
         "stage0_metadata": {
             "research_mode": "agent_websearch_webfetch",
             "framework": "dataevolver_stage0_websearch",
+            "dataset_mode": session.get("dataset_mode", "single-paper"),
             "inspired_by": "local-deep-research source-based framework",
             "framework_references": session.get("framework_references", []),
             "questions_by_iteration": session.get("questions_by_iteration", []),
@@ -746,6 +769,7 @@ def links_summary_payload(
         "schema_version": "dataevolver_stage0_arxiv_summary_v1",
         "prior_id": session["prior_id"],
         "query": session["query"],
+        "dataset_mode": session.get("dataset_mode", "single-paper"),
         "max_papers": max_papers,
         "arxiv_links": [paper["arxiv_url"] for paper in arxiv_papers(session, max_papers=max_papers)],
         "papers": arxiv_papers(session, max_papers=max_papers),
@@ -818,6 +842,90 @@ websearch 产出的候选论文中选择最适合复现目标的一篇或多篇�
 """
 
 
+def render_dataset_workflow_handoff(
+    session: dict[str, Any],
+    prior: dict[str, Any],
+    *,
+    max_papers: int,
+) -> str:
+    mode = session.get("dataset_mode", "single-paper")
+    papers = arxiv_papers(session, max_papers=max_papers)
+    links = "\n".join(f"- {paper['arxiv_url']}  # {paper['title']}" for paper in papers) or "- none"
+    workflows = collect_evidence_lists(session, "dataset_workflow")
+    gates = collect_evidence_lists(session, "quality_gates")
+    failures = collect_evidence_lists(session, "failure_modes")
+
+    def bullets(items: list[str]) -> str:
+        return "\n".join(f"- {item}" for item in items) or "- none"
+
+    if mode == "universal":
+        next_steps = """1. Treat the selected papers as a paper family, not as one target paper.
+2. Build or update the universal schema by mapping each paper requirement to a shared field.
+3. Use `configs/schemas/universal_3d_layout_dataset_schema.json` as the contract.
+4. Generate Blender-backed samples with `scripts/universal_3d_layout/run_dataevolver_universal_contract_batch.py`.
+5. Run geometry/VLM review hooks only after artifact completeness is validated.
+6. Report proxy artifacts conservatively: depth-order proxy is not dense depth, orientation proxy is not dense normal."""
+        output_contract = """- `metadata/records.jsonl`: universal records
+- `target/`: Blender target renders
+- `mask/`: per-object binary masks
+- `structure/`: OSCR / 3D-box structure views
+- `depth/`: depth-order proxy views
+- `normal/`: orientation proxy views
+- `metadata/render_manifest.json`: run manifest and provenance"""
+    else:
+        next_steps = """1. Select the single strongest paper from the Stage0 evidence.
+2. Write a method constraint card before coding.
+3. Reproduce a small paper-specific dataset slice first.
+4. Label every artifact as official, recomputed, self-generated, mock/proxy, or not completed.
+5. Stop before large downloads, paid APIs, closed models, or long runs unless the user approves.
+6. Produce a conservative reproduction-level judgment."""
+        output_contract = """- paper-specific input/output schema
+- small-scale generated or recomputed artifacts
+- artifact lineage
+- validation metrics or qualitative checks
+- `REPRO_STATUS.json`
+- final reproduction summary"""
+
+    return f"""# Dataset Workflow Handoff
+
+## Mode
+
+`{mode}`
+
+## Stage0 Query
+
+{session["query"]}
+
+## Selected Papers
+
+{links}
+
+## Summary
+
+{prior.get("summary") or "No summary provided."}
+
+## Dataset Workflow Evidence
+
+{bullets(workflows)}
+
+## Quality Gates
+
+{bullets(gates)}
+
+## Failure Modes To Avoid
+
+{bullets(failures)}
+
+## Expected Output Contract
+
+{output_contract}
+
+## Next Steps
+
+{next_steps}
+"""
+
+
 def cmd_finalize(args: argparse.Namespace) -> int:
     session_dir = Path(args.session_dir).expanduser().resolve()
     session = load_session(session_dir)
@@ -827,6 +935,7 @@ def cmd_finalize(args: argparse.Namespace) -> int:
     links_summary_path = session_dir / "ARXIV_LINKS_AND_SUMMARY.md"
     links_summary_json_path = session_dir / "arxiv_links_and_summary.json"
     next_prompt_path = session_dir / "NEXT_AI_REPRO_PROMPT.md"
+    dataset_handoff_path = session_dir / "DATASET_WORKFLOW_HANDOFF.md"
     prior_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.parent.mkdir(parents=True, exist_ok=True)
     prior_path.write_text(json_dump(prior) + "\n", encoding="utf-8")
@@ -843,11 +952,16 @@ def cmd_finalize(args: argparse.Namespace) -> int:
         render_next_ai_repro_prompt(session, prior, max_papers=args.max_papers),
         encoding="utf-8",
     )
+    dataset_handoff_path.write_text(
+        render_dataset_workflow_handoff(session, prior, max_papers=args.max_papers),
+        encoding="utf-8",
+    )
     print(f"Wrote research prior: {prior_path}")
     print(f"Wrote research report: {report_path}")
     print(f"Wrote arXiv links summary: {links_summary_path}")
     print(f"Wrote arXiv links JSON: {links_summary_json_path}")
     print(f"Wrote next AI repro prompt: {next_prompt_path}")
+    print(f"Wrote dataset workflow handoff: {dataset_handoff_path}")
     return validate_prior_file(prior_path, normalize_path=None)
 
 
@@ -942,6 +1056,7 @@ def build_parser() -> argparse.ArgumentParser:
     init_cmd.add_argument("--iterations", type=int, default=2)
     init_cmd.add_argument("--questions-per-iteration", type=int, default=3)
     init_cmd.add_argument("--source-hint", action="append", default=[])
+    init_cmd.add_argument("--dataset-mode", choices=DATASET_MODES, default="single-paper")
     add_common_repeated(init_cmd)
     init_cmd.set_defaults(func=cmd_init)
 
