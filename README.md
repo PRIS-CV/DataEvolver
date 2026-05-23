@@ -288,17 +288,27 @@ Claude Code will read your `CLAUDE.md` and understand the full project context. 
 
 ## Roadmap
 
-### Internal Enhancement — perception, understanding, and decision-making
+### Completed
 
-- [ ] **Structured VLM knowledge base** — build a prior-knowledge store to anchor VLM quality assessment with objective criteria, reducing reliance on subjective judgment when evaluating data quality, task suitability, and assessment direction
-- [ ] **WebSearch-integrated AI Agent** — add pre-task web retrieval: when the agent receives a user request, it searches for relevant datasets, papers, and existing methods to understand the data construction landscape before acting. Combine with local deep-research tools to establish background knowledge, preventing the model from working in an information vacuum
+- [x] **WebSearch-integrated AI Agent** — Stage0 WebSearch supports both single-paper reproduction and multi-paper universal dataset modes. It records paper evidence, exports handoff documents, and has been validated on the remote rendering environment.
+- [x] **Multi-paper universal 3D dataset synthesis** — the workflow starts from an anchor paper, expands to related 3D-control papers, and extracts shared dataset requirements for target images, masks, OSCR/structure views, camera metadata, object layout, occlusion relations, scene graphs, and validation traces.
+- [x] **Universal 3D layout dataset contract** — DataEvolver now tracks a reusable schema for Blender-backed target renders, per-object masks, structure views, depth-order proxies, orientation proxies, camera pose/intrinsics/viewpoint tokens, mesh metadata, 3D boxes, scene graphs, spatial relations, and promotion decisions.
+- [x] **Blender-backed dual-object scenes** — the current universal 3D workflow can generate real-scene, dual-object records with DataEvolver scene and mesh assets. General N-object compositional scenes remain a separate extension.
+- [x] **VLM/CV self-evolution loop** — selected universal 3D records can be reviewed with calibrated hybrid VLM and CV geometry scores, bounded repair actions, and explicit accept/reject promotion traces.
+- [x] **Paper-specific and universal export modes** — the WebSearch and universal layout scripts support both single-paper dataset reproduction and multi-paper universal schema export.
 
-### External Expansion — richer dataset types and construction modalities
+### In Progress
 
-- [ ] **Multi-object scenes** — extend the rendering system to support multiple objects per scene, enabling composite geometry editing (rotation, insertion, removal, translation) within a single render
-- [ ] **Video object datasets** — expand from image-based datasets to video-level object editing: removal, translation, and attribute editing across frames
-- [ ] **Auto-generated reasoning-evaluation datasets** — after user training, automatically produce evaluation benchmarks with training–eval information alignment, customized rendering, and automated metric computation
-- [ ] **Real-world dataset ingestion** — use WebSearch to discover real-world datasets, then crawl, clean, process, and construct structured datasets, broadening data source coverage and downstream applicability
+- [ ] **Structured VLM knowledge base** — current scoring already uses structured VLM/CV criteria, mask coverage checks, depth-order proxy checks, geometry-review metadata, and a VGGT-Omega proxy hook. A persistent prior-knowledge store for reusable VLM assessment criteria is still under development.
+- [ ] **Real-world dataset ingestion** — WebSearch can discover public datasets and paper resources, and public artifacts such as SeeThrough3D are used as references. A full crawl-clean-process-ingest pipeline for arbitrary real-world datasets is still pending.
+- [ ] **Auto-generated reasoning-evaluation datasets** — current records include validation logs, hybrid scores, and promotion traces. Fully automated benchmark generation after downstream model training remains a future release target.
+- [ ] **General N-object compositional scenes** — beyond the current dual-object workflow, this requires relation-aware sampling, collision handling, occlusion planning, and stronger multi-object VLM/CV review.
+
+### Pending
+
+- [ ] **Video object datasets** — extend image-level rendering to temporally consistent object removal, translation, rotation, insertion, and attribute editing across frames.
+- [ ] **Temporal review and filtering** — add sequence-level checks for flicker, trajectory smoothness, mask stability, depth continuity, and action consistency.
+- [ ] **Large-scale public dataset ingestion** — scale WebSearch-discovered dataset ingestion into repeatable crawling, cleaning, licensing, provenance, and structured export workflows.
 
 ## License
 
