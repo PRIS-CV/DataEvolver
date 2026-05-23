@@ -4,7 +4,7 @@
 
 DataEvolver is a goal-driven data synthesis pipeline that generates high-quality training datasets through an automated loop of 3D rendering, VLM (Vision-Language Model) quality review, and intelligent parameter adjustment. Unlike traditional pipelines with rigid scoring rules, DataEvolver uses free-form VLM feedback to perceive, diagnose, and fix rendering issues — producing photorealistic, scene-aware training data without human intervention.
 
-[Project](.) &middot; [Paper](paper/main.tex) &middot; [Dataset: DataEvolver-Rotate](#dataevolver-rotate)
+[Project](.) &middot; [Dataset: DataEvolver-Rotate](#dataevolver-rotate)
 
 ---
 
@@ -15,6 +15,7 @@ DataEvolver is a goal-driven data synthesis pipeline that generates high-quality
 - **Scene-Aware Rendering** — Objects placed in real Blender scenes with HDRI environments, raycast ground detection, and preserved scene lighting
 - **Multi-Modal Output** — RGB, mask, depth, normal maps, and geometry metadata
 - **End-to-End Automation** — From natural language seed concept to training-ready dataset, zero human intervention
+- **Universal 3D Layout Contract** — Multi-paper 3D-control dataset schema with Blender targets, object masks, OSCR/structure views, camera metadata, scene graph, and VLM loop traces
 
 ---
 
@@ -31,7 +32,7 @@ Seed Concept ─→ T2I Generation ─→ Segmentation ─→ 3D Reconstruction 
 | **2. T2I Generation** | Generate 1024&times;1024 object image | Qwen-Image-2512 |
 | **2.5. Segmentation** | Extract RGBA foreground, remove background | SAM3 |
 | **3. 3D Reconstruction** | Reconstruct textured mesh from single image | Hunyuan3D-2.1 |
-| **4. Scene Rendering** | Blender Cycles 512spp scene-aware insertion | Blender 4.24 |
+| **4. Scene Rendering** | Blender Cycles 512spp scene-aware insertion | Blender 4.2.4 |
 | **5. VLM Review Loop** | Free-form review &rarr; agent action &rarr; re-render until *keep* | Qwen3.5-35B-A3B |
 
 ### The VLM Review Loop (Stage 5)
@@ -60,7 +61,7 @@ The core innovation: a **goal-driven loop agent** that iteratively improves rend
 - **OS**: Linux (tested on Ubuntu 20.04+)
 - **GPU**: NVIDIA GPU with &ge;24 GB VRAM for rendering; &ge;80 GB for VLM inference
 - **Python**: 3.10+
-- **Blender**: 4.24
+- **Blender**: 4.2.4
 - **CUDA**: Compatible with your PyTorch version
 
 ### Required Models
@@ -71,7 +72,7 @@ The core innovation: a **goal-driven loop agent** that iteratively improves rend
 | [SAM3](https://github.com/pvc-tube/sam3) | Foreground segmentation | ~2 GB |
 | [Hunyuan3D-2.1](https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1) | Image-to-3D reconstruction | ~20 GB |
 | [Qwen3.5-35B-A3B](https://huggingface.co/Qwen/Qwen3.5-35B-A3B) | VLM quality reviewer | ~35 GB |
-| [Blender 4.24](https://www.blender.org/download/) | 3D rendering engine | ~300 MB |
+| [Blender 4.2.4](https://www.blender.org/download/) | 3D rendering engine | ~300 MB |
 
 ---
 
@@ -79,7 +80,7 @@ The core innovation: a **goal-driven loop agent** that iteratively improves rend
 
 ```bash
 # Clone the repo
-git clone https://github.com/<github-user>/DataEvolver.git
+git clone https://github.com/PRIS-CV/DataEvolver.git
 cd DataEvolver
 
 # Configure model paths in each pipeline stage:
@@ -128,11 +129,11 @@ DataEvolver/
 │   ├── run_full_pipeline.py                 # Full pipeline orchestrator
 │   ├── run_vlm_quality_gate_loop.py         # VLM quality gate loop
 │   ├── feedback_loop/                       # Feedback loop utilities
+│   ├── universal_3d_layout/                 # Universal 3D layout dataset generation
 │   └── ...                                  # Additional build & eval scripts
 ├── assets/
 │   ├── hdri/                                # HDRI environment maps
 │   └── scene/                               # Blender scene files (.blend)
-├── paper/                             # Technical report (LaTeX source)
 └── web/                               # Project website (GitHub Pages)
 ```
 
@@ -191,6 +192,26 @@ instruction = row["instruction"]  # e.g., "Rotate the object 45 degrees clockwis
 
 ---
 
+## Universal 3D Layout Dataset
+
+DataEvolver also includes a universal 3D layout dataset workflow derived from
+the shared data requirements of six related 3D-control papers. It generates
+Blender-backed records with target renders, per-object masks, OSCR/structure
+views, depth-order proxies, orientation proxies, camera metadata, scene graph,
+occlusion relations and VLM loop traces.
+
+Public workflow docs:
+[`docs/UNIVERSAL_3D_LAYOUT_DATASET.md`](docs/UNIVERSAL_3D_LAYOUT_DATASET.md)
+
+Tracked schema:
+[`configs/schemas/universal_3d_layout_dataset_schema.json`](configs/schemas/universal_3d_layout_dataset_schema.json)
+
+Tracked scripts:
+[`scripts/universal_3d_layout/`](scripts/universal_3d_layout/)
+
+The generated datasets are runtime artifacts and are not committed to this
+repository.
+
 ## Using with Claude Code
 
 DataEvolver is designed to work with [Claude Code](https://docs.anthropic.com/en/docs/claude-code) as an AI-powered development and operations assistant. Claude Code reads a project-level `CLAUDE.md` file to understand your environment, then helps you run pipelines, analyze results, and build datasets through natural language.
@@ -212,7 +233,7 @@ Create a `CLAUDE.md` in the project root (it's gitignored — each user maintain
 - SSH alias: `my-server`
 - GPU: 3x A800 80GB (or your setup)
 - Python: `/path/to/python3` (3.10+, with PyTorch)
-- Blender: `/path/to/blender` (4.24)
+- Blender: `/path/to/blender` (4.2.4)
 - Code directory: `/path/to/DataEvolver`
 
 ## Model Paths
@@ -281,6 +302,32 @@ Claude Code will read your `CLAUDE.md` and understand the full project context. 
 
 ---
 
+## Roadmap
+
+### Completed
+
+- [x] **WebSearch-integrated AI Agent** — Stage0 WebSearch supports both single-paper reproduction and multi-paper universal dataset modes. It records paper evidence, exports handoff documents, and has been validated on the remote rendering environment.
+- [x] **Multi-paper universal 3D dataset synthesis** — the workflow starts from an anchor paper, expands to related 3D-control papers, and extracts shared dataset requirements for target images, masks, OSCR/structure views, camera metadata, object layout, occlusion relations, scene graphs, and validation traces.
+- [x] **Universal 3D layout dataset contract** — DataEvolver now tracks a reusable schema for Blender-backed target renders, per-object masks, structure views, depth-order proxies, orientation proxies, camera pose/intrinsics/viewpoint tokens, mesh metadata, 3D boxes, scene graphs, spatial relations, and promotion decisions.
+- [x] **Blender-backed dual-object scenes** — the current universal 3D workflow can generate real-scene, dual-object records with DataEvolver scene and mesh assets. General N-object compositional scenes remain a separate extension.
+- [x] **VLM/CV self-evolution loop** — selected universal 3D records can be reviewed with calibrated hybrid VLM and CV geometry scores, bounded repair actions, and explicit accept/reject promotion traces.
+- [x] **Paper-specific and universal export modes** — the WebSearch and universal layout scripts support both single-paper dataset reproduction and multi-paper universal schema export.
+
+### In Progress
+
+- [ ] **Structured VLM knowledge base** — current scoring already uses structured VLM/CV criteria, mask coverage checks, depth-order proxy checks, geometry-review metadata, and a VGGT-Omega proxy hook. A persistent prior-knowledge store for reusable VLM assessment criteria is still under development.
+- [ ] **Real-world dataset ingestion** — WebSearch can discover public datasets and paper resources, and public artifacts such as SeeThrough3D are used as references. A full crawl-clean-process-ingest pipeline for arbitrary real-world datasets is still pending.
+- [ ] **Auto-generated reasoning-evaluation datasets** — current records include validation logs, hybrid scores, and promotion traces. Fully automated benchmark generation after downstream model training remains a future release target.
+- [ ] **General N-object compositional scenes** — beyond the current dual-object workflow, this requires relation-aware sampling, collision handling, occlusion planning, and stronger multi-object VLM/CV review.
+
+### Pending
+
+- [ ] **Video object datasets** — extend image-level rendering to temporally consistent object removal, translation, rotation, insertion, and attribute editing across frames.
+- [ ] **Temporal review and filtering** — add sequence-level checks for flicker, trajectory smoothness, mask stability, depth continuity, and action consistency.
+- [ ] **Large-scale public dataset ingestion** — scale WebSearch-discovered dataset ingestion into repeatable crawling, cleaning, licensing, provenance, and structured export workflows.
+
+---
+
 ## Citation
 
 ```bibtex
@@ -288,7 +335,7 @@ Claude Code will read your `CLAUDE.md` and understand the full project context. 
   title   = {DataEvolver: Autonomous Synthetic Data Construction
              via VLM-Guided Iterative Rendering},
   year    = {2026},
-  url     = {https://github.com/<github-user>/DataEvolver}
+  url     = {https://github.com/PRIS-CV/DataEvolver}
 }
 ```
 
