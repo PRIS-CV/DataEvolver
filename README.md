@@ -90,6 +90,52 @@ bash pipeline/run_all.sh
 
 ---
 
+## Reproducible Universal 3D Workflow
+
+The public repository includes the code and schema needed to reproduce the
+WebSearch-driven universal 3D dataset workflow. Large generated datasets,
+private server paths, mesh assets, `.blend` scene files, model weights, API
+keys, and paper source are intentionally not committed.
+
+Core entry points:
+
+- Stage0 WebSearch prior: [`scripts/stage0_web_research.py`](scripts/stage0_web_research.py)
+- Universal dataset schema: [`configs/schemas/universal_3d_layout_dataset_schema.json`](configs/schemas/universal_3d_layout_dataset_schema.json)
+- Universal rendering scripts: [`scripts/universal_3d_layout/`](scripts/universal_3d_layout/)
+- Workflow notes and validation summary: [`docs/UNIVERSAL_3D_LAYOUT_DATASET.md`](docs/UNIVERSAL_3D_LAYOUT_DATASET.md)
+
+Start a multi-paper universal session:
+
+```bash
+python scripts/stage0_web_research.py init \
+  --query "SeeThrough3D: Occlusion Aware 3D Control in Text-to-Image Generation" \
+  --output-dir runtime/research_priors/demo_universal \
+  --dataset-mode universal \
+  --tag universal-3d-layout
+```
+
+Run a small Blender-backed smoke batch after configuring scene, mesh, runtime,
+and model paths:
+
+```bash
+python scripts/universal_3d_layout/run_dataevolver_universal_contract_batch.py \
+  --dataevolver-root /path/to/DataEvolver \
+  --runtime-root /path/to/runtime \
+  --blender /path/to/blender \
+  --out /path/to/universal_contract_smoke \
+  --num-samples 1 \
+  --resolution 512 \
+  --engine EEVEE
+```
+
+The universal contract emits RGB targets, per-object masks, structure/OSCR
+views, depth-order proxies, orientation proxies, camera metadata, mesh metadata,
+3D boxes, scene graphs, spatial relations, validation traces, and
+`metadata/records.jsonl`. The current depth and normal outputs are proxy
+artifacts, not dense depth or dense surface-normal supervision.
+
+---
+
 ## Project Structure
 
 ```
@@ -117,13 +163,14 @@ DataEvolver/
 │   ├── build_rotation8_trainready_dataset.py       # Build training pairs
 │   ├── build_object_split_for_rotation_dataset.py  # Object-disjoint split
 │   ├── run_full_pipeline.py                 # Full pipeline orchestrator
+│   ├── stage0_web_research.py               # WebSearch prior and handoff builder
+│   ├── universal_3d_layout/                 # Universal 3D dataset workflow
 │   ├── run_vlm_quality_gate_loop.py         # VLM quality gate loop
 │   ├── feedback_loop/                       # Feedback loop utilities
 │   └── ...                                  # Additional build & eval scripts
 ├── assets/
 │   ├── hdri/                                # HDRI environment maps
 │   └── scene/                               # Blender scene files (.blend)
-├── paper/                             # Technical report (LaTeX source)
 └── web/                               # Project website (GitHub Pages)
 ```
 

@@ -11,12 +11,12 @@
 # 用法：
 #   # 在 jzz 上手动运行：
 #   tmux new -s new-asset-rot8
-#   export ANTHROPIC_API_KEY="sk-ant-..."   # 或 export STAGE1_API_KEY="..."
+#   export ANTHROPIC_API_KEY="<YOUR_ANTHROPIC_API_KEY>"   # 或 export STAGE1_API_KEY="<YOUR_API_KEY>"
 #   bash ~/ARIS/scripts/launch_new_asset_force_rot8.sh [选项]
 #
 #   # 或直接从本地 SSH 启动（需要先设置好 API key）：
 #   ssh jzz 'tmux new -d -s new-asset-rot8 "
-#     export ANTHROPIC_API_KEY=sk-ant-...;
+#     export ANTHROPIC_API_KEY=<YOUR_ANTHROPIC_API_KEY>;
 #     bash ~/ARIS/scripts/launch_new_asset_force_rot8.sh 2>&1 | tee ~/run.log
 #   "'
 #

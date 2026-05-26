@@ -25,7 +25,7 @@ PYTHON="/home/jiazhuangzhuang/miniconda3/envs/aris/bin/python"
 RUNTIME_ROOT="/aaaidata/jiazhuangzhuang/ARIS_runtime"
 LAUNCH_SCRIPT="${REPO_ROOT}/scripts/launch_new_asset_force_rot8.sh"
 
-export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-sk-7834aaf7864cbd4fbef111f71fe835de14e124fe3807a0e5d8a2e154ef865c81}"
+export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY before launching the VLM gate}"
 
 # ── 场景定义（与 scene_pool.json 一致）──────────────────────────────────────
 SCENE_NAMES=(

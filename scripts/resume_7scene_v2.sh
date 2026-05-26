@@ -15,7 +15,7 @@ set -euo pipefail
 
 # ── 环境 ──────────────────────────────────────────────────────────────────────
 export CUDA_VISIBLE_DEVICES=2
-export ANTHROPIC_API_KEY='sk-7834aaf7864cbd4fbef111f71fe835de14e124fe3807a0e5d8a2e154ef865c81'
+export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY before launching the VLM gate}"
 
 REPO_ROOT="$HOME/ARIS"
 PYTHON="/home/jiazhuangzhuang/miniconda3/envs/aris/bin/python"

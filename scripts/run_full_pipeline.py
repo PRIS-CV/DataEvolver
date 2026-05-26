@@ -6,7 +6,7 @@
 
 Usage:
     tmux new -s full-pipeline
-    export ANTHROPIC_API_KEY="sk-ant-..."
+    export ANTHROPIC_API_KEY="<YOUR_ANTHROPIC_API_KEY>"
     python ~/ARIS/scripts/run_full_pipeline.py \
         --seed-count 18 \
         --max-feedback-rounds 1 \

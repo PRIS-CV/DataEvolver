@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-export ANTHROPIC_API_KEY="sk-7834aaf7864cbd4fbef111f71fe835de14e124fe3807a0e5d8a2e154ef865c81"
+export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY before launching the VLM gate}"
 
 exec bash ~/ARIS/scripts/launch_new_asset_force_rot8.sh \
     --seed-count 1 \

@@ -2,11 +2,11 @@
 # ============================================================================
 # rerun_scene1_scene2.sh
 #
-# 重跑场景1(indoor_4blend) 和 场景2(outdoor15)，修复了缺少 API key 的问题
+# 重跑场景1(indoor_4blend) 和 场景2(outdoor15)
 # ============================================================================
 set -euo pipefail
 
-export ANTHROPIC_API_KEY="sk-7834aaf7864cbd4fbef111f71fe835de14e124fe3807a0e5d8a2e154ef865c81"
+export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY before launching the VLM gate}"
 
 REPO_ROOT="$HOME/ARIS"
 PYTHON="/home/jiazhuangzhuang/miniconda3/envs/aris/bin/python"
