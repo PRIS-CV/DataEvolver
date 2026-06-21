@@ -21,6 +21,7 @@
   <a href="README_zh.md">🇨🇳 中文</a> •
   <a href="https://pris-cv.github.io/DataEvolver/">🌐 Website</a> •
   <a href="https://arxiv.org/abs/2605.01789">📄 Paper</a> •
+  <a href="#honors--recognition">🏆 Recognition</a> •
   <a href="#dataevolver-rotate">🧩 Dataset: DataEvolver-Rotate</a>
 </p>
 
@@ -364,6 +365,15 @@ Claude Code will read your `CLAUDE.md` and understand the full project context. 
   url={https://arxiv.org/abs/2605.01789},
 }
 ```
+
+## Honors & Recognition
+
+- 🏆 **[AIDataSci 2026, KDD 2026 Workshop](https://usail-hkust.github.io/aidatasci/)** — DataEvolver was accepted as an **Oral Presentation**. [View on OpenReview](https://openreview.net/forum?id=8ppusILCIH).
+- 🎖️ **2026 BAAI Conference Agent for Science Competition** — DataEvolver received a **Certificate of Poster Presentation** and was selected for on-site poster presentation.
+
+<p align="center">
+  <img src="assets/baai_agent4s_poster_certificate.jpg" alt="DataEvolver BAAI Agent for Science poster presentation certificate" width="720"/>
+</p>
 
 ## Roadmap
 
