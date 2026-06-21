@@ -1,12 +1,44 @@
-# DataEvolver
+<p align="center">
+  <img src="assets/showcase.png" alt="DataEvolver Showcase" width="800"/>
+</p>
 
-**基于 VLM 引导迭代渲染的自主合成数据构建系统**
+<h1 align="center">DataEvolver</h1>
 
-[English](README.md) &middot; [Website](https://pris-cv.github.io/DataEvolver/) &middot; [Paper](https://arxiv.org/abs/2605.01789) &middot; [数据集: DataEvolver-Rotate](#dataevolver-rotate)
+<p align="center">
+  <strong>基于 VLM 引导迭代渲染的自主合成数据构建系统</strong><br/>
+  通过 3D 渲染、VLM 审查和参数修复闭环，构建逼真、场景感知、训练就绪的合成数据。
+</p>
 
-DataEvolver 是一个目标驱动的数据合成流水线，通过 3D 渲染、VLM（视觉-语言模型）质量审查和智能参数调整的自动化闭环，生成高质量训练数据集。与传统基于固定评分规则的流水线不同，DataEvolver 利用 VLM 的自由形式反馈来感知、诊断和修复渲染问题，从而在无需人工干预的情况下产出逼真、场景感知的训练数据。
+<p align="center">
+  <a href="https://arxiv.org/abs/2605.01789"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b?logo=arxiv&logoColor=white" alt="Paper: arXiv"/></a>
+  <a href="https://pris-cv.github.io/DataEvolver/"><img src="https://img.shields.io/badge/Website-Project%20Page-1f6feb?logo=githubpages&logoColor=white" alt="Project website"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-green" alt="License: Apache-2.0"/></a>
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white" alt="Python 3.10+"/>
+  <img src="https://img.shields.io/badge/Blender-4.2%2B-f5792a?logo=blender&logoColor=white" alt="Blender 4.2+"/>
+</p>
+
+<p align="center">
+  <a href="README.md">🇬🇧 English</a> •
+  <a href="https://pris-cv.github.io/DataEvolver/">🌐 Website</a> •
+  <a href="https://arxiv.org/abs/2605.01789">📄 Paper</a> •
+  <a href="#dataevolver-rotate">🧩 数据集: DataEvolver-Rotate</a>
+</p>
+
+<p align="center">
+  <strong>🧠 VLM 自由反馈</strong> •
+  <strong>🎬 3D 渲染-审查-修复闭环</strong> •
+  <strong>📦 训练就绪多模态数据</strong>
+</p>
 
 ---
+
+## 为什么是 DataEvolver？
+
+DataEvolver 将合成数据构建转化为一个 **目标驱动的优化闭环**：VLM 用自然语言审查渲染结果，Agent 诊断具体问题，并通过有界参数更新重新渲染，直到样本达到可保留质量。
+
+- **超越固定评分规则** — 自由形式 VLM 反馈能发现规则难以覆盖的场景关系、物体摆放、光照和材质问题。
+- **用结构化动作修复问题** — 24 种有界原子操作覆盖光照、物体位姿、场景环境和材质外观，减少无约束漂移。
+- **直接导出训练数据** — 输出 RGB、mask、depth、normal、几何元数据和物体隔离划分，便于下游模型训练。
 
 ## 核心特性
 
@@ -28,7 +60,7 @@ DataEvolver 是一个目标驱动的数据合成流水线，通过 3D 渲染、V
 | **2. T2I 生成** | 生成 1024&times;1024 物体图像 | Qwen-Image-2512 |
 | **2.5. 前景分割** | 提取 RGBA 前景，移除背景 | SAM3 |
 | **3. 3D 重建** | 单图重建带纹理网格模型 | Hunyuan3D-2.1 |
-| **4. 场景渲染** | Blender Cycles 512spp 场景感知渲染 | Blender 4.24 |
+| **4. 场景渲染** | 场景感知 Blender 插入，支持可配置 EEVEE/Cycles 渲染 | Blender 4.2+ |
 | **5. VLM 审查闭环** | 自由形式评审 &rarr; Agent 选择操作 &rarr; 重新渲染直至 *keep* | Qwen3.5-35B-A3B |
 
 ### VLM 审查闭环（Stage 5）
@@ -49,7 +81,7 @@ DataEvolver 是一个目标驱动的数据合成流水线，通过 3D 渲染、V
 - **操作系统**：Linux（已在 Ubuntu 20.04+ 测试）
 - **GPU**：NVIDIA GPU，渲染 ≥24 GB 显存；VLM 推理 ≥80 GB 显存
 - **Python**：3.10+
-- **Blender**：4.24
+- **Blender**：4.2+
 - **CUDA**：与 PyTorch 版本兼容
 
 ### 所需模型
@@ -57,10 +89,10 @@ DataEvolver 是一个目标驱动的数据合成流水线，通过 3D 渲染、V
 | 模型 | 用途 | 大小 |
 |------|------|------|
 | [Qwen-Image-2512](https://huggingface.co/Qwen/Qwen-Image-2512) | T2I 图像生成 | ~56 GB |
-| [SAM3](https://github.com/pvc-tube/sam3) | 前景分割 | ~2 GB |
+| [SAM3](https://github.com/facebookresearch/sam3) | 前景分割 | ~2 GB |
 | [Hunyuan3D-2.1](https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1) | 图像转 3D 重建 | ~20 GB |
 | [Qwen3.5-35B-A3B](https://huggingface.co/Qwen/Qwen3.5-35B-A3B) | VLM 质量审查 | ~35 GB |
-| [Blender 4.24](https://www.blender.org/download/) | 3D 渲染引擎 | ~300 MB |
+| [Blender 4.2+](https://www.blender.org/download/) | 3D 渲染引擎 | ~300 MB |
 
 ---
 
@@ -82,9 +114,11 @@ cd DataEvolver
 # 将 .blend 场景文件放入 assets/scene/
 # 将 HDRI 环境贴图放入 assets/hdri/
 
-# 运行完整流水线
+# 运行基础文生图、3D 重建、渲染和元数据流水线
 bash pipeline/run_all.sh
 ```
+
+基础流水线负责准备资产和渲染输出。场景感知 VLM 优化闭环需要在配置好模型路径、`BLENDER_BIN` 和 `configs/scene_template.json` 后，通过 scene-agent workflow 单独启动，例如使用 `scripts/run_scene_agent_monitor.py`。
 
 ---
 
@@ -201,7 +235,7 @@ npm install -g @anthropic-ai/claude-code
 - SSH 别名: `my-server`
 - GPU: 3x A800 80GB (或你的配置)
 - Python: `/path/to/python3` (3.10+, 含 PyTorch)
-- Blender: `/path/to/blender` (4.24)
+- Blender: `/path/to/blender` (4.2+)
 - 代码目录: `/path/to/DataEvolver`
 
 ## Model Paths

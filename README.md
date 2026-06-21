@@ -1,14 +1,44 @@
-![DataEvolver Showcase](assets/showcase.png)
+<p align="center">
+  <img src="assets/showcase.png" alt="DataEvolver Showcase" width="800"/>
+</p>
 
-# DataEvolver
+<h1 align="center">DataEvolver</h1>
 
-**Autonomous Synthetic Data Construction via VLM-Guided Iterative Rendering**
+<p align="center">
+  <strong>Autonomous Synthetic Data Construction via VLM-Guided Iterative Rendering</strong><br/>
+  Build photorealistic, scene-aware training data with a closed loop of 3D rendering, VLM review, and targeted parameter repair.
+</p>
 
-DataEvolver is a goal-driven data synthesis pipeline that generates high-quality training datasets through an automated loop of 3D rendering, VLM (Vision-Language Model) quality review, and intelligent parameter adjustment. Unlike traditional pipelines with rigid scoring rules, DataEvolver uses free-form VLM feedback to perceive, diagnose, and fix rendering issues — producing photorealistic, scene-aware training data without human intervention.
+<p align="center">
+  <a href="https://arxiv.org/abs/2605.01789"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b?logo=arxiv&logoColor=white" alt="Paper: arXiv"/></a>
+  <a href="https://pris-cv.github.io/DataEvolver/"><img src="https://img.shields.io/badge/Website-Project%20Page-1f6feb?logo=githubpages&logoColor=white" alt="Project website"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-green" alt="License: Apache-2.0"/></a>
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white" alt="Python 3.10+"/>
+  <img src="https://img.shields.io/badge/Blender-4.2%2B-f5792a?logo=blender&logoColor=white" alt="Blender 4.2+"/>
+</p>
 
-[中文](README_zh.md) &middot; [Website](https://pris-cv.github.io/DataEvolver/) &middot; [Paper](https://arxiv.org/abs/2605.01789) &middot; [Dataset: DataEvolver-Rotate](#dataevolver-rotate)
+<p align="center">
+  <a href="README_zh.md">🇨🇳 中文</a> •
+  <a href="https://pris-cv.github.io/DataEvolver/">🌐 Website</a> •
+  <a href="https://arxiv.org/abs/2605.01789">📄 Paper</a> •
+  <a href="#dataevolver-rotate">🧩 Dataset: DataEvolver-Rotate</a>
+</p>
+
+<p align="center">
+  <strong>🧠 VLM free-form feedback</strong> •
+  <strong>🎬 3D render-review-fix loop</strong> •
+  <strong>📦 Training-ready multimodal data</strong>
+</p>
 
 ---
+
+## Why DataEvolver?
+
+DataEvolver turns synthetic data construction into a **goal-driven optimization loop**: a VLM reviews rendered scenes in natural language, an agent diagnoses concrete rendering issues, and the scene is re-rendered with targeted parameter updates until the result is worth keeping.
+
+- **Perceive beyond rigid scores** — free-form VLM feedback catches scene context, object placement, lighting, and material issues that fixed rules miss.
+- **Repair with structured actions** — 24 bounded atomic actions adjust lighting, object pose, scene environment, and material appearance without uncontrolled drift.
+- **Export training-ready data** — RGB, masks, depth, normals, geometry metadata, and object-disjoint splits are produced for downstream model training.
 
 ## Key Features
 
@@ -30,7 +60,7 @@ DataEvolver is a goal-driven data synthesis pipeline that generates high-quality
 | **2. T2I Generation** | Generate 1024&times;1024 object image | Qwen-Image-2512 |
 | **2.5. Segmentation** | Extract RGBA foreground, remove background | SAM3 |
 | **3. 3D Reconstruction** | Reconstruct textured mesh from single image | Hunyuan3D-2.1 |
-| **4. Scene Rendering** | Blender Cycles 512spp scene-aware insertion | Blender 4.24 |
+| **4. Scene Rendering** | Scene-aware Blender insertion with configurable EEVEE/Cycles rendering | Blender 4.2+ |
 | **5. VLM Review Loop** | Free-form review &rarr; agent action &rarr; re-render until *keep* | Qwen3.5-35B-A3B |
 
 ### The VLM Review Loop (Stage 5)
@@ -51,7 +81,7 @@ The core innovation: a **goal-driven loop agent** that iteratively improves rend
 - **OS**: Linux (tested on Ubuntu 20.04+)
 - **GPU**: NVIDIA GPU with &ge;24 GB VRAM for rendering; &ge;80 GB for VLM inference
 - **Python**: 3.10+
-- **Blender**: 4.24
+- **Blender**: 4.2+
 - **CUDA**: Compatible with your PyTorch version
 
 ### Required Models
@@ -59,10 +89,10 @@ The core innovation: a **goal-driven loop agent** that iteratively improves rend
 | Model | Purpose | Approx. Size |
 |-------|---------|-------------|
 | [Qwen-Image-2512](https://huggingface.co/Qwen/Qwen-Image-2512) | T2I generation | ~56 GB |
-| [SAM3](https://github.com/pvc-tube/sam3) | Foreground segmentation | ~2 GB |
+| [SAM3](https://github.com/facebookresearch/sam3) | Foreground segmentation | ~2 GB |
 | [Hunyuan3D-2.1](https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1) | Image-to-3D reconstruction | ~20 GB |
 | [Qwen3.5-35B-A3B](https://huggingface.co/Qwen/Qwen3.5-35B-A3B) | VLM quality reviewer | ~35 GB |
-| [Blender 4.24](https://www.blender.org/download/) | 3D rendering engine | ~300 MB |
+| [Blender 4.2+](https://www.blender.org/download/) | 3D rendering engine | ~300 MB |
 
 ---
 
@@ -84,9 +114,11 @@ cd DataEvolver
 # Place your .blend scene file in assets/scene/
 # Place HDRI environment maps in assets/hdri/
 
-# Run the full pipeline
+# Run the base text-to-image, 3D reconstruction, rendering, and metadata pipeline
 bash pipeline/run_all.sh
 ```
+
+The base pipeline prepares assets and render outputs. The scene-aware VLM optimization loop is launched separately through the scene-agent workflow, for example with `scripts/run_scene_agent_monitor.py` after model paths, `BLENDER_BIN`, and `configs/scene_template.json` are configured for your environment.
 
 ---
 
@@ -250,7 +282,7 @@ Create a `CLAUDE.md` in the project root (it's gitignored — each user maintain
 - SSH alias: `my-server`
 - GPU: 3x A800 80GB (or your setup)
 - Python: `/path/to/python3` (3.10+, with PyTorch)
-- Blender: `/path/to/blender` (4.24)
+- Blender: `/path/to/blender` (4.2+)
 - Code directory: `/path/to/DataEvolver`
 
 ## Model Paths
