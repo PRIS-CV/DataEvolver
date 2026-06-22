@@ -106,7 +106,7 @@ em{font-style:italic;color:var(--body-strong)}
 .nav-logo .logo-img{
   height:28px;width:auto;border-radius:4px;
 }
-.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links{display:flex;gap:24px;list-style:none}
 .nav-links a{
   color:var(--muted);font-size:0.875rem;font-weight:500;
   font-family:var(--font-body);
@@ -162,14 +162,14 @@ em{font-style:italic;color:var(--body-strong)}
 
 /* ===== Hero Band ===== */
 .hero{
-  min-height:100vh;display:flex;align-items:center;
+  min-height:auto;display:flex;align-items:flex-start;
   position:relative;
-  padding:120px 32px 96px;
+  padding:128px 32px 88px;
   background:var(--canvas);
 }
 .hero-inner{
   max-width:var(--max-width);margin:0 auto;
-  display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;
+  display:grid;grid-template-columns:minmax(0,0.88fr) minmax(0,1.12fr);gap:56px;align-items:center;
 }
 .hero-content{position:relative;z-index:1}
 .hero-badge{
@@ -195,22 +195,64 @@ em{font-style:italic;color:var(--body-strong)}
   color:var(--body);margin-bottom:32px;
 }
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
-
-/* Hero illustration card */
-.hero-illustration{
-  background:var(--surface-dark);
-  border-radius:var(--radius-xl);
-  padding:32px;
-  position:relative;overflow:hidden;
+.hero-awards{
+  display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;
 }
-.hero-illustration::before{
+.hero-award{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(239,233,222,0.72);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-pill);
+  padding:7px 12px;
+  font-size:0.75rem;font-weight:500;color:var(--body-strong);
+}
+
+/* Hero showcase */
+.hero-showcase{
+  background:linear-gradient(135deg,rgba(204,120,92,0.16),rgba(93,184,166,0.10));
+  border:1px solid rgba(204,120,92,0.18);
+  border-radius:24px;
+  padding:8px;
+  position:relative;overflow:hidden;
+  box-shadow:0 24px 80px rgba(20,20,19,0.10);
+}
+.hero-showcase::before{
   content:'';position:absolute;inset:0;
   background:
-    linear-gradient(135deg,rgba(204,120,92,0.08) 0%,transparent 50%),
-    linear-gradient(225deg,rgba(93,184,166,0.06) 0%,transparent 50%);
+    radial-gradient(circle at 12% 12%,rgba(255,255,255,0.65),transparent 34%),
+    linear-gradient(225deg,rgba(93,184,166,0.12),transparent 48%);
 }
-.hero-illustration-inner{
+.hero-showcase-inner{
   position:relative;z-index:1;
+  background:var(--canvas);
+  border:1px solid rgba(255,255,255,0.75);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.85);
+}
+.hero-showcase img{
+  display:block;width:100%;height:auto;
+}
+.hero-showcase-caption{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px 18px;
+  border-top:1px solid var(--hairline-soft);
+  background:rgba(250,249,245,0.92);
+}
+.hero-showcase-caption strong{
+  display:block;font-size:0.875rem;font-weight:500;color:var(--ink);
+}
+.hero-showcase-caption span{
+  display:block;font-size:0.75rem;color:var(--muted);margin-top:2px;
+}
+.hero-showcase-pill{
+  flex:0 0 auto;
+  border-radius:var(--radius-pill);
+  background:var(--surface-card);
+  color:var(--primary-active);
+  border:1px solid var(--hairline);
+  padding:6px 10px;
+  font-size:0.72rem;font-weight:500;
 }
 .hero-code-header{
   display:flex;align-items:center;gap:8px;margin-bottom:20px;
@@ -432,6 +474,52 @@ em{font-style:italic;color:var(--body-strong)}
 .code-block-body .cm{color:var(--muted-soft)}
 .code-block-body .num{color:var(--success)}
 
+/* ===== README Visual Assets ===== */
+.visual-frame{
+  background:rgba(250,249,245,0.72);
+  border:1px solid var(--hairline);
+  border-radius:24px;
+  padding:8px;
+  box-shadow:0 16px 48px rgba(20,20,19,0.06);
+  margin-bottom:32px;
+}
+.visual-frame-inner{
+  background:var(--canvas);
+  border:1px solid rgba(255,255,255,0.72);
+  border-radius:18px;
+  overflow:hidden;
+}
+.visual-frame img{
+  display:block;width:100%;height:auto;
+}
+.visual-caption{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px 18px;
+  border-top:1px solid var(--hairline-soft);
+  color:var(--muted);
+  font-size:0.8125rem;
+}
+.visual-caption strong{
+  color:var(--body-strong);font-weight:500;
+}
+.section-dark .visual-frame{
+  background:rgba(255,255,255,0.06);
+  border-color:rgba(255,255,255,0.10);
+  box-shadow:0 18px 56px rgba(0,0,0,0.18);
+}
+.section-dark .visual-frame-inner{
+  background:var(--canvas);
+  border-color:rgba(255,255,255,0.10);
+}
+.section-dark .visual-caption{
+  background:var(--surface-dark-elevated);
+  border-top-color:rgba(255,255,255,0.08);
+  color:var(--on-dark-soft);
+}
+.section-dark .visual-caption strong{
+  color:var(--on-dark);
+}
+
 /* ===== Gallery ===== */
 .gallery-scroll-wrapper{
   position:relative;
@@ -570,6 +658,60 @@ em{font-style:italic;color:var(--body-strong)}
   font-size:0.8125rem;color:var(--muted);line-height:1.4;
 }
 
+/* ===== Recognition ===== */
+.recognition-grid{
+  display:grid;
+  grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr);
+  gap:28px;
+  align-items:center;
+}
+.recognition-list{
+  display:grid;gap:16px;
+}
+.recognition-item{
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-lg);
+  padding:24px;
+}
+.recognition-kicker{
+  display:inline-flex;align-items:center;gap:6px;
+  border-radius:var(--radius-pill);
+  padding:5px 10px;
+  background:var(--surface-soft);
+  color:var(--primary-active);
+  font-size:0.72rem;font-weight:500;
+  margin-bottom:12px;
+}
+.recognition-item h3{
+  margin-bottom:8px;
+}
+.recognition-item p{
+  font-size:0.9375rem;color:var(--body);
+}
+.recognition-links{
+  display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;
+}
+.recognition-links a{
+  display:inline-flex;align-items:center;
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-pill);
+  padding:7px 12px;
+  background:var(--surface-soft);
+  color:var(--body-strong);
+  font-size:0.8125rem;font-weight:500;
+}
+.recognition-links a:hover{
+  border-color:var(--primary);
+  color:var(--primary-active);
+}
+.certificate-frame{
+  margin-bottom:0;
+}
+.certificate-frame img{
+  cursor:pointer;
+}
+
 /* ===== Footer ===== */
 .footer{
   background:var(--surface-dark);
@@ -633,6 +775,8 @@ em{font-style:italic;color:var(--body-strong)}
   .stats-grid{grid-template-columns:repeat(2,1fr)}
   .card-grid{grid-template-columns:1fr}
   .connector-grid{grid-template-columns:repeat(2,1fr)}
+  .recognition-grid{grid-template-columns:1fr}
+  .gallery-scroll-wrapper{margin:0 -24px;padding:0 24px}
   .gallery-card{flex:0 0 280px}
   .gallery-scroll-btn{display:none}
   .footer-grid{grid-template-columns:repeat(2,1fr);gap:32px}
@@ -641,6 +785,7 @@ em{font-style:italic;color:var(--body-strong)}
 @media(max-width:480px){
   .hero-actions{flex-direction:column}
   .btn{justify-content:center;width:100%}
+  .hero-showcase-caption,.visual-caption{align-items:flex-start;flex-direction:column}
   .stats-grid{grid-template-columns:1fr}
   .connector-grid{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr}
@@ -661,6 +806,7 @@ em{font-style:italic;color:var(--body-strong)}
       <li><a href="#evolution">VLM Loop</a></li>
       <li><a href="#dataset">Dataset</a></li>
       <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#recognition">Recognition</a></li>
       <li><a href="#start">Get Started</a></li>
     </ul>
     <a href="https://github.com/PRIS-CV/DataEvolver" class="nav-cta" target="_blank" rel="noopener">GitHub</a>
@@ -678,6 +824,11 @@ em{font-style:italic;color:var(--body-strong)}
       <p class="hero-subtitle">
         DataEvolver is an autonomous synthetic data construction framework where <em>goal-driven loop agents</em> orchestrate the full pipeline — from text-to-image generation through 3D reconstruction to scene-aware rendering — and iteratively refine output quality via VLM feedback loops.
       </p>
+      <div class="hero-awards" aria-label="Project highlights">
+        <span class="hero-award">📄 arXiv 2605.01789</span>
+        <span class="hero-award">🏆 KDD Workshop Oral</span>
+        <span class="hero-award">🎖️ BAAI Poster</span>
+      </div>
       <div class="hero-actions">
         <a href="https://github.com/PRIS-CV/DataEvolver" class="btn btn-primary" target="_blank" rel="noopener">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
@@ -706,33 +857,16 @@ em{font-style:italic;color:var(--body-strong)}
       </div>
     </div>
 
-    <!-- Hero Illustration — Code Window Card -->
-    <div class="hero-illustration">
-      <div class="hero-illustration-inner">
-        <div class="hero-code-header">
-          <span class="hero-code-dot r"></span>
-          <span class="hero-code-dot y"></span>
-          <span class="hero-code-dot g"></span>
-          <span class="hero-code-title">pipeline/agent_loop.py</span>
-        </div>
-        <div class="hero-code-block">
-<pre><span class="cm"># Goal-driven loop agent core</span>
-<span class="kw">class</span> <span class="fn">EvolutionAgent</span>:
-    <span class="kw">def</span> <span class="fn">run_loop</span>(self, scene, obj):
-        <span class="kw">for</span> round <span class="kw">in</span> <span class="fn">range</span>(self.max_rounds):
-            render = self.<span class="fn">blender_render</span>(scene, obj)
-            review = self.<span class="fn">vlm_review</span>(render)
-
-            <span class="kw">if</span> review.verdict == <span class="str">"keep"</span>:
-                <span class="kw">return</span> render  <span class="cm"># quality met</span>
-
-            action = self.<span class="fn">agent_decide</span>(
-                review.text,
-                self.action_space
-            )
-            self.<span class="fn">apply_action</span>(scene, action)
-
-        <span class="kw">return</span> render  <span class="cm"># best effort</span></pre>
+    <!-- Hero Showcase -->
+    <div class="hero-showcase">
+      <div class="hero-showcase-inner">
+        <img src="images/readme/showcase.png" alt="DataEvolver autonomous synthetic data construction workflow">
+        <div class="hero-showcase-caption">
+          <div>
+            <strong>Autonomous render-review-fix data construction</strong>
+            <span>Seed concept → 3D rendering → VLM review loop → multimodal dataset output</span>
+          </div>
+          <div class="hero-showcase-pill">VLM-guided</div>
         </div>
       </div>
     </div>
@@ -783,6 +917,16 @@ em{font-style:italic;color:var(--body-strong)}
       From a natural language seed concept to quality-verified rendered pairs — fully automated by goal-driven loop agents, no human intervention required.
     </p>
 
+    <div class="visual-frame">
+      <div class="visual-frame-inner">
+        <img src="images/readme/pipeline_show.svg" alt="DataEvolver six-stage synthetic data generation pipeline">
+        <div class="visual-caption">
+          <strong>6-stage data synthesis workflow</strong>
+          <span>Text expansion, T2I generation, segmentation, 3D reconstruction, scene rendering, and VLM review.</span>
+        </div>
+      </div>
+    </div>
+
     <div class="pipeline-visual">
       <div class="pipeline-step">
         <div class="pipeline-step-num">1</div>
@@ -811,7 +955,7 @@ em{font-style:italic;color:var(--body-strong)}
       <div class="pipeline-step">
         <div class="pipeline-step-num">4</div>
         <div class="pipeline-step-title">Scene Rendering</div>
-        <div class="pipeline-step-desc">Blender 4.24 + Cycles 512spp</div>
+        <div class="pipeline-step-desc">Blender 4.2+ with Cycles 512spp</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
@@ -831,6 +975,16 @@ em{font-style:italic;color:var(--body-strong)}
     <p class="section-desc">
       The heart of DataEvolver: a <em style="color:var(--on-dark)">goal-driven loop agent</em> that perceives rendered outputs via VLM review, diagnoses semantic issues, selects targeted rendering adjustments from a structured action space, and repeats until quality goals are met.
     </p>
+
+    <div class="visual-frame">
+      <div class="visual-frame-inner">
+        <img src="images/readme/stage5.svg" alt="DataEvolver closed-loop scene refinement pipeline">
+        <div class="visual-caption">
+          <strong>Closed-loop scene refinement</strong>
+          <span>Render, review, act, and stop when the quality gate returns keep.</span>
+        </div>
+      </div>
+    </div>
 
     <div class="loop-diagram">
       <div class="loop-node">
@@ -1240,7 +1394,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 
     <div class="tag-grid">
       <span class="tag">Python 3.10+</span>
-      <span class="tag">Blender 4.24</span>
+      <span class="tag">Blender 4.2+</span>
       <span class="tag">Cycles Path Tracing</span>
       <span class="tag">PyTorch 2.8</span>
       <span class="tag">Qwen-Image-2512</span>
@@ -1326,6 +1480,46 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   </div>
 </section>
 
+<!-- Recognition — Cream Canvas -->
+<section class="section" id="recognition">
+  <div class="section-inner">
+    <div class="section-label">Recognition</div>
+    <h2 class="section-title">Honors &amp; Recognition</h2>
+    <p class="section-desc">
+      Public recognition for DataEvolver across academic workshop review and agent-for-science competition presentation.
+    </p>
+
+    <div class="recognition-grid">
+      <div class="recognition-list">
+        <div class="recognition-item">
+          <div class="recognition-kicker">🏆 Oral Presentation</div>
+          <h3>AIDataSci 2026, KDD 2026 Workshop</h3>
+          <p>DataEvolver was accepted as an Oral Presentation for the AIDataSci 2026 workshop.</p>
+          <div class="recognition-links">
+            <a href="https://usail-hkust.github.io/aidatasci/" target="_blank" rel="noopener">Workshop</a>
+            <a href="https://openreview.net/forum?id=8ppusILCIH" target="_blank" rel="noopener">OpenReview</a>
+          </div>
+        </div>
+        <div class="recognition-item">
+          <div class="recognition-kicker">🎖️ Poster Presentation</div>
+          <h3>2026 BAAI Conference Agent for Science Competition</h3>
+          <p>DataEvolver received a Certificate of Poster Presentation and was selected for on-site poster presentation.</p>
+        </div>
+      </div>
+
+      <div class="visual-frame certificate-frame">
+        <div class="visual-frame-inner">
+          <img src="images/readme/baai_agent4s_poster_certificate.jpg" alt="DataEvolver BAAI Agent for Science poster presentation certificate" onclick="openLightbox(this)">
+          <div class="visual-caption">
+            <strong>BAAI Agent for Science Competition</strong>
+            <span>Certificate of Poster Presentation, 2026.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- CTA Band — Coral -->
 <section class="section">
   <div class="section-inner">
@@ -1370,6 +1564,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         <h4>Connect</h4>
         <a href="https://github.com/PRIS-CV/DataEvolver" target="_blank" rel="noopener">GitHub</a>
         <a href="#gallery">Gallery</a>
+        <a href="#recognition">Recognition</a>
         <a href="#start">Get Started</a>
       </div>
     </div>
