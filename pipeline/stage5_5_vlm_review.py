@@ -44,7 +44,7 @@ from asset_lifecycle import (
 # Constants
 # ─────────────────────────────────────────────────────────────────────────────
 
-VLM_MODEL_PATH = "/data/wuwenzhuo/Qwen3.5-35B-A3B"
+VLM_MODEL_PATH = os.environ.get("VLM_MODEL_PATH", "/data/wuwenzhuo/Qwen3.5-35B-A3B")
 VLM_MODEL_NAME = "Qwen3.5-35B-A3B"
 DATA_BUILD_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ACTION_SPACE_PATH = os.path.join(DATA_BUILD_ROOT, "configs", "action_space.json")

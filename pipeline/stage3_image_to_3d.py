@@ -40,13 +40,16 @@ import traceback
 from pathlib import Path
 import torch
 
-HUNYUAN3D_REPO = "/aaaidata/zhangqisong/data_build/Hunyuan3D-2.1"
-MODEL_HUB = "/huggingface/model_hub/Hunyuan3D-2.1"
+HUNYUAN3D_REPO = os.environ.get("HUNYUAN3D_REPO", "/aaaidata/zhangqisong/data_build/Hunyuan3D-2.1")
+MODEL_HUB = os.environ.get("MODEL_HUB", "/huggingface/model_hub/Hunyuan3D-2.1")
 # Paint model: hunyuan3d-paintpbr-v2-1 lives under the model hub root
 # multiview_utils expects parent dir; it appends "hunyuan3d-paintpbr-v2-1" itself
-PAINT_MODEL_HUB = "/huggingface/model_hub/Hunyuan3D-2.1"
-DINO_MODEL_PATH = "/huggingface/model_hub/dinov2-giant"
-REALESRGAN_CKPT = "/aaaidata/zhangqisong/data_build/Hunyuan3D-2.1/hy3dpaint/ckpt/RealESRGAN_x4plus.pth"
+PAINT_MODEL_HUB = os.environ.get("PAINT_MODEL_HUB", MODEL_HUB)
+DINO_MODEL_PATH = os.environ.get("DINO_MODEL_PATH", "/huggingface/model_hub/dinov2-giant")
+REALESRGAN_CKPT = os.environ.get(
+    "REALESRGAN_CKPT",
+    os.path.join(HUNYUAN3D_REPO, "hy3dpaint", "ckpt", "RealESRGAN_x4plus.pth"),
+)
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 IMAGES_DIR = os.path.join(DATA_DIR, "images")
 IMAGES_RGBA_DIR = os.path.join(DATA_DIR, "images_rgba")
