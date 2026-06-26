@@ -99,27 +99,109 @@ DataEvolver 将合成数据构建转化为一个 **目标驱动的优化闭环**
 
 ## 快速开始
 
+建议先从轻量 onboarding dry-run 开始。它会检查你的环境形态，打印安装、
+模型下载和配置写入计划，并在需要时生成本地非敏感配置文件。它**不会**
+安装依赖、下载模型权重、写入 token，或启动 GPU 长任务。
+
+### 1. 克隆仓库
+
 ```bash
-# 克隆仓库
 git clone https://github.com/PRIS-CV/DataEvolver.git
 cd DataEvolver
+```
 
-# 在各阶段脚本中配置模型路径：
-#   pipeline/stage1_text_expansion.py  → Anthropic API key
-#   pipeline/stage2_t2i_generate.py    → MODEL_PATH (Qwen-Image-2512)
-#   pipeline/stage2_5_sam2_segment.py  → SAM3_CKPT
-#   pipeline/stage3_image_to_3d.py     → HUNYUAN3D_REPO, MODEL_HUB
-#   pipeline/stage5_5_vlm_review.py    → Qwen3.5-35B 模型路径
-#   configs/scene_template.json        → blend_path, blender_binary
+### 2. 运行安全的 onboarding dry-run
 
+如果只是想最快了解当前环境是否可用，先使用 `quick` profile：
+
+```bash
+bash scripts/bootstrap_dataevolver_default.sh \
+  --profile quick \
+  --dry-run \
+  --write-local-config
+```
+
+如果想生成当前默认 DataEvolver pipeline 的完整部署计划，指定模型根目录：
+
+```bash
+bash scripts/bootstrap_dataevolver_default.sh \
+  --profile default \
+  --model-root /path/to/dataevolver-models \
+  --workspace-root "$PWD" \
+  --python-backend auto \
+  --dry-run \
+  --write-local-config
+```
+
+脚本会输出四段内容：
+
+| 段落 | 说明 |
+|------|------|
+| `preflight` | Linux、GPU、Python、`uv`/`conda`、Blender、Hugging Face CLI 可用性 |
+| `env plan` | 优先 `uv` 的环境计划，以及 `conda` fallback |
+| `model plan` | Hugging Face repo、目标路径、gated access 提示和打印出的下载命令 |
+| `config plan` | pipeline 可读取的非敏感环境变量 |
+
+可选 profile：
+
+| Profile | 适用场景 |
+|---------|----------|
+| `quick` | 只做环境探测和 dry-run 路线 |
+| `default` | 使用当前核心 pipeline：Qwen-Image-2512、SAM3、Hunyuan3D-2.1、DINOv2 Giant、Qwen3.5-35B-A3B 和 Blender |
+| `full` | 在 `default` 基础上额外覆盖 Edit/T2V 默认计划：Qwen-Image-Edit-2511 和 Wan2.1-T2V |
+| `custom` | 你已有替代模型，希望先记录下来，后续再做兼容性检查 |
+
+使用 `--write-local-config` 后，会生成：
+
+- `.dataevolver/local/ENVIRONMENT.md`：人类和 agent 可读的环境摘要
+- `.dataevolver/local/env.config.json`：结构化配置，便于 agent 和脚本读取
+- `.dataevolver/local/env.sh.example`：可 source 的非敏感路径变量示例
+
+`.dataevolver/local/` 已被 Git 忽略。不要把 Hugging Face、Anthropic、
+OpenAI、SSH、cookie 或 API token 写入这些文件。
+
+如果你在支持 skills 的 agent 环境中使用 DataEvolver，可以让 agent 使用
+`dataevolver-onboarding` skill。它应该只围绕五类信息进行访谈：目标路线、
+运行位置、安装策略、模型策略、工作/输出路径，然后运行上面的 dry-run 脚本。
+
+### 3. 检查路径并 source 环境变量
+
+真实运行前，先检查生成的路径变量：
+
+```bash
+sed -n '1,160p' .dataevolver/local/env.sh.example
+source .dataevolver/local/env.sh.example
+```
+
+pipeline 现在会优先读取这些环境变量，同时保留旧机器路径作为 fallback：
+
+| 变量 | 用途 |
+|------|------|
+| `QWEN_IMAGE_MODEL_PATH` | Stage 2 文生图模型路径 |
+| `SAM3_CKPT`, `SAM3_DIR` | Stage 2.5 SAM3 checkpoint 和源码/包路径 |
+| `HUNYUAN3D_REPO`, `MODEL_HUB`, `PAINT_MODEL_HUB`, `DINO_MODEL_PATH`, `REALESRGAN_CKPT` | Stage 3 Hunyuan3D、paint、DINO 和 RealESRGAN 路径 |
+| `VLM_MODEL_PATH` | Stage 5.5 VLM reviewer 模型路径 |
+
+真实 Hugging Face 下载时，只在 shell 中设置 `HF_TOKEN`。dry-run 脚本会优先
+打印 `uvx --from huggingface_hub hf download ...` 命令，并提供
+`hf download ...` fallback，但 v0 不会执行这些命令。
+
+### 4. 准备场景资产并运行 pipeline
+
+当依赖、模型权重和路径变量都准备好后：
+
+```bash
 # 将 .blend 场景文件放入 assets/scene/
 # 将 HDRI 环境贴图放入 assets/hdri/
+# 在 configs/scene_template.json 中配置 blend_path 和 blender_binary。
+# 如果使用文本扩展阶段，请在 shell 中设置 Stage 1 LLM 凭据。
 
-# 运行基础文生图、3D 重建、渲染和元数据流水线
 bash pipeline/run_all.sh
 ```
 
-基础流水线负责准备资产和渲染输出。场景感知 VLM 优化闭环需要在配置好模型路径、`BLENDER_BIN` 和 `configs/scene_template.json` 后，通过 scene-agent workflow 单独启动，例如使用 `scripts/run_scene_agent_monitor.py`。
+基础流水线负责准备资产和渲染输出。场景感知 VLM 优化闭环需要在配置好模型
+路径、`BLENDER_BIN` 和 `configs/scene_template.json` 后，通过 scene-agent
+workflow 单独启动，例如使用 `scripts/run_scene_agent_monitor.py`。
 
 ---
 
