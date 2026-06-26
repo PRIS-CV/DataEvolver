@@ -13,7 +13,7 @@ import time
 import torch
 
 
-MODEL_PATH = "/data/wuwenzhuo/Qwen-Image-2512"
+MODEL_PATH = os.environ.get("QWEN_IMAGE_MODEL_PATH", "/data/wuwenzhuo/Qwen-Image-2512")
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 PROMPTS_PATH = os.path.join(DATA_DIR, "prompts.json")
 IMAGES_DIR = os.path.join(DATA_DIR, "images")

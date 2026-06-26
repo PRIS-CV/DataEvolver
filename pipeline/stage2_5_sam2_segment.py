@@ -23,8 +23,8 @@ import sys
 import numpy as np
 from PIL import Image
 
-SAM3_CKPT = "/huggingface/model_hub/sam3/sam3.pt"
-SAM3_DIR = "/aaaidata/zhangqisong/data_build/sam3"
+SAM3_CKPT = os.environ.get("SAM3_CKPT", "/huggingface/model_hub/sam3/sam3.pt")
+SAM3_DIR = os.environ.get("SAM3_DIR", "/aaaidata/zhangqisong/data_build/sam3")
 TEXT_PROMPT = "the main object"
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
