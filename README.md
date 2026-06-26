@@ -99,27 +99,114 @@ The core innovation: a **goal-driven loop agent** that iteratively improves rend
 
 ## Quick Start
 
+Start with the lightweight onboarding dry-run. It checks the shape of your
+environment, prints the setup and model download plan, and writes local
+non-sensitive config files. It does **not** install dependencies, download model
+weights, write tokens, or launch GPU jobs.
+
+### 1. Clone the repository
+
 ```bash
-# Clone the repo
 git clone https://github.com/PRIS-CV/DataEvolver.git
 cd DataEvolver
+```
 
-# Configure model paths in each pipeline stage:
-#   pipeline/stage1_text_expansion.py  → Anthropic API key
-#   pipeline/stage2_t2i_generate.py    → MODEL_PATH (Qwen-Image-2512)
-#   pipeline/stage2_5_sam2_segment.py  → SAM3_CKPT
-#   pipeline/stage3_image_to_3d.py     → HUNYUAN3D_REPO, MODEL_HUB
-#   pipeline/stage5_5_vlm_review.py    → Qwen3.5-35B model path
-#   configs/scene_template.json        → blend_path, blender_binary
+### 2. Run the safe onboarding dry-run
 
+For the fastest first pass, use the `quick` profile:
+
+```bash
+bash scripts/bootstrap_dataevolver_default.sh \
+  --profile quick \
+  --dry-run \
+  --write-local-config
+```
+
+For the default DataEvolver pipeline plan, choose a model root and run:
+
+```bash
+bash scripts/bootstrap_dataevolver_default.sh \
+  --profile default \
+  --model-root /path/to/dataevolver-models \
+  --workspace-root "$PWD" \
+  --python-backend auto \
+  --dry-run \
+  --write-local-config
+```
+
+The script prints four sections:
+
+| Section | What it tells you |
+|---------|-------------------|
+| `preflight` | Linux, GPU, Python, `uv`/`conda`, Blender, and Hugging Face CLI availability |
+| `env plan` | The preferred `uv` environment plan and `conda` fallback |
+| `model plan` | Hugging Face repos, target paths, gated-access notes, and printed download commands |
+| `config plan` | Non-sensitive environment variables that the pipeline can read |
+
+Available profiles:
+
+| Profile | Use it when |
+|---------|-------------|
+| `quick` | You only want environment discovery and a dry-run route |
+| `default` | You want the current core pipeline plan: Qwen-Image-2512, SAM3, Hunyuan3D-2.1, DINOv2 Giant, Qwen3.5-35B-A3B, and Blender |
+| `full` | You also want the default Edit/T2V plan: Qwen-Image-Edit-2511 and Wan2.1-T2V |
+| `custom` | You already have replacement models and want them recorded for later compatibility review |
+
+When `--write-local-config` is used, the generated local files are:
+
+- `.dataevolver/local/ENVIRONMENT.md` — human-readable setup summary
+- `.dataevolver/local/env.config.json` — structured config for agents and scripts
+- `.dataevolver/local/env.sh.example` — sourceable non-sensitive path variables
+
+`.dataevolver/local/` is ignored by Git. Do not put Hugging Face, Anthropic,
+OpenAI, SSH, cookie, or API tokens in these files.
+
+If you are working with an agent environment that supports skills, ask it to use
+the `dataevolver-onboarding` skill. It should interview you for only five setup
+areas: target route, runtime location, install policy, model strategy, and
+workspace/output paths, then run the dry-run script above.
+
+### 3. Review paths and source environment overrides
+
+Before a real run, review the generated path variables:
+
+```bash
+sed -n '1,160p' .dataevolver/local/env.sh.example
+source .dataevolver/local/env.sh.example
+```
+
+The pipeline now reads these environment overrides while preserving the legacy
+fallback paths:
+
+| Variable | Used by |
+|----------|---------|
+| `QWEN_IMAGE_MODEL_PATH` | Stage 2 text-to-image model path |
+| `SAM3_CKPT`, `SAM3_DIR` | Stage 2.5 SAM3 checkpoint and package/source path |
+| `HUNYUAN3D_REPO`, `MODEL_HUB`, `PAINT_MODEL_HUB`, `DINO_MODEL_PATH`, `REALESRGAN_CKPT` | Stage 3 Hunyuan3D, paint, DINO, and RealESRGAN paths |
+| `VLM_MODEL_PATH` | Stage 5.5 VLM reviewer model path |
+
+For real Hugging Face downloads, set `HF_TOKEN` in your shell only. The dry-run
+script prints `uvx --from huggingface_hub hf download ...` commands first and
+`hf download ...` fallback commands, but v0 never executes them.
+
+### 4. Prepare scene assets and run the pipeline
+
+After dependencies, model weights, and path overrides are ready:
+
+```bash
 # Place your .blend scene file in assets/scene/
 # Place HDRI environment maps in assets/hdri/
+# Configure configs/scene_template.json for blend_path and blender_binary.
+# Set the Stage 1 LLM credential in your shell if you use text expansion.
 
-# Run the base text-to-image, 3D reconstruction, rendering, and metadata pipeline
 bash pipeline/run_all.sh
 ```
 
-The base pipeline prepares assets and render outputs. The scene-aware VLM optimization loop is launched separately through the scene-agent workflow, for example with `scripts/run_scene_agent_monitor.py` after model paths, `BLENDER_BIN`, and `configs/scene_template.json` are configured for your environment.
+The base pipeline prepares assets and render outputs. The scene-aware VLM
+optimization loop is launched separately through the scene-agent workflow, for
+example with `scripts/run_scene_agent_monitor.py` after model paths,
+`BLENDER_BIN`, and `configs/scene_template.json` are configured for your
+environment.
 
 ---
 
