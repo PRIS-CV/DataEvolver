@@ -166,47 +166,128 @@ the `dataevolver-onboarding` skill. It should interview you for only five setup
 areas: target route, runtime location, install policy, model strategy, and
 workspace/output paths, then run the dry-run script above.
 
-### 3. Review paths and source environment overrides
+### 3. Production Setup
 
-Before a real run, review the generated path variables:
-
-```bash
-sed -n '1,160p' .dataevolver/local/env.sh.example
-source .dataevolver/local/env.sh.example
-```
-
-The pipeline now reads these environment overrides while preserving the legacy
-fallback paths:
-
-| Variable | Used by |
-|----------|---------|
-| `QWEN_IMAGE_MODEL_PATH` | Stage 2 text-to-image model path |
-| `SAM3_CKPT`, `SAM3_DIR` | Stage 2.5 SAM3 checkpoint and package/source path |
-| `HUNYUAN3D_REPO`, `MODEL_HUB`, `PAINT_MODEL_HUB`, `DINO_MODEL_PATH`, `REALESRGAN_CKPT` | Stage 3 Hunyuan3D, paint, DINO, and RealESRGAN paths |
-| `VLM_MODEL_PATH` | Stage 5.5 VLM reviewer model path |
-
-For real Hugging Face downloads, set `HF_TOKEN` in your shell only. The dry-run
-script prints `uvx --from huggingface_hub hf download ...` commands first and
-`hf download ...` fallback commands, but v0 never executes them.
-
-### 4. Prepare scene assets and run the pipeline
-
-After dependencies, model weights, and path overrides are ready:
+Create the runtime environment. On shared GPU servers, prefer
+`--system-site-packages` so an already validated NVIDIA PyTorch build can be
+reused. Install the CUDA wheel only if `import torch` fails inside the venv or
+reports no usable CUDA.
 
 ```bash
-# Place your .blend scene file in assets/scene/
-# Place HDRI environment maps in assets/hdri/
-# Configure configs/scene_template.json for blend_path and blender_binary.
-# Set the Stage 1 LLM credential in your shell if you use text expansion.
+uv venv .venv --python 3.10 --system-site-packages
+source .venv/bin/activate
 
-bash pipeline/run_all.sh
+python - <<'PY'
+import torch
+print(torch.__version__, torch.cuda.is_available())
+PY
+
+# Fallback only when the torch check above fails.
+uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+uv pip install \
+  "numpy<2" "tokenizers==0.22.1" \
+  diffsynth transformers accelerate diffusers safetensors \
+  pillow opencv-python scipy scikit-image imageio trimesh \
+  rembg[gpu] anthropic qwen-vl-utils lpips basicsr realesrgan \
+  iopath timm ftfy \
+  opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http
 ```
 
-The base pipeline prepares assets and render outputs. The scene-aware VLM
-optimization loop is launched separately through the scene-agent workflow, for
-example with `scripts/run_scene_agent_monitor.py` after model paths,
-`BLENDER_BIN`, and `configs/scene_template.json` are configured for your
-environment.
+Review `.dataevolver/local/env.sh.example`, copy it to a machine-local file,
+then source it before every real run:
+
+```bash
+cp .dataevolver/local/env.sh.example .dataevolver/local/env.remote.sh
+# Edit paths only. Do not put tokens in this file.
+source .dataevolver/local/env.remote.sh
+source .venv/bin/activate
+```
+
+Production deployments should use environment variables instead of editing
+pipeline scripts:
+
+| Variable | Points to |
+|----------|-----------|
+| `DATAEVOLVER_WORKSPACE_ROOT` | DataEvolver checkout |
+| `QWEN_IMAGE_MODEL_PATH` | Qwen-Image-2512 weights |
+| `QWEN_IMAGE_EDIT_MODEL_PATH` | Qwen-Image-Edit-2511 weights, optional for edit routes |
+| `SAM3_CKPT` | `sam3.pt` checkpoint |
+| `SAM3_DIR` | SAM3 source checkout or importable package path |
+| `HUNYUAN3D_REPO` | Tencent-Hunyuan/Hunyuan3D-2.1 source checkout |
+| `MODEL_HUB` | Hunyuan3D-2.1 weights |
+| `PAINT_MODEL_HUB` | Hunyuan3D paint weights, usually the same as `MODEL_HUB` |
+| `DINO_MODEL_PATH` | DINOv2 Giant checkpoint directory |
+| `REALESRGAN_CKPT` | `RealESRGAN_x4plus.pth` used by Hunyuan paint |
+| `VLM_MODEL_PATH` | Qwen3.5-35B-A3B, or a verified compatible Qwen3.x replacement |
+| `BLENDER_BIN` | Blender executable |
+
+Keep source checkouts and model weights separate. `SAM3_CKPT` is the checkpoint
+file, while `SAM3_DIR` is the SAM3 code path. `HUNYUAN3D_REPO` is the
+Hunyuan3D source checkout, while `MODEL_HUB` and `PAINT_MODEL_HUB` are weight
+directories.
+
+After CUDA and `nvcc` are confirmed, build Hunyuan3D's native extensions:
+
+```bash
+uv pip install --no-build-isolation -e "$HUNYUAN3D_REPO/hy3dpaint/custom_rasterizer"
+cd "$HUNYUAN3D_REPO/hy3dpaint/DifferentiableRenderer"
+bash compile_mesh_painter.sh
+```
+
+### 4. Production Smoke Tests
+
+Run preflight and import checks first:
+
+```bash
+python3 --version
+uv --version
+nvidia-smi
+df -h .
+"$BLENDER_BIN" --version
+
+python - <<'PY'
+import torch
+print("cuda:", torch.cuda.is_available(), "bf16:", torch.cuda.is_bf16_supported())
+from transformers import AutoProcessor
+from opentelemetry import trace
+PY
+```
+
+Then validate one object through the runtime stages:
+
+```bash
+SMOKE_ROOT=.dataevolver/local/smoke
+
+python pipeline/stage2_t2i_generate.py --ids obj_001 --steps 1 --height 512 --width 512 --device cuda:0
+python pipeline/stage2_5_sam2_segment.py --ids obj_001 --device cuda:0
+python pipeline/stage3_image_to_3d.py --ids obj_001 --shape-only --device cuda:0 --output-dir "$SMOKE_ROOT/meshes_shape_only"
+
+python pipeline/stage3_image_to_3d.py \
+  --no-skip \
+  --ids obj_001 \
+  --device cuda:0 \
+  --output-dir "$SMOKE_ROOT/meshes_textured" \
+  --paint-max-faces 5000 \
+  --paint-remesh-modes false \
+  --paint-attempt-timeout-sec 300
+```
+
+`--shape-only` is a fallback for missing DINO, RealESRGAN, or paint extensions;
+it is not a complete textured production-readiness check. Also run the Stage
+5.5 VLM loader smoke before starting a full review loop.
+
+After the deployment evidence has been recorded, remove generated smoke
+artifacts so the working directory stays clean:
+
+```bash
+rm -rf .dataevolver/local/smoke
+```
+
+Only after these checks pass should you prepare scene assets and run
+`bash pipeline/run_all.sh`. The scene-aware VLM optimization loop is launched
+separately through `scripts/run_scene_agent_monitor.py` after model paths,
+`BLENDER_BIN`, and `configs/scene_template.json` are configured.
 
 ---
 

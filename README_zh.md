@@ -164,44 +164,124 @@ OpenAI、SSH、cookie 或 API token 写入这些文件。
 `dataevolver-onboarding` skill。它应该只围绕五类信息进行访谈：目标路线、
 运行位置、安装策略、模型策略、工作/输出路径，然后运行上面的 dry-run 脚本。
 
-### 3. 检查路径并 source 环境变量
+### 3. Production Setup（生产部署）
 
-真实运行前，先检查生成的路径变量：
+创建运行环境。在共享 GPU 服务器上，优先使用
+`--system-site-packages` 复用已经验证过的 NVIDIA PyTorch。只有当 venv 内
+`import torch` 失败或没有可用 CUDA 时，再安装 CUDA wheel。
 
 ```bash
-sed -n '1,160p' .dataevolver/local/env.sh.example
-source .dataevolver/local/env.sh.example
+uv venv .venv --python 3.10 --system-site-packages
+source .venv/bin/activate
+
+python - <<'PY'
+import torch
+print(torch.__version__, torch.cuda.is_available())
+PY
+
+# 仅当上面的 torch 检查失败时使用该 fallback。
+uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+uv pip install \
+  "numpy<2" "tokenizers==0.22.1" \
+  diffsynth transformers accelerate diffusers safetensors \
+  pillow opencv-python scipy scikit-image imageio trimesh \
+  rembg[gpu] anthropic qwen-vl-utils lpips basicsr realesrgan \
+  iopath timm ftfy \
+  opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http
 ```
 
-pipeline 现在会优先读取这些环境变量，同时保留旧机器路径作为 fallback：
+检查 `.dataevolver/local/env.sh.example`，复制为机器本地配置文件，并在每次
+真实运行前 source：
 
-| 变量 | 用途 |
+```bash
+cp .dataevolver/local/env.sh.example .dataevolver/local/env.remote.sh
+# 只编辑路径，不要把 token 写入这个文件。
+source .dataevolver/local/env.remote.sh
+source .venv/bin/activate
+```
+
+生产部署应使用环境变量覆盖路径，而不是直接修改 pipeline 脚本：
+
+| 变量 | 指向 |
 |------|------|
-| `QWEN_IMAGE_MODEL_PATH` | Stage 2 文生图模型路径 |
-| `SAM3_CKPT`, `SAM3_DIR` | Stage 2.5 SAM3 checkpoint 和源码/包路径 |
-| `HUNYUAN3D_REPO`, `MODEL_HUB`, `PAINT_MODEL_HUB`, `DINO_MODEL_PATH`, `REALESRGAN_CKPT` | Stage 3 Hunyuan3D、paint、DINO 和 RealESRGAN 路径 |
-| `VLM_MODEL_PATH` | Stage 5.5 VLM reviewer 模型路径 |
+| `DATAEVOLVER_WORKSPACE_ROOT` | DataEvolver 代码目录 |
+| `QWEN_IMAGE_MODEL_PATH` | Qwen-Image-2512 权重 |
+| `QWEN_IMAGE_EDIT_MODEL_PATH` | Qwen-Image-Edit-2511 权重，编辑路线可选 |
+| `SAM3_CKPT` | `sam3.pt` checkpoint |
+| `SAM3_DIR` | SAM3 源码目录或可 import 的 package 路径 |
+| `HUNYUAN3D_REPO` | Tencent-Hunyuan/Hunyuan3D-2.1 源码 checkout |
+| `MODEL_HUB` | Hunyuan3D-2.1 权重目录 |
+| `PAINT_MODEL_HUB` | Hunyuan3D paint 权重目录，通常与 `MODEL_HUB` 相同 |
+| `DINO_MODEL_PATH` | DINOv2 Giant checkpoint 目录 |
+| `REALESRGAN_CKPT` | Hunyuan paint 使用的 `RealESRGAN_x4plus.pth` |
+| `VLM_MODEL_PATH` | Qwen3.5-35B-A3B，或验证兼容的 Qwen3.x 替代模型 |
+| `BLENDER_BIN` | Blender 可执行文件 |
 
-真实 Hugging Face 下载时，只在 shell 中设置 `HF_TOKEN`。dry-run 脚本会优先
-打印 `uvx --from huggingface_hub hf download ...` 命令，并提供
-`hf download ...` fallback，但 v0 不会执行这些命令。
+源码目录和权重目录必须分开。`SAM3_CKPT` 是 checkpoint 文件，
+`SAM3_DIR` 是 SAM3 代码路径。`HUNYUAN3D_REPO` 是 Hunyuan3D 源码
+checkout，`MODEL_HUB` 和 `PAINT_MODEL_HUB` 是权重目录。
 
-### 4. 准备场景资产并运行 pipeline
-
-当依赖、模型权重和路径变量都准备好后：
+确认 CUDA 和 `nvcc` 可用后，再编译 Hunyuan3D 原生扩展：
 
 ```bash
-# 将 .blend 场景文件放入 assets/scene/
-# 将 HDRI 环境贴图放入 assets/hdri/
-# 在 configs/scene_template.json 中配置 blend_path 和 blender_binary。
-# 如果使用文本扩展阶段，请在 shell 中设置 Stage 1 LLM 凭据。
-
-bash pipeline/run_all.sh
+uv pip install --no-build-isolation -e "$HUNYUAN3D_REPO/hy3dpaint/custom_rasterizer"
+cd "$HUNYUAN3D_REPO/hy3dpaint/DifferentiableRenderer"
+bash compile_mesh_painter.sh
 ```
 
-基础流水线负责准备资产和渲染输出。场景感知 VLM 优化闭环需要在配置好模型
-路径、`BLENDER_BIN` 和 `configs/scene_template.json` 后，通过 scene-agent
-workflow 单独启动，例如使用 `scripts/run_scene_agent_monitor.py`。
+### 4. 生产 Smoke Tests
+
+先运行 preflight 和 import 检查：
+
+```bash
+python3 --version
+uv --version
+nvidia-smi
+df -h .
+"$BLENDER_BIN" --version
+
+python - <<'PY'
+import torch
+print("cuda:", torch.cuda.is_available(), "bf16:", torch.cuda.is_bf16_supported())
+from transformers import AutoProcessor
+from opentelemetry import trace
+PY
+```
+
+然后用一个物体验证运行链路：
+
+```bash
+SMOKE_ROOT=.dataevolver/local/smoke
+
+python pipeline/stage2_t2i_generate.py --ids obj_001 --steps 1 --height 512 --width 512 --device cuda:0
+python pipeline/stage2_5_sam2_segment.py --ids obj_001 --device cuda:0
+python pipeline/stage3_image_to_3d.py --ids obj_001 --shape-only --device cuda:0 --output-dir "$SMOKE_ROOT/meshes_shape_only"
+
+python pipeline/stage3_image_to_3d.py \
+  --no-skip \
+  --ids obj_001 \
+  --device cuda:0 \
+  --output-dir "$SMOKE_ROOT/meshes_textured" \
+  --paint-max-faces 5000 \
+  --paint-remesh-modes false \
+  --paint-attempt-timeout-sec 300
+```
+
+`--shape-only` 只是在 DINO、RealESRGAN 或 paint 扩展缺失时的 fallback，
+不等于完整 textured production readiness。启动完整 review loop 前，还需
+完成 Stage 5.5 VLM loader smoke。
+
+部署证据整理完成后，应删除生成的 smoke 产物，保持工作目录干净：
+
+```bash
+rm -rf .dataevolver/local/smoke
+```
+
+以上检查通过后，再准备场景资产并运行 `bash pipeline/run_all.sh`。场景感知
+VLM 优化闭环应在模型路径、`BLENDER_BIN` 和
+`configs/scene_template.json` 配置完成后，通过
+`scripts/run_scene_agent_monitor.py` 单独启动。
 
 ---
 
