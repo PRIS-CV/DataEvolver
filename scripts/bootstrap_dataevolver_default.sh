@@ -181,17 +181,20 @@ print_env_plan() {
   if [[ "$PYTHON_BACKEND" == "uv" || "$PYTHON_BACKEND" == "auto" ]]; then
     printf 'Preferred uv plan:\n'
     printf '  cd %s\n' "$(quote "$WORKSPACE_ROOT")"
-    printf '  uv venv .venv --python 3.10\n'
+    printf '  uv venv .venv --python 3.10 --system-site-packages\n'
     printf '  source .venv/bin/activate\n'
+    printf '  python -c "import torch; print(torch.__version__, torch.cuda.is_available())"\n'
+    printf '  # Fallback only if the torch import above fails or has no usable CUDA:\n'
     printf '  uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121\n'
-    printf '  uv pip install huggingface_hub diffusers transformers accelerate pillow opencv-python numpy safetensors\n'
+    printf '  uv pip install "numpy<2" "tokenizers==0.22.1" diffsynth transformers accelerate diffusers safetensors pillow opencv-python scipy scikit-image imageio trimesh rembg[gpu] anthropic qwen-vl-utils lpips basicsr realesrgan iopath timm ftfy opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http\n'
   fi
   if [[ "$PYTHON_BACKEND" == "conda" || "$PYTHON_BACKEND" == "auto" ]]; then
     printf '\nConda fallback plan:\n'
     printf '  conda create -n dataevolver python=3.10 -y\n'
     printf '  conda activate dataevolver\n'
+    printf '  python -c "import torch; print(torch.__version__, torch.cuda.is_available())" || true\n'
     printf '  pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121\n'
-    printf '  pip install huggingface_hub diffusers transformers accelerate pillow opencv-python numpy safetensors\n'
+    printf '  pip install "numpy<2" "tokenizers==0.22.1" diffsynth transformers accelerate diffusers safetensors pillow opencv-python scipy scikit-image imageio trimesh rembg[gpu] anthropic qwen-vl-utils lpips basicsr realesrgan iopath timm ftfy opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http\n'
   fi
   printf '\nTool bootstrap plan if commands are missing (printed only):\n'
   printf '  # Install uv for the fastest Python environment path:\n'
@@ -200,9 +203,13 @@ print_env_plan() {
   printf '  uvx --from huggingface_hub hf --help || hf --help\n'
   printf '  # Optional standalone Hugging Face CLI installer:\n'
   printf '  curl -LsSf https://hf.co/cli/install.sh | bash\n'
-  printf '\nDeferred v1 work:\n'
-  printf '  Install SAM3 and Hunyuan3D repo-specific requirements after preflight.\n'
-  printf '  Compile Hunyuan3D CUDA/C++ extensions only after CUDA/nvcc compatibility is confirmed.\n'
+  printf '\nSource and native-extension plan after target-host preflight:\n'
+  printf '  # Keep source checkouts separate from weight directories.\n'
+  printf '  git clone --depth 1 https://github.com/facebookresearch/sam3.git .dataevolver/local/vendor/sam3-src\n'
+  printf '  git clone --depth 1 https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1.git .dataevolver/local/vendor/Hunyuan3D-2.1-src\n'
+  printf '  test -f "$HUNYUAN3D_REPO/requirements.txt" && uv pip install -r "$HUNYUAN3D_REPO/requirements.txt"\n'
+  printf '  uv pip install --no-build-isolation -e "$HUNYUAN3D_REPO/hy3dpaint/custom_rasterizer"\n'
+  printf '  cd "$HUNYUAN3D_REPO/hy3dpaint/DifferentiableRenderer" && bash compile_mesh_painter.sh\n'
 }
 
 model_line() {
@@ -274,8 +281,10 @@ print_config_plan() {
   printf '\nNon-sensitive variables to export later:\n'
   printf '  DATAEVOLVER_MODEL_ROOT=%s\n' "$MODEL_ROOT"
   printf '  DATAEVOLVER_WORKSPACE_ROOT=%s\n' "$WORKSPACE_ROOT"
+  printf '  BLENDER_BIN=/path/to/blender\n'
   if [[ "$PROFILE" == "default" || "$PROFILE" == "full" ]]; then
     printf '  QWEN_IMAGE_MODEL_PATH=%s/Qwen-Image-2512\n' "$MODEL_ROOT"
+    printf '  QWEN_IMAGE_EDIT_MODEL_PATH=%s/Qwen-Image-Edit-2511\n' "$MODEL_ROOT"
     printf '  SAM3_CKPT=%s/sam3/sam3.pt\n' "$MODEL_ROOT"
     printf '  SAM3_DIR=<source checkout or package path for SAM3>\n'
     printf '  HUNYUAN3D_REPO=<clone path for Tencent-Hunyuan/Hunyuan3D-2.1>\n'
@@ -284,9 +293,11 @@ print_config_plan() {
     printf '  DINO_MODEL_PATH=%s/dinov2-giant\n' "$MODEL_ROOT"
     printf '  REALESRGAN_CKPT=<clone path for Tencent-Hunyuan/Hunyuan3D-2.1>/hy3dpaint/ckpt/RealESRGAN_x4plus.pth\n'
     printf '  VLM_MODEL_PATH=%s/Qwen3.5-35B-A3B\n' "$MODEL_ROOT"
+    printf '  STAGE3_PAINT_MAX_FACES=5000\n'
+    printf '  STAGE3_PAINT_REMESH_MODES=false\n'
+    printf '  STAGE3_PAINT_ATTEMPT_TIMEOUT_SEC=300\n'
   fi
   if [[ "$PROFILE" == "full" ]]; then
-    printf '  QWEN_IMAGE_EDIT_MODEL_PATH=%s/Qwen-Image-Edit-2511\n' "$MODEL_ROOT"
     printf '  WAN_T2V_MODEL_PATH=%s/Wan2.1-T2V-1.3B-Diffusers\n' "$MODEL_ROOT"
   fi
   printf '\nRuntime env overrides to source before real one-click setup:\n'
@@ -294,6 +305,7 @@ print_config_plan() {
   printf '  pipeline/stage2_5_sam2_segment.py: SAM3_CKPT/SAM3_DIR <- env overrides\n'
   printf '  pipeline/stage3_image_to_3d.py: HUNYUAN3D_REPO/MODEL_HUB/PAINT_MODEL_HUB/DINO_MODEL_PATH/REALESRGAN_CKPT <- env overrides\n'
   printf '  pipeline/stage5_5_vlm_review.py: VLM_MODEL_PATH <- env override\n'
+  printf '  scene/render scripts: BLENDER_BIN <- env override\n'
 }
 
 write_local_config() {
@@ -390,6 +402,11 @@ path_override_plan = [
         "constant": "VLM_MODEL_PATH",
         "env": "VLM_MODEL_PATH",
     },
+    {
+        "file": "scene/render scripts",
+        "constant": "BLENDER_BIN",
+        "env": "BLENDER_BIN",
+    },
 ]
 
 access_requirements = [
@@ -418,6 +435,7 @@ if tooling_status["nvidia-smi"]["status"] == "missing":
 if access_requirements:
     next_actions.append("Confirm Hugging Face access for gated/access-dependent model repos.")
 next_actions.append("Before real setup, source reviewed path overrides derived from env.sh.example.")
+next_actions.append("Run smoke tests in order: preflight, import smoke, Stage 2, Stage 2.5, Stage 3 shape-only, Stage 3 textured, Stage 5.5 VLM loader.")
 
 target_workflow = {
     "quick": "quick_demo",
@@ -453,8 +471,10 @@ payload = {
     "path_override_plan": path_override_plan,
     "v1_blockers": [
         "Source or export the path override variables before running the pipeline on a new host.",
+        "Keep SAM3 and Hunyuan3D source checkouts separate from downloaded weight directories.",
         "Install SAM3 and Hunyuan3D repo-specific dependencies after target-host preflight.",
         "Compile Hunyuan3D CUDA/C++ extensions only after CUDA/nvcc compatibility is known.",
+        "Run Stage 3 textured smoke with bounded paint settings before treating the host as production-ready.",
     ],
     "next_actions": next_actions,
     "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -490,6 +510,33 @@ override_rows = "\n".join(
 
 next_action_rows = "\n".join(f"- {item}" for item in next_actions)
 
+dependency_plan = """Use `uv venv .venv --python 3.10 --system-site-packages` first on shared GPU servers so a validated system NVIDIA PyTorch build can be reused. Install the CUDA wheel only when `import torch` fails inside the venv or reports no usable CUDA.
+
+Runtime pins from production validation:
+
+- `numpy<2`
+- `tokenizers==0.22.1`
+- SAM3 extras: `iopath`, `timm`, `ftfy`
+- Hunyuan paint/native build: `uv pip install --no-build-isolation -e "$HUNYUAN3D_REPO/hy3dpaint/custom_rasterizer"` after CUDA/nvcc preflight
+- DifferentiableRenderer: compile only after CUDA/nvcc compatibility is confirmed"""
+
+path_separation = """Keep code and weights separate:
+
+- `SAM3_CKPT` points to `sam3.pt`.
+- `SAM3_DIR` points to the SAM3 source checkout or importable package.
+- `HUNYUAN3D_REPO` points to the Tencent-Hunyuan/Hunyuan3D-2.1 source checkout.
+- `MODEL_HUB` and `PAINT_MODEL_HUB` point to Hunyuan3D weight directories."""
+
+smoke_plan = """Production readiness smoke order:
+
+1. Preflight: Python, uv, GPU, disk, Blender, and model paths.
+2. Import smoke: torch CUDA/bf16, Qwen image dependencies, SAM3, Hunyuan shape/paint, transformers, and telemetry packages.
+3. Runtime smoke: Stage 2 -> Stage 2.5 -> Stage 3 shape-only -> Stage 3 textured -> Stage 5.5 VLM loader.
+4. Stage 3 textured smoke should write to a local smoke directory such as `.dataevolver/local/smoke/meshes_textured` and use bounded paint controls such as `--paint-max-faces 5000 --paint-remesh-modes false --paint-attempt-timeout-sec 300`.
+5. After the agent records the smoke evidence in the deployment note, delete generated smoke artifacts with `rm -rf .dataevolver/local/smoke` so the working directory stays clean.
+
+`--shape-only` is a fallback for missing DINO, RealESRGAN, or paint extensions; it is not a full textured production-readiness check."""
+
 (out / "ENVIRONMENT.md").write_text(
     f"""# DataEvolver Local Environment
 
@@ -520,6 +567,18 @@ Generated by `scripts/bootstrap_dataevolver_default.sh` in dry-run mode.
 
 {override_rows}
 
+## Production Dependency Plan
+
+{dependency_plan}
+
+## Source and Weight Path Separation
+
+{path_separation}
+
+## Production Smoke Tests
+
+{smoke_plan}
+
 ## Next Actions
 
 {next_action_rows}
@@ -531,6 +590,7 @@ env_lines = [
     "# Source this file after reviewing paths. It intentionally contains no tokens.",
     f"export DATAEVOLVER_WORKSPACE_ROOT={shlex.quote(workspace_root)}",
     f"export DATAEVOLVER_MODEL_ROOT={shlex.quote(model_root)}",
+    f"export BLENDER_BIN={shlex.quote(shutil.which('blender') or '/path/to/blender')}",
 ]
 for model in models:
     env_name = model.get("env")
@@ -541,10 +601,15 @@ for model in models:
         value = str(Path(value) / "sam3.pt")
     env_lines.append(f"export {env_name}={shlex.quote(value)}")
 if profile in {"default", "full"}:
+    if profile == "default":
+        env_lines.append(f"export QWEN_IMAGE_EDIT_MODEL_PATH={shlex.quote(str(Path(model_root) / 'Qwen-Image-Edit-2511'))}")
     env_lines.append(f"export PAINT_MODEL_HUB={shlex.quote(str(Path(model_root) / 'Hunyuan3D-2.1'))}")
-    env_lines.append("# export SAM3_DIR=/path/to/sam3/source-or-package")
-    env_lines.append("# export HUNYUAN3D_REPO=/path/to/Hunyuan3D-2.1/source")
-    env_lines.append("# export REALESRGAN_CKPT=/path/to/Hunyuan3D-2.1/source/hy3dpaint/ckpt/RealESRGAN_x4plus.pth")
+    env_lines.append(f"export SAM3_DIR={shlex.quote(str(Path(workspace_root) / '.dataevolver/local/vendor/sam3-src'))}")
+    env_lines.append(f"export HUNYUAN3D_REPO={shlex.quote(str(Path(workspace_root) / '.dataevolver/local/vendor/Hunyuan3D-2.1-src'))}")
+    env_lines.append('export REALESRGAN_CKPT="$HUNYUAN3D_REPO/hy3dpaint/ckpt/RealESRGAN_x4plus.pth"')
+    env_lines.append("export STAGE3_PAINT_MAX_FACES=5000")
+    env_lines.append("export STAGE3_PAINT_REMESH_MODES=false")
+    env_lines.append("export STAGE3_PAINT_ATTEMPT_TIMEOUT_SEC=300")
 env_lines.append("# Set HF_TOKEN in your shell only when performing real downloads.")
 (out / "env.sh.example").write_text("\n".join(env_lines) + "\n", encoding="utf-8")
 
