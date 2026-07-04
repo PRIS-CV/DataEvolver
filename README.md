@@ -201,6 +201,41 @@ HYWorld production scene generation requires local MoGe, ZIM, GroundingDINO, SAM
 
 `scripts/run_hyworld_scene_pano.py` and `scripts/run_hyworld_full_worldgen.py` now preserve every new or changed stage artifact under `<scene-dir>/intermediates/<run-id>/` by default. The HY-Pano stage snapshots the generated 360-degree equirectangular panorama, and full worldgen snapshots that input again under `00_source_panorama/` before retaining trajectory, depth/sky-mask, WorldStereo, GS, and WorldMirror outputs. `manifest.json` records source paths, snapshot paths, sizes, and SHA-256 digests. Use `--intermediate-root` for durable storage; only `--no-preserve-intermediates` disables snapshots.
 
+##### Automated Scene Construction
+
+The world-model route can build a reviewable scene package automatically from scene prompts or an input scene image. The pipeline first generates a 360-degree HY-Pano context, runs HYWorld / WorldMirror reconstruction, converts metric geometry into a Blender scene contract, renders pure-scene multi-view evidence, and then inserts objects with fixed scene-camera alignment. The final report records contract checks, per-view scene renders, object rotation views, masks, depth, normals, metadata gates, and lineage hashes.
+
+![HYWorld automated scene construction pipeline placeholder](assets/hyworld_scene_pipeline.png)
+
+The image above is a placeholder for the generated 2:1 pipeline figure. Replace `assets/hyworld_scene_pipeline.png` with the final diagram asset before release.
+
+```bash
+# 1. Generate or ingest the scene panorama.
+python scripts/run_hyworld_scene_pano.py \
+  --scene-prompts-path <scene-prompts.json> \
+  --output-root <hyworld-scene-root>
+
+# 2. Run full world generation and preserve stage artifacts.
+python scripts/run_hyworld_full_worldgen.py \
+  --profile .dataevolver/local/production_profile.json \
+  --scene-dir <hyworld-scene-root>/<scene-id> \
+  --intermediate-root <intermediate-root>/<scene-id>
+
+# 3. Build per-view Blender scene shards and pure-scene validation renders.
+python scripts/build_hyworld_scene_view_shards.py \
+  --scene-id <scene-id> \
+  --hyworld-scene-dir <hyworld-scene-root>/<scene-id> \
+  --scene-output-dir <scene-output-root>/<scene-id>/reconstruction \
+  --template-output-dir <template-output-root> \
+  --report-scene-dir <report-root>/<scene-id> \
+  --dry-run
+
+# 4. Finalize the object-scene package after object insertion/rendering.
+python scripts/finalize_hyworld_object_scene_report.py \
+  --dataset-base <dataset-base> \
+  --strict-scene-views
+```
+
 Run the generated world-model production profile through the doctor before starting a world-model job.
 
 ```bash
