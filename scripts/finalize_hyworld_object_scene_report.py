@@ -13,6 +13,7 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import shutil
 from pathlib import Path
 from typing import Any
@@ -35,10 +36,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--template-dir", default=None)
     parser.add_argument("--scenes", type=parse_csv, default=list(DEFAULT_SCENES))
     parser.add_argument("--objects", type=parse_csv, default=list(DEFAULT_OBJECTS))
-    parser.add_argument("--qwen-image-model-path", default="/gemini/platform/public/aigc/aigc_image/zhanghy56_intern/zhangqisong/Qwen-Image-2512")
-    parser.add_argument("--qwen-image-edit-model-path", default="/gemini/platform/public/aigc/aigc_image/zhanghy56_intern/zhangqisong/Qwen-Image-Edit-2511")
-    parser.add_argument("--hyworld-model-path", default="/gemini/platform/public/aigc/aigc_image/zhanghy56_intern/zhangqisong/HYWorld")
-    parser.add_argument("--worldmirror-model-path", default="/gemini/platform/public/aigc/aigc_image/zhanghy56_intern/zhangqisong/WorldMirror")
+    parser.add_argument("--qwen-image-model-path", default=os.environ.get("QWEN_IMAGE_MODEL_PATH"))
+    parser.add_argument("--qwen-image-edit-model-path", default=os.environ.get("QWEN_IMAGE_EDIT_MODEL_PATH"))
+    parser.add_argument("--hyworld-model-path", default=os.environ.get("HYWORLD_WEIGHTS"))
+    parser.add_argument("--worldmirror-model-path", default=os.environ.get("WORLDMIRROR_MODEL_PATH"))
     parser.add_argument("--strict-scene-views", action="store_true", help="Fail if scene_views/view_*.png are missing")
     return parser.parse_args()
 
@@ -326,16 +327,16 @@ def finalize_scene(
 def main() -> int:
     args = parse_args()
     dataset_base = Path(args.dataset_base).resolve()
-    report_dir = Path(args.report_dir).resolve() if args.report_dir else dataset_base / "reports" / "hyworld_qwen2512_object_insert_20260704_v1"
-    scene_dir = Path(args.scene_dir).resolve() if args.scene_dir else dataset_base / "scenes" / "hyworld_qwen2512_depthmesh_camera_rebuild_20260704_v1"
-    template_dir = Path(args.template_dir).resolve() if args.template_dir else dataset_base / "templates" / "hyworld_qwen2512_depthmesh_camera_rebuild_20260704_v1"
+    report_dir = Path(args.report_dir).resolve() if args.report_dir else dataset_base / "reports" / "hyworld_object_scene_report"
+    scene_dir = Path(args.scene_dir).resolve() if args.scene_dir else dataset_base / "scenes" / "hyworld_scene_reconstruction"
+    template_dir = Path(args.template_dir).resolve() if args.template_dir else dataset_base / "templates" / "hyworld_scene_templates"
 
     scenes = [
         finalize_scene(scene_id, args.objects, dataset_base, report_dir, scene_dir, template_dir, args.strict_scene_views)
         for scene_id in args.scenes
     ]
     manifest = {
-        "schema": "dataevolver.hyworld_qwen2512_object_scene_manifest.v1",
+        "schema": "dataevolver.hyworld_object_scene_manifest.v1",
         "dataset_base": str(dataset_base),
         "report_dir": str(report_dir),
         "scene_dir": str(scene_dir),
@@ -347,7 +348,7 @@ def main() -> int:
             "worldmirror": args.worldmirror_model_path,
         },
         "resource_policy": {
-            "available_gpus": "0-6",
+            "available_gpus": os.environ.get("CUDA_VISIBLE_DEVICES", "configured_by_runtime"),
             "avoid_duplicate_model_weight_loads": True,
             "vlm_pass_authoritative": False,
             "blender_scene_object_rendering_can_be_sharded": True,

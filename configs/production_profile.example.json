@@ -68,7 +68,7 @@
       "name": "stage2-qwen-image",
       "kind": "stage2",
       "python": "dataevolver_python",
-      "device": "cuda:4",
+      "device": "cuda:0",
       "model_path": "$QWEN_IMAGE_MODEL_PATH",
       "startup_timeout": 30
     },
@@ -76,7 +76,7 @@
       "name": "stage3-hunyuan",
       "kind": "stage3",
       "python": "dataevolver_python",
-      "device": "cuda:6",
+      "device": "cuda:1",
       "startup_timeout": 30
     }
   ],

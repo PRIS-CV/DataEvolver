@@ -122,7 +122,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--llm-addr", default=os.environ.get("LLM_ADDR", "localhost"))
     parser.add_argument("--llm-port", type=int, default=int(os.environ.get("LLM_PORT", "8000")))
     parser.add_argument("--llm-name", default=os.environ.get("LLM_NAME", "Qwen/Qwen3-VL-8B-Instruct"))
-    parser.add_argument("--gpus", default=os.environ.get("CUDA_VISIBLE_DEVICES", "4,6,7"))
+    parser.add_argument("--gpus", default=os.environ.get("CUDA_VISIBLE_DEVICES", "0"))
     parser.add_argument("--nproc", type=int, default=None, help="torchrun process count; defaults to number of --gpus")
     parser.add_argument("--worldstereo-model-type", default="worldstereo-memory-dmd")
     parser.add_argument("--gs-max-steps", type=int, default=1500)
