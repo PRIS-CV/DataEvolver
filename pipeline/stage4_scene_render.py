@@ -31,8 +31,13 @@ import bpy
 import numpy as np
 from mathutils import Matrix, Vector
 
-
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, SCRIPT_DIR)
+
+from hyworld_scene_contract import load_scene_contract, selected_support_surface
+
+
 DATA_BUILD_ROOT = os.path.dirname(SCRIPT_DIR)
 DEFAULT_TEMPLATE_PATH = os.path.join(DATA_BUILD_ROOT, "configs", "scene_template.json")
 DEFAULT_QC_VIEWS = [(0, 0), (90, 0), (180, 15), (45, 30)]
@@ -61,14 +66,19 @@ def parse_args():
         argv = []
 
     p = argparse.ArgumentParser(description="Scene-aware Blender render")
-    p.add_argument("--input-dir", required=True)
-    p.add_argument("--output-dir", required=True)
+    p.add_argument("--input-dir", default=None)
+    p.add_argument("--output-dir", default=None)
     p.add_argument("--obj-id", default=None)
     p.add_argument("--resolution", type=int, default=DEFAULT_RESOLUTION)
     p.add_argument("--engine", default=DEFAULT_ENGINE, choices=["EEVEE", "CYCLES"])
     p.add_argument("--control-state", default=None)
     p.add_argument("--scene-template", default=DEFAULT_TEMPLATE_PATH)
     p.add_argument("--reference-image", default=None)
+    p.add_argument(
+        "--jobs-manifest",
+        default=None,
+        help="Render many object/control jobs while loading one scene only once",
+    )
     return p.parse_args(argv)
 
 
@@ -88,10 +98,13 @@ def load_scene_template(path: str) -> dict:
     data.setdefault("camera_mode", "scene_camera_match")
     data.setdefault("render_engine", "CYCLES")
     data.setdefault("render_resolution", 1024)
+    data.setdefault("eevee_render_samples", 32)
     data.setdefault("cycles_samples", 512)
     data.setdefault("cycles_device", "GPU")
     data.setdefault("cycles_compute_device_type", "CUDA")
     data.setdefault("cycles_preview_samples", 32)
+    data.setdefault("view_transform", "Filmic")
+    data.setdefault("render_exposure", 0.0)
     data.setdefault("filmic_gamma", 0.5)
     data.setdefault("target_brightness", 0.36)
     data.setdefault("adaptive_brightness_damping", 0.45)
@@ -137,21 +150,41 @@ def load_scene_template(path: str) -> dict:
     data.setdefault("material_gate_min_bbox_height", 0.02)
     data.setdefault("render_depth_normal", False)
     data.setdefault("depth_output_format", "OPEN_EXR")
+    data.setdefault("require_scene_contract", False)
+    data.setdefault("scene_contract_path", None)
     return data
+
+
+def resolve_scene_contract(template: dict):
+    contract_path = template.get("scene_contract_path")
+    required = bool(template.get("require_scene_contract", False))
+    if not contract_path:
+        if required:
+            raise RuntimeError("Production scene template requires scene_contract_path")
+        return None, None, None
+    contract_path = resolve_path(contract_path)
+    contract = load_scene_contract(contract_path)
+    frame = contract.get("coordinate_frame") or {}
+    if frame.get("units") != "meters" or frame.get("up_axis") != "z":
+        raise RuntimeError("Blender production rendering requires a meter-scale Z-up scene contract")
+    support = selected_support_surface(contract)
+    if support.get("artificial") is not False or support.get("source") != "hyworld_reconstruction":
+        raise RuntimeError("Scene contract support must come from HYWorld reconstruction")
+    return contract_path, contract, support
 
 
 def setup_render_settings(scene, resolution: int, engine: str, template: dict | None = None):
     template = template or {}
     eevee_name = "BLENDER_EEVEE_NEXT" if int(bpy.app.version[0]) >= 4 else "BLENDER_EEVEE"
     scene.render.engine = eevee_name if engine == "EEVEE" else "CYCLES"
-    scene.render.resolution_x = resolution
-    scene.render.resolution_y = resolution
+    scene.render.resolution_x = int(template.get("render_width", resolution))
+    scene.render.resolution_y = int(template.get("render_height", resolution))
     scene.render.resolution_percentage = 100
     scene.render.image_settings.file_format = "PNG"
     scene.render.film_transparent = False
 
     if "EEVEE" in scene.render.engine:
-        scene.eevee.taa_render_samples = 64
+        scene.eevee.taa_render_samples = int(template.get("eevee_render_samples", 32))
         scene.eevee.use_gtao = True
         if hasattr(scene.eevee, "gtao_factor"):
             scene.eevee.gtao_factor = 1.0
@@ -189,11 +222,11 @@ def setup_render_settings(scene, resolution: int, engine: str, template: dict | 
                 pass
 
     try:
-        scene.view_settings.view_transform = "Filmic"
+        scene.view_settings.view_transform = str(template.get("view_transform", "Filmic"))
         scene.view_settings.look = "None"
-    except TypeError:
+    except (TypeError, ValueError):
         scene.view_settings.view_transform = "Standard"
-    scene.view_settings.exposure = 0.0
+    scene.view_settings.exposure = float(template.get("render_exposure", 0.0))
     scene.view_settings.gamma = float(template.get("filmic_gamma", 0.5 if "CYCLES" in scene.render.engine else 1.0))
 
 
@@ -277,6 +310,12 @@ def setup_depth_normal_passes(scene, obj_out_dir, view_prefix, template):
             break
     if rl_node is None:
         rl_node = nodes.new("CompositorNodeRLayers")
+    composite_node = next((node for node in nodes if node.type == "COMPOSITE"), None)
+    if composite_node is None:
+        composite_node = nodes.new("CompositorNodeComposite")
+    for link in list(composite_node.inputs["Image"].links):
+        links.remove(link)
+    links.new(rl_node.outputs["Image"], composite_node.inputs["Image"])
 
     user_depth_fmt = str(template.get("depth_output_format", "PNG")).upper()
 
@@ -1217,6 +1256,154 @@ def _replace_all_materials(obj, mat):
         obj.material_slots[idx].material = mat
 
 
+def _build_debug_emission_material(name: str, color, strength: float = 1.0):
+    rgba = list(color or [1.0, 0.2, 0.1, 1.0])
+    if len(rgba) < 4:
+        rgba = rgba[:3] + [1.0]
+    mat = bpy.data.materials.new(name=name)
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+    links = mat.node_tree.links
+    nodes.clear()
+    out = nodes.new("ShaderNodeOutputMaterial")
+    emit = nodes.new("ShaderNodeEmission")
+    emit.inputs["Color"].default_value = tuple(float(v) for v in rgba[:4])
+    emit.inputs["Strength"].default_value = float(strength)
+    links.new(emit.outputs["Emission"], out.inputs["Surface"])
+    return mat
+
+
+def apply_debug_visible_materials(template: dict, mesh_objects, imported_names):
+    """Force unlit high-value materials to separate render-state bugs from lighting bugs."""
+    if not template.get("debug_force_visible_materials", False):
+        return None
+    object_mat = _build_debug_emission_material(
+        "__DebugVisibleObject__",
+        template.get("debug_object_color", [1.0, 0.18, 0.04, 1.0]),
+        float(template.get("debug_object_emission_strength", 1.5)),
+    )
+    scene_mat = _build_debug_emission_material(
+        "__DebugVisibleScene__",
+        template.get("debug_scene_color", [0.35, 0.35, 0.35, 1.0]),
+        float(template.get("debug_scene_emission_strength", 0.8)),
+    )
+    for obj in mesh_objects:
+        _replace_all_materials(obj, object_mat)
+    imported_set = set(imported_names or [])
+    scene_meshes = []
+    for obj in bpy.data.objects:
+        if obj.type == "MESH" and obj.name not in imported_set:
+            _replace_all_materials(obj, scene_mat)
+            scene_meshes.append(obj.name)
+    return {
+        "enabled": True,
+        "object_material": object_mat.name,
+        "scene_material": scene_mat.name,
+        "scene_mesh_count": len(scene_meshes),
+        "scene_mesh_sample": scene_meshes[:8],
+    }
+
+
+def _summarize_material(obj):
+    summary = []
+    if obj.type != "MESH":
+        return summary
+    for slot in obj.material_slots:
+        mat = slot.material
+        if mat is None:
+            summary.append({"material": None})
+            continue
+        nodes = []
+        if mat.use_nodes and mat.node_tree:
+            for node in mat.node_tree.nodes:
+                item = {"type": node.type, "name": node.name}
+                if node.type == "EMISSION":
+                    color = node.inputs.get("Color")
+                    strength = node.inputs.get("Strength")
+                    if color is not None:
+                        item["color"] = [round(float(v), 4) for v in color.default_value]
+                    if strength is not None:
+                        item["strength"] = round(float(strength.default_value), 4)
+                elif node.type == "BSDF_PRINCIPLED":
+                    color = node.inputs.get("Base Color")
+                    if color is not None:
+                        item["base_color"] = [round(float(v), 4) for v in color.default_value]
+                elif node.type == "TEX_IMAGE":
+                    image = getattr(node, "image", None)
+                    item["image"] = image.filepath if image is not None else None
+                nodes.append(item)
+        summary.append({
+            "material": mat.name,
+            "use_nodes": bool(mat.use_nodes),
+            "nodes": nodes[:12],
+        })
+    return summary
+
+
+def dump_debug_render_state(path, scene, cam, mesh_objects, imported_names, target_bbox, support, view):
+    if not path:
+        return
+    from bpy_extras.object_utils import world_to_camera_view
+
+    imported_set = set(imported_names or [])
+    object_entries = []
+    for obj in bpy.data.objects:
+        if obj.type != "MESH":
+            continue
+        bbox_points = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
+        projections = []
+        for point in bbox_points:
+            co = world_to_camera_view(scene, cam, point)
+            projections.append([round(float(co.x), 5), round(float(co.y), 5), round(float(co.z), 5)])
+        object_entries.append({
+            "name": obj.name,
+            "is_imported": obj.name in imported_set,
+            "hide_render": bool(obj.hide_render),
+            "visible_camera": bool(getattr(obj, "visible_camera", True)),
+            "bbox_min": [round(float(min(p[i] for p in bbox_points)), 5) for i in range(3)],
+            "bbox_max": [round(float(max(p[i] for p in bbox_points)), 5) for i in range(3)],
+            "camera_projection_min": [round(float(min(p[i] for p in projections)), 5) for i in range(3)],
+            "camera_projection_max": [round(float(max(p[i] for p in projections)), 5) for i in range(3)],
+            "materials": _summarize_material(obj),
+        })
+
+    view_layer = scene.view_layers[0]
+    data = {
+        "view": {"azimuth": int(view[0]), "elevation": int(view[1])},
+        "render": {
+            "engine": scene.render.engine,
+            "filepath": scene.render.filepath,
+            "film_transparent": bool(scene.render.film_transparent),
+            "image_file_format": scene.render.image_settings.file_format,
+            "image_color_mode": scene.render.image_settings.color_mode,
+            "image_color_depth": scene.render.image_settings.color_depth,
+            "resolution": [int(scene.render.resolution_x), int(scene.render.resolution_y)],
+        },
+        "view_settings": {
+            "view_transform": scene.view_settings.view_transform,
+            "look": scene.view_settings.look,
+            "exposure": float(scene.view_settings.exposure),
+            "gamma": float(scene.view_settings.gamma),
+        },
+        "view_layer": {
+            "material_override": bool(view_layer.material_override),
+        },
+        "camera": {
+            "name": cam.name,
+            "location": [round(float(v), 5) for v in cam.matrix_world.translation],
+            "rotation_euler": [round(float(v), 5) for v in cam.rotation_euler],
+            "lens": round(float(cam.data.lens), 5),
+            "clip_start": round(float(cam.data.clip_start), 5),
+            "clip_end": round(float(cam.data.clip_end), 5),
+        },
+        "target_bbox": target_bbox,
+        "support": support,
+        "objects": object_entries,
+    }
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    Path(path).write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
 def _set_first_existing_input(node, candidate_names, value):
     for name in candidate_names:
         sock = node.inputs.get(name)
@@ -1770,6 +1957,178 @@ def position_camera(cam, target: Vector, azimuth_deg: float, elevation_deg: floa
     cam.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
 
 
+def position_camera_clearance_aware(
+    scene,
+    cam,
+    target: Vector,
+    target_bbox: dict,
+    imported_names,
+    preferred_azimuth_deg: float,
+    distance: float,
+    template: dict,
+):
+    """Choose an object-facing camera whose first ray hit is the inserted asset.
+
+    HYWorld reconstructions are dense, non-watertight meshes. A camera placed
+    only from the object bbox can land behind reconstructed walls or below the
+    support surface. This opt-in camera mode searches a bounded set of
+    azimuth/elevation/distance candidates and scores actual Blender ray casts.
+    """
+    imported = set(imported_names or [])
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    size = Vector(target_bbox["size"])
+    bbox_min = Vector(target_bbox["min"])
+    bbox_max = Vector(target_bbox["max"])
+    samples = [
+        target.copy(),
+        Vector((target.x, target.y, bbox_min.z + size.z * 0.25)),
+        Vector((target.x, target.y, bbox_min.z + size.z * 0.75)),
+        Vector((bbox_min.x + size.x * 0.2, target.y, target.z)),
+        Vector((bbox_max.x - size.x * 0.2, target.y, target.z)),
+        Vector((target.x, bbox_min.y + size.y * 0.2, target.z)),
+        Vector((target.x, bbox_max.y - size.y * 0.2, target.z)),
+    ]
+    azimuth_offsets = template.get(
+        "camera_clearance_azimuth_offsets_deg",
+        [0, 45, -45, 90, -90, 135, -135, 180],
+    )
+    elevations = template.get("camera_clearance_elevations_deg", [18, 25, 32, 40])
+    distance_scales = template.get("camera_clearance_distance_scales", [1.0, 1.35, 1.7])
+    min_camera_z = float(template.get("camera_clearance_min_z", bbox_min.z + 0.35))
+    candidates = []
+
+    for offset in azimuth_offsets:
+        azimuth = (float(preferred_azimuth_deg) + float(offset)) % 360.0
+        for elevation in elevations:
+            for distance_scale in distance_scales:
+                candidate_distance = float(distance) * float(distance_scale)
+                az = math.radians(azimuth)
+                el = math.radians(float(elevation))
+                location = Vector((
+                    target.x + candidate_distance * math.cos(el) * math.sin(az),
+                    target.y - candidate_distance * math.cos(el) * math.cos(az),
+                    target.z + candidate_distance * math.sin(el),
+                ))
+                if location.z < min_camera_z:
+                    continue
+
+                visible_rays = 0
+                blocked_rays = 0
+                hit_names = []
+                for sample in samples:
+                    ray = sample - location
+                    ray_distance = ray.length
+                    if ray_distance <= 1e-6:
+                        continue
+                    hit, _, _, _, hit_obj, _ = scene.ray_cast(
+                        depsgraph,
+                        location,
+                        ray.normalized(),
+                        distance=ray_distance + max(0.05, size.length * 0.05),
+                    )
+                    hit_name = hit_obj.name if hit and hit_obj is not None else None
+                    hit_names.append(hit_name)
+                    if hit_name in imported:
+                        visible_rays += 1
+                    elif hit:
+                        blocked_rays += 1
+
+                view_direction = (target - location).normalized()
+                right = view_direction.cross(Vector((0.0, 0.0, 1.0)))
+                if right.length <= 1e-6:
+                    right = Vector((1.0, 0.0, 0.0))
+                else:
+                    right.normalize()
+                up = right.cross(view_direction).normalized()
+                context_radius = max(
+                    max(size) * float(template.get("camera_clearance_context_bbox_multiplier", 1.8)),
+                    float(template.get("camera_clearance_context_radius_min", 0.55)),
+                )
+                foreground_context_hits = 0
+                background_context_hits = 0
+                for horizontal, vertical in (
+                    (-1.0, -0.75), (0.0, -0.75), (1.0, -0.75),
+                    (-1.0, 0.0), (1.0, 0.0),
+                    (-1.0, 0.75), (0.0, 0.75), (1.0, 0.75),
+                ):
+                    context_point = (
+                        target
+                        + right * context_radius * horizontal
+                        + up * context_radius * vertical
+                    )
+                    context_ray = context_point - location
+                    context_distance = context_ray.length
+                    hit, hit_location, _, _, hit_obj, _ = scene.ray_cast(
+                        depsgraph,
+                        location,
+                        context_ray.normalized(),
+                        distance=context_distance * 2.5,
+                    )
+                    if not hit or hit_obj is None or hit_obj.name in imported:
+                        continue
+                    hit_distance = (hit_location - location).length
+                    if hit_distance < context_distance * 0.9:
+                        foreground_context_hits += 1
+                    else:
+                        background_context_hits += 1
+
+                score = visible_rays * 100 - blocked_rays * 25
+                score -= foreground_context_hits * float(
+                    template.get("camera_clearance_foreground_penalty", 45.0)
+                )
+                score += background_context_hits * float(
+                    template.get("camera_clearance_background_reward", 4.0)
+                )
+                score -= abs(float(offset)) * 0.02
+                score -= abs(float(elevation) - 25.0) * 0.01
+                score -= abs(float(distance_scale) - 1.0) * 0.1
+                candidates.append({
+                    "score": score,
+                    "visible_rays": visible_rays,
+                    "blocked_rays": blocked_rays,
+                    "foreground_context_hits": foreground_context_hits,
+                    "background_context_hits": background_context_hits,
+                    "sample_count": len(samples),
+                    "azimuth_deg": azimuth,
+                    "elevation_deg": float(elevation),
+                    "distance": candidate_distance,
+                    "distance_scale": float(distance_scale),
+                    "location": location,
+                    "hit_names": hit_names,
+                })
+
+    if not candidates:
+        raise RuntimeError("No valid HYWorld camera-clearance candidates were generated")
+    selected = max(candidates, key=lambda item: item["score"])
+    minimum_visible = int(template.get("camera_clearance_min_visible_rays", 3))
+    if selected["visible_rays"] < minimum_visible:
+        raise RuntimeError(
+            "No camera candidate has clear line of sight to the inserted object: "
+            f"best={selected['visible_rays']}/{selected['sample_count']} "
+            f"blocked={selected['blocked_rays']}"
+        )
+
+    cam.location = selected["location"]
+    direction = target - selected["location"]
+    cam.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
+    bpy.context.view_layer.update()
+    result = {
+        key: value
+        for key, value in selected.items()
+        if key not in {"location", "hit_names"}
+    }
+    result["location"] = [round(float(value), 6) for value in selected["location"]]
+    result["candidate_count"] = len(candidates)
+    print(
+        "[scene] Clearance camera: "
+        f"az={result['azimuth_deg']:.1f}, el={result['elevation_deg']:.1f}, "
+        f"distance={result['distance']:.3f}, "
+        f"visible={result['visible_rays']}/{result['sample_count']}, "
+        f"foreground={result['foreground_context_hits']}"
+    )
+    return result
+
+
 # ---------------------------------------------------------------------------
 # Scene bounds and camera distance (mirrors render_all.py:55-64, 259-291)
 # ---------------------------------------------------------------------------
@@ -2035,24 +2394,36 @@ def render_mask(scene, out_path: str, imported_mesh_names):
 # Main render function
 # ---------------------------------------------------------------------------
 
-def render_object(asset_path: str, obj_id: str, output_dir: str,
-                  resolution: int, engine: str, template: dict, control_state: dict):
+def prepare_scene(template: dict, resolution: int, engine: str):
     blend_path = template["blend_path"]
     if not os.path.exists(blend_path):
         raise FileNotFoundError(f"Scene blend not found: {blend_path}")
-
     bpy.ops.wm.open_mainfile(filepath=blend_path)
     scene = bpy.context.scene
     setup_render_settings(scene, resolution, engine, template)
-
-    # --- Light handling ---
     if template.get("disable_existing_lights", False):
-        # Legacy path: hide lights entirely
         disable_existing_lights()
     else:
-        # New default: scale lights down, preserve scene look (mirrors render_all.py:335-340)
         scale_existing_lights(float(template.get("scale_existing_lights", 0.3)))
         scale_world_background(scene, float(template.get("scale_world_background", 0.3)))
+    return scene
+
+
+def cleanup_imported_asset(imported, root):
+    objects = list(imported)
+    if root is not None and root not in objects:
+        objects.append(root)
+    for obj in objects:
+        if obj and obj.name in bpy.data.objects:
+            bpy.data.objects.remove(obj, do_unlink=True)
+    bpy.context.view_layer.update()
+
+def render_object(asset_path: str, obj_id: str, output_dir: str,
+                  resolution: int, engine: str, template: dict, control_state: dict,
+                  scene_preloaded: bool = False, cleanup_imported: bool = False):
+    blend_path = template["blend_path"]
+    scene = bpy.context.scene if scene_preloaded else prepare_scene(template, resolution, engine)
+    contract_path, scene_contract, contract_support = resolve_scene_contract(template)
 
     imported_info = import_asset(asset_path)
     asset_kind = imported_info["asset_kind"]
@@ -2079,7 +2450,11 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
 
     if support_plane_mode == "ground_object_raycast":
         # New mode: name-based ground detection + ray-cast precise landing
-        support_name_hint = template.get("support_object_name", "ground")
+        support_name_hint = (
+            contract_support.get("object_name")
+            if contract_support is not None
+            else template.get("support_object_name", "ground")
+        )
         ground_obj, ground_detection_mode = find_ground_object(support_name_hint)
 
         if ground_obj:
@@ -2106,10 +2481,20 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
             ground_bbox = [ground_obj.matrix_world @ Vector(c) for c in ground_obj.bound_box]
             ground_cx = sum(v.x for v in ground_bbox) / 8.0
             ground_cy = sum(v.y for v in ground_bbox) / 8.0
-            ground_z_rough = min(v.z for v in ground_bbox)
+            ground_z_rough = (
+                float(contract_support["height"])
+                if contract_support is not None
+                else min(v.z for v in ground_bbox)
+            )
             anchor_mode = "ground_center"
             anchor_point = None
-            if camera_mode == "scene_camera_match":
+            if contract_support is not None:
+                anchor_xyz = contract_support.get("anchor_xyz") or []
+                if len(anchor_xyz) != 3:
+                    raise RuntimeError("Scene contract support is missing anchor_xyz")
+                anchor_point = Vector(tuple(float(value) for value in anchor_xyz))
+                anchor_mode = "hyworld_reconstruction_support"
+            elif camera_mode == "scene_camera_match":
                 scene_cam = resolve_scene_camera(scene)
                 anchor_point = camera_screen_ground_anchor(
                     scene,
@@ -2141,6 +2526,16 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
 
             # Precision landing via ray cast
             ground_hit = adjust_object_to_ground_with_ray(root, mesh_objects, ground_obj)
+            if scene_contract is not None and not ground_hit.get("success"):
+                if not bool(template.get("allow_contract_support_plane", True)):
+                    raise RuntimeError("Object did not ray-hit the HYWorld reconstructed support surface")
+                ground_hit = {
+                    **ground_hit,
+                    "success": True,
+                    "support_z": float(contract_support["height"]),
+                    "source": "contract_support_plane",
+                    "contract_support_plane_used": True,
+                }
 
             # Apply Z offset from controller, then add a small size-aware epsilon
             # to avoid visible asphalt intersection without making the object float.
@@ -2161,10 +2556,14 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
                 support_z=ground_z,
                 ground_contact_epsilon=ground_contact_epsilon,
             )
-            ground_bounds = [
-                min(v.x for v in ground_bbox), max(v.x for v in ground_bbox),
-                min(v.y for v in ground_bbox), max(v.y for v in ground_bbox),
-            ]
+            ground_bounds = (
+                [float(value) for value in contract_support["bounds_xy"]]
+                if contract_support is not None
+                else [
+                    min(v.x for v in ground_bbox), max(v.x for v in ground_bbox),
+                    min(v.y for v in ground_bbox), max(v.y for v in ground_bbox),
+                ]
+            )
             support = {
                 "name": ground_obj.name,
                 "z": ground_z,
@@ -2177,6 +2576,8 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
                 "ground_object_name": ground_obj.name,
                 "ground_detection_mode": ground_detection_mode,
                 "ground_hit_success": bool(ground_hit.get("success")),
+                "ground_hit_source": ground_hit.get("source", "mesh_raycast"),
+                "contract_support_plane_used": bool(ground_hit.get("contract_support_plane_used", False)),
                 "ground_hit_sample_count": int(ground_hit.get("sample_count", 0)),
                 "ground_hit_count": int(ground_hit.get("hit_count", 0)),
                 "ground_contact_epsilon": round(float(ground_contact_epsilon), 6),
@@ -2186,8 +2587,17 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
                     round(float(root.location.x), 6),
                     round(float(root.location.y), 6),
                 ],
+                "scene_contract_path": contract_path,
+                "scene_contract_support_id": (
+                    scene_contract.get("selected_support_surface_id") if scene_contract else None
+                ),
+                "joint_3d_render": scene_contract is not None,
             }
         else:
+            if scene_contract is not None:
+                raise RuntimeError(
+                    f"HYWorld support object not found in Blender scene: {support_name_hint}"
+                )
             # No ground found: fallback to hidden support plane
             print("[scene] No ground object found, falling back to hidden support plane")
             support = create_hidden_support_plane(float(template.get("fallback_support_plane_size", 10.0)))
@@ -2274,6 +2684,7 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
         material_adaptation["effective_specular_add"] = round(effective_specular_add, 4)
         material_adaptation["hsv_adjusted_materials"] = int(hsv_adjusted_materials)
     material_adaptation["reference_color"] = reference_color_info
+    debug_visible_info = apply_debug_visible_materials(template, mesh_objects, imported_names)
 
     env_meta = ensure_world_environment(scene, template, control_scene)
 
@@ -2314,7 +2725,7 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
                 camera_dist = offset.length * distance_scale
     else:
         cam = create_qc_camera(scene)
-        if camera_mode == "object_bbox_relative" and target_bbox:
+        if camera_mode in {"object_bbox_relative", "object_bbox_clearance"} and target_bbox:
             camera_dist, camera_target = compute_object_camera_params(target_bbox, template)
         elif camera_mode == "scene_bounds_relative":
             bounds_min, bounds_max = get_scene_bounds_all(ignore_names=imported_names)
@@ -2336,14 +2747,26 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
             preview_az, preview_el = qc_views[0] if qc_views else DEFAULT_QC_VIEWS[0]
             target_bbox = percentile_bbox(mesh_objects)
             preview_target = Vector(target_bbox["center"]) if target_bbox else Vector((0.0, 0.0, 0.5))
-            if camera_mode == "object_bbox_relative" and target_bbox:
+            if camera_mode in {"object_bbox_relative", "object_bbox_clearance"} and target_bbox:
                 preview_dist, preview_target = compute_object_camera_params(target_bbox, template)
             elif camera_mode == "scene_bounds_relative":
                 bounds_min, bounds_max = get_scene_bounds_all(ignore_names=imported_names)
                 preview_dist, _ = compute_scene_camera_params(bounds_min, bounds_max, preview_target, template)
             else:
                 preview_dist = float(template.get("camera_distance", 3.5))
-            position_camera(cam, preview_target, preview_az, preview_el, preview_dist)
+            if camera_mode == "object_bbox_clearance" and target_bbox:
+                position_camera_clearance_aware(
+                    scene,
+                    cam,
+                    preview_target,
+                    target_bbox,
+                    imported_names,
+                    preview_az,
+                    preview_dist,
+                    template,
+                )
+            else:
+                position_camera(cam, preview_target, preview_az, preview_el, preview_dist)
         adjust_lighting_to_target_brightness(
             target_brightness=float(template.get("target_brightness", 0.4)),
             preview_samples=int(template.get("cycles_preview_samples", 32)),
@@ -2368,11 +2791,77 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
         if camera_mode == "scene_camera_match":
             pass
         else:
-            if camera_mode == "object_bbox_relative" and target_bbox:
+            if camera_mode in {"object_bbox_relative", "object_bbox_clearance"} and target_bbox:
                 camera_dist, camera_target = compute_object_camera_params(target_bbox, template)
             else:
                 camera_target = target
-            position_camera(cam, camera_target, az, el, camera_dist)
+            if camera_mode == "object_bbox_clearance" and target_bbox:
+                extra_meta["camera_clearance"] = position_camera_clearance_aware(
+                    scene,
+                    cam,
+                    camera_target,
+                    target_bbox,
+                    imported_names,
+                    az,
+                    camera_dist,
+                    template,
+                )
+            else:
+                position_camera(cam, camera_target, az, el, camera_dist)
+
+        debug_state_path = template.get("debug_render_state_path")
+        if debug_state_path:
+            formatted_debug_path = str(debug_state_path).format(
+                obj_id=obj_id,
+                az=az,
+                el=el_str,
+            )
+            dump_debug_render_state(
+                formatted_debug_path,
+                scene,
+                cam,
+                mesh_objects,
+                imported_names,
+                target_bbox,
+                support,
+                (az, el),
+            )
+            if template.get("debug_stop_before_render", False):
+                physics = compute_physics_metrics(mesh_objects, support)
+                metadata = {
+                    "obj_id": obj_id,
+                    "source_asset": asset_path,
+                    "source_asset_kind": asset_kind,
+                    "blend_path": blend_path,
+                    "resolution": resolution,
+                    "engine": engine,
+                    "control_state": control_state,
+                    "preserved_blend_materials": bool(should_preserve_materials),
+                    "material_adaptation": material_adaptation,
+                    "debug_visible_materials": debug_visible_info,
+                    "debug_render_state_path": formatted_debug_path,
+                    "debug_stopped_before_render": True,
+                    "mesh_material_quality": mesh_material_quality,
+                    "support_plane_name": support.get("name"),
+                    "support_plane_z": support.get("z"),
+                    "support_bounds_xy": support.get("bounds"),
+                    "support_plane_mode": support_plane_mode,
+                    "camera_mode": camera_mode,
+                    "camera_name": camera_name,
+                    "camera_distance_used": round(camera_dist, 4) if camera_dist is not None else None,
+                    "camera_target_used": [round(float(v), 6) for v in camera_target] if camera_target is not None else None,
+                    "qc_views": qc_views,
+                    "auto_scale_factor": round(auto_scale, 6),
+                    "environment": env_meta,
+                    **extra_meta,
+                    **physics,
+                    "frames": [],
+                }
+                with open(os.path.join(obj_out, "metadata.json"), "w") as f:
+                    json.dump(metadata, f, indent=2)
+                if cleanup_imported:
+                    cleanup_imported_asset(imported, root)
+                return metadata
 
         aux_info = None
         if render_dn:
@@ -2404,6 +2893,12 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
         rendered_frames.append(frame_entry)
 
     physics = compute_physics_metrics(mesh_objects, support)
+    if scene_contract is not None and (
+        physics.get("is_floating")
+        or physics.get("is_intersecting_support")
+        or physics.get("is_out_of_support_bounds")
+    ):
+        raise RuntimeError(f"Production 3D placement gate failed: {physics}")
     metadata = {
         "obj_id": obj_id,
         "source_asset": asset_path,
@@ -2414,11 +2909,14 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
         "control_state": control_state,
         "preserved_blend_materials": bool(should_preserve_materials),
         "material_adaptation": material_adaptation,
+        "debug_visible_materials": debug_visible_info,
         "mesh_material_quality": mesh_material_quality,
         "support_plane_name": support.get("name"),
         "support_plane_z": support.get("z"),
         "support_bounds_xy": support.get("bounds"),
         "support_plane_mode": support_plane_mode,
+        "hyworld_mesh_role": template.get("hyworld_mesh_role"),
+        "support_proxy_surface": bool(template.get("support_proxy_surface", False)),
         "camera_mode": camera_mode,
         "camera_name": camera_name,
         "camera_distance_used": round(camera_dist, 4) if camera_dist is not None else None,
@@ -2432,12 +2930,85 @@ def render_object(asset_path: str, obj_id: str, output_dir: str,
     }
     with open(os.path.join(obj_out, "metadata.json"), "w") as f:
         json.dump(metadata, f, indent=2)
+    if cleanup_imported:
+        cleanup_imported_asset(imported, root)
     return metadata
+
+
+def render_jobs_manifest(args, template: dict):
+    manifest = load_json(args.jobs_manifest, default={}) or {}
+    if manifest.get("schema") != "dataevolver.blender_jobs.v1":
+        raise ValueError("Unsupported Blender jobs manifest schema")
+    jobs = manifest.get("jobs") or []
+    if not jobs:
+        raise ValueError("Blender jobs manifest is empty")
+    if not template.get("require_scene_contract", False):
+        raise RuntimeError("Batch production rendering requires a scene contract")
+
+    scene_controls = []
+    for job in jobs:
+        control = job.get("control_state")
+        if isinstance(control, str):
+            control = load_json(control, default={}) or {}
+        scene_controls.append(json.dumps((control or {}).get("scene", {}), sort_keys=True))
+    if len(set(scene_controls)) != 1:
+        raise RuntimeError("All jobs in one persistent Blender scene must share scene lighting controls")
+
+    prepare_scene(template, args.resolution, args.engine)
+    summary = {
+        "schema": "dataevolver.blender_batch_result.v1",
+        "scene_template": resolve_path(args.scene_template),
+        "scene_load_count": 1,
+        "jobs": [],
+        "success": True,
+    }
+    for job in jobs:
+        obj_id = job["obj_id"]
+        control = job.get("control_state")
+        if isinstance(control, str):
+            control = load_json(control, default={}) or {}
+        control = control or {}
+        reference_image = job.get("reference_image")
+        if reference_image:
+            control.setdefault("material", {})["reference_image_path"] = reference_image
+        metadata = render_object(
+            asset_path=job["asset_path"],
+            obj_id=obj_id,
+            output_dir=job["output_dir"],
+            resolution=int(job.get("resolution", args.resolution)),
+            engine=job.get("engine", args.engine),
+            template=template,
+            control_state=control,
+            scene_preloaded=True,
+            cleanup_imported=True,
+        )
+        summary["jobs"].append({
+            "job_id": job.get("job_id", obj_id),
+            "obj_id": obj_id,
+            "output_dir": job["output_dir"],
+            "support_object_name": metadata.get("support_plane_name"),
+            "joint_3d_render": metadata.get("joint_3d_render"),
+            "frames": len(metadata.get("frames") or []),
+        })
+    output = args.output_dir or manifest.get("summary_output")
+    if output:
+        output_path = Path(output)
+        if output_path.suffix.lower() != ".json":
+            output_path = output_path / "render_summary.json"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"[scene-render] Batch done: {len(summary['jobs'])} jobs, scene_load_count=1")
+    return summary
 
 
 def main():
     args = parse_args()
     template = load_scene_template(args.scene_template)
+    if args.jobs_manifest:
+        render_jobs_manifest(args, template)
+        return
+    if not args.input_dir or not args.output_dir:
+        raise ValueError("--input-dir and --output-dir are required without --jobs-manifest")
     control_state = load_json(args.control_state, default={}) or {}
     if args.reference_image:
         control_state.setdefault("material", {})

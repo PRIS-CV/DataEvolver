@@ -1,0 +1,84 @@
+{
+  "schema": "dataevolver.production.v1",
+  "profile": "world_model",
+  "target_workflow": "world_model_scene",
+  "workspace_root": "$DATAEVOLVER_WORKSPACE_ROOT",
+  "runtime_dir": "$DATAEVOLVER_WORKSPACE_ROOT/.dataevolver/runtime",
+  "runtime": {
+    "dataevolver_python": "$DATAEVOLVER_WORKSPACE_ROOT/.venv/bin/python",
+    "hyworld_python": "$DATAEVOLVER_WORKSPACE_ROOT/.venv-hyworld/bin/python",
+    "blender_bin": "$BLENDER_BIN"
+  },
+  "paths": {
+    "qwen_image_model": "$QWEN_IMAGE_MODEL_PATH",
+    "sam3_checkpoint": "$SAM3_CKPT",
+    "sam3_source": "$SAM3_DIR",
+    "hunyuan3d_source": "$HUNYUAN3D_REPO",
+    "hunyuan3d_weights": "$MODEL_HUB",
+    "dino_model": "$DINO_MODEL_PATH",
+    "realesrgan_checkpoint": "$REALESRGAN_CKPT",
+    "hyworld_source": "$HYWORLD_SRC",
+    "hyworld_weights": "$HYWORLD_WEIGHTS",
+    "hyworld_moge_model": "$HYWORLD_MOGE_MODEL_PATH",
+    "hyworld_zim_model": "$HYWORLD_ZIM_MODEL_PATH",
+    "hyworld_grounding_dino_model": "$HYWORLD_GROUNDING_DINO_MODEL_PATH",
+    "hyworld_sam3_model": "$HYWORLD_SAM3_MODEL_PATH",
+    "hyworld_worldstereo_weights": "$HYWORLD_WORLDSTEREO_PATH",
+    "hyworld_wan_base_model": "$HYWORLD_WAN_BASE_MODEL"
+  },
+  "offline": {
+    "no_model_downloads": true,
+    "hf_hub_offline": true,
+    "skip_hyworld_depth_models": false
+  },
+  "environment": {
+    "QWEN_IMAGE_MODEL_PATH": "$QWEN_IMAGE_MODEL_PATH",
+    "SAM3_CKPT": "$SAM3_CKPT",
+    "SAM3_DIR": "$SAM3_DIR",
+    "HUNYUAN3D_REPO": "$HUNYUAN3D_REPO",
+    "MODEL_HUB": "$MODEL_HUB",
+    "PAINT_MODEL_HUB": "$PAINT_MODEL_HUB",
+    "DINO_MODEL_PATH": "$DINO_MODEL_PATH",
+    "REALESRGAN_CKPT": "$REALESRGAN_CKPT",
+    "HYWORLD_SRC": "$HYWORLD_SRC",
+    "HYWORLD_WEIGHTS": "$HYWORLD_WEIGHTS",
+    "HYWORLD_MOGE_MODEL_PATH": "$HYWORLD_MOGE_MODEL_PATH",
+    "HYWORLD_ZIM_MODEL_PATH": "$HYWORLD_ZIM_MODEL_PATH",
+    "HYWORLD_GROUNDING_DINO_MODEL_PATH": "$HYWORLD_GROUNDING_DINO_MODEL_PATH",
+    "HYWORLD_SAM3_MODEL_PATH": "$HYWORLD_SAM3_MODEL_PATH",
+    "HYWORLD_WORLDSTEREO_PATH": "$HYWORLD_WORLDSTEREO_PATH",
+    "HYWORLD_WAN_BASE_MODEL": "$HYWORLD_WAN_BASE_MODEL",
+    "WORLDSTEREO_BASE_MODEL_PATH": "$HYWORLD_WAN_BASE_MODEL"
+  },
+  "import_checks": {
+    "dataevolver": [
+      "torch",
+      "diffsynth.pipelines.qwen_image",
+      "transformers"
+    ],
+    "hyworld": [
+      "torch",
+      "moge.model.v2",
+      "hyworld2.worldrecon.pipeline",
+      "gsplat"
+    ]
+  },
+  "workers": [
+    {
+      "name": "stage2-qwen-image",
+      "kind": "stage2",
+      "python": "dataevolver_python",
+      "device": "cuda:0",
+      "model_path": "$QWEN_IMAGE_MODEL_PATH",
+      "startup_timeout": 30
+    },
+    {
+      "name": "stage3-hunyuan",
+      "kind": "stage3",
+      "python": "dataevolver_python",
+      "device": "cuda:1",
+      "startup_timeout": 30
+    }
+  ],
+  "health_endpoints": []
+}

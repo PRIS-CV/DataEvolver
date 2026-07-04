@@ -150,6 +150,7 @@ Available profiles:
 | `quick` | You only want environment discovery and a dry-run route |
 | `default` | You want the current core pipeline plan: Qwen-Image-2512, SAM3, Hunyuan3D-2.1, DINOv2 Giant, Qwen3.5-35B-A3B, and Blender |
 | `full` | You also want the default Edit/T2V plan: Qwen-Image-Edit-2511 and Wan2.1-T2V |
+| `world_model` | You want the optional HYWorld / WorldMirror scene reconstruction plan |
 | `custom` | You already have replacement models and want them recorded for later compatibility review |
 
 When `--write-local-config` is used, the generated local files are:
@@ -226,6 +227,73 @@ Keep source checkouts and model weights separate. `SAM3_CKPT` is the checkpoint
 file, while `SAM3_DIR` is the SAM3 code path. `HUNYUAN3D_REPO` is the
 Hunyuan3D source checkout, while `MODEL_HUB` and `PAINT_MODEL_HUB` are weight
 directories.
+
+#### Optional HYWorld / WorldMirror Scene Reconstruction
+
+Use `--profile world_model` only when the target route is HYWorld / WorldMirror scene reconstruction. This keeps world-model setup out of the default core pipeline:
+
+```bash
+bash scripts/bootstrap_dataevolver_default.sh \
+  --profile world_model \
+  --model-root /path/to/dataevolver-models \
+  --workspace-root "$PWD" \
+  --python-backend auto \
+  --dry-run \
+  --write-local-config
+```
+
+The world-model profile adds these local environment variables:
+
+| Variable | Points to |
+|----------|-----------|
+| `HYWORLD_SRC` | HY-World-2.0 source checkout |
+| `HYWORLD_WEIGHTS` | HY-World-2.0 weights, including `HY-WorldMirror-2.0` |
+| `HYWORLD_PYTHON` | Python environment used for HYWorld dependencies |
+| `HYWORLD_MOGE_MODEL_PATH` | Local MoGe model used for real panorama depth |
+| `HYWORLD_ZIM_MODEL_PATH` | Local ZIM model used for sky masking |
+| `HYWORLD_GROUNDING_DINO_MODEL_PATH` | Local GroundingDINO model used by HYWorld navigation |
+| `HYWORLD_SAM3_MODEL_PATH` | Local SAM3 model/source path used by HYWorld |
+| `HYWORLD_WORLDSTEREO_PATH` | Local WorldStereo weights root |
+| `HYWORLD_WAN_BASE_MODEL` | Local Wan I2V base Diffusers model used by WorldStereo/video generation |
+
+HYWorld production scene generation requires local MoGe, ZIM, GroundingDINO, SAM3, WorldStereo, Wan I2V base, and HY-WorldMirror weights. Offline mode forbids downloads but must still load these local models; do not set `HYWORLD_NO_MODEL_DOWNLOADS=1` for real 3D scene generation because that skips metric depth and can produce a fixed-radius panorama shell.
+
+`scripts/run_hyworld_scene_pano.py` and `scripts/run_hyworld_full_worldgen.py` preserve changed stage artifacts under `<scene-dir>/intermediates/<run-id>/` by default. The HY-Pano stage snapshots the 360-degree equirectangular panorama, and full worldgen snapshots the input again under `00_source_panorama/` before retaining trajectory, depth/sky-mask, WorldStereo, GS, and WorldMirror outputs.
+
+##### Automated Scene Construction
+
+The world-model route can build a reviewable scene package automatically from scene prompts or an input scene image. The pipeline first generates a 360-degree HY-Pano context, runs HYWorld / WorldMirror reconstruction, converts metric geometry into a Blender scene contract, renders pure-scene multi-view evidence, and then inserts objects with fixed scene-camera alignment. The final report records contract checks, per-view scene renders, object rotation views, masks, depth, normals, metadata gates, and lineage hashes.
+
+![HYWorld automated scene construction pipeline](assets/3D-build.png)
+
+```bash
+python scripts/dataevolver_production.py doctor \
+  --profile .dataevolver/local/production_profile.json \
+  --no-imports
+
+python scripts/run_hyworld_scene_pano.py \
+  --scene-prompts-path <scene-prompts.json> \
+  --output-root <hyworld-scene-root>
+
+python scripts/run_hyworld_full_worldgen.py \
+  --profile .dataevolver/local/production_profile.json \
+  --scene-dir <hyworld-scene-root>/<scene-id> \
+  --intermediate-root <intermediate-root>/<scene-id>
+
+python scripts/build_hyworld_scene_view_shards.py \
+  --scene-id <scene-id> \
+  --hyworld-scene-dir <hyworld-scene-root>/<scene-id> \
+  --scene-output-dir <scene-output-root>/<scene-id>/reconstruction \
+  --template-output-dir <template-output-root> \
+  --report-scene-dir <report-root>/<scene-id> \
+  --dry-run
+
+python scripts/finalize_hyworld_object_scene_report.py \
+  --dataset-base <dataset-base> \
+  --strict-scene-views
+```
+
+HYWorld / WorldMirror follows the staged world-generation route HY-Pano -> WorldNav -> WorldStereo -> WorldMirror/3DGS. Do not treat a VLM pass as authoritative for world-model completion; use contract-backed geometry, multi-view pure-scene renders, and final manifest/lineage evidence.
 
 After CUDA and `nvcc` are confirmed, build Hunyuan3D's native extensions:
 

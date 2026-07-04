@@ -149,6 +149,7 @@ bash scripts/bootstrap_dataevolver_default.sh \
 | `quick` | 只做环境探测和 dry-run 路线 |
 | `default` | 使用当前核心 pipeline：Qwen-Image-2512、SAM3、Hunyuan3D-2.1、DINOv2 Giant、Qwen3.5-35B-A3B 和 Blender |
 | `full` | 在 `default` 基础上额外覆盖 Edit/T2V 默认计划：Qwen-Image-Edit-2511 和 Wan2.1-T2V |
+| `world_model` | 使用可选 HYWorld / WorldMirror 场景重建计划 |
 | `custom` | 你已有替代模型，希望先记录下来，后续再做兼容性检查 |
 
 使用 `--write-local-config` 后，会生成：
@@ -221,6 +222,73 @@ source .venv/bin/activate
 源码目录和权重目录必须分开。`SAM3_CKPT` 是 checkpoint 文件，
 `SAM3_DIR` 是 SAM3 代码路径。`HUNYUAN3D_REPO` 是 Hunyuan3D 源码
 checkout，`MODEL_HUB` 和 `PAINT_MODEL_HUB` 是权重目录。
+
+#### 可选 HYWorld / WorldMirror 场景重建
+
+只有当目标路线是 HYWorld / WorldMirror 场景重建时，才使用 `--profile world_model`。这会让世界模型配置保持在可选 route 中，不进入默认核心 pipeline：
+
+```bash
+bash scripts/bootstrap_dataevolver_default.sh \
+  --profile world_model \
+  --model-root /path/to/dataevolver-models \
+  --workspace-root "$PWD" \
+  --python-backend auto \
+  --dry-run \
+  --write-local-config
+```
+
+world-model profile 会额外写入这些本地环境变量：
+
+| 变量 | 指向 |
+|------|------|
+| `HYWORLD_SRC` | HY-World-2.0 源码 checkout |
+| `HYWORLD_WEIGHTS` | HY-World-2.0 权重目录，需包含 `HY-WorldMirror-2.0` |
+| `HYWORLD_PYTHON` | HYWorld 依赖使用的 Python 环境 |
+| `HYWORLD_MOGE_MODEL_PATH` | 本地 MoGe 权重，用于真实 panorama depth |
+| `HYWORLD_ZIM_MODEL_PATH` | 本地 ZIM 权重，用于天空 mask |
+| `HYWORLD_GROUNDING_DINO_MODEL_PATH` | 本地 GroundingDINO 权重，用于 HYWorld 导航 |
+| `HYWORLD_SAM3_MODEL_PATH` | HYWorld 使用的本地 SAM3 模型/源码路径 |
+| `HYWORLD_WORLDSTEREO_PATH` | 本地 WorldStereo 权重根目录 |
+| `HYWORLD_WAN_BASE_MODEL` | WorldStereo / 视频生成使用的本地 Wan I2V base Diffusers 模型 |
+
+HYWorld 生产级场景生成必须有本地 MoGe、ZIM、GroundingDINO、SAM3、WorldStereo、Wan I2V base 和 HY-WorldMirror 权重。离线模式表示禁止下载，但仍要加载这些本地模型；真实 3D 场景生成时不要设置 `HYWORLD_NO_MODEL_DOWNLOADS=1`，否则会跳过 metric depth，容易产出固定半径 panorama shell。
+
+`scripts/run_hyworld_scene_pano.py` 和 `scripts/run_hyworld_full_worldgen.py` 默认把变化的阶段产物保存到 `<scene-dir>/intermediates/<run-id>/`。HY-Pano 阶段会保存 360° 等距柱状全景图，完整 worldgen 会在 `00_source_panorama/` 再保存进入 3D 重建的原始输入，并保留 trajectory、depth/sky-mask、WorldStereo、GS 和 WorldMirror 输出。
+
+##### 自动化场景构建
+
+世界模型路线可以从场景 prompt 或输入场景图自动构建可 review 的场景包。流程会先生成 360° HY-Pano 上下文，再运行 HYWorld / WorldMirror 重建，将 metric geometry 转换为 Blender scene contract，渲染多视角纯场景证据，随后在固定 scene-camera 对齐下插入物体。最终 report 会记录 contract 检查、多视角场景图、物体旋转视图、mask、depth、normal、metadata gates 和 lineage hashes。
+
+![HYWorld 自动化场景构建流程](assets/3D-build.png)
+
+```bash
+python scripts/dataevolver_production.py doctor \
+  --profile .dataevolver/local/production_profile.json \
+  --no-imports
+
+python scripts/run_hyworld_scene_pano.py \
+  --scene-prompts-path <scene-prompts.json> \
+  --output-root <hyworld-scene-root>
+
+python scripts/run_hyworld_full_worldgen.py \
+  --profile .dataevolver/local/production_profile.json \
+  --scene-dir <hyworld-scene-root>/<scene-id> \
+  --intermediate-root <intermediate-root>/<scene-id>
+
+python scripts/build_hyworld_scene_view_shards.py \
+  --scene-id <scene-id> \
+  --hyworld-scene-dir <hyworld-scene-root>/<scene-id> \
+  --scene-output-dir <scene-output-root>/<scene-id>/reconstruction \
+  --template-output-dir <template-output-root> \
+  --report-scene-dir <report-root>/<scene-id> \
+  --dry-run
+
+python scripts/finalize_hyworld_object_scene_report.py \
+  --dataset-base <dataset-base> \
+  --strict-scene-views
+```
+
+HYWorld / WorldMirror 使用 HY-Pano -> WorldNav -> WorldStereo -> WorldMirror/3DGS 的分阶段 world generation 路线。不要把 VLM pass 当作世界模型完成的权威证据；应以 contract 支撑的几何、多视角纯场景渲染和最终 manifest/lineage 作为验收依据。
 
 确认 CUDA 和 `nvcc` 可用后，再编译 Hunyuan3D 原生扩展：
 
