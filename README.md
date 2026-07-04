@@ -99,30 +99,80 @@ The core innovation: a **goal-driven loop agent** that iteratively improves rend
 
 ## Quick Start
 
-### Production Setup
+Start with the lightweight onboarding dry-run. It checks the shape of your
+environment, prints the setup and model download plan, and writes local
+non-sensitive config files. It does **not** install dependencies, download model
+weights, write tokens, or launch GPU jobs.
 
-Start with the dry-run profile. It probes the host and writes local, non-secret setup files without installing packages, downloading models, or launching long jobs.
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/PRIS-CV/DataEvolver.git
 cd DataEvolver
-
-bash scripts/bootstrap_dataevolver_default.sh \
-  --profile default \
-  --dry-run \
-  --write-local-config
 ```
 
-For HYWorld / WorldMirror scene reconstruction, use the optional world-model profile instead of `default`:
+### 2. Run the safe onboarding dry-run
+
+For the fastest first pass, use the `quick` profile:
 
 ```bash
 bash scripts/bootstrap_dataevolver_default.sh \
-  --profile world_model \
+  --profile quick \
   --dry-run \
   --write-local-config
 ```
 
-Create the runtime environment. On shared GPU servers, prefer `--system-site-packages` so an already validated NVIDIA PyTorch build can be reused; install the CUDA wheel only if `import torch` fails inside the venv.
+For the default DataEvolver pipeline plan, choose a model root and run:
+
+```bash
+bash scripts/bootstrap_dataevolver_default.sh \
+  --profile default \
+  --model-root /path/to/dataevolver-models \
+  --workspace-root "$PWD" \
+  --python-backend auto \
+  --dry-run \
+  --write-local-config
+```
+
+The script prints four sections:
+
+| Section | What it tells you |
+|---------|-------------------|
+| `preflight` | Linux, GPU, Python, `uv`/`conda`, Blender, and Hugging Face CLI availability |
+| `env plan` | The preferred `uv` environment plan and `conda` fallback |
+| `model plan` | Hugging Face repos, target paths, gated-access notes, and printed download commands |
+| `config plan` | Non-sensitive environment variables that the pipeline can read |
+
+Available profiles:
+
+| Profile | Use it when |
+|---------|-------------|
+| `quick` | You only want environment discovery and a dry-run route |
+| `default` | You want the current core pipeline plan: Qwen-Image-2512, SAM3, Hunyuan3D-2.1, DINOv2 Giant, Qwen3.5-35B-A3B, and Blender |
+| `full` | You also want the default Edit/T2V plan: Qwen-Image-Edit-2511 and Wan2.1-T2V |
+| `world_model` | You want the optional HYWorld / WorldMirror scene reconstruction plan |
+| `custom` | You already have replacement models and want them recorded for later compatibility review |
+
+When `--write-local-config` is used, the generated local files are:
+
+- `.dataevolver/local/ENVIRONMENT.md` — human-readable setup summary
+- `.dataevolver/local/env.config.json` — structured config for agents and scripts
+- `.dataevolver/local/env.sh.example` — sourceable non-sensitive path variables
+
+`.dataevolver/local/` is ignored by Git. Do not put Hugging Face, Anthropic,
+OpenAI, SSH, cookie, or API tokens in these files.
+
+If you are working with an agent environment that supports skills, ask it to use
+the `dataevolver-onboarding` skill. It should interview you for only five setup
+areas: target route, runtime location, install policy, model strategy, and
+workspace/output paths, then run the dry-run script above.
+
+### 3. Production Setup
+
+Create the runtime environment. On shared GPU servers, prefer
+`--system-site-packages` so an already validated NVIDIA PyTorch build can be
+reused. Install the CUDA wheel only if `import torch` fails inside the venv or
+reports no usable CUDA.
 
 ```bash
 uv venv .venv --python 3.10 --system-site-packages
@@ -133,7 +183,7 @@ import torch
 print(torch.__version__, torch.cuda.is_available())
 PY
 
-# Fallback only when the torch import above fails or reports no usable CUDA.
+# Fallback only when the torch check above fails.
 uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 
 uv pip install \
@@ -145,16 +195,18 @@ uv pip install \
   opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http
 ```
 
-Review `.dataevolver/local/env.sh.example`, copy it to a machine-local file such as `.dataevolver/local/env.remote.sh`, then source it before every real run.
+Review `.dataevolver/local/env.sh.example`, copy it to a machine-local file,
+then source it before every real run:
 
 ```bash
 cp .dataevolver/local/env.sh.example .dataevolver/local/env.remote.sh
-# Edit paths in .dataevolver/local/env.remote.sh. Do not put tokens in this file.
+# Edit paths only. Do not put tokens in this file.
 source .dataevolver/local/env.remote.sh
 source .venv/bin/activate
 ```
 
-Production deployments should use environment variables instead of editing pipeline scripts:
+Production deployments should use environment variables instead of editing
+pipeline scripts:
 
 | Variable | Points to |
 |----------|-----------|
@@ -171,19 +223,26 @@ Production deployments should use environment variables instead of editing pipel
 | `VLM_MODEL_PATH` | Qwen3.5-35B-A3B, or a verified compatible Qwen3.x replacement |
 | `BLENDER_BIN` | Blender executable |
 
-Keep source checkouts and model weights separate. `SAM3_CKPT` is the checkpoint file, while `SAM3_DIR` is the SAM3 code path. `HUNYUAN3D_REPO` is the Hunyuan3D source checkout, while `MODEL_HUB` and `PAINT_MODEL_HUB` are weight directories.
-
-Run the generated production profile through the doctor before starting production jobs. A new host with missing paths should return structured JSON listing the blockers instead of crashing.
-
-```bash
-python scripts/dataevolver_production.py doctor \
-  --profile .dataevolver/local/production_profile.json \
-  --no-imports
-```
+Keep source checkouts and model weights separate. `SAM3_CKPT` is the checkpoint
+file, while `SAM3_DIR` is the SAM3 code path. `HUNYUAN3D_REPO` is the
+Hunyuan3D source checkout, while `MODEL_HUB` and `PAINT_MODEL_HUB` are weight
+directories.
 
 #### Optional HYWorld / WorldMirror Scene Reconstruction
 
-Use `--profile world_model` only when the target route is HYWorld / WorldMirror scene reconstruction. This profile adds the world-model dependencies and generated environment variables:
+Use `--profile world_model` only when the target route is HYWorld / WorldMirror scene reconstruction. This keeps world-model setup out of the default core pipeline:
+
+```bash
+bash scripts/bootstrap_dataevolver_default.sh \
+  --profile world_model \
+  --model-root /path/to/dataevolver-models \
+  --workspace-root "$PWD" \
+  --python-backend auto \
+  --dry-run \
+  --write-local-config
+```
+
+The world-model profile adds these local environment variables:
 
 | Variable | Points to |
 |----------|-----------|
@@ -199,7 +258,7 @@ Use `--profile world_model` only when the target route is HYWorld / WorldMirror 
 
 HYWorld production scene generation requires local MoGe, ZIM, GroundingDINO, SAM3, WorldStereo, Wan I2V base, and HY-WorldMirror weights. Offline mode forbids downloads but must still load these local models; do not set `HYWORLD_NO_MODEL_DOWNLOADS=1` for real 3D scene generation because that skips metric depth and can produce a fixed-radius panorama shell.
 
-`scripts/run_hyworld_scene_pano.py` and `scripts/run_hyworld_full_worldgen.py` now preserve every new or changed stage artifact under `<scene-dir>/intermediates/<run-id>/` by default. The HY-Pano stage snapshots the generated 360-degree equirectangular panorama, and full worldgen snapshots that input again under `00_source_panorama/` before retaining trajectory, depth/sky-mask, WorldStereo, GS, and WorldMirror outputs. `manifest.json` records source paths, snapshot paths, sizes, and SHA-256 digests. Use `--intermediate-root` for durable storage; only `--no-preserve-intermediates` disables snapshots.
+`scripts/run_hyworld_scene_pano.py` and `scripts/run_hyworld_full_worldgen.py` preserve changed stage artifacts under `<scene-dir>/intermediates/<run-id>/` by default. The HY-Pano stage snapshots the 360-degree equirectangular panorama, and full worldgen snapshots the input again under `00_source_panorama/` before retaining trajectory, depth/sky-mask, WorldStereo, GS, and WorldMirror outputs.
 
 ##### Automated Scene Construction
 
@@ -208,18 +267,19 @@ The world-model route can build a reviewable scene package automatically from sc
 ![HYWorld automated scene construction pipeline](assets/3D-build.png)
 
 ```bash
-# 1. Generate or ingest the scene panorama.
+python scripts/dataevolver_production.py doctor \
+  --profile .dataevolver/local/production_profile.json \
+  --no-imports
+
 python scripts/run_hyworld_scene_pano.py \
   --scene-prompts-path <scene-prompts.json> \
   --output-root <hyworld-scene-root>
 
-# 2. Run full world generation and preserve stage artifacts.
 python scripts/run_hyworld_full_worldgen.py \
   --profile .dataevolver/local/production_profile.json \
   --scene-dir <hyworld-scene-root>/<scene-id> \
   --intermediate-root <intermediate-root>/<scene-id>
 
-# 3. Build per-view Blender scene shards and pure-scene validation renders.
 python scripts/build_hyworld_scene_view_shards.py \
   --scene-id <scene-id> \
   --hyworld-scene-dir <hyworld-scene-root>/<scene-id> \
@@ -228,44 +288,14 @@ python scripts/build_hyworld_scene_view_shards.py \
   --report-scene-dir <report-root>/<scene-id> \
   --dry-run
 
-# 4. Finalize the object-scene package after object insertion/rendering.
 python scripts/finalize_hyworld_object_scene_report.py \
   --dataset-base <dataset-base> \
   --strict-scene-views
 ```
 
-Run the generated world-model production profile through the doctor before starting a world-model job.
-
-```bash
-python scripts/dataevolver_production.py doctor \
-  --profile .dataevolver/local/production_profile.json \
-  --no-imports
-
-python scripts/run_hyworld_scene_pano.py \
-  --scene-prompts-path /data/scenes/scene_prompts.json \
-  --output-root /data/hyworld_scenes
-
-python scripts/run_hyworld_full_worldgen.py \
-  --profile .dataevolver/local/production_profile.json \
-  --scene-dir /data/hyworld_scenes/scene_001 \
-  --intermediate-root /data/hyworld-intermediates/scene_001
-
-python scripts/build_hyworld_scene_view_shards.py \
-  --scene-id scene_001 \
-  --hyworld-scene-dir /data/hyworld_scenes/scene_001 \
-  --scene-output-dir /data/hyworld_scenes/scene_001/reconstruction \
-  --template-output-dir /data/hyworld_templates \
-  --report-scene-dir /data/hyworld_reports/scene_001 \
-  --dry-run
-
-python scripts/finalize_hyworld_object_scene_report.py \
-  --dataset-base /data/hyworld_dataset \
-  --strict-scene-views
-```
-
 HYWorld / WorldMirror follows the staged world-generation route HY-Pano -> WorldNav -> WorldStereo -> WorldMirror/3DGS. Do not treat a VLM pass as authoritative for world-model completion; use contract-backed geometry, multi-view pure-scene renders, and final manifest/lineage evidence.
 
-After CUDA and `nvcc` are confirmed, build Hunyuan3D's native pieces:
+After CUDA and `nvcc` are confirmed, build Hunyuan3D's native extensions:
 
 ```bash
 uv pip install --no-build-isolation -e "$HUNYUAN3D_REPO/hy3dpaint/custom_rasterizer"
@@ -273,9 +303,9 @@ cd "$HUNYUAN3D_REPO/hy3dpaint/DifferentiableRenderer"
 bash compile_mesh_painter.sh
 ```
 
-### Production Smoke Tests
+### 4. Production Smoke Tests
 
-Run smoke tests in this order on a new host:
+Run preflight and import checks first:
 
 ```bash
 python3 --version
@@ -292,7 +322,7 @@ from opentelemetry import trace
 PY
 ```
 
-Then validate the runtime pipeline on one object:
+Then validate one object through the runtime stages:
 
 ```bash
 SMOKE_ROOT=.dataevolver/local/smoke
@@ -311,21 +341,67 @@ python pipeline/stage3_image_to_3d.py \
   --paint-attempt-timeout-sec 300
 ```
 
-`--shape-only` is a fallback for missing DINO, RealESRGAN, or paint extensions; it is not a complete textured production-readiness check. A production-ready Stage 3 smoke should finish the textured command and produce a GLB with an image texture.
+`--shape-only` is a fallback for missing DINO, RealESRGAN, or paint extensions;
+it is not a complete textured production-readiness check. Also run the Stage
+5.5 VLM loader smoke before starting a full review loop.
 
-After the agent has summarized the smoke evidence into a deployment note, remove the generated smoke artifacts so the working directory stays clean:
+After the deployment evidence has been recorded, remove generated smoke
+artifacts so the working directory stays clean:
 
 ```bash
 rm -rf .dataevolver/local/smoke
 ```
 
-The base pipeline prepares assets and render outputs after the setup above is verified:
+Only after these checks pass should you prepare scene assets and run
+`bash pipeline/run_all.sh`. The scene-aware VLM optimization loop is launched
+separately through `scripts/run_scene_agent_monitor.py` after model paths,
+`BLENDER_BIN`, and `configs/scene_template.json` are configured.
+
+---
+
+## Reproducible Universal 3D Workflow
+
+The public repository includes the code and schema needed to reproduce the
+WebSearch-driven universal 3D dataset workflow. Large generated datasets,
+private server paths, mesh assets, `.blend` scene files, model weights, API
+keys, and paper source are intentionally not committed.
+
+Core entry points:
+
+- Stage0 WebSearch prior: [`scripts/stage0_web_research.py`](scripts/stage0_web_research.py)
+- Universal dataset schema: [`configs/schemas/universal_3d_layout_dataset_schema.json`](configs/schemas/universal_3d_layout_dataset_schema.json)
+- Universal rendering scripts: [`scripts/universal_3d_layout/`](scripts/universal_3d_layout/)
+- Workflow notes and validation summary: [`docs/UNIVERSAL_3D_LAYOUT_DATASET.md`](docs/UNIVERSAL_3D_LAYOUT_DATASET.md)
+
+Start a multi-paper universal session:
 
 ```bash
-bash pipeline/run_all.sh
+python scripts/stage0_web_research.py init \
+  --query "SeeThrough3D: Occlusion Aware 3D Control in Text-to-Image Generation" \
+  --output-dir runtime/research_priors/demo_universal \
+  --dataset-mode universal \
+  --tag universal-3d-layout
 ```
 
-The scene-aware VLM optimization loop is launched separately through the scene-agent workflow, for example with `scripts/run_scene_agent_monitor.py` after model paths, `BLENDER_BIN`, and `configs/scene_template.json` are configured for your environment.
+Run a small Blender-backed smoke batch after configuring scene, mesh, runtime,
+and model paths:
+
+```bash
+python scripts/universal_3d_layout/run_dataevolver_universal_contract_batch.py \
+  --dataevolver-root /path/to/DataEvolver \
+  --runtime-root /path/to/runtime \
+  --blender /path/to/blender \
+  --out /path/to/universal_contract_smoke \
+  --num-samples 1 \
+  --resolution 512 \
+  --engine EEVEE
+```
+
+The universal contract emits RGB targets, per-object masks, structure/OSCR
+views, depth-order proxies, orientation proxies, camera metadata, mesh metadata,
+3D boxes, scene graphs, spatial relations, validation traces, and
+`metadata/records.jsonl`. The current depth and normal outputs are proxy
+artifacts, not dense depth or dense surface-normal supervision.
 
 ---
 
@@ -356,13 +432,14 @@ DataEvolver/
 │   ├── build_rotation8_trainready_dataset.py       # Build training pairs
 │   ├── build_object_split_for_rotation_dataset.py  # Object-disjoint split
 │   ├── run_full_pipeline.py                 # Full pipeline orchestrator
+│   ├── stage0_web_research.py               # WebSearch prior and handoff builder
+│   ├── universal_3d_layout/                 # Universal 3D dataset workflow
 │   ├── run_vlm_quality_gate_loop.py         # VLM quality gate loop
 │   ├── feedback_loop/                       # Feedback loop utilities
 │   └── ...                                  # Additional build & eval scripts
 ├── assets/
 │   ├── hdri/                                # HDRI environment maps
 │   └── scene/                               # Blender scene files (.blend)
-├── paper/                             # Technical report (LaTeX source)
 └── web/                               # Project website (GitHub Pages)
 ```
 
@@ -536,17 +613,27 @@ Claude Code will read your `CLAUDE.md` and understand the full project context. 
 
 ## Roadmap
 
-### Internal Enhancement — perception, understanding, and decision-making
+### Completed
 
-- [ ] **Structured VLM knowledge base** — build a prior-knowledge store to anchor VLM quality assessment with objective criteria, reducing reliance on subjective judgment when evaluating data quality, task suitability, and assessment direction
-- [ ] **WebSearch-integrated AI Agent** — add pre-task web retrieval: when the agent receives a user request, it searches for relevant datasets, papers, and existing methods to understand the data construction landscape before acting. Combine with local deep-research tools to establish background knowledge, preventing the model from working in an information vacuum
+- [x] **WebSearch-integrated AI Agent** — Stage0 WebSearch supports both single-paper reproduction and multi-paper universal dataset modes. It records paper evidence, exports handoff documents, and has been validated on the remote rendering environment.
+- [x] **Multi-paper universal 3D dataset synthesis** — the workflow starts from an anchor paper, expands to related 3D-control papers, and extracts shared dataset requirements for target images, masks, OSCR/structure views, camera metadata, object layout, occlusion relations, scene graphs, and validation traces.
+- [x] **Universal 3D layout dataset contract** — DataEvolver now tracks a reusable schema for Blender-backed target renders, per-object masks, structure views, depth-order proxies, orientation proxies, camera pose/intrinsics/viewpoint tokens, mesh metadata, 3D boxes, scene graphs, spatial relations, and promotion decisions.
+- [x] **Blender-backed dual-object scenes** — the current universal 3D workflow can generate real-scene, dual-object records with DataEvolver scene and mesh assets. General N-object compositional scenes remain a separate extension.
+- [x] **VLM/CV self-evolution loop** — selected universal 3D records can be reviewed with calibrated hybrid VLM and CV geometry scores, bounded repair actions, and explicit accept/reject promotion traces.
+- [x] **Paper-specific and universal export modes** — the WebSearch and universal layout scripts support both single-paper dataset reproduction and multi-paper universal schema export.
 
-### External Expansion — richer dataset types and construction modalities
+### In Progress
 
-- [ ] **Multi-object scenes** — extend the rendering system to support multiple objects per scene, enabling composite geometry editing (rotation, insertion, removal, translation) within a single render
-- [ ] **Video object datasets** — expand from image-based datasets to video-level object editing: removal, translation, and attribute editing across frames
-- [ ] **Auto-generated reasoning-evaluation datasets** — after user training, automatically produce evaluation benchmarks with training–eval information alignment, customized rendering, and automated metric computation
-- [ ] **Real-world dataset ingestion** — use WebSearch to discover real-world datasets, then crawl, clean, process, and construct structured datasets, broadening data source coverage and downstream applicability
+- [ ] **Structured VLM knowledge base** — current scoring already uses structured VLM/CV criteria, mask coverage checks, depth-order proxy checks, geometry-review metadata, and a VGGT-Omega proxy hook. A persistent prior-knowledge store for reusable VLM assessment criteria is still under development.
+- [ ] **Real-world dataset ingestion** — WebSearch can discover public datasets and paper resources, and public artifacts such as SeeThrough3D are used as references. A full crawl-clean-process-ingest pipeline for arbitrary real-world datasets is still pending.
+- [ ] **Auto-generated reasoning-evaluation datasets** — current records include validation logs, hybrid scores, and promotion traces. Fully automated benchmark generation after downstream model training remains a future release target.
+
+### Pending
+
+- [ ] **Video object datasets** — extend image-level rendering to temporally consistent object removal, translation, rotation, insertion, and attribute editing across frames.
+- [ ] **Temporal review and filtering** — add sequence-level checks for flicker, trajectory smoothness, mask stability, depth continuity, and action consistency.
+- [ ] **General N-object compositional scenes** — beyond the current dual-object workflow, this requires relation-aware sampling, collision handling, occlusion planning, and stronger multi-object VLM/CV review.
+- [ ] **Large-scale public dataset ingestion** — scale WebSearch-discovered dataset ingestion into repeatable crawling, cleaning, licensing, provenance, and structured export workflows.
 
 ## License
 
