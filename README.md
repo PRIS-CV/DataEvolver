@@ -113,6 +113,15 @@ bash scripts/bootstrap_dataevolver_default.sh \
   --write-local-config
 ```
 
+For HYWorld / WorldMirror scene reconstruction, use the optional world-model profile instead of `default`:
+
+```bash
+bash scripts/bootstrap_dataevolver_default.sh \
+  --profile world_model \
+  --dry-run \
+  --write-local-config
+```
+
 Create the runtime environment. On shared GPU servers, prefer `--system-site-packages` so an already validated NVIDIA PyTorch build can be reused; install the CUDA wheel only if `import torch` fails inside the venv.
 
 ```bash
@@ -159,23 +168,40 @@ Production deployments should use environment variables instead of editing pipel
 | `PAINT_MODEL_HUB` | Hunyuan3D paint weights, usually the same as `MODEL_HUB` |
 | `DINO_MODEL_PATH` | DINOv2 Giant checkpoint directory |
 | `REALESRGAN_CKPT` | `RealESRGAN_x4plus.pth` used by Hunyuan paint |
+| `VLM_MODEL_PATH` | Qwen3.5-35B-A3B, or a verified compatible Qwen3.x replacement |
+| `BLENDER_BIN` | Blender executable |
+
+Keep source checkouts and model weights separate. `SAM3_CKPT` is the checkpoint file, while `SAM3_DIR` is the SAM3 code path. `HUNYUAN3D_REPO` is the Hunyuan3D source checkout, while `MODEL_HUB` and `PAINT_MODEL_HUB` are weight directories.
+
+Run the generated production profile through the doctor before starting production jobs. A new host with missing paths should return structured JSON listing the blockers instead of crashing.
+
+```bash
+python scripts/dataevolver_production.py doctor \
+  --profile .dataevolver/local/production_profile.json \
+  --no-imports
+```
+
+#### Optional HYWorld / WorldMirror Scene Reconstruction
+
+Use `--profile world_model` only when the target route is HYWorld / WorldMirror scene reconstruction. This profile adds the world-model dependencies and generated environment variables:
+
+| Variable | Points to |
+|----------|-----------|
 | `HYWORLD_SRC` | HY-World-2.0 source checkout |
 | `HYWORLD_WEIGHTS` | HY-World-2.0 weights, including `HY-WorldMirror-2.0` |
+| `HYWORLD_PYTHON` | Python environment used for HYWorld dependencies |
 | `HYWORLD_MOGE_MODEL_PATH` | Local MoGe model used for real panorama depth |
 | `HYWORLD_ZIM_MODEL_PATH` | Local ZIM model used for sky masking |
 | `HYWORLD_GROUNDING_DINO_MODEL_PATH` | Local GroundingDINO model used by HYWorld navigation |
 | `HYWORLD_SAM3_MODEL_PATH` | Local SAM3 model/source path used by HYWorld |
 | `HYWORLD_WORLDSTEREO_PATH` | Local WorldStereo weights root |
 | `HYWORLD_WAN_BASE_MODEL` | Local Wan I2V base Diffusers model used by WorldStereo/video generation |
-| `VLM_MODEL_PATH` | Qwen3.5-35B-A3B, or a verified compatible Qwen3.x replacement |
-| `BLENDER_BIN` | Blender executable |
 
-Keep source checkouts and model weights separate. `SAM3_CKPT` is the checkpoint file, while `SAM3_DIR` is the SAM3 code path. `HUNYUAN3D_REPO` is the Hunyuan3D source checkout, while `MODEL_HUB` and `PAINT_MODEL_HUB` are weight directories.
-HYWorld production scene generation also requires local MoGe, ZIM, GroundingDINO, SAM3, WorldStereo, Wan I2V base, and HY-WorldMirror weights. Offline mode forbids downloads but must still load these local models; do not set `HYWORLD_NO_MODEL_DOWNLOADS=1` for real 3D scene generation because that skips metric depth and can produce a fixed-radius panorama shell.
+HYWorld production scene generation requires local MoGe, ZIM, GroundingDINO, SAM3, WorldStereo, Wan I2V base, and HY-WorldMirror weights. Offline mode forbids downloads but must still load these local models; do not set `HYWORLD_NO_MODEL_DOWNLOADS=1` for real 3D scene generation because that skips metric depth and can produce a fixed-radius panorama shell.
 
 `scripts/run_hyworld_scene_pano.py` and `scripts/run_hyworld_full_worldgen.py` now preserve every new or changed stage artifact under `<scene-dir>/intermediates/<run-id>/` by default. The HY-Pano stage snapshots the generated 360-degree equirectangular panorama, and full worldgen snapshots that input again under `00_source_panorama/` before retaining trajectory, depth/sky-mask, WorldStereo, GS, and WorldMirror outputs. `manifest.json` records source paths, snapshot paths, sizes, and SHA-256 digests. Use `--intermediate-root` for durable storage; only `--no-preserve-intermediates` disables snapshots.
 
-Run the generated production profile through the doctor before starting a world-model job. A new host with missing paths should return structured JSON listing the blockers instead of crashing.
+Run the generated world-model production profile through the doctor before starting a world-model job.
 
 ```bash
 python scripts/dataevolver_production.py doctor \

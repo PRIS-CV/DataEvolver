@@ -113,6 +113,15 @@ bash scripts/bootstrap_dataevolver_default.sh \
   --write-local-config
 ```
 
+如果目标是 HYWorld / WorldMirror 场景重建，使用可选的 world-model profile，不要放进 `default`：
+
+```bash
+bash scripts/bootstrap_dataevolver_default.sh \
+  --profile world_model \
+  --dry-run \
+  --write-local-config
+```
+
 创建运行环境。在共享 GPU 服务器上，优先使用 `--system-site-packages` 复用已经验证过的 NVIDIA PyTorch；只有当 venv 内 `import torch` 失败时，再安装 CUDA wheel。
 
 ```bash
@@ -159,23 +168,40 @@ source .venv/bin/activate
 | `PAINT_MODEL_HUB` | Hunyuan3D paint 权重目录，通常与 `MODEL_HUB` 相同 |
 | `DINO_MODEL_PATH` | DINOv2 Giant checkpoint 目录 |
 | `REALESRGAN_CKPT` | Hunyuan paint 使用的 `RealESRGAN_x4plus.pth` |
+| `VLM_MODEL_PATH` | Qwen3.5-35B-A3B，或验证兼容的 Qwen3.x 替代模型 |
+| `BLENDER_BIN` | Blender 可执行文件 |
+
+源码目录和权重目录必须分开。`SAM3_CKPT` 是 checkpoint 文件，`SAM3_DIR` 是 SAM3 代码路径。`HUNYUAN3D_REPO` 是 Hunyuan3D 源码 checkout，`MODEL_HUB` 和 `PAINT_MODEL_HUB` 是权重目录。
+
+启动生产任务前，先用生成的 production profile 跑 doctor。新机器缺路径时应返回结构化 JSON blocker，而不是崩溃。
+
+```bash
+python scripts/dataevolver_production.py doctor \
+  --profile .dataevolver/local/production_profile.json \
+  --no-imports
+```
+
+#### 可选 HYWorld / WorldMirror 场景重建
+
+只有当目标路线是 HYWorld / WorldMirror 场景重建时，才使用 `--profile world_model`。该 profile 会额外写入世界模型依赖和环境变量：
+
+| 变量 | 指向 |
+|------|------|
 | `HYWORLD_SRC` | HY-World-2.0 源码 checkout |
 | `HYWORLD_WEIGHTS` | HY-World-2.0 权重目录，需包含 `HY-WorldMirror-2.0` |
+| `HYWORLD_PYTHON` | HYWorld 依赖使用的 Python 环境 |
 | `HYWORLD_MOGE_MODEL_PATH` | 本地 MoGe 权重，用于真实 panorama depth |
 | `HYWORLD_ZIM_MODEL_PATH` | 本地 ZIM 权重，用于天空 mask |
 | `HYWORLD_GROUNDING_DINO_MODEL_PATH` | 本地 GroundingDINO 权重，用于 HYWorld 导航 |
 | `HYWORLD_SAM3_MODEL_PATH` | HYWorld 使用的本地 SAM3 模型/源码路径 |
 | `HYWORLD_WORLDSTEREO_PATH` | 本地 WorldStereo 权重根目录 |
 | `HYWORLD_WAN_BASE_MODEL` | WorldStereo / 视频生成使用的本地 Wan I2V base Diffusers 模型 |
-| `VLM_MODEL_PATH` | Qwen3.5-35B-A3B，或验证兼容的 Qwen3.x 替代模型 |
-| `BLENDER_BIN` | Blender 可执行文件 |
 
-源码目录和权重目录必须分开。`SAM3_CKPT` 是 checkpoint 文件，`SAM3_DIR` 是 SAM3 代码路径。`HUNYUAN3D_REPO` 是 Hunyuan3D 源码 checkout，`MODEL_HUB` 和 `PAINT_MODEL_HUB` 是权重目录。
-HYWorld 生产级场景生成还必须有本地 MoGe、ZIM、GroundingDINO、SAM3、WorldStereo、Wan I2V base 和 HY-WorldMirror 权重。离线模式表示禁止下载，但仍要加载这些本地模型；真实 3D 场景生成时不要设置 `HYWORLD_NO_MODEL_DOWNLOADS=1`，否则会跳过 metric depth，容易产出固定半径 panorama shell。
+HYWorld 生产级场景生成必须有本地 MoGe、ZIM、GroundingDINO、SAM3、WorldStereo、Wan I2V base 和 HY-WorldMirror 权重。离线模式表示禁止下载，但仍要加载这些本地模型；真实 3D 场景生成时不要设置 `HYWORLD_NO_MODEL_DOWNLOADS=1`，否则会跳过 metric depth，容易产出固定半径 panorama shell。
 
 `scripts/run_hyworld_scene_pano.py` 和 `scripts/run_hyworld_full_worldgen.py` 默认把每个场景构建阶段新增或变化的文件保存到 `<scene-dir>/intermediates/<run-id>/`。HY-Pano 阶段会先保存 360° 等距柱状全景图，完整 worldgen 的 `00_source_panorama/` 会再保存进入 3D 重建的原始全景；后续目录保存轨迹、深度/天空 mask、WorldStereo、GS 和 WorldMirror 的阶段产物。`manifest.json` 记录原始路径、快照路径、大小和 SHA-256。可用 `--intermediate-root` 指定正式数据盘，只有显式传入 `--no-preserve-intermediates` 才会关闭。
 
-启动世界模型任务前，先用生成的 production profile 跑 doctor。新机器缺路径时应返回结构化 JSON blocker，而不是崩溃。
+启动世界模型任务前，先用生成的 world-model production profile 跑 doctor。
 
 ```bash
 python scripts/dataevolver_production.py doctor \

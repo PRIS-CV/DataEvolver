@@ -21,7 +21,7 @@ weights, write tokens, or launch long-running jobs.
 
 Options:
   --dry-run                    Required behavior; enabled by default.
-  --profile quick|default|full|custom
+  --profile quick|default|full|world_model|custom
   --model-root PATH            Target model root for the printed plan.
   --workspace-root PATH        DataEvolver checkout path for the printed plan.
   --python-backend auto|uv|conda
@@ -80,8 +80,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$PROFILE" in
-  quick|default|full|custom) ;;
-  *) die "--profile must be one of: quick, default, full, custom" ;;
+  quick|default|full|world_model|custom) ;;
+  *) die "--profile must be one of: quick, default, full, world_model, custom" ;;
 esac
 
 case "$PYTHON_BACKEND" in
@@ -232,13 +232,16 @@ model_manifest() {
   model_line "segmenter" "SAM3" "facebook/sam3" "sam3" "yes" "SAM3_CKPT"
   model_line "image_to_3d" "Hunyuan3D-2.1" "tencent/Hunyuan3D-2.1" "Hunyuan3D-2.1" "no" "MODEL_HUB"
   model_line "image_to_3d_dino" "DINOv2 Giant" "facebook/dinov2-giant" "dinov2-giant" "no" "DINO_MODEL_PATH"
-  model_line "world_model" "HY-World-2.0" "Tencent-Hunyuan/HY-World-2.0" "HY-World-2.0" "no" "HYWORLD_WEIGHTS"
-  model_line "world_depth" "MoGe-2 VitL Normal" "Ruicheng/moge-2-vitl-normal" "moge-2-vitl-normal" "no" "HYWORLD_MOGE_MODEL_PATH"
-  model_line "world_sky_mask" "ZIM Anything ViT-L" "naver-iv/zim-anything-vitl" "zim-anything-vitl" "no" "HYWORLD_ZIM_MODEL_PATH"
-  model_line "world_detector" "GroundingDINO Tiny" "IDEA-Research/grounding-dino-tiny" "grounding-dino-tiny" "no" "HYWORLD_GROUNDING_DINO_MODEL_PATH"
-  model_line "world_stereo" "WorldStereo" "hanshanxue/WorldStereo" "WorldStereo" "no" "HYWORLD_WORLDSTEREO_PATH"
-  model_line "world_i2v_base" "Wan I2V Base Diffusers" "Wan-AI/Wan2.2-I2V-A14B-Diffusers" "Wan2.2-I2V-A14B-Diffusers" "no" "HYWORLD_WAN_BASE_MODEL"
   model_line "vlm_reviewer" "Qwen3.5-35B-A3B" "Qwen/Qwen3.5-35B-A3B" "Qwen3.5-35B-A3B" "access-dependent" "VLM_MODEL_PATH"
+
+  if [[ "$PROFILE" == "world_model" ]]; then
+    model_line "world_model" "HY-World-2.0" "Tencent-Hunyuan/HY-World-2.0" "HY-World-2.0" "no" "HYWORLD_WEIGHTS"
+    model_line "world_depth" "MoGe-2 VitL Normal" "Ruicheng/moge-2-vitl-normal" "moge-2-vitl-normal" "no" "HYWORLD_MOGE_MODEL_PATH"
+    model_line "world_sky_mask" "ZIM Anything ViT-L" "naver-iv/zim-anything-vitl" "zim-anything-vitl" "no" "HYWORLD_ZIM_MODEL_PATH"
+    model_line "world_detector" "GroundingDINO Tiny" "IDEA-Research/grounding-dino-tiny" "grounding-dino-tiny" "no" "HYWORLD_GROUNDING_DINO_MODEL_PATH"
+    model_line "world_stereo" "WorldStereo" "hanshanxue/WorldStereo" "WorldStereo" "no" "HYWORLD_WORLDSTEREO_PATH"
+    model_line "world_i2v_base" "Wan I2V Base Diffusers" "Wan-AI/Wan2.2-I2V-A14B-Diffusers" "Wan2.2-I2V-A14B-Diffusers" "no" "HYWORLD_WAN_BASE_MODEL"
+  fi
 
   if [[ "$PROFILE" == "full" ]]; then
     model_line "image_edit_generator" "Qwen-Image-Edit-2511" "Qwen/Qwen-Image-Edit-2511" "Qwen-Image-Edit-2511" "no" "QWEN_IMAGE_EDIT_MODEL_PATH"
@@ -289,7 +292,7 @@ print_config_plan() {
   printf '  DATAEVOLVER_MODEL_ROOT=%s\n' "$MODEL_ROOT"
   printf '  DATAEVOLVER_WORKSPACE_ROOT=%s\n' "$WORKSPACE_ROOT"
   printf '  BLENDER_BIN=/path/to/blender\n'
-  if [[ "$PROFILE" == "default" || "$PROFILE" == "full" ]]; then
+  if [[ "$PROFILE" == "default" || "$PROFILE" == "full" || "$PROFILE" == "world_model" ]]; then
     printf '  QWEN_IMAGE_MODEL_PATH=%s/Qwen-Image-2512\n' "$MODEL_ROOT"
     printf '  QWEN_IMAGE_EDIT_MODEL_PATH=%s/Qwen-Image-Edit-2511\n' "$MODEL_ROOT"
     printf '  SAM3_CKPT=%s/sam3/sam3.pt\n' "$MODEL_ROOT"
@@ -299,6 +302,12 @@ print_config_plan() {
     printf '  PAINT_MODEL_HUB=%s/Hunyuan3D-2.1\n' "$MODEL_ROOT"
     printf '  DINO_MODEL_PATH=%s/dinov2-giant\n' "$MODEL_ROOT"
     printf '  REALESRGAN_CKPT=<clone path for Tencent-Hunyuan/Hunyuan3D-2.1>/hy3dpaint/ckpt/RealESRGAN_x4plus.pth\n'
+    printf '  VLM_MODEL_PATH=%s/Qwen3.5-35B-A3B\n' "$MODEL_ROOT"
+    printf '  STAGE3_PAINT_MAX_FACES=5000\n'
+    printf '  STAGE3_PAINT_REMESH_MODES=false\n'
+    printf '  STAGE3_PAINT_ATTEMPT_TIMEOUT_SEC=300\n'
+  fi
+  if [[ "$PROFILE" == "world_model" ]]; then
     printf '  HYWORLD_SRC=<clone path for Tencent-Hunyuan/HY-World-2.0 source>\n'
     printf '  HYWORLD_WEIGHTS=%s/HY-World-2.0\n' "$MODEL_ROOT"
     printf '  HYWORLD_MOGE_MODEL_PATH=%s/moge-2-vitl-normal\n' "$MODEL_ROOT"
@@ -307,10 +316,6 @@ print_config_plan() {
     printf '  HYWORLD_SAM3_MODEL_PATH=%s/sam3\n' "$MODEL_ROOT"
     printf '  HYWORLD_WORLDSTEREO_PATH=%s/WorldStereo\n' "$MODEL_ROOT"
     printf '  HYWORLD_WAN_BASE_MODEL=%s/Wan2.2-I2V-A14B-Diffusers\n' "$MODEL_ROOT"
-    printf '  VLM_MODEL_PATH=%s/Qwen3.5-35B-A3B\n' "$MODEL_ROOT"
-    printf '  STAGE3_PAINT_MAX_FACES=5000\n'
-    printf '  STAGE3_PAINT_REMESH_MODES=false\n'
-    printf '  STAGE3_PAINT_ATTEMPT_TIMEOUT_SEC=300\n'
   fi
   if [[ "$PROFILE" == "full" ]]; then
     printf '  WAN_T2V_MODEL_PATH=%s/Wan2.1-T2V-1.3B-Diffusers\n' "$MODEL_ROOT"
@@ -321,7 +326,9 @@ print_config_plan() {
   printf '  pipeline/stage3_image_to_3d.py: HUNYUAN3D_REPO/MODEL_HUB/PAINT_MODEL_HUB/DINO_MODEL_PATH/REALESRGAN_CKPT <- env overrides\n'
   printf '  pipeline/stage5_5_vlm_review.py: VLM_MODEL_PATH <- env override\n'
   printf '  scene/render scripts: BLENDER_BIN <- env override\n'
-  printf '  HYWorld worldgen: HYWORLD_SRC/HYWORLD_WEIGHTS/HYWORLD_* model paths <- env overrides\n'
+  if [[ "$PROFILE" == "world_model" ]]; then
+    printf '  HYWorld worldgen: HYWORLD_SRC/HYWORLD_WEIGHTS/HYWORLD_* model paths <- env overrides\n'
+  fi
 }
 
 write_local_config() {
@@ -424,6 +431,24 @@ path_override_plan = [
         "env": "BLENDER_BIN",
     },
 ]
+if profile == "world_model":
+    path_override_plan.extend([
+        {
+            "file": "scripts/run_hyworld_full_worldgen.py",
+            "constant": "HYWORLD_SRC",
+            "env": "HYWORLD_SRC",
+        },
+        {
+            "file": "scripts/run_hyworld_full_worldgen.py",
+            "constant": "HYWORLD_WEIGHTS",
+            "env": "HYWORLD_WEIGHTS",
+        },
+        {
+            "file": "scripts/build_worldmirror_scene_mesh.py",
+            "constant": "HYWORLD_WAN_BASE_MODEL",
+            "env": "HYWORLD_WAN_BASE_MODEL",
+        },
+    ])
 
 access_requirements = [
     {
@@ -458,6 +483,7 @@ target_workflow = {
     "quick": "quick_demo",
     "default": "full_core_pipeline",
     "full": "all_default_routes",
+    "world_model": "world_model_scene",
     "custom": "custom_model_planning",
 }[profile]
 
@@ -504,11 +530,12 @@ payload = {
 
 production_profile = {
     "schema": "dataevolver.production.v1",
+    "profile": profile,
+    "target_workflow": target_workflow,
     "workspace_root": workspace_root,
     "runtime_dir": str(Path(workspace_root) / ".dataevolver/runtime"),
     "runtime": {
         "dataevolver_python": str(Path(workspace_root) / ".venv/bin/python"),
-        "hyworld_python": str(Path(workspace_root) / ".venv-hyworld/bin/python"),
         "blender_bin": shutil.which("blender") or "/path/to/blender",
     },
     "paths": {
@@ -519,16 +546,8 @@ production_profile = {
         "hunyuan3d_weights": str(Path(model_root) / "Hunyuan3D-2.1"),
         "dino_model": str(Path(model_root) / "dinov2-giant"),
         "realesrgan_checkpoint": str(Path(workspace_root) / ".dataevolver/local/vendor/Hunyuan3D-2.1-src/hy3dpaint/ckpt/RealESRGAN_x4plus.pth"),
-        "hyworld_source": str(Path(workspace_root) / ".dataevolver/local/vendor/HY-World-2.0-src"),
-        "hyworld_weights": str(Path(model_root) / "HY-World-2.0"),
-        "hyworld_moge_model": str(Path(model_root) / "moge-2-vitl-normal"),
-        "hyworld_zim_model": str(Path(model_root) / "zim-anything-vitl"),
-        "hyworld_grounding_dino_model": str(Path(model_root) / "grounding-dino-tiny"),
-        "hyworld_sam3_model": str(Path(model_root) / "sam3"),
-        "hyworld_worldstereo_weights": str(Path(model_root) / "WorldStereo"),
-        "hyworld_wan_base_model": str(Path(model_root) / "Wan2.2-I2V-A14B-Diffusers"),
     },
-    "offline": {"no_model_downloads": True, "hf_hub_offline": True, "skip_hyworld_depth_models": False},
+    "offline": {"no_model_downloads": True, "hf_hub_offline": True},
     "environment": {
         "QWEN_IMAGE_MODEL_PATH": str(Path(model_root) / "Qwen-Image-2512"),
         "SAM3_CKPT": str(Path(model_root) / "sam3/sam3.pt"),
@@ -538,6 +557,29 @@ production_profile = {
         "PAINT_MODEL_HUB": str(Path(model_root) / "Hunyuan3D-2.1"),
         "DINO_MODEL_PATH": str(Path(model_root) / "dinov2-giant"),
         "REALESRGAN_CKPT": str(Path(workspace_root) / ".dataevolver/local/vendor/Hunyuan3D-2.1-src/hy3dpaint/ckpt/RealESRGAN_x4plus.pth"),
+    },
+    "import_checks": {
+        "dataevolver": ["torch", "diffsynth.pipelines.qwen_image", "transformers"],
+    },
+    "workers": [
+        {"name": "stage2-qwen-image", "kind": "stage2", "python": "dataevolver_python", "device": "cuda:0", "model_path": str(Path(model_root) / "Qwen-Image-2512")},
+        {"name": "stage3-hunyuan", "kind": "stage3", "python": "dataevolver_python", "device": "cuda:1"},
+    ],
+    "health_endpoints": [],
+}
+if profile == "world_model":
+    production_profile["runtime"]["hyworld_python"] = str(Path(workspace_root) / ".venv-hyworld/bin/python")
+    production_profile["paths"].update({
+        "hyworld_source": str(Path(workspace_root) / ".dataevolver/local/vendor/HY-World-2.0-src"),
+        "hyworld_weights": str(Path(model_root) / "HY-World-2.0"),
+        "hyworld_moge_model": str(Path(model_root) / "moge-2-vitl-normal"),
+        "hyworld_zim_model": str(Path(model_root) / "zim-anything-vitl"),
+        "hyworld_grounding_dino_model": str(Path(model_root) / "grounding-dino-tiny"),
+        "hyworld_sam3_model": str(Path(model_root) / "sam3"),
+        "hyworld_worldstereo_weights": str(Path(model_root) / "WorldStereo"),
+        "hyworld_wan_base_model": str(Path(model_root) / "Wan2.2-I2V-A14B-Diffusers"),
+    })
+    production_profile["environment"].update({
         "HYWORLD_SRC": str(Path(workspace_root) / ".dataevolver/local/vendor/HY-World-2.0-src"),
         "HYWORLD_WEIGHTS": str(Path(model_root) / "HY-World-2.0"),
         "HYWORLD_MOGE_MODEL_PATH": str(Path(model_root) / "moge-2-vitl-normal"),
@@ -547,17 +589,14 @@ production_profile = {
         "HYWORLD_WORLDSTEREO_PATH": str(Path(model_root) / "WorldStereo"),
         "HYWORLD_WAN_BASE_MODEL": str(Path(model_root) / "Wan2.2-I2V-A14B-Diffusers"),
         "WORLDSTEREO_BASE_MODEL_PATH": str(Path(model_root) / "Wan2.2-I2V-A14B-Diffusers"),
-    },
-    "import_checks": {
-        "dataevolver": ["torch", "diffsynth.pipelines.qwen_image", "transformers"],
-        "hyworld": ["torch", "moge.model.v2", "hyworld2.worldrecon.pipeline", "gsplat"],
-    },
-    "workers": [
-        {"name": "stage2-qwen-image", "kind": "stage2", "python": "dataevolver_python", "device": "cuda:0", "model_path": str(Path(model_root) / "Qwen-Image-2512")},
-        {"name": "stage3-hunyuan", "kind": "stage3", "python": "dataevolver_python", "device": "cuda:1"},
-    ],
-    "health_endpoints": [],
-}
+    })
+    production_profile["import_checks"]["hyworld"] = [
+        "torch",
+        "moge.model.v2",
+        "hyworld2.worldrecon.pipeline",
+        "gsplat",
+    ]
+    production_profile["offline"]["skip_hyworld_depth_models"] = False
 (out / "production_profile.json").write_text(
     json.dumps(production_profile, indent=2, ensure_ascii=False) + "\n",
     encoding="utf-8",
@@ -618,6 +657,18 @@ python scripts/finalize_hyworld_object_scene_report.py --dataset-base /data/hywo
 
 Do not treat a VLM pass as authoritative for world-model completion. Use contract-backed geometry, multi-view pure-scene renders, and final manifest/lineage evidence."""
 
+world_model_section = (
+    f"""## HYWorld World Model Usage
+
+{world_model_usage}
+"""
+    if profile == "world_model"
+    else """## Optional HYWorld World Model Route
+
+Run `bash scripts/bootstrap_dataevolver_default.sh --profile world_model --dry-run --write-local-config` when the target route is HYWorld / WorldMirror scene reconstruction. The default profile intentionally does not write HYWorld paths or require world-model weights.
+"""
+)
+
 smoke_plan = """Production readiness smoke order:
 
 1. Preflight: Python, uv, GPU, disk, Blender, and model paths.
@@ -666,9 +717,7 @@ Generated by `scripts/bootstrap_dataevolver_default.sh` in dry-run mode. The gen
 
 {path_separation}
 
-## HYWorld World Model Usage
-
-{world_model_usage}
+{world_model_section}
 
 ## Production Smoke Tests
 
@@ -695,7 +744,6 @@ env_lines = [
     f"export DATAEVOLVER_MODEL_ROOT={shlex.quote(model_root)}",
     f"export BLENDER_BIN={shlex.quote(shutil.which('blender') or '/path/to/blender')}",
     f"export DATAEVOLVER_PYTHON={shlex.quote(str(Path(workspace_root) / '.venv/bin/python'))}",
-    f"export HYWORLD_PYTHON={shlex.quote(str(Path(workspace_root) / '.venv-hyworld/bin/python'))}",
     f"export DATAEVOLVER_PRODUCTION_PROFILE={shlex.quote(str(Path(workspace_root) / '.dataevolver/local/production_profile.json'))}",
 ]
 for model in models:
@@ -706,13 +754,18 @@ for model in models:
     if env_name == "SAM3_CKPT":
         value = str(Path(value) / "sam3.pt")
     env_lines.append(f"export {env_name}={shlex.quote(value)}")
-if profile in {"default", "full"}:
+if profile in {"default", "full", "world_model"}:
     if profile == "default":
         env_lines.append(f"export QWEN_IMAGE_EDIT_MODEL_PATH={shlex.quote(str(Path(model_root) / 'Qwen-Image-Edit-2511'))}")
     env_lines.append(f"export PAINT_MODEL_HUB={shlex.quote(str(Path(model_root) / 'Hunyuan3D-2.1'))}")
     env_lines.append(f"export SAM3_DIR={shlex.quote(str(Path(workspace_root) / '.dataevolver/local/vendor/sam3-src'))}")
     env_lines.append(f"export HUNYUAN3D_REPO={shlex.quote(str(Path(workspace_root) / '.dataevolver/local/vendor/Hunyuan3D-2.1-src'))}")
     env_lines.append('export REALESRGAN_CKPT="$HUNYUAN3D_REPO/hy3dpaint/ckpt/RealESRGAN_x4plus.pth"')
+    env_lines.append("export STAGE3_PAINT_MAX_FACES=5000")
+    env_lines.append("export STAGE3_PAINT_REMESH_MODES=false")
+    env_lines.append("export STAGE3_PAINT_ATTEMPT_TIMEOUT_SEC=300")
+if profile == "world_model":
+    env_lines.append(f"export HYWORLD_PYTHON={shlex.quote(str(Path(workspace_root) / '.venv-hyworld/bin/python'))}")
     env_lines.append(f"export HYWORLD_SRC={shlex.quote(str(Path(workspace_root) / '.dataevolver/local/vendor/HY-World-2.0-src'))}")
     env_lines.append(f"export HYWORLD_WEIGHTS={shlex.quote(str(Path(model_root) / 'HY-World-2.0'))}")
     env_lines.append(f"export HYWORLD_MOGE_MODEL_PATH={shlex.quote(str(Path(model_root) / 'moge-2-vitl-normal'))}")
@@ -720,10 +773,8 @@ if profile in {"default", "full"}:
     env_lines.append(f"export HYWORLD_GROUNDING_DINO_MODEL_PATH={shlex.quote(str(Path(model_root) / 'grounding-dino-tiny'))}")
     env_lines.append(f"export HYWORLD_SAM3_MODEL_PATH={shlex.quote(str(Path(model_root) / 'sam3'))}")
     env_lines.append(f"export HYWORLD_WORLDSTEREO_PATH={shlex.quote(str(Path(model_root) / 'WorldStereo'))}")
+    env_lines.append(f"export HYWORLD_WAN_BASE_MODEL={shlex.quote(str(Path(model_root) / 'Wan2.2-I2V-A14B-Diffusers'))}")
     env_lines.append('export WORLDSTEREO_BASE_MODEL_PATH="$HYWORLD_WAN_BASE_MODEL"')
-    env_lines.append("export STAGE3_PAINT_MAX_FACES=5000")
-    env_lines.append("export STAGE3_PAINT_REMESH_MODES=false")
-    env_lines.append("export STAGE3_PAINT_ATTEMPT_TIMEOUT_SEC=300")
 env_lines.append("# Set HF_TOKEN in your shell only when performing real downloads.")
 (out / "env.sh.example").write_text("\n".join(env_lines) + "\n", encoding="utf-8")
 

@@ -10,13 +10,13 @@ Use this skill to help a user quickly become ready to run DataEvolver without ov
 ## Workflow
 
 1. Ask at most five setup questions:
-   - Target route: `quick_demo`, `t2i`, `edit`, `t2v`, `blender_3d`, `vlm_review`, `full_pipeline`, or `custom`.
+   - Target route: `quick_demo`, `t2i`, `edit`, `t2v`, `blender_3d`, `vlm_review`, `full_pipeline`, `world_model_scene`, or `custom`.
    - Runtime location: local Linux path, remote SSH alias plus project path, or not cloned yet.
    - Install policy: inspect only, generate plan, install Python deps, download models, or full setup later.
    - Model strategy: default DataEvolver models, existing paths, custom replacement models, or skip for now.
    - Work/output paths: default `runtime/`, user path, or remote path.
 2. Do not ask tool-version questions in the interview. Let the demo script probe Python, `uv`, `uvx`, `conda`, `hf`, GPU, and Blender availability.
-3. Summarize known values, missing blockers, and the selected profile: `quick`, `default`, `full`, or `custom`.
+3. Summarize known values, missing blockers, and the selected profile: `quick`, `default`, `full`, `world_model`, or `custom`.
 4. Generate or update `.dataevolver/local/ENVIRONMENT.md` and `.dataevolver/local/env.config.json` only when the user asks to save the profile.
 5. Hand off to the main agent with the demo command:
    `bash scripts/bootstrap_dataevolver_default.sh --profile <profile> --dry-run --write-local-config`
@@ -27,7 +27,10 @@ Use this skill to help a user quickly become ready to run DataEvolver without ov
 - `quick`: environment probes and a dry-run route only.
 - `default`: current core pipeline defaults: Qwen-Image-2512, SAM3, Hunyuan3D-2.1, DINOv2 Giant, Qwen3.5-35B-A3B, and Blender.
 - `full`: `default` plus Qwen-Image-Edit-2511 and Wan2.1-T2V.
+- `world_model`: optional HYWorld / WorldMirror scene reconstruction route. Use only when the target route is `world_model_scene`; it adds HY-World-2.0, MoGe, ZIM, GroundingDINO, SAM3, WorldStereo, Wan I2V base, and WorldMirror/3DGS checks.
 - `custom`: record user-supplied model replacements as `needs_check`; do not perform compatibility review during onboarding.
+
+Do not put world-model setup into `default`. When a user wants standard DataEvolver generation, keep `default` focused on the core pipeline. When a user wants input image -> HY-Pano -> WorldMirror/metric depth mesh -> Blender scene contract -> multi-view validation -> object insertion -> final report, select route `world_model_scene` and profile `world_model`.
 
 ## Safety Rules
 
@@ -43,6 +46,9 @@ Use this skill to help a user quickly become ready to run DataEvolver without ov
 
 - Source or export environment-variable overrides before real one-click setup runs legacy pipeline stages:
   `QWEN_IMAGE_MODEL_PATH`, `SAM3_CKPT`, `SAM3_DIR`, `HUNYUAN3D_REPO`, `MODEL_HUB`, `PAINT_MODEL_HUB`, `DINO_MODEL_PATH`, `REALESRGAN_CKPT`, and `VLM_MODEL_PATH`.
+- For `world_model_scene`, also source or export:
+  `HYWORLD_SRC`, `HYWORLD_WEIGHTS`, `HYWORLD_PYTHON`, `HYWORLD_MOGE_MODEL_PATH`, `HYWORLD_ZIM_MODEL_PATH`, `HYWORLD_GROUNDING_DINO_MODEL_PATH`, `HYWORLD_SAM3_MODEL_PATH`, `HYWORLD_WORLDSTEREO_PATH`, `HYWORLD_WAN_BASE_MODEL`, and `WORLDSTEREO_BASE_MODEL_PATH`.
+- For `world_model_scene`, treat a VLM pass as advisory only. Review evidence should come from the HYWorld scene contract, multi-view pure-scene renders, manifest/lineage hashes, and the final scene/object report.
 - Install SAM3 and Hunyuan3D repo-specific dependencies only after target-host preflight.
 - Compile Hunyuan3D CUDA/C++ extensions only after CUDA/nvcc compatibility is confirmed.
 

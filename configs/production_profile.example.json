@@ -1,5 +1,7 @@
 {
   "schema": "dataevolver.production.v1",
+  "profile": "world_model",
+  "target_workflow": "world_model_scene",
   "workspace_root": "$DATAEVOLVER_WORKSPACE_ROOT",
   "runtime_dir": "$DATAEVOLVER_WORKSPACE_ROOT/.dataevolver/runtime",
   "runtime": {

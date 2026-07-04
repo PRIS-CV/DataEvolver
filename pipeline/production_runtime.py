@@ -15,7 +15,7 @@ from typing import Any
 
 PROFILE_SCHEMA = "dataevolver.production.v1"
 STATE_SCHEMA = "dataevolver.run_state.v1"
-REQUIRED_PATH_KEYS = (
+CORE_REQUIRED_PATH_KEYS = (
     "qwen_image_model",
     "sam3_checkpoint",
     "sam3_source",
@@ -23,6 +23,8 @@ REQUIRED_PATH_KEYS = (
     "hunyuan3d_weights",
     "dino_model",
     "realesrgan_checkpoint",
+)
+HYWORLD_BASE_PATH_KEYS = (
     "hyworld_source",
     "hyworld_weights",
 )
@@ -63,6 +65,17 @@ def load_profile(path: str | os.PathLike[str]) -> tuple[Path, dict[str, Any]]:
     if profile.get("schema") != PROFILE_SCHEMA:
         raise ValueError(f"Unsupported production profile schema: {profile.get('schema')}")
     return profile_path, profile
+
+
+def profile_uses_hyworld(profile: dict[str, Any]) -> bool:
+    profile_name = str(profile.get("profile") or "")
+    target_workflow = str(profile.get("target_workflow") or "")
+    paths = profile.get("paths") or {}
+    return (
+        profile_name == "world_model"
+        or target_workflow == "world_model_scene"
+        or any(paths.get(key) for key in HYWORLD_BASE_PATH_KEYS + HYWORLD_REAL3D_PATH_KEYS)
+    )
 
 
 def _run_probe(
@@ -168,43 +181,49 @@ def doctor_profile(path: str | os.PathLike[str], run_imports: bool = True) -> di
     blender = resolve_profile_path(profile_path, runtime.get("blender_bin"))
     workspace = resolve_profile_path(profile_path, profile.get("workspace_root"))
     environment = build_runtime_environment(profile_path, profile)
+    uses_hyworld = profile_uses_hyworld(profile)
 
     add("workspace", bool(workspace and workspace.is_dir()), str(workspace))
-    for name, executable in (
+    runtime_executables = [
         ("dataevolver_python", dataevolver_python),
-        ("hyworld_python", hyworld_python),
         ("blender", blender),
-    ):
+    ]
+    if uses_hyworld:
+        runtime_executables.append(("hyworld_python", hyworld_python))
+    for name, executable in runtime_executables:
         add(name, bool(executable and executable.is_file() and os.access(executable, os.X_OK)), str(executable))
 
     paths = profile.get("paths") or {}
-    for key in REQUIRED_PATH_KEYS:
-        candidate = resolve_profile_path(profile_path, paths.get(key))
-        add(f"path.{key}", bool(candidate and candidate.exists()), str(candidate))
-    for key in HYWORLD_REAL3D_PATH_KEYS:
+    for key in CORE_REQUIRED_PATH_KEYS:
         candidate = resolve_profile_path(profile_path, paths.get(key))
         add(f"path.{key}", bool(candidate and candidate.exists()), str(candidate))
 
-    hyworld_weights = resolve_profile_path(profile_path, paths.get("hyworld_weights"))
-    worldmirror_dir = hyworld_weights / "HY-WorldMirror-2.0" if hyworld_weights else None
-    add(
-        "path.hyworld_worldmirror",
-        bool(
-            worldmirror_dir
-            and (worldmirror_dir / "model.safetensors").is_file()
-            and ((worldmirror_dir / "config.yaml").is_file() or (worldmirror_dir / "config.json").is_file())
-        ),
-        str(worldmirror_dir),
-    )
+    if uses_hyworld:
+        for key in HYWORLD_BASE_PATH_KEYS + HYWORLD_REAL3D_PATH_KEYS:
+            candidate = resolve_profile_path(profile_path, paths.get(key))
+            add(f"path.{key}", bool(candidate and candidate.exists()), str(candidate))
+
+        hyworld_weights = resolve_profile_path(profile_path, paths.get("hyworld_weights"))
+        worldmirror_dir = hyworld_weights / "HY-WorldMirror-2.0" if hyworld_weights else None
+        add(
+            "path.hyworld_worldmirror",
+            bool(
+                worldmirror_dir
+                and (worldmirror_dir / "model.safetensors").is_file()
+                and ((worldmirror_dir / "config.yaml").is_file() or (worldmirror_dir / "config.json").is_file())
+            ),
+            str(worldmirror_dir),
+        )
 
     offline = profile.get("offline") or {}
     add("offline.no_model_downloads", offline.get("no_model_downloads") is True, str(offline.get("no_model_downloads")))
     add("offline.hf_hub_offline", offline.get("hf_hub_offline") is True, str(offline.get("hf_hub_offline")))
-    add(
-        "offline.hyworld_depth_models_enabled",
-        offline.get("skip_hyworld_depth_models", False) is False,
-        f"skip_hyworld_depth_models={offline.get('skip_hyworld_depth_models', False)}",
-    )
+    if uses_hyworld:
+        add(
+            "offline.hyworld_depth_models_enabled",
+            offline.get("skip_hyworld_depth_models", False) is False,
+            f"skip_hyworld_depth_models={offline.get('skip_hyworld_depth_models', False)}",
+        )
 
     probes: dict[str, Any] = {}
     if dataevolver_python and dataevolver_python.exists():
