@@ -205,9 +205,7 @@ HYWorld production scene generation requires local MoGe, ZIM, GroundingDINO, SAM
 
 The world-model route can build a reviewable scene package automatically from scene prompts or an input scene image. The pipeline first generates a 360-degree HY-Pano context, runs HYWorld / WorldMirror reconstruction, converts metric geometry into a Blender scene contract, renders pure-scene multi-view evidence, and then inserts objects with fixed scene-camera alignment. The final report records contract checks, per-view scene renders, object rotation views, masks, depth, normals, metadata gates, and lineage hashes.
 
-![HYWorld automated scene construction pipeline placeholder](assets/hyworld_scene_pipeline.png)
-
-The image above is a placeholder for the generated 2:1 pipeline figure. Replace `assets/hyworld_scene_pipeline.png` with the final diagram asset before release.
+![HYWorld automated scene construction pipeline](assets/3D-build.png)
 
 ```bash
 # 1. Generate or ingest the scene panorama.
