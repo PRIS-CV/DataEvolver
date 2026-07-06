@@ -1,4 +1,0 @@
-interface:
-  display_name: "DataEvolver Onboarding"
-  short_description: "Quick dry-run DataEvolver setup profiles"
-  default_prompt: "Use $dataevolver-onboarding to create a quick dry-run setup profile for DataEvolver."

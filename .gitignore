@@ -1,8 +1,6 @@
-# OS
+# OS/editor
 .DS_Store
 Thumbs.db
-
-# Editor
 *.swp
 *.swo
 *~
@@ -11,25 +9,40 @@ Thumbs.db
 
 # Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
 
-# Environment
+# Secrets and machine-local environment
 .env
+*.env
+*.local
+*.local.json
+.dataevolver/
 
-# Large / generated / external
-_tmp/
-_remote_artifacts/
-_remote_patch/
+# Large/generated artifacts
 runtime/
-refine-logs/
-remote_results/
-DiffSynth-Studio/
-feishu-claude-code/
-agent_loop_v72_upload/
-objects/
-plan-list/
-notion-weekly/
+!src/dataevolver/runtime/
+!src/dataevolver/runtime/**
+reports/
+deliverables/
+poster/
+review_packet_submission*/
+dataevolver_multimodal_delivery_*/
+multimodal_image_dataset_package_*/
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
 *.safetensors
 *.ckpt
 *.bin
@@ -37,43 +50,41 @@ notion-weekly/
 *.png
 *.jpg
 *.jpeg
+*.mp4
 
-# Internal docs, intermediate results, and deliverables
-docs/
-deliverables/
-v6_staging/
-mcp-servers/
-tools/
-obsidian-skills
-pipeline/data/experiments/
-pipeline/data/meshes/
-pipeline/data/prompts.json
-pipeline/VLM_FEEDBACK_DIMENSIONS_AND_PARAM_TUNING.md
-pipeline/VLM_REVIEW_PRECONFIG.md
-vlm_render_evolution_summary.md
-analyze_evolution.py
-verify_v3.py
-task.md
-task.txt
+# Local-only legacy roots during src/ migration
+/pipeline/
+/scripts/
+/configs/
+/docs/
+/tests/
+/web/
+/.agents/
+/experiments/
+/assets/
 
-# Claude Code / AI agent configs (user-specific, do not commit)
+# External repositories, benchmark copies, and local research workspaces
+/BAAI/
+/CSU-JPG/
+/DataEvolver/
+/Frontier-Engineering/
+/GEditBenchV2/
+/KDD/
+/StoryBlender/
+/local-deep-research/
+/node_modules/
+/vggt-omega/
+
+# Local agent/tool state
+.aether-kb/
 .claude/
-.plan
-CLAUDE.md
+.codex/
+.headroom/
+.serena/
+.workbuddy/
 AGENTS.md
+CLAUDE.md
 CODEX_RULES.md
-CONTRIBUTING.md
-CONTRIBUTING_CN.md
-README_CN.md
 memory/
 skills/
-
-# Repository-provided agent skills
-!.agents/
-!.agents/skills/
-.agents/skills/*
-!.agents/skills/dataevolver-onboarding/
-!.agents/skills/dataevolver-onboarding/**
-
-# Local onboarding outputs
-.dataevolver/local/
+skills-lock.json
