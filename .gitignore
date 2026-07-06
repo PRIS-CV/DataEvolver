@@ -1,6 +1,8 @@
-# OS/editor
+# OS
 .DS_Store
 Thumbs.db
+
+# Editor
 *.swp
 *.swo
 *~
@@ -9,35 +11,33 @@ Thumbs.db
 
 # Python
 __pycache__/
-*.py[cod]
-.pytest_cache/
-.ruff_cache/
-.mypy_cache/
-.coverage
-htmlcov/
-build/
-dist/
-*.egg-info/
-.venv/
-venv/
+*.pyc
+*.pyo
 
-# Secrets and machine-local environment
+# Environment
 .env
 *.env
 *.local
 *.local.json
-.dataevolver/
 
-# Large/generated artifacts
+# Large / generated / external
+_tmp/
+_remote_artifacts/
+_remote_patch/
 runtime/
-!src/dataevolver/runtime/
-!src/dataevolver/runtime/**
+refine-logs/
+remote_results/
 reports/
-deliverables/
 poster/
 review_packet_submission*/
 dataevolver_multimodal_delivery_*/
 multimodal_image_dataset_package_*/
+DiffSynth-Studio/
+feishu-claude-code/
+agent_loop_v72_upload/
+objects/
+plan-list/
+notion-weekly/
 *.zip
 *.tar
 *.tar.gz
@@ -52,39 +52,81 @@ multimodal_image_dataset_package_*/
 *.jpeg
 *.mp4
 
-# Local-only legacy roots during src/ migration
-/pipeline/
-/scripts/
-/configs/
-/docs/
-/tests/
-/web/
-/.agents/
-/experiments/
-/assets/
+# Internal docs, intermediate results, and deliverables
+docs/
+deliverables/
+v6_staging/
+mcp-servers/
+tools/
+obsidian-skills
+pipeline/data/experiments/
+pipeline/data/meshes/
+pipeline/data/prompts.json
+pipeline/VLM_FEEDBACK_DIMENSIONS_AND_PARAM_TUNING.md
+pipeline/VLM_REVIEW_PRECONFIG.md
+vlm_render_evolution_summary.md
+analyze_evolution.py
+verify_v3.py
+task.md
+task.txt
 
-# External repositories, benchmark copies, and local research workspaces
-/BAAI/
-/CSU-JPG/
-/DataEvolver/
-/Frontier-Engineering/
-/GEditBenchV2/
-/KDD/
-/StoryBlender/
-/local-deep-research/
-/node_modules/
-/vggt-omega/
+# Local config files and one-off experiment profiles.
+configs/local/
+configs/production_profile.json
+configs/**/*.local.json
+configs/**/local_*.json
+configs/**/*_local.json
+configs/seed_concepts/
+configs/scene_pool.json
+configs/scene_template_outdoor*.json
+configs/scene_template_smoke_256_eevee.json
+configs/dataset_profiles/rotation_v[123].json
+configs/dataset_profiles/scene_v71*.json
+configs/dataset_profiles/scene_v7_full20_loop.json
+configs/dataset_profiles/scene_v7_full50_loop.json
 
-# Local agent/tool state
-.aether-kb/
+# Local batch, resume, render, and watchdog runners.
+scripts/batch_render_*.sh
+scripts/build_bright_full_pipeline.sh
+scripts/build_scene_full50_expansion_pipeline.py
+scripts/continue_pipeline_steps3_9.sh
+scripts/launch_*.sh
+scripts/precheck_scene_full50_assets.py
+scripts/relaunch_*.sh
+scripts/rerender_*.py
+scripts/rerun_*.sh
+scripts/resume_*.sh
+scripts/render_*.py
+scripts/render_*.sh
+scripts/run_full20_*
+scripts/run_render_feedback_tuner*
+scripts/run_scene_evolution_multi_gpu.py
+scripts/run_scene_full50_expansion.sh
+scripts/run_scene_rotation_dataset_multi_gpu.py
+scripts/run_stage1_to_externalfb_train_loop.sh
+scripts/run_stage4_multiview_multi_gpu.py
+scripts/run_steps4_9_textured17.sh
+scripts/test_run_scene1.sh
+scripts/train_*.sh
+
+# Claude Code / AI agent configs (user-specific, do not commit)
 .claude/
-.codex/
-.headroom/
-.serena/
-.workbuddy/
-AGENTS.md
+.plan
 CLAUDE.md
+AGENTS.md
 CODEX_RULES.md
+CONTRIBUTING.md
+CONTRIBUTING_CN.md
+README_CN.md
 memory/
 skills/
-skills-lock.json
+
+# Repository-provided agent skills
+!.agents/
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/dataevolver-onboarding/
+!.agents/skills/dataevolver-onboarding/**
+
+# Local onboarding outputs
+.dataevolver/local/

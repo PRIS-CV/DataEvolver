@@ -1,0 +1,221 @@
+{
+  "_comment": "Scene-aware discrete action space for Blender scene insertion MVP",
+  "groups": {
+    "lighting": {
+      "actions": {
+        "L_KEY_UP": {
+          "target": "key_scale",
+          "delta_type": "mul",
+          "delta": 1.2,
+          "bounds": [0.5, 2.0]
+        },
+        "L_KEY_DOWN": {
+          "target": "key_scale",
+          "delta_type": "mul",
+          "delta": 0.8,
+          "bounds": [0.5, 2.0]
+        },
+        "L_KEY_YAW_POS_15": {
+          "target": "key_yaw_deg",
+          "delta_type": "add",
+          "delta": 15.0,
+          "bounds": [-90.0, 90.0]
+        },
+        "L_KEY_YAW_NEG_15": {
+          "target": "key_yaw_deg",
+          "delta_type": "add",
+          "delta": -15.0,
+          "bounds": [-90.0, 90.0]
+        }
+      }
+    },
+    "camera": {
+      "actions": {}
+    },
+    "object": {
+      "actions": {
+        "O_LIFT_SMALL": {
+          "target": "offset_z",
+          "delta_type": "add",
+          "delta": 0.02,
+          "bounds": [-0.1, 0.1]
+        },
+        "O_LOWER_SMALL": {
+          "target": "offset_z",
+          "delta_type": "add",
+          "delta": -0.02,
+          "bounds": [-0.1, 0.1]
+        },
+        "O_ROTATE_Z_POS_15": {
+          "target": "yaw_deg",
+          "delta_type": "add",
+          "delta": 15.0,
+          "bounds": [-45.0, 45.0]
+        },
+        "O_ROTATE_Z_NEG_15": {
+          "target": "yaw_deg",
+          "delta_type": "add",
+          "delta": -15.0,
+          "bounds": [-45.0, 45.0]
+        },
+        "O_SCALE_UP_10": {
+          "target": "scale",
+          "delta_type": "mul",
+          "delta": 1.1,
+          "bounds": [0.7, 1.4]
+        },
+        "O_SCALE_DOWN_10": {
+          "target": "scale",
+          "delta_type": "mul",
+          "delta": 0.9,
+          "bounds": [0.7, 1.4]
+        }
+      }
+    },
+    "scene": {
+      "actions": {
+        "ENV_ROTATE_30": {
+          "target": "hdri_yaw_deg",
+          "delta_type": "add",
+          "delta": 30.0,
+          "bounds": [-180.0, 180.0]
+        },
+        "ENV_ROTATE_NEG_30": {
+          "target": "hdri_yaw_deg",
+          "delta_type": "add",
+          "delta": -30.0,
+          "bounds": [-180.0, 180.0]
+        },
+        "ENV_STRENGTH_UP": {
+          "target": "env_strength_scale",
+          "delta_type": "mul",
+          "delta": 1.2,
+          "bounds": [0.5, 2.0]
+        },
+        "ENV_STRENGTH_DOWN": {
+          "target": "env_strength_scale",
+          "delta_type": "mul",
+          "delta": 0.8,
+          "bounds": [0.5, 2.0]
+        },
+        "S_CONTACT_SHADOW_UP": {
+          "target": "contact_shadow_strength",
+          "delta_type": "mul",
+          "delta": 1.2,
+          "bounds": [0.5, 2.0]
+        }
+      }
+    },
+    "material": {
+      "actions": {
+        "M_SATURATION_DOWN": {
+          "target": "saturation_scale",
+          "delta_type": "mul",
+          "delta": 0.9,
+          "bounds": [0.5, 1.5]
+        },
+        "M_VALUE_UP": {
+          "target": "value_scale",
+          "delta_type": "mul",
+          "delta": 1.1,
+          "bounds": [0.5, 1.5]
+        },
+        "M_VALUE_DOWN": {
+          "target": "value_scale",
+          "delta_type": "mul",
+          "delta": 0.9,
+          "bounds": [0.5, 1.5]
+        },
+        "M_VALUE_DOWN_STRONG": {
+          "target": "value_scale",
+          "delta_type": "mul",
+          "delta": 0.8,
+          "bounds": [0.4, 1.5]
+        },
+        "M_HUE_WARM_NEG": {
+          "target": "hue_offset",
+          "delta_type": "add",
+          "delta": -0.03,
+          "bounds": [-0.15, 0.15]
+        },
+        "M_HUE_WARM_POS": {
+          "target": "hue_offset",
+          "delta_type": "add",
+          "delta": 0.03,
+          "bounds": [-0.15, 0.15]
+        },
+        "M_ROUGHNESS_DOWN": {
+          "target": "roughness_add",
+          "delta_type": "add",
+          "delta": -0.08,
+          "bounds": [-0.3, 0.6]
+        },
+        "M_SHEEN_UP": {
+          "target": "specular_add",
+          "delta_type": "add",
+          "delta": 0.08,
+          "bounds": [0.0, 0.5]
+        },
+        "M_ROUGHNESS_UP": {
+          "target": "roughness_add",
+          "delta_type": "add",
+          "delta": 0.08,
+          "bounds": [-0.3, 0.6]
+        }
+      }
+    }
+  },
+  "compound_actions": {},
+  "issue_to_action_fallback": {
+    "underexposed": ["ENV_STRENGTH_UP", "L_KEY_UP"],
+    "flat_lighting": ["ENV_ROTATE_30", "L_KEY_YAW_POS_15"],
+    "harsh_shadow": ["L_KEY_DOWN"],
+    "color_shift": ["M_VALUE_DOWN_STRONG", "M_HUE_WARM_NEG", "M_SATURATION_DOWN", "M_VALUE_DOWN", "M_ROUGHNESS_UP"],
+    "scene_light_mismatch": ["ENV_ROTATE_30", "ENV_ROTATE_NEG_30", "L_KEY_YAW_POS_15", "L_KEY_YAW_NEG_15"],
+    "shadow_missing": ["S_CONTACT_SHADOW_UP", "L_KEY_UP"],
+    "floating_visible": ["O_LOWER_SMALL"],
+    "ground_intersection_visible": ["O_LIFT_SMALL"],
+    "scale_implausible": ["O_SCALE_UP_10", "O_SCALE_DOWN_10"],
+    "physical_implausibility": ["O_LOWER_SMALL", "S_CONTACT_SHADOW_UP"]
+  },
+  "lighting_diagnosis_to_action": {
+    "scene_light_mismatch": ["ENV_ROTATE_30", "ENV_ROTATE_NEG_30", "L_KEY_YAW_POS_15", "L_KEY_YAW_NEG_15"],
+    "shadow_missing": ["S_CONTACT_SHADOW_UP", "L_KEY_UP"],
+    "underexposed_global": ["ENV_STRENGTH_UP", "L_KEY_UP"],
+    "flat_low_contrast": ["ENV_STRENGTH_UP"],
+    "harsh_shadow_key": ["L_KEY_DOWN"],
+    "good": ["NO_OP"]
+  },
+  "color_issue_to_action": {
+    "minor_shift": ["M_HUE_WARM_NEG", "M_SATURATION_DOWN", "M_VALUE_DOWN", "M_ROUGHNESS_UP"],
+    "major_shift": ["M_VALUE_DOWN_STRONG", "M_HUE_WARM_NEG", "M_VALUE_DOWN", "M_SATURATION_DOWN", "M_ROUGHNESS_UP"]
+  },
+  "physics_issue_to_action": {
+    "minor_issue": ["O_LOWER_SMALL", "O_LIFT_SMALL", "S_CONTACT_SHADOW_UP", "O_SCALE_DOWN_10", "O_SCALE_UP_10"],
+    "major_issue": ["O_LOWER_SMALL", "O_LIFT_SMALL", "O_SCALE_DOWN_10", "O_SCALE_UP_10", "S_CONTACT_SHADOW_UP"]
+  },
+  "default_control_state": {
+    "lighting": {
+      "key_scale": 1.0,
+      "key_yaw_deg": 0.0
+    },
+    "camera": {},
+    "object": {
+      "offset_z": 0.0,
+      "yaw_deg": 0.0,
+      "scale": 1.0
+    },
+    "scene": {
+      "hdri_yaw_deg": 0.0,
+      "env_strength_scale": 1.0,
+      "contact_shadow_strength": 1.0
+    },
+    "material": {
+      "saturation_scale": 1.0,
+      "value_scale": 1.0,
+      "hue_offset": 0.0,
+      "specular_add": 0.0,
+      "roughness_add": 0.0
+    }
+  }
+}
