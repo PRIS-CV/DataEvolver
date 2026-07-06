@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dataevolver"
+version = "0.0.0"
+description = "Source package boundary for DataEvolver."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+
+[project.optional-dependencies]
+hyworld = [
+    "accelerate",
+    "diffusers",
+    "gsplat",
+    "huggingface-hub",
+    "imageio",
+    "numpy<2",
+    "opencv-python",
+    "pillow",
+    "safetensors",
+    "scipy",
+    "torch",
+    "torchvision",
+    "transformers",
+    "trimesh",
+]
+test = [
+    "pytest",
+    "numpy<2",
+]
+
+[project.scripts]
+dataevolver-production = "dataevolver.cli.production:main"
+dataevolver-multimodal = "dataevolver.workflows.multimodal.run_multimodal_dataset:main"
+dataevolver-stage0-web-research = "dataevolver.tools.stage0_web_research:main"
+dataevolver-hyworld-pano = "dataevolver.workflows.hyworld.scene_pano:main"
+dataevolver-hyworld-full-worldgen = "dataevolver.workflows.hyworld.full_worldgen:main"
+dataevolver-hyworld-finalize-report = "dataevolver.workflows.hyworld.finalize_object_scene_report:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+dataevolver = ["cli/*.sh"]
+
+[tool.pytest.ini_options]
+testpaths = ["src/dataevolver/testing"]

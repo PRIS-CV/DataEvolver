@@ -16,20 +16,33 @@ __pycache__/
 
 # Environment
 .env
+*.env
+*.local
+*.local.json
 
 # Large / generated / external
 _tmp/
 _remote_artifacts/
 _remote_patch/
-runtime/
+/runtime/
 refine-logs/
 remote_results/
+reports/
+poster/
+review_packet_submission*/
+dataevolver_multimodal_delivery_*/
+multimodal_image_dataset_package_*/
 DiffSynth-Studio/
 feishu-claude-code/
 agent_loop_v72_upload/
 objects/
 plan-list/
 notion-weekly/
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
 *.safetensors
 *.ckpt
 *.bin
@@ -37,24 +50,40 @@ notion-weekly/
 *.png
 *.jpg
 *.jpeg
+*.mp4
 
 # Internal docs, intermediate results, and deliverables
 docs/
 deliverables/
 v6_staging/
 mcp-servers/
-tools/
+/pipeline/
+/scripts/
+/tests/
+/tools/
 obsidian-skills
-pipeline/data/experiments/
-pipeline/data/meshes/
-pipeline/data/prompts.json
-pipeline/VLM_FEEDBACK_DIMENSIONS_AND_PARAM_TUNING.md
-pipeline/VLM_REVIEW_PRECONFIG.md
 vlm_render_evolution_summary.md
 analyze_evolution.py
 verify_v3.py
 task.md
 task.txt
+
+# Local config files and one-off experiment profiles.
+configs/local/
+configs/production_profile.json
+configs/**/*.local.json
+configs/**/local_*.json
+configs/**/*_local.json
+configs/seed_concepts/
+configs/scene_pool.json
+configs/scene_template_outdoor*.json
+configs/scene_template_smoke_256_eevee.json
+configs/dataset_profiles/rotation_v[123].json
+configs/dataset_profiles/scene_v71*.json
+configs/dataset_profiles/scene_v7_full20_loop.json
+configs/dataset_profiles/scene_v7_full50_loop.json
+
+# Old root code directories are intentionally replaced by src/dataevolver/.
 
 # Claude Code / AI agent configs (user-specific, do not commit)
 .claude/
