@@ -24,7 +24,7 @@ __pycache__/
 _tmp/
 _remote_artifacts/
 _remote_patch/
-runtime/
+/runtime/
 refine-logs/
 remote_results/
 reports/
@@ -57,13 +57,11 @@ docs/
 deliverables/
 v6_staging/
 mcp-servers/
-tools/
+/pipeline/
+/scripts/
+/tests/
+/tools/
 obsidian-skills
-pipeline/data/experiments/
-pipeline/data/meshes/
-pipeline/data/prompts.json
-pipeline/VLM_FEEDBACK_DIMENSIONS_AND_PARAM_TUNING.md
-pipeline/VLM_REVIEW_PRECONFIG.md
 vlm_render_evolution_summary.md
 analyze_evolution.py
 verify_v3.py
@@ -85,29 +83,7 @@ configs/dataset_profiles/scene_v71*.json
 configs/dataset_profiles/scene_v7_full20_loop.json
 configs/dataset_profiles/scene_v7_full50_loop.json
 
-# Local batch, resume, render, and watchdog runners.
-scripts/batch_render_*.sh
-scripts/build_bright_full_pipeline.sh
-scripts/build_scene_full50_expansion_pipeline.py
-scripts/continue_pipeline_steps3_9.sh
-scripts/launch_*.sh
-scripts/precheck_scene_full50_assets.py
-scripts/relaunch_*.sh
-scripts/rerender_*.py
-scripts/rerun_*.sh
-scripts/resume_*.sh
-scripts/render_*.py
-scripts/render_*.sh
-scripts/run_full20_*
-scripts/run_render_feedback_tuner*
-scripts/run_scene_evolution_multi_gpu.py
-scripts/run_scene_full50_expansion.sh
-scripts/run_scene_rotation_dataset_multi_gpu.py
-scripts/run_stage1_to_externalfb_train_loop.sh
-scripts/run_stage4_multiview_multi_gpu.py
-scripts/run_steps4_9_textured17.sh
-scripts/test_run_scene1.sh
-scripts/train_*.sh
+# Old root code directories are intentionally replaced by src/dataevolver/.
 
 # Claude Code / AI agent configs (user-specific, do not commit)
 .claude/

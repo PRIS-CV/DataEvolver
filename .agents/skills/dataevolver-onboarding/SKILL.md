@@ -18,8 +18,9 @@ Use this skill to help a user quickly become ready to run DataEvolver without ov
 2. Do not ask tool-version questions in the interview. Let the demo script probe Python, `uv`, `uvx`, `conda`, `hf`, GPU, and Blender availability.
 3. Summarize known values, missing blockers, and the selected profile: `quick`, `default`, `full`, `world_model`, or `custom`.
 4. Generate or update `.dataevolver/local/ENVIRONMENT.md` and `.dataevolver/local/env.config.json` only when the user asks to save the profile.
-5. Hand off to the main agent with the demo command:
-   `bash scripts/bootstrap_dataevolver_default.sh --profile <profile> --dry-run --write-local-config`
+5. Hand off to the main agent with the package install and demo command:
+   `python -m pip install -e .`
+   `bash src/dataevolver/cli/bootstrap_dataevolver_default.sh --profile <profile> --dry-run --write-local-config`
 6. Tell the user that v0 is dry-run only: it prints install/download/config plans but does not install dependencies, download model weights, or launch long jobs.
 
 ## Profiles
@@ -41,10 +42,11 @@ Do not put world-model setup into `default`. When a user wants standard DataEvol
 - Do not modify `CLAUDE.md`; the main agent may decide later whether to sync selected non-sensitive facts.
 - If the user asks for real installation or real downloads, first use the demo script output as the plan and ask for explicit confirmation in the main conversation.
 - Prefer `uvx --from huggingface_hub hf download ...` for printed Hugging Face download plans, with `hf download ...` as fallback. Do not execute either command in v0.
+- Use `python -m pip install -e ".[hyworld]"` only for the optional `world_model_scene` route; keep the default install lightweight.
 
 ## Known V1 Requirements
 
-- Source or export environment-variable overrides before real one-click setup runs legacy pipeline stages:
+- Source or export environment-variable overrides before real one-click setup runs the `dataevolver.workflows.stages` modules:
   `QWEN_IMAGE_MODEL_PATH`, `SAM3_CKPT`, `SAM3_DIR`, `HUNYUAN3D_REPO`, `MODEL_HUB`, `PAINT_MODEL_HUB`, `DINO_MODEL_PATH`, `REALESRGAN_CKPT`, and `VLM_MODEL_PATH`.
 - For `world_model_scene`, also source or export:
   `HYWORLD_SRC`, `HYWORLD_WEIGHTS`, `HYWORLD_PYTHON`, `HYWORLD_MOGE_MODEL_PATH`, `HYWORLD_ZIM_MODEL_PATH`, `HYWORLD_GROUNDING_DINO_MODEL_PATH`, `HYWORLD_SAM3_MODEL_PATH`, `HYWORLD_WORLDSTEREO_PATH`, `HYWORLD_WAN_BASE_MODEL`, and `WORLDSTEREO_BASE_MODEL_PATH`.

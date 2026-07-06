@@ -111,12 +111,21 @@ git clone https://github.com/PRIS-CV/DataEvolver.git
 cd DataEvolver
 ```
 
-### 2. Run the safe onboarding dry-run
+### 2. Install the package entry points
+
+```bash
+python -m pip install -e .
+```
+
+Use optional extras only for routes you actually plan to run, for example
+`python -m pip install -e ".[hyworld]"` for HYWorld / WorldMirror setup.
+
+### 3. Run the safe onboarding dry-run
 
 For the fastest first pass, use the `quick` profile:
 
 ```bash
-bash scripts/bootstrap_dataevolver_default.sh \
+bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
   --profile quick \
   --dry-run \
   --write-local-config
@@ -125,7 +134,7 @@ bash scripts/bootstrap_dataevolver_default.sh \
 For the default DataEvolver pipeline plan, choose a model root and run:
 
 ```bash
-bash scripts/bootstrap_dataevolver_default.sh \
+bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
   --profile default \
   --model-root /path/to/dataevolver-models \
   --workspace-root "$PWD" \
@@ -167,7 +176,7 @@ the `dataevolver-onboarding` skill. It should interview you for only five setup
 areas: target route, runtime location, install policy, model strategy, and
 workspace/output paths, then run the dry-run script above.
 
-### 3. Production Setup
+### 4. Production Setup
 
 Create the runtime environment. On shared GPU servers, prefer
 `--system-site-packages` so an already validated NVIDIA PyTorch build can be
@@ -233,7 +242,7 @@ directories.
 Use `--profile world_model` only when the target route is HYWorld / WorldMirror scene reconstruction. This keeps world-model setup out of the default core pipeline:
 
 ```bash
-bash scripts/bootstrap_dataevolver_default.sh \
+bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
   --profile world_model \
   --model-root /path/to/dataevolver-models \
   --workspace-root "$PWD" \
@@ -258,7 +267,7 @@ The world-model profile adds these local environment variables:
 
 HYWorld production scene generation requires local MoGe, ZIM, GroundingDINO, SAM3, WorldStereo, Wan I2V base, and HY-WorldMirror weights. Offline mode forbids downloads but must still load these local models; do not set `HYWORLD_NO_MODEL_DOWNLOADS=1` for real 3D scene generation because that skips metric depth and can produce a fixed-radius panorama shell.
 
-`scripts/run_hyworld_scene_pano.py` and `scripts/run_hyworld_full_worldgen.py` preserve changed stage artifacts under `<scene-dir>/intermediates/<run-id>/` by default. The HY-Pano stage snapshots the 360-degree equirectangular panorama, and full worldgen snapshots the input again under `00_source_panorama/` before retaining trajectory, depth/sky-mask, WorldStereo, GS, and WorldMirror outputs.
+`python -m dataevolver.workflows.hyworld.scene_pano` and `python -m dataevolver.workflows.hyworld.full_worldgen` preserve changed stage artifacts under `<scene-dir>/intermediates/<run-id>/` by default. The HY-Pano stage snapshots the 360-degree equirectangular panorama, and full worldgen snapshots the input again under `00_source_panorama/` before retaining trajectory, depth/sky-mask, WorldStereo, GS, and WorldMirror outputs.
 
 ##### Automated Scene Construction
 
@@ -267,28 +276,20 @@ The world-model route can build a reviewable scene package automatically from sc
 ![HYWorld automated scene construction pipeline](assets/3D-build.png)
 
 ```bash
-python scripts/dataevolver_production.py doctor \
+python -m dataevolver.cli.production doctor \
   --profile .dataevolver/local/production_profile.json \
   --no-imports
 
-python scripts/run_hyworld_scene_pano.py \
+python -m dataevolver.workflows.hyworld.scene_pano \
   --scene-prompts-path <scene-prompts.json> \
   --output-root <hyworld-scene-root>
 
-python scripts/run_hyworld_full_worldgen.py \
+python -m dataevolver.workflows.hyworld.full_worldgen \
   --profile .dataevolver/local/production_profile.json \
   --scene-dir <hyworld-scene-root>/<scene-id> \
   --intermediate-root <intermediate-root>/<scene-id>
 
-python scripts/build_hyworld_scene_view_shards.py \
-  --scene-id <scene-id> \
-  --hyworld-scene-dir <hyworld-scene-root>/<scene-id> \
-  --scene-output-dir <scene-output-root>/<scene-id>/reconstruction \
-  --template-output-dir <template-output-root> \
-  --report-scene-dir <report-root>/<scene-id> \
-  --dry-run
-
-python scripts/finalize_hyworld_object_scene_report.py \
+python -m dataevolver.workflows.hyworld.finalize_object_scene_report \
   --dataset-base <dataset-base> \
   --strict-scene-views
 ```
@@ -303,7 +304,7 @@ cd "$HUNYUAN3D_REPO/hy3dpaint/DifferentiableRenderer"
 bash compile_mesh_painter.sh
 ```
 
-### 4. Production Smoke Tests
+### 5. Production Smoke Tests
 
 Run preflight and import checks first:
 
@@ -327,11 +328,11 @@ Then validate one object through the runtime stages:
 ```bash
 SMOKE_ROOT=.dataevolver/local/smoke
 
-python pipeline/stage2_t2i_generate.py --ids obj_001 --steps 1 --height 512 --width 512 --device cuda:0
-python pipeline/stage2_5_sam2_segment.py --ids obj_001 --device cuda:0
-python pipeline/stage3_image_to_3d.py --ids obj_001 --shape-only --device cuda:0 --output-dir "$SMOKE_ROOT/meshes_shape_only"
+python -m dataevolver.workflows.stages.t2i_generate --ids obj_001 --steps 1 --height 512 --width 512 --device cuda:0
+python -m dataevolver.workflows.stages.sam_segment --ids obj_001 --device cuda:0
+python -m dataevolver.workflows.stages.image_to_3d --ids obj_001 --shape-only --device cuda:0 --output-dir "$SMOKE_ROOT/meshes_shape_only"
 
-python pipeline/stage3_image_to_3d.py \
+python -m dataevolver.workflows.stages.image_to_3d \
   --no-skip \
   --ids obj_001 \
   --device cuda:0 \
@@ -353,54 +354,34 @@ rm -rf .dataevolver/local/smoke
 ```
 
 Only after these checks pass should you prepare scene assets and run
-`bash pipeline/run_all.sh`. The scene-aware VLM optimization loop is launched
-separately through `scripts/run_scene_agent_monitor.py` after model paths,
-`BLENDER_BIN`, and `configs/scene_template.json` are configured.
+`bash src/dataevolver/cli/run_all.sh`. Scene-aware review and action application
+use `python -m dataevolver.annotation.vlm_review_stage` and
+`python -m dataevolver.agents.feedback_apply` after model paths, `BLENDER_BIN`,
+and `configs/scene_template.json` are configured.
 
 ---
 
-## Reproducible Universal 3D Workflow
+## Reproducible Research Prior Workflow
 
-The public repository includes the code and schema needed to reproduce the
-WebSearch-driven universal 3D dataset workflow. Large generated datasets,
-private server paths, mesh assets, `.blend` scene files, model weights, API
-keys, and paper source are intentionally not committed.
+The public repository keeps the lightweight WebSearch prior entry point and the
+universal 3D layout schema, but does not publish the old local Blender batch
+scripts, private scene pools, generated meshes, `.blend` scene files, model
+weights, API keys, or paper source.
 
 Core entry points:
 
-- Stage0 WebSearch prior: [`scripts/stage0_web_research.py`](scripts/stage0_web_research.py)
+- Stage0 WebSearch prior: [`python -m dataevolver.tools.stage0_web_research`](python -m dataevolver.tools.stage0_web_research)
 - Universal dataset schema: [`configs/schemas/universal_3d_layout_dataset_schema.json`](configs/schemas/universal_3d_layout_dataset_schema.json)
-- Universal rendering scripts: [`scripts/universal_3d_layout/`](scripts/universal_3d_layout/)
 
-Start a multi-paper universal session:
+Start a WebSearch prior session:
 
 ```bash
-python scripts/stage0_web_research.py init \
+python -m dataevolver.tools.stage0_web_research init \
   --query "SeeThrough3D: Occlusion Aware 3D Control in Text-to-Image Generation" \
-  --output-dir runtime/research_priors/demo_universal \
+  --output-dir .dataevolver/runtime/research_priors/demo_universal \
   --dataset-mode universal \
   --tag universal-3d-layout
 ```
-
-Run a small Blender-backed smoke batch after configuring scene, mesh, runtime,
-and model paths:
-
-```bash
-python scripts/universal_3d_layout/run_dataevolver_universal_contract_batch.py \
-  --dataevolver-root /path/to/DataEvolver \
-  --runtime-root /path/to/runtime \
-  --blender /path/to/blender \
-  --out /path/to/universal_contract_smoke \
-  --num-samples 1 \
-  --resolution 512 \
-  --engine EEVEE
-```
-
-The universal contract emits RGB targets, per-object masks, structure/OSCR
-views, depth-order proxies, orientation proxies, camera metadata, mesh metadata,
-3D boxes, scene graphs, spatial relations, validation traces, and
-`metadata/records.jsonl`. The current depth and normal outputs are proxy
-artifacts, not dense depth or dense surface-normal supervision.
 
 ---
 
@@ -408,36 +389,31 @@ artifacts, not dense depth or dense surface-normal supervision.
 
 ```
 DataEvolver/
-├── src/dataevolver/                   # Future package boundary for organized code
-├── pipeline/                          # Core pipeline stages
-│   ├── stage1_text_expansion.py             # LLM prompt generation
-│   ├── stage2_t2i_generate.py               # Text-to-image (Qwen-Image-2512)
-│   ├── stage2_5_sam2_segment.py             # SAM3 foreground extraction
-│   ├── stage3_image_to_3d.py                # 3D mesh reconstruction (Hunyuan3D-2.1)
-│   ├── stage4_scene_render.py               # Blender scene-aware rendering
-│   ├── stage5_5_vlm_review.py               # VLM quality review (Qwen3.5-35B-A3B)
-│   ├── stage5_6_feedback_apply.py           # Action selection & anti-oscillation
-│   ├── asset_lifecycle.py                   # Asset lifecycle management
-│   └── rotation_geomodal_dataset.py         # Training dataset loader
+├── src/dataevolver/
+│   ├── agents/                              # Feedback/action application
+│   ├── annotation/                          # VLM and constraint review
+│   ├── cli/                                 # Public onboarding and runtime entry points
+│   ├── dataset/                             # Dataset loaders and metadata exporters
+│   ├── runtime/                             # Runtime profiles, asset lifecycle, HYWorld contracts
+│   ├── testing/                             # Public smoke and contract tests
+│   ├── tools/                               # Research prior and diagnostics helpers
+│   └── workflows/
+│       ├── hyworld/                         # Optional HYWorld bridge modules
+│       ├── multimodal/                      # T2I/Edit/T2V dataset workflow
+│       └── stages/                          # Core stage modules
 ├── configs/
+│   ├── action_space.json                    # Core action-space contract
 │   ├── scene_action_space.json              # 24 atomic actions definition
 │   ├── scene_template.json                  # Blender scene template config
+│   ├── production_profile.example.json      # Example production profile
 │   ├── vlm_review_schema.json               # VLM review output schema
 │   └── dataset_profiles/                    # Public example profiles
-├── scripts/                           # Public onboarding and workflow entry points
-│   ├── bootstrap_dataevolver_default.sh      # Dry-run setup planner
-│   ├── dataevolver_production.py             # Production doctor/runtime CLI
-│   ├── run_scene_agent_monitor.py           # VLM loop agent monitor
-│   ├── stage0_web_research.py               # WebSearch prior and handoff builder
-│   ├── run_hyworld_scene_pano.py            # HYWorld panorama bridge
-│   ├── run_hyworld_full_worldgen.py         # HYWorld full worldgen bridge
-│   ├── universal_3d_layout/                 # Universal 3D dataset workflow
-│   └── ...                                  # Other documented public entry points
-├── tests/                             # Public smoke and contract tests
+├── .agents/                                 # Agent skills and setup guidance
+├── .github/                                 # GitHub workflows and repo metadata
 ├── assets/
 │   ├── hdri/                                # HDRI environment maps
 │   └── scene/                               # Blender scene files (.blend)
-└── web/                               # Project website (GitHub Pages)
+└── web/                                     # Project website (GitHub Pages)
 ```
 
 ---
