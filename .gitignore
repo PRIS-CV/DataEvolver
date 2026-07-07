@@ -54,6 +54,8 @@ notion-weekly/
 
 # Internal docs, intermediate results, and deliverables
 docs/
+!docs/
+!docs/BLENDER_MCP_REMOTE.md
 deliverables/
 v6_staging/
 mcp-servers/
@@ -104,5 +106,6 @@ skills/
 !.agents/skills/dataevolver-onboarding/
 !.agents/skills/dataevolver-onboarding/**
 
-# Local onboarding outputs
+# Local onboarding outputs and external tool checkouts
 .dataevolver/local/
+external/

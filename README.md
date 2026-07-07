@@ -186,6 +186,7 @@ Available profiles:
 | `default` | You want the current core pipeline plan: Qwen-Image-2512, SAM3, Hunyuan3D-2.1, DINOv2 Giant, Qwen3.5-35B-A3B, and Blender |
 | `full` | You also want the default Edit/T2V plan: Qwen-Image-Edit-2511 and Wan2.1-T2V |
 | `world_model` | You want the optional HYWorld / WorldMirror scene reconstruction plan |
+| `blender_mcp` | You want optional Codex-controlled remote Blender debugging through Blender MCP |
 | `custom` | You already have replacement models and want them recorded for later compatibility review |
 
 When `--write-local-config` is used, the generated local files are:
@@ -414,6 +415,17 @@ python -m dataevolver.tools.stage0_web_research init \
   --dataset-mode universal \
   --tag universal-3d-layout
 ```
+
+Optional Blender MCP operator setup for Codex-controlled remote Blender debugging:
+
+```bash
+bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
+  --profile blender_mcp \
+  --dry-run \
+  --write-local-config
+```
+
+This writes `.dataevolver/local/blender_mcp.codex.toml` and remote Blender preflight/start instructions. Blender MCP is for interactive scene diagnosis, viewport screenshots, temporary Blender Python execution, and lighting/camera/material experiments; production dataset generation still uses DataEvolver pipeline scripts and reviewed `BLENDER_BIN` configuration. See [`docs/BLENDER_MCP_REMOTE.md`](docs/BLENDER_MCP_REMOTE.md).
 
 ---
 

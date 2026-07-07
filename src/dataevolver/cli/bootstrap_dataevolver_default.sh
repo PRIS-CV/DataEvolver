@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null)"; then
+  :
+else
+  ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+fi
 
 PROFILE="quick"
 MODEL_ROOT="${DATAEVOLVER_MODEL_ROOT:-${ROOT}/runtime/model_hub}"
@@ -13,6 +18,14 @@ GPU_POLICY="${DATAEVOLVER_GPU_POLICY:-inspect_only}"
 INCLUDE_GPUS="${DATAEVOLVER_INCLUDE_GPUS:-all}"
 RESERVE_GPUS="${DATAEVOLVER_RESERVE_GPUS:-}"
 PAPER_VALIDATION=0
+BLENDER_MCP_REMOTE="${DATAEVOLVER_BLENDER_MCP_REMOTE:-my-blender-server}"
+BLENDER_MCP_REMOTE_ROOT="${DATAEVOLVER_BLENDER_MCP_REMOTE_ROOT:-${DATAEVOLVER_REMOTE_ROOT:-/path/to/DataEvolver}}"
+BLENDER_MCP_REMOTE_BLENDER_BIN="${DATAEVOLVER_REMOTE_BLENDER_BIN:-/path/to/blender}"
+BLENDER_MCP_REMOTE_PORT="${BLENDER_MCP_REMOTE_PORT:-9876}"
+BLENDER_MCP_REMOTE_UVX="${BLENDER_MCP_REMOTE_UVX:-uvx}"
+BLENDER_MCP_TMUX_SESSION="${BLENDER_MCP_TMUX_SESSION:-dataevolver-blender-mcp}"
+BLENDER_MCP_REMOTE_ADDON_DIR="${DATAEVOLVER_BLENDER_MCP_REMOTE_ADDON_DIR:-${BLENDER_MCP_REMOTE_ROOT}/.dataevolver/blender-mcp}"
+BLENDER_MCP_CODEX_SERVER_NAME="${BLENDER_MCP_CODEX_SERVER_NAME:-blender}"
 
 usage() {
   cat <<'USAGE'
@@ -25,7 +38,7 @@ weights, write tokens, or launch long-running jobs.
 
 Options:
   --dry-run                    Required behavior; enabled by default.
-  --profile quick|default|full|world_model|custom
+  --profile quick|default|full|world_model|blender_mcp|custom
   --model-root PATH            Target model root for the printed plan.
   --workspace-root PATH        DataEvolver checkout path for the printed plan.
   --python-backend auto|uv|conda
@@ -107,8 +120,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$PROFILE" in
-  quick|default|full|world_model|custom) ;;
-  *) die "--profile must be one of: quick, default, full, world_model, custom" ;;
+  quick|default|full|world_model|blender_mcp|custom) ;;
+  *) die "--profile must be one of: quick, default, full, world_model, blender_mcp, custom" ;;
 esac
 
 case "$PYTHON_BACKEND" in
@@ -150,6 +163,16 @@ print_actionable_gaps() {
   if ! has_cmd python3 && ! has_cmd python; then
     printf '  - python: missing; real setup and config writing need Python 3.10+.\n'
     gaps=1
+  fi
+  if [[ "$PROFILE" == "blender_mcp" ]]; then
+    if ! has_cmd ssh && ! has_cmd ssh.exe; then
+      printf '  - ssh: missing; Blender MCP SSH stdio mode needs ssh or ssh.exe.\n'
+      gaps=1
+    fi
+    if [[ "$gaps" == "0" ]]; then
+      printf '  - none detected for local dry-run. Remote uvx, Xvfb, tmux, and Blender are checked by the remote preflight commands.\n'
+    fi
+    return
   fi
   if ! has_cmd uv && ! has_cmd conda; then
     printf '  - python environment backend: missing uv and conda; install uv for the fastest default path or provide conda.\n'
@@ -195,7 +218,7 @@ print_probe_plan() {
   printf 'python_backend: %s\n' "$PYTHON_BACKEND"
   printf 'paper_validation: %s\n' "$PAPER_VALIDATION"
   printf '\nDetected commands:\n'
-  for name in uname git curl python3 python uv uvx conda nvidia-smi blender hf; do
+  for name in uname git curl ssh ssh.exe python3 python uv uvx conda nvidia-smi blender hf; do
     cmd_status "$name"
   done
   print_actionable_gaps
@@ -207,10 +230,20 @@ print_probe_plan() {
   printf '  uvx --from huggingface_hub hf --help || hf --help\n'
   printf '  blender --version\n'
   printf '  hf auth whoami\n'
+  if [[ "$PROFILE" == "blender_mcp" ]]; then
+    printf '\nBlender MCP preflight commands to run before real setup:\n'
+    printf '  ssh -V || ssh.exe -V\n'
+    printf '  ssh %s "command -v uvx; command -v xvfb-run; command -v tmux; test -x %s"\n' "$(quote "$BLENDER_MCP_REMOTE")" "$(quote "$BLENDER_MCP_REMOTE_BLENDER_BIN")"
+    printf '  ssh %s "env BLENDER_HOST=127.0.0.1 BLENDER_PORT=%s %s --python 3.11 blender-mcp"\n' "$(quote "$BLENDER_MCP_REMOTE")" "$BLENDER_MCP_REMOTE_PORT" "$(quote "$BLENDER_MCP_REMOTE_UVX")"
+  fi
 }
 
 print_gpu_plan() {
   section "gpu plan"
+  if [[ "$PROFILE" == "blender_mcp" ]]; then
+    printf 'Blender MCP is an operator/debug profile. It does not plan GPU shards or launch production GPU work.\n'
+    return
+  fi
   printf 'mode: dry-run only; no GPU lease or process launch will run\n'
   printf 'gpu_policy: %s\n' "$GPU_POLICY"
   printf 'include_gpus: %s\n' "$INCLUDE_GPUS"
@@ -244,6 +277,18 @@ print_gpu_plan() {
 
 print_env_plan() {
   section "env plan"
+  if [[ "$PROFILE" == "blender_mcp" ]]; then
+    printf 'Blender MCP operator profile: no Python model environment will be installed in dry-run v0.\n'
+    printf 'Remote Blender must run as a non-background GUI process, usually under Xvfb on headless servers.\n\n'
+    printf 'Remote operator environment variables to review:\n'
+    printf '  DATAEVOLVER_BLENDER_MCP_REMOTE=%s\n' "$BLENDER_MCP_REMOTE"
+    printf '  DATAEVOLVER_BLENDER_MCP_REMOTE_ROOT=%s\n' "$BLENDER_MCP_REMOTE_ROOT"
+    printf '  DATAEVOLVER_REMOTE_BLENDER_BIN=%s\n' "$BLENDER_MCP_REMOTE_BLENDER_BIN"
+    printf '  BLENDER_MCP_REMOTE_PORT=%s\n' "$BLENDER_MCP_REMOTE_PORT"
+    printf '  BLENDER_MCP_REMOTE_UVX=%s\n' "$BLENDER_MCP_REMOTE_UVX"
+    printf '  BLENDER_MCP_TMUX_SESSION=%s\n' "$BLENDER_MCP_TMUX_SESSION"
+    return
+  fi
   if [[ "$PYTHON_BACKEND" == "uv" || "$PYTHON_BACKEND" == "auto" ]]; then
     printf 'Preferred uv plan:\n'
     printf '  cd %s\n' "$(quote "$WORKSPACE_ROOT")"
@@ -296,7 +341,7 @@ model_line() {
 }
 
 model_manifest() {
-  if [[ "$PROFILE" == "quick" || "$PROFILE" == "custom" ]]; then
+  if [[ "$PROFILE" == "quick" || "$PROFILE" == "custom" || "$PROFILE" == "blender_mcp" ]]; then
     return 0
   fi
 
@@ -332,6 +377,10 @@ print_model_plan() {
     printf 'Record replacement models as custom_models with status=needs_check in env.config.json.\n'
     return
   fi
+  if [[ "$PROFILE" == "blender_mcp" ]]; then
+    printf 'blender_mcp profile: no model downloads planned. This profile configures an optional Blender operator/debug MCP server only.\n'
+    return
+  fi
 
   printf 'All commands below are printed only; they are not executed in v0.\n'
   printf 'HF token policy: set HF_TOKEN in the shell for real downloads; never write it to project files.\n\n'
@@ -353,6 +402,24 @@ print_model_plan() {
 
 }
 
+print_blender_mcp_plan() {
+  [[ "$PROFILE" == "blender_mcp" ]] || return 0
+  section "blender mcp operator plan"
+  printf 'Purpose: optional interactive Blender control for scene diagnosis, viewport screenshots, temporary Blender Python, and lighting/camera/material tuning.\n'
+  printf 'Boundary: production dataset generation still uses DataEvolver pipeline scripts and BLENDER_BIN/profile configuration; MCP changes must be written back to code/config before production use.\n\n'
+  printf 'Remote addon setup plan (printed only):\n'
+  printf '  git clone https://github.com/ahujasid/blender-mcp.git external/blender-mcp\n'
+  printf '  DATAEVOLVER_BLENDER_MCP_REMOTE=%s \\\n' "$BLENDER_MCP_REMOTE"
+  printf '  DATAEVOLVER_BLENDER_MCP_REMOTE_ROOT=%s \\\n' "$BLENDER_MCP_REMOTE_ROOT"
+  printf '  DATAEVOLVER_REMOTE_BLENDER_BIN=%s \\\n' "$BLENDER_MCP_REMOTE_BLENDER_BIN"
+  printf '  BLENDER_MCP_REMOTE_PORT=%s \\\n' "$BLENDER_MCP_REMOTE_PORT"
+  printf '  BLENDER_MCP_TMUX_SESSION=%s \\\n' "$BLENDER_MCP_TMUX_SESSION"
+  printf '  bash src/dataevolver/workflows/stages/setup_blender_mcp_remote.sh start\n'
+  printf '\nRemote dependency preflight (printed only):\n'
+  printf '  ssh %s "command -v uvx; command -v xvfb-run; command -v tmux; test -x %s"\n' "$(quote "$BLENDER_MCP_REMOTE")" "$(quote "$BLENDER_MCP_REMOTE_BLENDER_BIN")"
+  printf '\nCodex MCP config snippet will be written to .dataevolver/local/blender_mcp.codex.toml when --write-local-config is used.\n'
+}
+
 print_config_plan() {
   section "config plan"
   printf 'Local files when --write-local-config is used:\n'
@@ -360,6 +427,9 @@ print_config_plan() {
   printf '  .dataevolver/local/env.config.json\n'
   printf '  .dataevolver/local/env.sh.example\n'
   printf '  .dataevolver/local/production_profile.json\n'
+  if [[ "$PROFILE" == "blender_mcp" ]]; then
+    printf '  .dataevolver/local/blender_mcp.codex.toml\n'
+  fi
   printf '\nNon-sensitive variables to export later:\n'
   printf '  DATAEVOLVER_MODEL_ROOT=%s\n' "$MODEL_ROOT"
   printf '  DATAEVOLVER_WORKSPACE_ROOT=%s\n' "$WORKSPACE_ROOT"
@@ -368,6 +438,17 @@ print_config_plan() {
   printf '  DATAEVOLVER_RESERVE_GPUS=%s\n' "${RESERVE_GPUS:-}"
   printf '  DATAEVOLVER_PAPER_VALIDATION=%s\n' "$PAPER_VALIDATION"
   printf '  BLENDER_BIN=/path/to/blender\n'
+  if [[ "$PROFILE" == "blender_mcp" ]]; then
+    printf '  DATAEVOLVER_BLENDER_MCP_REMOTE=%s\n' "$BLENDER_MCP_REMOTE"
+    printf '  DATAEVOLVER_BLENDER_MCP_REMOTE_ROOT=%s\n' "$BLENDER_MCP_REMOTE_ROOT"
+    printf '  DATAEVOLVER_REMOTE_BLENDER_BIN=%s\n' "$BLENDER_MCP_REMOTE_BLENDER_BIN"
+    printf '  BLENDER_MCP_REMOTE_PORT=%s\n' "$BLENDER_MCP_REMOTE_PORT"
+    printf '  BLENDER_MCP_REMOTE_UVX=%s\n' "$BLENDER_MCP_REMOTE_UVX"
+    printf '  BLENDER_MCP_TMUX_SESSION=%s\n' "$BLENDER_MCP_TMUX_SESSION"
+    printf '\nPipeline env overrides:\n'
+    printf '  none. Blender MCP is an operator/debug profile and does not change production Stage 4 rendering.\n'
+    return
+  fi
   if [[ "$PROFILE" == "default" || "$PROFILE" == "full" || "$PROFILE" == "world_model" ]]; then
     printf '  QWEN_IMAGE_MODEL_PATH=%s/Qwen-Image-2512\n' "$MODEL_ROOT"
     printf '  QWEN_IMAGE_EDIT_MODEL_PATH=%s/Qwen-Image-Edit-2511\n' "$MODEL_ROOT"
@@ -418,7 +499,16 @@ write_local_config() {
     die "--write-local-config requires python3 or python for safe JSON writing"
   fi
 
-  MODEL_MANIFEST="$(model_manifest)" "$python_bin" - "$PROFILE" "$WORKSPACE_ROOT" "$MODEL_ROOT" "$PYTHON_BACKEND" "$out_dir" "$GPU_POLICY" "$INCLUDE_GPUS" "$RESERVE_GPUS" "$PAPER_VALIDATION" <<'PY'
+  MODEL_MANIFEST="$(model_manifest)" \
+  BLENDER_MCP_REMOTE="$BLENDER_MCP_REMOTE" \
+  BLENDER_MCP_REMOTE_ROOT="$BLENDER_MCP_REMOTE_ROOT" \
+  BLENDER_MCP_REMOTE_BLENDER_BIN="$BLENDER_MCP_REMOTE_BLENDER_BIN" \
+  BLENDER_MCP_REMOTE_ADDON_DIR="$BLENDER_MCP_REMOTE_ADDON_DIR" \
+  BLENDER_MCP_REMOTE_PORT="$BLENDER_MCP_REMOTE_PORT" \
+  BLENDER_MCP_REMOTE_UVX="$BLENDER_MCP_REMOTE_UVX" \
+  BLENDER_MCP_TMUX_SESSION="$BLENDER_MCP_TMUX_SESSION" \
+  BLENDER_MCP_CODEX_SERVER_NAME="$BLENDER_MCP_CODEX_SERVER_NAME" \
+  "$python_bin" - "$PROFILE" "$WORKSPACE_ROOT" "$MODEL_ROOT" "$PYTHON_BACKEND" "$out_dir" "$GPU_POLICY" "$INCLUDE_GPUS" "$RESERVE_GPUS" "$PAPER_VALIDATION" <<'PY'
 import json
 import os
 import shutil
@@ -454,6 +544,19 @@ tooling_status = {
         "path": shutil.which(name),
     }
     for name in tool_names
+}
+
+blender_mcp_operator = {
+    "enabled": profile == "blender_mcp",
+    "connection_mode": "ssh_stdio",
+    "ssh_alias": os.environ.get("BLENDER_MCP_REMOTE", "my-blender-server"),
+    "remote_root": os.environ.get("BLENDER_MCP_REMOTE_ROOT", "/path/to/DataEvolver"),
+    "remote_blender_bin": os.environ.get("BLENDER_MCP_REMOTE_BLENDER_BIN", "/path/to/blender"),
+    "remote_addon_dir": os.environ.get("BLENDER_MCP_REMOTE_ADDON_DIR", ""),
+    "remote_port": int(os.environ.get("BLENDER_MCP_REMOTE_PORT", "9876")),
+    "remote_uvx": os.environ.get("BLENDER_MCP_REMOTE_UVX", "uvx"),
+    "tmux_session": os.environ.get("BLENDER_MCP_TMUX_SESSION", "dataevolver-blender-mcp"),
+    "codex_mcp_server_name": os.environ.get("BLENDER_MCP_CODEX_SERVER_NAME", "blender"),
 }
 
 path_override_plan = [
@@ -542,33 +645,43 @@ next_actions = [
     "Review this dry-run plan with the user.",
     "Ask for HF_TOKEN only at real download time; never write it to project files.",
 ]
-if tooling_status["uv"]["status"] == "missing":
-    next_actions.append("Install uv for the fastest default Python environment path, or choose conda fallback.")
-if tooling_status["uvx"]["status"] == "missing" and tooling_status["hf"]["status"] == "missing":
-    next_actions.append("Install uvx/uv or the standalone hf CLI before real Hugging Face downloads.")
-if tooling_status["blender"]["status"] == "missing":
-    next_actions.append("Install or expose Blender before real 3D render/export routes.")
-if tooling_status["nvidia-smi"]["status"] == "missing":
-    next_actions.append("Confirm GPU/CUDA on the target host before real model setup.")
-if access_requirements:
-    next_actions.append("Confirm Hugging Face access for gated/access-dependent model repos.")
-if gpu_policy == "inspect_only":
-    next_actions.append("Inspect GPU inventory and service occupancy before choosing a real shard policy.")
-elif gpu_policy == "dynamic_backfill":
-    next_actions.append("Before real GPU work, run a fresh nvidia-smi probe and use dataevolver.runtime.gpu_scheduler for each dynamic backfill cycle.")
-elif gpu_policy == "fixed_range":
-    next_actions.append("Before real GPU work, confirm include_gpus and reserve_gpus still match the target host state.")
-if paper_validation:
-    next_actions.append("For paper validation, initialize timing_ledger.json, gpu_shards.json, RUN_STATE.json, quality reports, and failure evidence before the first real shard.")
-next_actions.append("Before real setup, source reviewed path overrides derived from env.sh.example.")
-next_actions.append("Run the generated production profile through `python -m dataevolver.cli.production doctor` before starting workers.")
-next_actions.append("Run smoke tests in order: preflight, import smoke, Stage 2, Stage 2.5, Stage 3 shape-only, Stage 3 textured, Stage 5.5 VLM loader.")
+if profile == "blender_mcp":
+    next_actions = [
+        "Review this dry-run Blender MCP operator plan with the user.",
+        "Review .dataevolver/local/blender_mcp.codex.toml and copy it into the user's Codex config only after confirmation.",
+        "Clone or refresh external/blender-mcp before copying addon.py to the remote host.",
+        "Run src/dataevolver/workflows/stages/setup_blender_mcp_remote.sh start only after remote uvx, xvfb-run, tmux, and Blender preflight pass.",
+        "Restart Codex after adding the MCP config snippet.",
+    ]
+else:
+    if tooling_status["uv"]["status"] == "missing":
+        next_actions.append("Install uv for the fastest default Python environment path, or choose conda fallback.")
+    if tooling_status["uvx"]["status"] == "missing" and tooling_status["hf"]["status"] == "missing":
+        next_actions.append("Install uvx/uv or the standalone hf CLI before real Hugging Face downloads.")
+    if tooling_status["blender"]["status"] == "missing":
+        next_actions.append("Install or expose Blender before real 3D render/export routes.")
+    if tooling_status["nvidia-smi"]["status"] == "missing":
+        next_actions.append("Confirm GPU/CUDA on the target host before real model setup.")
+    if access_requirements:
+        next_actions.append("Confirm Hugging Face access for gated/access-dependent model repos.")
+    if gpu_policy == "inspect_only":
+        next_actions.append("Inspect GPU inventory and service occupancy before choosing a real shard policy.")
+    elif gpu_policy == "dynamic_backfill":
+        next_actions.append("Before real GPU work, run a fresh nvidia-smi probe and use dataevolver.runtime.gpu_scheduler for each dynamic backfill cycle.")
+    elif gpu_policy == "fixed_range":
+        next_actions.append("Before real GPU work, confirm include_gpus and reserve_gpus still match the target host state.")
+    if paper_validation:
+        next_actions.append("For paper validation, initialize timing_ledger.json, gpu_shards.json, RUN_STATE.json, quality reports, and failure evidence before the first real shard.")
+    next_actions.append("Before real setup, source reviewed path overrides derived from env.sh.example.")
+    next_actions.append("Run the generated production profile through `python -m dataevolver.cli.production doctor` before starting workers.")
+    next_actions.append("Run smoke tests in order: preflight, import smoke, Stage 2, Stage 2.5, Stage 3 shape-only, Stage 3 textured, Stage 5.5 VLM loader.")
 
 target_workflow = {
     "quick": "quick_demo",
     "default": "full_core_pipeline",
     "full": "all_default_routes",
     "world_model": "world_model_scene",
+    "blender_mcp": "operator_blender_mcp",
     "custom": "custom_model_planning",
 }[profile]
 
@@ -639,6 +752,9 @@ payload = {
         "status": "needs_check",
         "notes": "Fill from onboarding interview before real deployment.",
     }],
+    "operators": {
+        "blender_mcp": blender_mcp_operator,
+    },
     "access_requirements": access_requirements,
     "gpu_policy": gpu_policy,
     "include_gpus": include_gpus,
@@ -652,6 +768,10 @@ payload = {
         "Install SAM3 and Hunyuan3D repo-specific dependencies after target-host preflight.",
         "Compile Hunyuan3D CUDA/C++ extensions only after CUDA/nvcc compatibility is known.",
         "Run Stage 3 textured smoke with bounded paint settings before treating the host as production-ready.",
+    ] if profile != "blender_mcp" else [
+        "Blender MCP is an operator/debug tool and must not be treated as the production Stage 4 render path.",
+        "The remote Blender addon must run in a non-background Blender process, usually under Xvfb on headless servers.",
+        "Do not store Sketchfab, Hyper3D, Hunyuan3D, SSH, Hugging Face, OpenAI, or other credentials in project files.",
     ],
     "next_actions": next_actions,
     "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -708,7 +828,30 @@ production_profile = {
     "paper_validation": paper_validation,
     "health_endpoints": [],
 }
-if profile == "world_model":
+if profile == "blender_mcp":
+    production_profile = {
+        "schema": "dataevolver.production.v1",
+        "profile": profile,
+        "target_workflow": target_workflow,
+        "workspace_root": workspace_root,
+        "runtime_dir": str(Path(workspace_root) / ".dataevolver/runtime"),
+        "runtime": {},
+        "paths": {},
+        "offline": {"no_model_downloads": True, "hf_hub_offline": True},
+        "environment": {},
+        "import_checks": {},
+        "workers": [],
+        "gpu_policy": {
+            "policy": "not_applicable",
+            "include_gpus": "",
+            "reserve_gpus": "",
+            "scheduler": "",
+        },
+        "paper_validation": False,
+        "health_endpoints": [],
+        "operators": {"blender_mcp": blender_mcp_operator},
+    }
+elif profile == "world_model":
     production_profile["runtime"]["hyworld_python"] = str(Path(workspace_root) / ".venv-hyworld/bin/python")
     production_profile["paths"].update({
         "hyworld_source": str(Path(workspace_root) / ".dataevolver/local/vendor/HY-World-2.0-src"),
@@ -751,9 +894,13 @@ model_rows = "\n".join(
 missing_tools = []
 if tooling_status["python3"]["status"] == "missing" and tooling_status["python"]["status"] == "missing":
     missing_tools.append("python3/python")
-for name in ["git", "curl", "uv", "uvx", "conda", "hf", "nvidia-smi", "blender"]:
-    if tooling_status[name]["status"] == "missing":
-        missing_tools.append(name)
+if profile == "blender_mcp":
+    if not (shutil.which("ssh") or shutil.which("ssh.exe")):
+        missing_tools.append("ssh/ssh.exe")
+else:
+    for name in ["git", "curl", "uv", "uvx", "conda", "hf", "nvidia-smi", "blender"]:
+        if tooling_status[name]["status"] == "missing":
+            missing_tools.append(name)
 missing_tool_rows = "\n".join(f"- {name}: missing" for name in missing_tools) or "- None detected on the dry-run host."
 
 access_rows = "\n".join(
@@ -824,6 +971,43 @@ Run `bash src/dataevolver/cli/bootstrap_dataevolver_default.sh --profile world_m
 """
 )
 
+blender_mcp_section = ""
+if profile == "blender_mcp":
+    blender_mcp_section = f"""## Blender MCP Operator
+
+Connection mode: `ssh_stdio`
+
+- SSH alias: `{blender_mcp_operator['ssh_alias']}`
+- Remote root: `{blender_mcp_operator['remote_root']}`
+- Remote Blender: `{blender_mcp_operator['remote_blender_bin']}`
+- Remote addon dir: `{blender_mcp_operator['remote_addon_dir']}`
+- Remote port: `{blender_mcp_operator['remote_port']}`
+- Remote uvx: `{blender_mcp_operator['remote_uvx']}`
+- tmux session: `{blender_mcp_operator['tmux_session']}`
+
+Remote preflight:
+
+```bash
+ssh {shlex.quote(blender_mcp_operator['ssh_alias'])} "command -v uvx; command -v xvfb-run; command -v tmux; test -x {shlex.quote(blender_mcp_operator['remote_blender_bin'])}"
+```
+
+Start and inspect the remote addon:
+
+```bash
+source .dataevolver/local/env.sh.example
+bash src/dataevolver/workflows/stages/setup_blender_mcp_remote.sh start
+bash src/dataevolver/workflows/stages/setup_blender_mcp_remote.sh status
+```
+
+Copy `.dataevolver/local/blender_mcp.codex.toml` into the user's Codex config, then restart Codex.
+
+Common failures:
+
+- `blender -b` cannot run the MCP addon because Blender timers do not execute command callbacks in background mode.
+- Missing `xvfb-run`, `libSM`, `libICE`, or `libEGL` prevents headless GUI Blender startup.
+- Multiple MCP clients connected to the same addon can make behavior confusing; keep one active Codex/Blender MCP client.
+"""
+
 smoke_plan = """Production readiness smoke order:
 
 1. Preflight: Python, uv, GPU, disk, Blender, and model paths.
@@ -868,6 +1052,8 @@ Generated by `src/dataevolver/cli/bootstrap_dataevolver_default.sh` in dry-run m
 ## Hugging Face Access
 
 {access_rows}
+
+{blender_mcp_section}
 
 ## V1 Path Overrides
 
@@ -914,6 +1100,16 @@ env_lines = [
     f"export DATAEVOLVER_RESERVE_GPUS={shlex.quote(reserve_gpus)}",
     f"export DATAEVOLVER_PAPER_VALIDATION={shlex.quote('1' if paper_validation else '0')}",
 ]
+if profile == "blender_mcp":
+    env_lines.extend([
+        f"export DATAEVOLVER_BLENDER_MCP_REMOTE={shlex.quote(blender_mcp_operator['ssh_alias'])}",
+        f"export DATAEVOLVER_BLENDER_MCP_REMOTE_ROOT={shlex.quote(blender_mcp_operator['remote_root'])}",
+        f"export DATAEVOLVER_REMOTE_BLENDER_BIN={shlex.quote(blender_mcp_operator['remote_blender_bin'])}",
+        f"export BLENDER_MCP_REMOTE_PORT={shlex.quote(str(blender_mcp_operator['remote_port']))}",
+        f"export BLENDER_MCP_REMOTE_UVX={shlex.quote(blender_mcp_operator['remote_uvx'])}",
+        f"export BLENDER_MCP_TMUX_SESSION={shlex.quote(blender_mcp_operator['tmux_session'])}",
+        f"export DATAEVOLVER_BLENDER_MCP_REMOTE_ADDON_DIR={shlex.quote(blender_mcp_operator['remote_addon_dir'])}",
+    ])
 for model in models:
     env_name = model.get("env")
     if not env_name:
@@ -943,13 +1139,38 @@ if profile == "world_model":
     env_lines.append(f"export HYWORLD_WORLDSTEREO_PATH={shlex.quote(str(Path(model_root) / 'WorldStereo'))}")
     env_lines.append(f"export HYWORLD_WAN_BASE_MODEL={shlex.quote(str(Path(model_root) / 'Wan2.2-I2V-A14B-Diffusers'))}")
     env_lines.append('export WORLDSTEREO_BASE_MODEL_PATH="$HYWORLD_WAN_BASE_MODEL"')
-env_lines.append("# Set HF_TOKEN in your shell only when performing real downloads.")
+if profile != "blender_mcp":
+    env_lines.append("# Set HF_TOKEN in your shell only when performing real downloads.")
 (out / "env.sh.example").write_text("\n".join(env_lines) + "\n", encoding="utf-8")
+
+if profile == "blender_mcp":
+    codex_args = [
+        blender_mcp_operator["ssh_alias"],
+        "env",
+        "BLENDER_HOST=127.0.0.1",
+        f"BLENDER_PORT={blender_mcp_operator['remote_port']}",
+        "UV_PYTHON_PREFERENCE=only-managed",
+        blender_mcp_operator["remote_uvx"],
+        "--python",
+        "3.11",
+        "blender-mcp",
+    ]
+    codex_toml = "\n".join([
+        f"[mcp_servers.{blender_mcp_operator['codex_mcp_server_name']}]",
+        'command = "ssh.exe"',
+        "args = " + json.dumps(codex_args),
+        "startup_timeout_sec = 30",
+        "tool_timeout_sec = 240",
+        "",
+    ])
+    (out / "blender_mcp.codex.toml").write_text(codex_toml, encoding="utf-8")
 
 print(f"[write-local-config] wrote {out / 'ENVIRONMENT.md'}")
 print(f"[write-local-config] wrote {out / 'env.config.json'}")
 print(f"[write-local-config] wrote {out / 'env.sh.example'}")
 print(f"[write-local-config] wrote {out / 'production_profile.json'}")
+if profile == "blender_mcp":
+    print(f"[write-local-config] wrote {out / 'blender_mcp.codex.toml'}")
 PY
 }
 
@@ -957,6 +1178,7 @@ print_probe_plan
 print_gpu_plan
 print_env_plan
 print_model_plan
+print_blender_mcp_plan
 print_config_plan
 
 if [[ "$WRITE_LOCAL_CONFIG" == "1" ]]; then

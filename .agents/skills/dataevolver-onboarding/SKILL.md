@@ -1,6 +1,6 @@
 ---
 name: dataevolver-onboarding
-description: Guide DataEvolver server setup and safe dry-run onboarding. Use when a user wants a Codex or Claude Code agent to configure a local or remote DataEvolver checkout, interview for SSH/runtime paths, inspect Python/uv/conda/Hugging Face/Blender/GPU readiness, plan dependency and model setup, choose a dynamic or fixed GPU shard policy, prepare HYWorld or paper-validation execution handoff, or generate non-sensitive .dataevolver/local/ENVIRONMENT.md and env.config.json profiles without launching long jobs.
+description: Guide DataEvolver server setup and safe dry-run onboarding. Use when a user wants a Codex or Claude Code agent to configure a local or remote DataEvolver checkout, interview for SSH/runtime paths, inspect Python/uv/conda/Hugging Face/Blender/GPU readiness, plan dependency and model setup, choose a dynamic or fixed GPU shard policy, prepare HYWorld, Blender MCP, or paper-validation execution handoff, or generate non-sensitive .dataevolver/local/ENVIRONMENT.md and env.config.json profiles without launching long jobs.
 ---
 
 # DataEvolver Onboarding
@@ -10,7 +10,7 @@ Use this skill as the standard first step when an agent takes over a DataEvolver
 ## Workflow
 
 1. Ask at most five base setup questions:
-   - Target route: `quick_demo`, `t2i`, `edit`, `t2v`, `blender_3d`, `vlm_review`, `full_pipeline`, `world_model_scene`, `paper_validation`, or `custom`.
+   - Target route: `quick_demo`, `t2i`, `edit`, `t2v`, `blender_3d`, `vlm_review`, `full_pipeline`, `world_model_scene`, `blender_mcp`, `paper_validation`, or `custom`.
    - Runtime location: local Linux path, remote SSH alias plus project path, or not cloned yet.
    - Install policy: inspect only, generate plan, install Python deps later, download models later, or full setup later.
    - Model strategy: default DataEvolver models, existing paths, custom replacement models, or skip for now.
@@ -28,6 +28,7 @@ Use this skill as the standard first step when an agent takes over a DataEvolver
    bash src/dataevolver/cli/bootstrap_dataevolver_default.sh --profile <profile> --dry-run --write-local-config
    ```
    For HYWorld or paper validation, add `--profile world_model --gpu-policy <policy> --include-gpus <user-gpu-spec>` and, only if the user has service GPUs to protect, `--reserve-gpus <user-reserve-spec>`. Add `--paper-validation` when applicable.
+   For Blender MCP operator setup, use `--profile blender_mcp`; this only prints and writes local operator configuration.
 7. State explicitly that onboarding is dry-run only: it may print install/download/config/GPU shard plans, but it must not install dependencies, download weights, kill services, or launch long GPU jobs without explicit confirmation in the main conversation.
 
 ## Profiles
@@ -35,6 +36,7 @@ Use this skill as the standard first step when an agent takes over a DataEvolver
 - `quick`: environment probes and a dry-run route only.
 - `default`: current core pipeline defaults: Qwen-Image-2512, SAM3, Hunyuan3D-2.1, DINOv2 Giant, Qwen3.5-35B-A3B, and Blender.
 - `full`: `default` plus Qwen-Image-Edit-2511 and Wan2.1-T2V.
+- `blender_mcp`: optional operator/debug profile for remote Blender MCP control. It configures Codex-to-Blender inspection tools, viewport screenshots, and temporary Blender Python execution; it is not the production Stage 4 render path and must not change default pipeline behavior.
 - `world_model`: optional HYWorld / WorldMirror scene reconstruction route. Use only when the target route is `world_model_scene` or `paper_validation`; it adds HY-World-2.0, MoGe, ZIM, GroundingDINO, SAM3, WorldStereo, Wan I2V base, and WorldMirror/3DGS checks.
 - `custom`: record user-supplied model replacements as `needs_check`; do not perform compatibility review during onboarding.
 
@@ -77,6 +79,8 @@ Follow these scheduling rules:
 - Do not kill existing vLLM/VLM services during onboarding. Record them as reservations unless the user explicitly authorizes restart outside the dry-run flow.
 - If the user asks for real installation, downloads, service restarts, or GPU execution, first use the dry-run output as the plan and ask for explicit confirmation.
 - Prefer `uvx --from huggingface_hub hf download ...` for printed Hugging Face download plans, with `hf download ...` as fallback. Do not execute either command in dry-run.
+- For `blender_mcp`, do not write the user's global Codex config automatically. Generate `.dataevolver/local/blender_mcp.codex.toml` and ask the user to review/copy it.
+- For `blender_mcp`, do not start remote Blender or install remote system packages during onboarding. Print preflight/start commands only unless the user explicitly asks for real setup outside the dry-run flow.
 
 ## Known V1 Requirements
 
@@ -102,6 +106,7 @@ Follow these scheduling rules:
 - Hugging Face gated/access-dependent repos.
 - Runtime path override plan for v1.
 - Timing/GPU/failure ledger requirements when applicable.
+- Optional operator configuration such as `operators.blender_mcp` when the selected route is `blender_mcp`.
 - Next actions for the main agent.
 
 `env.config.json` should include:
@@ -111,6 +116,7 @@ Follow these scheduling rules:
 - `tooling_status`, `server_preflight`, `models`, `custom_models`, `access_requirements`
 - `gpu_policy`, `include_gpus`, `reserve_gpus`, `gpu_plan`
 - `execution_mode`, `paper_validation`, `ledger_requirements`
+- `operators.blender_mcp` for the `blender_mcp` profile, including `enabled`, `connection_mode`, `ssh_alias`, `remote_root`, `remote_blender_bin`, `remote_addon_dir`, `remote_port`, `remote_uvx`, `tmux_session`, and `codex_mcp_server_name`
 - `path_override_plan`, `v1_blockers`, `next_actions`, `generated_at`
 
 Keep both files concise. Use `unknown`, `not_requested`, or `needs_check` instead of blocking onboarding when the user is unsure.
