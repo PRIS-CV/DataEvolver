@@ -7,9 +7,10 @@
 #   bash src/dataevolver/cli/run_all.sh --stages 1,2     # Run only Stage 1 and 2
 #
 # Prerequisites (run once):
-#   conda activate /home/wuwenzhuo/Qwen-VL-Series-Finetune/env
+#   conda activate dataevolver
 #   pip install diffsynth trimesh rembg[gpu] Pillow
-#   cd /aaaidata/zhangqisong/data_build && git clone https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1.git
+#   mkdir -p .dataevolver/local/vendor && cd .dataevolver/local/vendor
+#   git clone https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1.git
 #   cd Hunyuan3D-2.1 && pip install -r requirements.txt
 
 set -euo pipefail

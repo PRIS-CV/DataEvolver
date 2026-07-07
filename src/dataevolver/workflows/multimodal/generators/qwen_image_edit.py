@@ -1,13 +1,21 @@
 from __future__ import annotations
 
+import os
 import time
 from pathlib import Path
 from typing import List
+
+from dataevolver.paths import DATAEVOLVER_ROOT
 
 from ..prompt_writer import build_prompts
 from ..schemas import DatasetRequest, DatasetSample, relpath
 from .base import GeneratorAdapter
 from .dryrun import iter_images
+
+
+LOCAL_ROOT = Path(os.environ.get("DATAEVOLVER_LOCAL_ROOT", os.fspath(DATAEVOLVER_ROOT / "local")))
+LOCAL_MODEL_ROOT = Path(os.environ.get("DATAEVOLVER_MODEL_ROOT", os.fspath(LOCAL_ROOT / "model_hub")))
+DEFAULT_QWEN_IMAGE_EDIT_PATH = os.fspath(LOCAL_MODEL_ROOT / "Qwen-Image-Edit-2511")
 
 
 class QwenImageEditGenerator(GeneratorAdapter):
@@ -48,7 +56,8 @@ class QwenImageEditGenerator(GeneratorAdapter):
                             "dry_run": False,
                             "backend": "diffusers.QwenImageEditPlusPipeline",
                             "model_name": request.model_name,
-                            "model_path": request.model_path or "/data/wuwenzhuo/Qwen-Image-Edit-2511",
+                            "model_path": request.model_path
+                            or os.environ.get("QWEN_IMAGE_EDIT_MODEL_PATH", DEFAULT_QWEN_IMAGE_EDIT_PATH),
                             "device": request.device,
                             "height": request.height,
                             "width": request.width,
@@ -78,7 +87,7 @@ class QwenImageEditGenerator(GeneratorAdapter):
         from PIL import Image
         from diffusers import QwenImageEditPlusPipeline
 
-        model_path = request.model_path or "/data/wuwenzhuo/Qwen-Image-Edit-2511"
+        model_path = request.model_path or os.environ.get("QWEN_IMAGE_EDIT_MODEL_PATH", DEFAULT_QWEN_IMAGE_EDIT_PATH)
         pipe = QwenImageEditPlusPipeline.from_pretrained(
             model_path,
             torch_dtype=torch.bfloat16,

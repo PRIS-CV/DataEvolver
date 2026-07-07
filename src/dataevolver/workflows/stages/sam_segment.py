@@ -19,14 +19,19 @@ import argparse
 import json
 import os
 import sys
+from pathlib import Path
 
 import numpy as np
 from PIL import Image
 
-from dataevolver.paths import runtime_path
+from dataevolver.paths import DATAEVOLVER_ROOT, runtime_path
 
-SAM3_CKPT = os.environ.get("SAM3_CKPT", "/huggingface/model_hub/sam3/sam3.pt")
-SAM3_DIR = os.environ.get("SAM3_DIR", "/aaaidata/zhangqisong/data_build/sam3")
+LOCAL_ROOT = Path(os.environ.get("DATAEVOLVER_LOCAL_ROOT", os.fspath(DATAEVOLVER_ROOT / "local")))
+LOCAL_VENDOR_ROOT = Path(os.environ.get("DATAEVOLVER_VENDOR_ROOT", os.fspath(LOCAL_ROOT / "vendor")))
+LOCAL_MODEL_ROOT = Path(os.environ.get("DATAEVOLVER_MODEL_ROOT", os.fspath(LOCAL_ROOT / "model_hub")))
+
+SAM3_CKPT = os.environ.get("SAM3_CKPT", os.fspath(LOCAL_MODEL_ROOT / "sam3" / "sam3.pt"))
+SAM3_DIR = os.environ.get("SAM3_DIR", os.fspath(LOCAL_VENDOR_ROOT / "sam3-src"))
 TEXT_PROMPT = "the main object"
 
 DATA_DIR = os.fspath(runtime_path())

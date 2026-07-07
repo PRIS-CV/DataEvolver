@@ -6,10 +6,10 @@ render fixed QC views for scene-aware review.
 import sys as _sys
 
 if _sys.version_info[:2] == (3, 10):
-    _np310_path = "/".join(
-        ["/home/wuwenzhuo/.config/blender/3.0", "scripts", "addons", "modules"]
-    )
-    if _np310_path not in _sys.path:
+    import os as _os
+
+    _np310_path = _os.environ.get("BLENDER_PYTHON_SITE_PACKAGES")
+    if _np310_path and _np310_path not in _sys.path:
         _sys.path.insert(0, _np310_path)
     _sys.path = [p for p in _sys.path if "python3.11" not in p]
 
@@ -33,7 +33,7 @@ import bpy
 import numpy as np
 from mathutils import Matrix, Vector
 
-from dataevolver.paths import CONFIGS_ROOT, REPO_ROOT, runtime_path
+from dataevolver.paths import CONFIGS_ROOT, DATAEVOLVER_ROOT, REPO_ROOT, runtime_path
 from dataevolver.runtime.hyworld_scene_contract import load_scene_contract, selected_support_surface
 
 
@@ -83,7 +83,13 @@ def parse_args():
 
 def load_scene_template(path: str) -> dict:
     data = load_json(path, default={}) or {}
-    data.setdefault("blend_path", "/home/wuwenzhuo/blender/data/sence/4.blend")
+    data.setdefault(
+        "blend_path",
+        os.environ.get(
+            "DATAEVOLVER_DEFAULT_BLEND_PATH",
+            os.fspath(DATAEVOLVER_ROOT / "local" / "scenes" / "default.blend"),
+        ),
+    )
     data.setdefault("use_existing_world", True)
     data.setdefault("disable_existing_lights", False)  # changed: default False
     data.setdefault("add_key_light", False)             # new: no extra key light by default
