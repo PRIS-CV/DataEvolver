@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DataEvolver — Let Your Data Build and Improve Itself via Goal-Driven Loop Agents</title>
-<meta name="description" content="DataEvolver: Let Your Data Build and Improve Itself via Goal-Driven Loop Agents. An autonomous synthetic data construction framework powered by goal-driven AI agents.">
+<meta name="description" content="DataEvolver: autonomous dataset construction with agent-orchestrated multimodal generation, 3D reconstruction, VLM repair loops, and WebSearch-guided research priors.">
+<link rel="icon" type="image/png" href="images/extracted/index3/image-01-af2d95cdebb7.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -382,6 +383,372 @@ em{font-style:italic;color:var(--body-strong)}
   font-size:0.8125rem;color:var(--muted);line-height:1.4;
 }
 
+/* ===== Research Prior Pipeline ===== */
+.research-pipeline-panel{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:28px;
+  align-items:stretch;
+  margin-top:48px;
+}
+.research-route-stack{
+  display:grid;
+  gap:20px;
+}
+.research-showcase-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:24px;
+  margin:8px 0 14px;
+}
+.research-showcase-head h3{
+  font-size:1.125rem;
+}
+.research-showcase-head p{
+  max-width:620px;
+  color:var(--muted);
+  font-size:0.9375rem;
+}
+.research-planner-board{
+  background:var(--surface-dark);
+  border-radius:var(--radius-xl);
+  padding:28px;
+  margin-top:36px;
+  box-shadow:0 16px 48px rgba(20,20,19,0.10);
+}
+.research-planner-head{
+  display:flex;
+  justify-content:space-between;
+  gap:32px;
+  align-items:flex-start;
+  margin-bottom:22px;
+}
+.research-planner-head h3{
+  color:var(--on-dark);
+}
+.research-planner-head p{
+  max-width:620px;
+  color:var(--on-dark-soft);
+  font-size:0.9375rem;
+}
+.research-planner-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+.research-planner-card{
+  background:var(--surface-dark-elevated);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:var(--radius-lg);
+  padding:20px;
+}
+.research-planner-kicker{
+  font-size:0.6875rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--primary);
+  margin-bottom:8px;
+}
+.research-planner-title{
+  font-family:var(--font-body);
+  font-weight:500;
+  color:var(--on-dark);
+  margin-bottom:6px;
+}
+.research-planner-card p{
+  color:var(--on-dark-soft);
+  font-size:0.875rem;
+  line-height:1.5;
+}
+.research-route-band{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:18px;
+  padding-top:18px;
+  border-top:1px solid rgba(255,255,255,0.08);
+  color:var(--on-dark-soft);
+  font-size:0.8125rem;
+}
+.research-route-band strong{
+  color:var(--on-dark);
+  font-weight:500;
+}
+.research-route-band span{
+  color:var(--primary);
+}
+.research-mode-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.research-mode-card{
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-lg);
+  padding:22px;
+  transition:all var(--transition);
+}
+.research-mode-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 16px rgba(20,20,19,0.06);
+}
+.research-mode-kicker{
+  font-size:0.6875rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--primary);
+  margin-bottom:8px;
+}
+.research-mode-title{
+  font-family:var(--font-body);
+  font-size:1rem;
+  font-weight:500;
+  color:var(--ink);
+  margin-bottom:6px;
+}
+.research-mode-desc{
+  font-size:0.875rem;
+  color:var(--body);
+  line-height:1.5;
+}
+.research-route-summary{
+  background:var(--canvas);
+}
+.research-route-pipeline{
+  margin-top:32px;
+}
+.research-route-pipeline .pipeline-step{
+  min-width:150px;
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+}
+.research-diagram-frame{
+  margin-top:28px;
+}
+.research-diagram-scroll{
+  background:var(--canvas);
+}
+.research-diagram-scroll img{
+  aspect-ratio:2/1;
+  object-fit:contain;
+  background:var(--canvas);
+}
+.research-gallery-block{
+  margin-top:52px;
+}
+.research-gallery-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:24px;
+  margin-bottom:4px;
+}
+.research-gallery-head h3{
+  font-size:1.125rem;
+}
+.research-gallery-head p{
+  max-width:560px;
+  font-size:0.9375rem;
+  color:var(--muted);
+}
+.research-gallery-block .gallery-scroll-wrapper{
+  margin:0 -12px;
+  padding:0 12px;
+}
+.research-gallery-block .gallery-card{
+  flex-basis:300px;
+}
+.research-gallery-block .gallery-card img{
+  aspect-ratio:4/3;
+}
+.research-gallery-block .gallery-card.research-tall img{
+  object-position:top center;
+}
+.robot-route-case{
+  margin-top:42px;
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-xl);
+  background:var(--surface-card);
+  padding:28px;
+}
+.robot-route-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:28px;
+  align-items:start;
+  margin-bottom:24px;
+}
+.robot-route-kicker{
+  font-size:0.6875rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--primary);
+  margin-bottom:8px;
+}
+.robot-route-head h3{
+  margin-bottom:8px;
+}
+.robot-route-head p{
+  max-width:720px;
+  font-size:0.9375rem;
+  color:var(--body);
+}
+.robot-route-stats{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(92px,1fr));
+  gap:10px;
+}
+.robot-route-stat{
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-lg);
+  padding:12px 14px;
+  min-width:92px;
+}
+.robot-route-stat strong{
+  display:block;
+  font-family:var(--font-display);
+  font-size:1.35rem;
+  font-weight:400;
+  color:var(--ink);
+  line-height:1;
+}
+.robot-route-stat span{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:0.72rem;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  font-weight:500;
+}
+.robot-stage-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+}
+.robot-stage-card{
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+}
+.robot-stage-media img,
+.robot-stage-media video{
+  display:block;
+  width:100%;
+  aspect-ratio:1;
+  object-fit:cover;
+  background:#111;
+}
+.robot-stage-media img{
+  cursor:pointer;
+}
+.robot-stage-info{
+  padding:16px;
+}
+.robot-stage-tag{
+  display:inline-block;
+  font-size:0.6875rem;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  padding:3px 10px;
+  border-radius:var(--radius-sm);
+  background:var(--surface-soft);
+  color:var(--muted);
+  margin-bottom:8px;
+}
+.robot-stage-title{
+  font-family:var(--font-body);
+  font-weight:500;
+  font-size:1rem;
+  color:var(--ink);
+}
+.robot-stage-desc{
+  font-size:0.8125rem;
+  color:var(--muted);
+  margin-top:4px;
+  line-height:1.45;
+}
+.robot-strategy-board{
+  margin-top:20px;
+  background:var(--surface-dark);
+  border-radius:var(--radius-lg);
+  padding:22px;
+}
+.robot-strategy-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:24px;
+  margin-bottom:16px;
+}
+.robot-strategy-head h4{
+  color:var(--on-dark);
+  margin-bottom:6px;
+}
+.robot-strategy-head p{
+  max-width:620px;
+  color:var(--on-dark-soft);
+  font-size:0.875rem;
+}
+.robot-strategy-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+.robot-strategy-step{
+  background:var(--surface-dark-elevated);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:var(--radius-md);
+  padding:16px;
+}
+.robot-strategy-step strong{
+  display:block;
+  color:var(--on-dark);
+  font-size:0.9rem;
+  margin-bottom:6px;
+}
+.robot-strategy-step span{
+  display:block;
+  color:var(--primary);
+  font-size:0.6875rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  margin-bottom:6px;
+}
+.robot-strategy-step p{
+  color:var(--on-dark-soft);
+  font-size:0.8125rem;
+  line-height:1.45;
+}
+.robot-strategy-flow{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px;
+  margin-top:16px;
+  padding-top:16px;
+  border-top:1px solid rgba(255,255,255,0.08);
+  color:var(--on-dark-soft);
+  font-size:0.8125rem;
+}
+.robot-strategy-flow strong{
+  color:var(--on-dark);
+  font-weight:500;
+}
+.robot-strategy-flow span{
+  color:var(--primary);
+}
+
 /* ===== World Model Scene Reconstruction ===== */
 .worldmodel-layout{
   display:grid;
@@ -432,6 +799,125 @@ em{font-style:italic;color:var(--body-strong)}
   padding:7px 11px;
   font-size:0.75rem;
   font-weight:500;
+}
+.hyworld-case-pack{
+  margin-top:48px;
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-xl);
+  background:var(--surface-card);
+  padding:28px;
+}
+.hyworld-case-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:28px;
+  align-items:start;
+  margin-bottom:24px;
+}
+.hyworld-case-kicker{
+  font-size:0.6875rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--primary);
+  margin-bottom:8px;
+}
+.hyworld-case-head h3{
+  margin-bottom:8px;
+}
+.hyworld-case-head p{
+  max-width:720px;
+  font-size:0.9375rem;
+  color:var(--body);
+}
+.hyworld-case-stats{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(92px,1fr));
+  gap:10px;
+}
+.hyworld-case-stat{
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-lg);
+  padding:12px 14px;
+  min-width:92px;
+}
+.hyworld-case-stat strong{
+  display:block;
+  font-family:var(--font-display);
+  font-size:1.35rem;
+  font-weight:400;
+  color:var(--ink);
+  line-height:1;
+}
+.hyworld-case-stat span{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:0.72rem;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  font-weight:500;
+}
+.hyworld-contact-sheet-stack{
+  display:grid;
+  gap:20px;
+}
+.hyworld-contact-sheet{
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+}
+.hyworld-contact-sheet img{
+  display:block;
+  width:100%;
+  aspect-ratio:1280/416;
+  object-fit:contain;
+  background:#111;
+  cursor:pointer;
+}
+.hyworld-case-caption{
+  padding:14px 16px;
+  border-top:1px solid var(--hairline-soft);
+  font-size:0.8125rem;
+  color:var(--muted);
+}
+.hyworld-case-caption strong{
+  color:var(--body-strong);
+  font-weight:500;
+}
+.hyworld-case-notes{
+  background:var(--canvas);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-lg);
+  padding:22px;
+}
+.hyworld-case-notes-compact{
+  margin-top:20px;
+}
+.hyworld-case-notes h4{
+  margin-bottom:12px;
+}
+.hyworld-case-notes ul{
+  list-style:none;
+  display:grid;
+  gap:10px;
+}
+.hyworld-case-notes li{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:10px;
+  color:var(--body);
+  font-size:0.875rem;
+}
+.hyworld-case-notes li::before{
+  content:'';
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--primary);
+  margin-top:7px;
 }
 
 /* ===== Evolution Loop ===== */
@@ -822,7 +1308,21 @@ em{font-style:italic;color:var(--body-strong)}
   .pipeline-visual{flex-wrap:wrap;gap:12px;justify-content:center}
   .pipeline-arrow{display:none}
   .pipeline-step{min-width:130px;flex:0 0 auto}
+  .research-pipeline-panel{grid-template-columns:1fr;gap:24px}
+  .research-diagram-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .research-diagram-scroll img{width:720px;max-width:none}
+  .research-showcase-head,.research-planner-head{align-items:flex-start;flex-direction:column;gap:8px}
+  .research-planner-grid{grid-template-columns:1fr}
+  .research-mode-grid{grid-template-columns:1fr}
+  .research-gallery-head{align-items:flex-start;flex-direction:column;gap:8px}
+  .robot-route-head{grid-template-columns:1fr}
+  .robot-route-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .robot-stage-grid{grid-template-columns:1fr}
+  .robot-strategy-head{align-items:flex-start;flex-direction:column;gap:8px}
+  .robot-strategy-grid{grid-template-columns:1fr}
   .worldmodel-layout{grid-template-columns:1fr;gap:28px}
+  .hyworld-case-head{grid-template-columns:1fr}
+  .hyworld-case-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .loop-diagram{grid-template-columns:1fr;gap:12px}
   .loop-arrow{display:none}
   .stats-grid{grid-template-columns:repeat(2,1fr)}
@@ -851,17 +1351,17 @@ em{font-style:italic;color:var(--body-strong)}
 <nav class="nav">
   <div class="nav-inner">
     <a href="#" class="nav-logo">
-      <img src="logo.png" alt="DataEvolver" class="logo-img">
+      <img src="images/extracted/index3/image-01-af2d95cdebb7.png" alt="DataEvolver" class="logo-img">
       DataEvolver
     </a>
     <ul class="nav-links">
       <li><a href="#pipeline">Pipeline</a></li>
-      <li><a href="#worldmodel">3D Scenes</a></li>
+      <li><a href="#research">Research</a></li>
+      <li><a href="#worldmodel">Scene Context</a></li>
       <li><a href="#evolution">VLM Loop</a></li>
       <li><a href="#dataset">Dataset</a></li>
       <li><a href="#gallery">Gallery</a></li>
-      <li><a href="#recognition">Recognition</a></li>
-      <li><a href="#start">Get Started</a></li>
+      <li><a href="#start">Start</a></li>
     </ul>
     <a href="https://github.com/PRIS-CV/DataEvolver" class="nav-cta" target="_blank" rel="noopener">GitHub</a>
   </div>
@@ -876,7 +1376,7 @@ em{font-style:italic;color:var(--body-strong)}
       </div>
       <h1>Let Your Data Build and Improve Itself</h1>
       <p class="hero-subtitle">
-        DataEvolver is an autonomous synthetic data construction framework where <em>goal-driven loop agents</em> orchestrate the full pipeline — from text-to-image generation through 3D reconstruction to scene-aware rendering — and iteratively refine output quality via VLM feedback loops.
+        DataEvolver is an autonomous dataset construction framework where <em>goal-driven loop agents</em> choose and compose text-to-image, image editing, text-to-video, and image-to-3D interfaces, then use VLM feedback and WebSearch research priors to turn user requests or papers into reproducible data pipelines.
       </p>
       <div class="hero-awards" aria-label="Project highlights">
         <span class="hero-award">📄 arXiv 2605.01789</span>
@@ -893,20 +1393,20 @@ em{font-style:italic;color:var(--body-strong)}
       </div>
       <div class="hero-stats">
         <div>
-          <div class="hero-stat-value">350</div>
-          <div class="hero-stat-label">Training Pairs</div>
+          <div class="hero-stat-value">4</div>
+          <div class="hero-stat-label">Generation Interfaces</div>
         </div>
         <div>
-          <div class="hero-stat-value">50</div>
-          <div class="hero-stat-label">Unique Objects</div>
+          <div class="hero-stat-value">2</div>
+          <div class="hero-stat-label">Construction Tracks</div>
         </div>
         <div>
           <div class="hero-stat-value">24</div>
-          <div class="hero-stat-label">Atomic Actions</div>
+          <div class="hero-stat-label">Repair Actions</div>
         </div>
         <div>
-          <div class="hero-stat-value">6</div>
-          <div class="hero-stat-label">Pipeline Stages</div>
+          <div class="hero-stat-value">Web</div>
+          <div class="hero-stat-label">Research Prior</div>
         </div>
       </div>
     </div>
@@ -914,16 +1414,18 @@ em{font-style:italic;color:var(--body-strong)}
     <!-- Hero Showcase -->
     <div class="hero-showcase">
       <div class="hero-showcase-inner">
-        <img src="images/readme/showcase.png" alt="DataEvolver autonomous synthetic data construction workflow">
+        <img src="images/extracted/index3/image-02-9f97f7fec6e6.png" alt="DataEvolver autonomous synthetic data construction workflow">
         <div class="hero-showcase-caption">
           <div>
-            <strong>Autonomous render-review-fix data construction</strong>
-            <span>Seed concept → 3D rendering → VLM review loop → multimodal dataset output</span>
+            <strong>Agent-orchestrated multimodal data construction</strong>
+            <span>User request or paper → strategy selection → VLM repair loop → dataset handoff</span>
           </div>
-          <div class="hero-showcase-pill">VLM-guided</div>
+          <div class="hero-showcase-pill">Agent-guided</div>
         </div>
       </div>
     </div>
+
+
   </div>
 </section>
 
@@ -931,9 +1433,9 @@ em{font-style:italic;color:var(--body-strong)}
 <section class="section section-card" id="problem">
   <div class="section-inner">
     <div class="section-label">The Problem</div>
-    <h2 class="section-title">Why Goal-Driven Agents Are the Missing Piece</h2>
+    <h2 class="section-title">Why Dataset Construction Needs Agent Strategy</h2>
     <p class="section-desc">
-      Naive automated rendering produces artifacts — flat lighting, color shifts, floating objects. Traditional pipelines rely on rigid scoring rules that lack semantic understanding. What's needed are <em>goal-driven agents</em> that can perceive, diagnose, and act.
+      Dataset construction is no longer a single fixed path. Some tasks need image generation, some need editing or video synthesis, some need 3D reconstruction and Blender insertion, and paper reproduction needs source-backed methodology rather than ad hoc prompting.
     </p>
 
     <div class="card-grid">
@@ -941,22 +1443,22 @@ em{font-style:italic;color:var(--body-strong)}
         <div class="card-icon" style="background:rgba(198,69,69,0.1)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         </div>
-        <h3 class="card-title">Naive Renders Have Artifacts</h3>
-        <p class="card-desc">Auto-rendered 3D objects often exhibit flat lighting, implausible shadows, and color mismatches with the scene environment.</p>
+        <h3 class="card-title">Single-Path Pipelines Are Too Rigid</h3>
+        <p class="card-desc">A user request may require parallel T2I candidates, an image-edit branch, a text-to-video branch, or a serial image-to-3D route. The agent must choose the right composition.</p>
       </div>
       <div class="card">
         <div class="card-icon" style="background:rgba(212,160,23,0.1)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
         </div>
-        <h3 class="card-title">Rule-Based QC Lacks Semantics</h3>
-        <p class="card-desc">Rigid numeric thresholds can't diagnose "this lighting feels flat" or "the object appears to float." Goal-driven agents with VLM perception can.</p>
+        <h3 class="card-title">Synthetic Outputs Need Semantic Repair</h3>
+        <p class="card-desc">Rigid numeric thresholds cannot diagnose "this object floats" or "the lighting is inconsistent." Goal-driven agents use VLM feedback to decide targeted repairs.</p>
       </div>
       <div class="card">
         <div class="card-icon" style="background:rgba(204,120,92,0.1)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
-        <h3 class="card-title">Manual Tuning Can't Scale</h3>
-        <p class="card-desc">Human artists spend minutes per object adjusting Blender parameters. At 50+ objects with 8+ viewpoints, this becomes infeasible.</p>
+        <h3 class="card-title">Paper Reproduction Needs Sources</h3>
+        <p class="card-desc">A paper or topic should produce a traceable dataset construction handoff: cited sources, official artifacts, evaluation references, and reusable requirements.</p>
       </div>
     </div>
   </div>
@@ -966,17 +1468,36 @@ em{font-style:italic;color:var(--body-strong)}
 <section class="section" id="pipeline">
   <div class="section-inner">
     <div class="section-label">Pipeline</div>
-    <h2 class="section-title">The Goal-Driven Data Construction Pipeline</h2>
+    <h2 class="section-title">Two Connected Dataset Construction Tracks</h2>
     <p class="section-desc">
-      From a natural language seed concept to quality-verified rendered pairs — fully automated by goal-driven loop agents, no human intervention required.
+      DataEvolver combines an agent-orchestrated multimodal generation track with a WebSearch-guided research-prior track. The agent can run interfaces in parallel, in series, or as a hybrid strategy to build faster, higher-quality datasets.
     </p>
+
+    <div class="connector-grid" style="margin-bottom:32px">
+      <div class="connector-tile">
+        <h4>Text-to-Image</h4>
+        <p>Generate source objects, scene references, or candidate visual concepts from prompts.</p>
+      </div>
+      <div class="connector-tile">
+        <h4>Image Edit</h4>
+        <p>Produce controlled variants, target images, and editing pairs from accepted sources.</p>
+      </div>
+      <div class="connector-tile">
+        <h4>Text-to-Video</h4>
+        <p>Extend static generation into temporal object or scene workflows when sequence data is needed.</p>
+      </div>
+      <div class="connector-tile">
+        <h4>Image-to-3D</h4>
+        <p>Reconstruct textured objects for Blender insertion, scene rendering, and VLM repair.</p>
+      </div>
+    </div>
 
     <div class="visual-frame">
       <div class="visual-frame-inner">
-        <img src="images/readme/pipeline_show.svg" alt="DataEvolver six-stage synthetic data generation pipeline">
+        <img src="images/extracted/index3/image-03-5b8cffe2a14d.svg" alt="DataEvolver six-stage synthetic data generation pipeline">
         <div class="visual-caption">
-          <strong>6-stage data synthesis workflow</strong>
-          <span>Text expansion, T2I generation, segmentation, 3D reconstruction, scene rendering, and VLM review.</span>
+          <strong>Representative serial 3D route</strong>
+          <span>The image-to-3D path remains a concrete serial strategy: prompt/image generation, segmentation, 3D reconstruction, Blender rendering, and VLM review.</span>
         </div>
       </div>
     </div>
@@ -984,58 +1505,290 @@ em{font-style:italic;color:var(--body-strong)}
     <div class="pipeline-visual">
       <div class="pipeline-step">
         <div class="pipeline-step-num">1</div>
-        <div class="pipeline-step-title">Text Expansion</div>
-        <div class="pipeline-step-desc">LLM expands seed into T2I prompt</div>
+        <div class="pipeline-step-title">Request Strategy</div>
+        <div class="pipeline-step-desc">Agent maps the user goal to interface choices</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">2</div>
-        <div class="pipeline-step-title">T2I Generation</div>
-        <div class="pipeline-step-desc">Qwen-Image-2512 at 1024×1024</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step">
-        <div class="pipeline-step-num">2.5</div>
-        <div class="pipeline-step-title">Segmentation</div>
-        <div class="pipeline-step-desc">SAM3 extracts RGBA foreground</div>
+        <div class="pipeline-step-title">Composable Interfaces</div>
+        <div class="pipeline-step-desc">T2I, image edit, T2V, and image-to-3D</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">3</div>
-        <div class="pipeline-step-title">3D Reconstruction</div>
-        <div class="pipeline-step-desc">Hunyuan3D-2.1 textured mesh</div>
+        <div class="pipeline-step-title">Branch Orchestration</div>
+        <div class="pipeline-step-desc">Parallel, serial, or hybrid execution</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">4</div>
-        <div class="pipeline-step-title">Scene Rendering</div>
-        <div class="pipeline-step-desc">Blender 4.2+ with Cycles 512spp</div>
+        <div class="pipeline-step-title">3D Route</div>
+        <div class="pipeline-step-desc">Object image to textured mesh to Blender</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">5</div>
-        <div class="pipeline-step-title">VLM Review Loop</div>
-        <div class="pipeline-step-desc">Review → act → re-render until keep</div>
+        <div class="pipeline-step-title">Scene Context</div>
+        <div class="pipeline-step-desc">Optional HYWorld / WorldMirror support</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">6</div>
+        <div class="pipeline-step-title">Review & Export</div>
+        <div class="pipeline-step-desc">VLM repair loop, metadata, and dataset handoff</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- HYWorld World Model Scene Reconstruction -->
-<section class="section section-card" id="worldmodel">
+<!-- Research Prior — Cream Card -->
+<section class="section section-card" id="research">
   <div class="section-inner">
-    <div class="section-label">World Model Reconstruction</div>
-    <h2 class="section-title">Automated 3D Scene Construction</h2>
+    <div class="section-label">Research Prior</div>
+    <h2 class="section-title">WebSearch-Guided Reproducible Research Pipelines</h2>
     <p class="section-desc">
-      DataEvolver can extend beyond object reconstruction into full scene reconstruction. The HYWorld / WorldMirror route converts a scene prompt or input image into a panorama, reconstructs metric scene geometry, validates the Blender scene contract, and produces multi-view evidence before object insertion.
+      The research-prior workflow turns a paper, topic, or generation request into a reproducible dataset-construction handoff. The active agent performs WebSearch and paper reading, then dynamically composes serial and parallel t2i, edit, i2v, and 3D routes while DataEvolver keeps source notes, trace events, gallery sheets, and <code>research_prior.json</code> attached for replay.
+    </p>
+
+    <div class="research-showcase-head">
+      <h3>Research-Guided Pipeline</h3>
+      <p>Single-paper and universal modes merge into one source-backed workflow for reproducible dataset construction and evaluation-ready handoff.</p>
+    </div>
+
+    <div class="visual-frame research-diagram-frame">
+      <div class="visual-frame-inner">
+        <div class="research-diagram-scroll">
+          <img src="images/readme/web-search.png" alt="WebSearch-guided reproducible research pipeline from paper or topic input to evidence handoff">
+        </div>
+        <div class="visual-caption">
+          <strong>WebSearch-guided reproducible research pipelines</strong>
+          <span>The agent retrieves papers, official artifacts, code, and datasets, then records evidence, GT references, manifests, lineage, and research_prior.json.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="research-gallery-block">
+      <div class="research-gallery-head">
+        <h3>Pipeline & Gallery Snapshots</h3>
+        <p>Visual checkpoints for the edit route, universal paper synthesis, VLM review, and one-page handoff.</p>
+      </div>
+      <div class="gallery-scroll-wrapper">
+        <button class="gallery-scroll-btn left" onclick="scrollResearchGallery(-1)" aria-label="Previous research gallery items">‹</button>
+        <div class="gallery-scroll research-gallery-scroll" id="researchGalleryScroll">
+          <div class="gallery-card">
+            <img src="images/extracted/index3/image-04-6de6001048e1.png" alt="Multi-case image edit contact sheet" onclick="openLightbox(this)">
+            <div class="gallery-info">
+              <div class="gallery-tag">Edit Route</div>
+              <div class="gallery-obj-name">Multi-case edit gallery</div>
+              <div class="gallery-meta">Parallel edit prompts, references, and generated outputs</div>
+            </div>
+          </div>
+          <div class="gallery-card">
+            <img src="images/extracted/index3/image-05-c1f9c29473cc.jpg" alt="Four-paper universal mode case comparison sheet" onclick="openLightbox(this)">
+            <div class="gallery-info">
+              <div class="gallery-tag">Universal Mode</div>
+              <div class="gallery-obj-name">Four-paper case synthesis</div>
+              <div class="gallery-meta">Shared construction requirements distilled from related work</div>
+            </div>
+          </div>
+          <div class="gallery-card research-tall">
+            <img src="images/extracted/index3/image-06-0347199d5b91.jpg" alt="VLM visual review contact sheet" onclick="openLightbox(this)">
+            <div class="gallery-info">
+              <div class="gallery-tag">Review Loop</div>
+              <div class="gallery-obj-name">VLM review contact sheet</div>
+              <div class="gallery-meta">Candidate renders packaged with review-ready context</div>
+            </div>
+          </div>
+          <div class="gallery-card">
+            <img src="images/extracted/index3/image-07-c5402412b014.png" alt="One-page research and visual results handoff preview" onclick="openLightbox(this)">
+            <div class="gallery-info">
+              <div class="gallery-tag">Handoff</div>
+              <div class="gallery-obj-name">One-page research handoff</div>
+              <div class="gallery-meta">Compact summary for downstream generation review</div>
+            </div>
+          </div>
+        </div>
+        <button class="gallery-scroll-btn right" onclick="scrollResearchGallery(1)" aria-label="Next research gallery items">›</button>
+      </div>
+      <div class="gallery-scroll-indicator" id="researchGalleryIndicator"></div>
+    </div>
+
+    <div class="robot-route-case">
+      <div class="robot-route-head">
+        <div>
+          <div class="robot-route-kicker">Single-Image Route Case</div>
+          <h3>Robot Safety Signal: T2I → Edit → I2V</h3>
+          <p>
+            A compact three-stage example from one accepted image. The route starts with a text-to-image base render, promotes the selected frame through targeted image editing, then uses the edited result as the anchor for short motion synthesis.
+          </p>
+        </div>
+        <div class="robot-route-stats">
+          <div class="robot-route-stat"><strong>1</strong><span>Base Image</span></div>
+          <div class="robot-route-stat"><strong>1</strong><span>Edit Pass</span></div>
+          <div class="robot-route-stat"><strong>1</strong><span>I2V Clip</span></div>
+          <div class="robot-route-stat"><strong>Mix</strong><span>Strategy</span></div>
+        </div>
+      </div>
+
+      <div class="robot-stage-grid">
+        <div class="robot-stage-card">
+          <div class="robot-stage-media">
+            <img src="images/extracted/index3/image-08-38126c5563b6.png" alt="Robot base image generated by text-to-image" onclick="openLightbox(this)">
+          </div>
+          <div class="robot-stage-info">
+            <div class="robot-stage-tag">T2I Base</div>
+            <div class="robot-stage-title">Initial robot render</div>
+            <p class="robot-stage-desc">Clean lab robot scene with a blue transparent cube held at the center.</p>
+          </div>
+        </div>
+        <div class="robot-stage-card">
+          <div class="robot-stage-media">
+            <img src="images/extracted/index3/image-09-b320566a4050.png" alt="Robot edited image with safety signal and green status lights" onclick="openLightbox(this)">
+          </div>
+          <div class="robot-stage-info">
+            <div class="robot-stage-tag">Edit Pass</div>
+            <div class="robot-stage-title">Safety signal added</div>
+            <p class="robot-stage-desc">Targeted edit adds a green status light and a front safety mark while preserving pose and scene layout.</p>
+          </div>
+        </div>
+        <div class="robot-stage-card">
+          <div class="robot-stage-media">
+            <video src="media/extracted/index3/video-01-9010958db8a1.mp4" controls muted loop playsinline preload="metadata" aria-label="Robot final image-to-video result"></video>
+          </div>
+          <div class="robot-stage-info">
+            <div class="robot-stage-tag">I2V Output</div>
+            <div class="robot-stage-title">Motion-ready result</div>
+            <p class="robot-stage-desc">The edited image becomes the visual anchor for a short image-to-video generation pass.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="robot-strategy-board">
+        <div class="robot-strategy-head">
+          <div>
+            <h4>Serial / Parallel Strategy Orchestration</h4>
+            <p>Use parallel search where alternatives are cheap, then switch to serial promotion once a stable image anchor is selected.</p>
+          </div>
+        </div>
+        <div class="robot-strategy-grid">
+          <div class="robot-strategy-step">
+            <span>Parallel</span>
+            <strong>Explore base candidates</strong>
+            <p>Fan out prompts, seeds, or style variants to quickly compare possible robot scenes.</p>
+          </div>
+          <div class="robot-strategy-step">
+            <span>Select</span>
+            <strong>Promote one anchor</strong>
+            <p>Choose the frame with the clearest pose, object placement, and scene consistency.</p>
+          </div>
+          <div class="robot-strategy-step">
+            <span>Serial</span>
+            <strong>Apply targeted edit</strong>
+            <p>Lock geometry and camera first, then add the safety indicator and status lights.</p>
+          </div>
+          <div class="robot-strategy-step">
+            <span>Serial</span>
+            <strong>Generate motion</strong>
+            <p>Use the edited image as the input anchor for I2V so identity and visual edits carry forward.</p>
+          </div>
+        </div>
+        <div class="robot-strategy-flow">
+          <strong>Parallel T2I search</strong><span>→</span>
+          <strong>Anchor selection</strong><span>→</span>
+          <strong>Serial edit</strong><span>→</span>
+          <strong>Serial I2V</strong><span>→</span>
+          <strong>Replayable handoff</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="research-planner-board">
+      <div class="research-planner-head">
+        <h3>Serial / Parallel Route Planner</h3>
+        <p>The agent turns the research prior into a route decision: run cheap branches together, cascade dependent steps only when needed, and keep the selected plan replayable through manifests and gallery records.</p>
+      </div>
+      <div class="research-planner-grid">
+        <div class="research-planner-card">
+          <div class="research-planner-kicker">Parallel</div>
+          <div class="research-planner-title">Fan-out candidates</div>
+          <p>Run t2i, edit, or i2v candidates side by side when the task needs diversity, fast comparison, or multiple visual hypotheses.</p>
+        </div>
+        <div class="research-planner-card">
+          <div class="research-planner-kicker">Serial</div>
+          <div class="research-planner-title">Cascade dependencies</div>
+          <p>Chain image -> edit -> i2v or image -> 3D -> Blender when later stages need validated upstream artifacts.</p>
+        </div>
+        <div class="research-planner-card">
+          <div class="research-planner-kicker">Plan Choice</div>
+          <div class="research-planner-title">Score route utility</div>
+          <p>Select the lowest-risk plan from cost, source coverage, reference availability, expected quality, and replay requirements.</p>
+        </div>
+      </div>
+      <div class="research-route-band">
+        <strong>WebSearch prior</strong><span>-></span>
+        <strong>Source plan</strong><span>-></span>
+        <strong>Route scoring</strong><span>-></span>
+        <strong>Serial / parallel execution</strong><span>-></span>
+        <strong>Gallery handoff</strong>
+      </div>
+    </div>
+
+    <div class="research-pipeline-panel">
+      <div class="research-route-stack">
+        <div class="research-mode-grid">
+          <div class="research-mode-card">
+            <div class="research-mode-kicker">Paper</div>
+            <div class="research-mode-title">Single-Paper Mode</div>
+            <p class="research-mode-desc">Reproduce a target paper by separating official artifacts from generated proxies, then recording dataset method, metrics, GT references, and missing-assets decisions.</p>
+          </div>
+          <div class="research-mode-card">
+            <div class="research-mode-kicker">Topic</div>
+            <div class="research-mode-title">Universal Mode</div>
+            <p class="research-mode-desc">Search 3-5 related papers, extract shared dataset requirements, and synthesize a reusable plan for generation, evaluation, and traceable outputs.</p>
+          </div>
+        </div>
+
+        <div class="worldmodel-evidence research-route-summary">
+          <h3>Research Handoff</h3>
+          <ul class="worldmodel-list">
+            <li>Agent-run WebSearch and paper reading, with DataEvolver preserving source notes and trace events.</li>
+            <li>Dynamic route planning chooses when to run t2i, edit, i2v, and 3D in sequence or in parallel.</li>
+            <li>Official open datasets and evaluation criteria are treated as GT references, not replaced by VLM-only acceptance.</li>
+            <li>Every accepted route exports prompts, manifests, review sheets, and replayable handoff records.</li>
+          </ul>
+          <div class="worldmodel-chip-row">
+            <span class="worldmodel-chip">WebSearch-guided</span>
+            <span class="worldmodel-chip">single-paper</span>
+            <span class="worldmodel-chip">universal</span>
+            <span class="worldmodel-chip">dynamic plan</span>
+            <span class="worldmodel-chip">research_prior.json</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+  </div>
+</section>
+
+<!-- HYWorld World Model Scene Reconstruction -->
+<section class="section" id="worldmodel">
+  <div class="section-inner">
+    <div class="section-label">Scene Context</div>
+    <h2 class="section-title">HYWorld / WorldMirror as a 3D Route Enhancer</h2>
+    <p class="section-desc">
+      HYWorld / WorldMirror is an optional <code>world_model</code> route for strengthening the 3D reconstruction track. It builds scene context before object insertion, then requires contract-backed geometry, pure-scene multi-view renders, manifests, and lineage records.
     </p>
 
     <div class="visual-frame">
       <div class="visual-frame-inner">
-        <img src="images/readme/3D-build.png" alt="HYWorld automated 3D scene reconstruction pipeline">
+        <img src="images/extracted/index3/image-10-620cde72f0b9.png" alt="HYWorld automated 3D scene reconstruction pipeline">
         <div class="visual-caption">
-          <strong>HYWorld / WorldMirror scene pipeline</strong>
-          <span>Prompt or image → HY-Pano → real 3D reconstruction → scene contract → multi-view validation → final manifest.</span>
+          <strong>Optional scene context route</strong>
+          <span>Prompt or image → HY-Pano → HYWorld / WorldMirror geometry → Blender scene contract → pure-scene validation → object insertion.</span>
         </div>
       </div>
     </div>
@@ -1043,21 +1796,21 @@ em{font-style:italic;color:var(--body-strong)}
     <div class="worldmodel-layout">
       <div class="card-grid">
         <div class="card">
-          <h3 class="card-title">Panorama to Metric Scene</h3>
-          <p class="card-desc">HY-Pano creates a 360° scene context; HYWorld and WorldMirror reconstruct depth, camera priors, and scene geometry instead of relying on a fixed panorama shell.</p>
+          <h3 class="card-title">Contract-Backed Geometry</h3>
+          <p class="card-desc">HY-Pano creates a 360° context; HYWorld and WorldMirror reconstruct depth, camera priors, support surfaces, and scene geometry instead of accepting a fixed panorama shell.</p>
         </div>
         <div class="card">
-          <h3 class="card-title">Blender Scene Contract</h3>
-          <p class="card-desc">The reconstructed mesh is converted into a contract with camera alignment, support surfaces, lineage hashes, and gates that reject constant-depth pseudo-3D outputs.</p>
+          <h3 class="card-title">Traceable Review</h3>
+          <p class="card-desc">The route preserves pure-scene renders, placement contracts, support checks, and lineage hashes before any object-scene render can be promoted.</p>
         </div>
       </div>
       <div class="worldmodel-evidence">
-        <h3>Review Evidence</h3>
+        <h3>Route Records</h3>
         <ul class="worldmodel-list">
-          <li>Preserved stage artifacts and SHA-256 manifests for HY-Pano and full worldgen.</li>
+          <li>Preserved run artifacts and SHA-256 manifests for HY-Pano and full worldgen.</li>
           <li>Pure-scene multi-view renders before object insertion.</li>
           <li>Mesh-raycast support placement with scene-camera matching.</li>
-          <li>Final object-scene report with RGB, masks, depth, normals, metadata gates, and lineage.</li>
+          <li>Final object-scene reports include RGB, masks, depth, normals, metadata gates, and lineage instead of VLM-only acceptance.</li>
         </ul>
         <div class="worldmodel-chip-row">
           <span class="worldmodel-chip">world_model profile</span>
@@ -1065,6 +1818,53 @@ em{font-style:italic;color:var(--body-strong)}
           <span class="worldmodel-chip">WorldMirror</span>
           <span class="worldmodel-chip">Blender contract</span>
         </div>
+      </div>
+    </div>
+
+    <div class="hyworld-case-pack">
+      <div class="hyworld-case-head">
+        <div>
+          <div class="hyworld-case-kicker">720p 3D Route Case Pack</div>
+          <h3>HYWorld Qwen2.5-12B In-place Object Rotation</h3>
+          <p>
+            A compact preview extracted from the zipped report. It packages two HYWorld scenes, fixed-camera source RGB backgrounds, mesh-zbuffer object placement, eight yaw angles per object, and validation records for replayable 3D dataset construction.
+          </p>
+        </div>
+        <div class="hyworld-case-stats">
+          <div class="hyworld-case-stat"><strong>2</strong><span>Scenes</span></div>
+          <div class="hyworld-case-stat"><strong>2</strong><span>Objects</span></div>
+          <div class="hyworld-case-stat"><strong>8</strong><span>Yaw Views</span></div>
+          <div class="hyworld-case-stat"><strong>720p</strong><span>Output</span></div>
+          <div class="hyworld-case-stat"><strong>34</strong><span>Enhanced RGB</span></div>
+          <div class="hyworld-case-stat"><strong>Pass</strong><span>Validation</span></div>
+        </div>
+      </div>
+
+      <div class="hyworld-contact-sheet-stack">
+        <div class="hyworld-contact-sheet">
+          <img src="images/extracted/index3/image-11-81489ba71c53.jpg" alt="HYWorld scene 001 object 001 in-place rotation contact sheet" onclick="openLightbox(this)">
+          <div class="hyworld-case-caption">
+            <strong>Scene 001 / object 001</strong>
+            <span>Original bundled contact sheet: static camera, fixed world position, eight yaw samples.</span>
+          </div>
+        </div>
+        <div class="hyworld-contact-sheet">
+          <img src="images/extracted/index3/image-12-47d0b541d16d.jpg" alt="HYWorld scene 002 object 009 in-place rotation contact sheet" onclick="openLightbox(this)">
+          <div class="hyworld-case-caption">
+            <strong>Scene 002 / object 009</strong>
+            <span>Original bundled contact sheet: second scene, same in-place rotation review checks.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hyworld-case-notes hyworld-case-notes-compact">
+        <h4>Validation Summary</h4>
+        <ul>
+          <li>Scene static, camera static, and source RGB background preserved.</li>
+          <li>Object remains fixed in world space while rotating in place.</li>
+          <li>All yaw angles are visible after harmonization and super-resolution.</li>
+          <li>Manifest, lineage, masks, metadata, and validation report stay bundled with the archive.</li>
+        </ul>
       </div>
     </div>
   </div>
@@ -1076,12 +1876,12 @@ em{font-style:italic;color:var(--body-strong)}
     <div class="section-label">Core Innovation</div>
     <h2 class="section-title">Goal-Driven Loop Agents: Perceive, Diagnose, Act, Repeat</h2>
     <p class="section-desc">
-      The heart of DataEvolver: a <em style="color:var(--on-dark)">goal-driven loop agent</em> that perceives rendered outputs via VLM review, diagnoses semantic issues, selects targeted rendering adjustments from a structured action space, and repeats until quality goals are met.
+      In the 3D reconstruction route, a <em style="color:var(--on-dark)">goal-driven loop agent</em> perceives rendered outputs via VLM review, diagnoses semantic issues, selects targeted rendering adjustments from a structured action space, and repeats until quality goals are met.
     </p>
 
     <div class="visual-frame">
       <div class="visual-frame-inner">
-        <img src="images/readme/stage5.svg" alt="DataEvolver closed-loop scene refinement pipeline">
+        <img src="images/extracted/index3/image-13-29b8dfddf415.svg" alt="DataEvolver closed-loop scene refinement pipeline">
         <div class="visual-caption">
           <strong>Closed-loop scene refinement</strong>
           <span>Render, review, act, and stop when the quality gate returns keep.</span>
@@ -1136,7 +1936,7 @@ em{font-style:italic;color:var(--body-strong)}
       </div>
       <div class="card-dark">
         <h3 class="card-title">Scene-Aware Rendering</h3>
-        <p class="card-desc">Objects placed in real Blender scenes with HDRI environments. Raycast ground detection ensures physical plausibility.</p>
+        <p class="card-desc">Objects can be inserted into configured Blender scenes or optional HYWorld / WorldMirror scene context with support-surface checks.</p>
       </div>
       <div class="card-dark">
         <h3 class="card-title">24 Atomic Actions</h3>
@@ -1219,7 +2019,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 
       <!-- Indoor (4.blend) -->
       <div class="gallery-card">
-        <img src="images/gallery/obj_1539_indoor4_v1.jpg" alt="Cordless Screwdriver" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-14-16befd5fa801.jpg" alt="Cordless Screwdriver" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Indoor (4.blend)</span>
           <div class="gallery-obj-name">Cordless Screwdriver</div>
@@ -1227,7 +2027,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         </div>
       </div>
       <div class="gallery-card">
-        <img src="images/gallery/obj_1560_indoor4_v1.jpg" alt="Nightstand" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-15-09ad557767d8.jpg" alt="Nightstand" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Indoor (4.blend)</span>
           <div class="gallery-obj-name">Nightstand</div>
@@ -1235,7 +2035,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         </div>
       </div>
       <div class="gallery-card">
-        <img src="images/gallery/obj_1575_indoor4_best.jpg" alt="Folding Table" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-16-11eb5e24f9da.jpg" alt="Folding Table" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Indoor (4.blend)</span>
           <div class="gallery-obj-name">Folding Table</div>
@@ -1243,7 +2043,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         </div>
       </div>
       <div class="gallery-card">
-        <img src="images/gallery/obj_1530_indoor4_v1.jpg" alt="Pickup Truck" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-17-5f308c3d906d.jpg" alt="Pickup Truck" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Indoor (4.blend)</span>
           <div class="gallery-obj-name">Pickup Truck</div>
@@ -1253,7 +2053,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 
       <!-- Outdoor 7 — Desert Highway -->
       <div class="gallery-card">
-        <img src="images/gallery/obj_1552_outdoor7_v1.jpg" alt="Toaster Oven" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-18-a65b4d5af93f.jpg" alt="Toaster Oven" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Desert Highway</span>
           <div class="gallery-obj-name">Toaster Oven</div>
@@ -1261,7 +2061,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         </div>
       </div>
       <div class="gallery-card">
-        <img src="images/gallery/obj_1531_outdoor7_v1.jpg" alt="Table Lamp" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-19-896c13738eca.jpg" alt="Table Lamp" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Desert Highway</span>
           <div class="gallery-obj-name">Table Lamp</div>
@@ -1271,7 +2071,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 
       <!-- Outdoor 9 — Coastal Bridge -->
       <div class="gallery-card">
-        <img src="images/gallery/obj_1528_outdoor9_v1.jpg" alt="Park Bench" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-20-e455b75d1aef.jpg" alt="Park Bench" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Coastal Bridge</span>
           <div class="gallery-obj-name">Park Bench</div>
@@ -1279,7 +2079,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         </div>
       </div>
       <div class="gallery-card">
-        <img src="images/gallery/obj_1549_outdoor9_v1.jpg" alt="Parking Meter" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-21-b43bb2126056.jpg" alt="Parking Meter" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Coastal Bridge</span>
           <div class="gallery-obj-name">Parking Meter</div>
@@ -1287,7 +2087,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         </div>
       </div>
       <div class="gallery-card">
-        <img src="images/gallery/obj_1506_indoor4_v0.jpg" alt="Sledgehammer" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-22-72713f96e85a.jpg" alt="Sledgehammer" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Coastal Bridge</span>
           <div class="gallery-obj-name">Sledgehammer</div>
@@ -1295,7 +2095,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         </div>
       </div>
       <div class="gallery-card">
-        <img src="images/gallery/obj_1511_indoor4_v0.jpg" alt="Rocking Chair" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-23-0f27fa3cb064.jpg" alt="Rocking Chair" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Coastal Bridge</span>
           <div class="gallery-obj-name">Rocking Chair</div>
@@ -1305,7 +2105,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 
       <!-- Outdoor 11 — Industrial Yard -->
       <div class="gallery-card">
-        <img src="images/gallery/obj_1546_outdoor11_v1.jpg" alt="Retro Telephone" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-24-5188abbd1614.jpg" alt="Retro Telephone" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Industrial Yard</span>
           <div class="gallery-obj-name">Retro Telephone</div>
@@ -1313,7 +2113,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         </div>
       </div>
       <div class="gallery-card">
-        <img src="images/gallery/obj_1567_outdoor11_v1.jpg" alt="Concrete Barrier" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-25-1cda408eed26.jpg" alt="Concrete Barrier" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Industrial Yard</span>
           <div class="gallery-obj-name">Concrete Barrier</div>
@@ -1323,7 +2123,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 
       <!-- Outdoor 13 — Neon Wetland -->
       <div class="gallery-card">
-        <img src="images/gallery/obj_1564_outdoor13_v1.jpg" alt="Espresso Machine" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-26-c4f9e885d152.jpg" alt="Espresso Machine" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Neon Wetland</span>
           <div class="gallery-obj-name">Espresso Machine</div>
@@ -1331,7 +2131,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         </div>
       </div>
       <div class="gallery-card">
-        <img src="images/gallery/obj_1543_outdoor13_v1.jpg" alt="Traffic Cone" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-27-926c4a154e4f.jpg" alt="Traffic Cone" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Neon Wetland</span>
           <div class="gallery-obj-name">Traffic Cone</div>
@@ -1339,7 +2139,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         </div>
       </div>
       <div class="gallery-card">
-        <img src="images/gallery/obj_1578_outdoor13_best.jpg" alt="Electric Drill" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-28-349da1ab14a4.jpg" alt="Electric Drill" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Neon Wetland</span>
           <div class="gallery-obj-name">Electric Drill</div>
@@ -1347,7 +2147,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         </div>
       </div>
       <div class="gallery-card">
-        <img src="images/gallery/obj_1536_indoor4_v1.jpg" alt="Cement Mixer Truck" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-29-c0b580e5383b.jpg" alt="Cement Mixer Truck" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Neon Wetland</span>
           <div class="gallery-obj-name">Cement Mixer Truck</div>
@@ -1357,7 +2157,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 
       <!-- Outdoor 15 — Misty Forest -->
       <div class="gallery-card">
-        <img src="images/gallery/obj_1534_outdoor15_v1.jpg" alt="Desk Stapler" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-30-775e9e1a8c79.jpg" alt="Desk Stapler" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Misty Forest</span>
           <div class="gallery-obj-name">Desk Stapler</div>
@@ -1365,7 +2165,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         </div>
       </div>
       <div class="gallery-card">
-        <img src="images/gallery/obj_1569_outdoor15_best.jpg" alt="Ceramic Teapot" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-31-d9009d7b1aee.jpg" alt="Ceramic Teapot" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Misty Forest</span>
           <div class="gallery-obj-name">Ceramic Teapot</div>
@@ -1373,7 +2173,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         </div>
       </div>
       <div class="gallery-card">
-        <img src="images/gallery/obj_1555_outdoor15_v1.jpg" alt="Street Bench" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-32-f9c42ca0af2a.jpg" alt="Street Bench" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Misty Forest</span>
           <div class="gallery-obj-name">Street Bench</div>
@@ -1383,7 +2183,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 
       <!-- Outdoor 16 — Urban Concrete -->
       <div class="gallery-card">
-        <img src="images/gallery/obj_1572_outdoor16_best.jpg" alt="Rolling Office Chair" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-33-f901bfc89b3d.jpg" alt="Rolling Office Chair" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Urban Concrete</span>
           <div class="gallery-obj-name">Rolling Office Chair</div>
@@ -1391,7 +2191,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         </div>
       </div>
       <div class="gallery-card">
-        <img src="images/gallery/obj_1558_outdoor16_v1.jpg" alt="Sewing Machine" onclick="openLightbox(this)">
+        <img src="images/extracted/index3/image-34-a032eb99ed80.jpg" alt="Sewing Machine" onclick="openLightbox(this)">
         <div class="gallery-info">
           <span class="gallery-tag">Urban Concrete</span>
           <div class="gallery-obj-name">Sewing Machine</div>
@@ -1411,7 +2211,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
     <div class="section-label">Action Space</div>
     <h2 class="section-title">24 Structured Atomic Actions</h2>
     <p class="section-desc">
-      The AI agent selects from a discrete, structured action space to address VLM-identified issues. Each action targets a specific rendering parameter.
+      In the 3D reconstruction route, the agent selects from a discrete, structured action space to address VLM-identified rendering issues. Each action targets a bounded Blender parameter.
     </p>
 
     <div class="connector-grid">
@@ -1452,7 +2252,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
     <div class="section-label">Why DataEvolver</div>
     <h2 class="section-title">Key Differentiators</h2>
     <p class="section-desc">
-      What sets DataEvolver apart from other synthetic data pipelines and why goal-driven loop agents produce better training data.
+      What sets DataEvolver apart is not one model call, but the way agents choose routes, preserve run records, repair failures, and export reusable dataset construction traces.
     </p>
 
     <div class="card-grid">
@@ -1460,29 +2260,29 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         <div class="card-icon" style="background:rgba(93,184,114,0.15)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
-        <h3 class="card-title">VLM-as-Feedback, Not Score</h3>
-        <p class="card-desc">Free-form natural language feedback provides semantic diagnosis that numeric scores cannot. The reviewer identifies <em style="color:var(--on-dark)">why</em> a render fails.</p>
+        <h3 class="card-title">Agent-Orchestrated Interfaces</h3>
+        <p class="card-desc">The agent can compose T2I, image edit, T2V, and image-to-3D routes in parallel, in series, or as hybrid strategies based on dataset goals.</p>
       </div>
       <div class="card-dark">
         <div class="card-icon" style="background:rgba(204,120,92,0.15)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </div>
-        <h3 class="card-title">AI Agent Autonomy</h3>
-        <p class="card-desc">The agent reads raw review text and reasons about which action to take — no scripted rule engine, no score-threshold mapping.</p>
+        <h3 class="card-title">VLM-as-Feedback, Not Score</h3>
+        <p class="card-desc">Free-form natural language feedback provides semantic diagnosis that numeric scores cannot. The reviewer identifies <em style="color:var(--on-dark)">why</em> a render fails.</p>
       </div>
       <div class="card-dark">
         <div class="card-icon" style="background:rgba(93,184,166,0.15)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
-        <h3 class="card-title">Proven Downstream Value</h3>
-        <p class="card-desc">LoRA fine-tuning on DataEvolver-Rotate improves Qwen Image Edit 2511 on PSNR, SSIM, and LPIPS vs. the base model.</p>
+        <h3 class="card-title">Research-Grounded Pipelines</h3>
+        <p class="card-desc">WebSearch-guided research records source notes, dataset methods, official artifacts, and evaluation references before downstream generation.</p>
       </div>
       <div class="card-dark">
         <div class="card-icon" style="background:rgba(232,165,90,0.15)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
-        <h3 class="card-title">Multi-Modal Data Support</h3>
-        <p class="card-desc">Beyond RGB pairs: mask, depth, normal maps, and geometry metadata — enabling multi-modal conditioning research.</p>
+        <h3 class="card-title">Evaluation-to-Optimization Path</h3>
+        <p class="card-desc">Accepted traces, failure cases, and generated evaluation sets can guide future LoRA tuning for stronger reconstruction and editing models.</p>
       </div>
     </div>
   </div>
@@ -1493,7 +2293,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   <div class="section-inner">
     <div class="section-label">Tech Stack</div>
     <h2 class="section-title">Built With</h2>
-    <p class="section-desc">The models, frameworks, and infrastructure powering the DataEvolver pipeline.</p>
+    <p class="section-desc">The models, frameworks, and traceability records powering DataEvolver's multimodal generation, 3D reconstruction, and research-prior workflows.</p>
 
     <div class="tag-grid">
       <span class="tag">Python 3.10+</span>
@@ -1501,11 +2301,16 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
       <span class="tag">Cycles Path Tracing</span>
       <span class="tag">PyTorch 2.8</span>
       <span class="tag">Qwen-Image-2512</span>
+      <span class="tag">Image Edit Workflow</span>
+      <span class="tag">Text-to-Video Workflow</span>
       <span class="tag">SAM3</span>
       <span class="tag">Hunyuan3D-2.1</span>
+      <span class="tag">HYWorld / WorldMirror</span>
       <span class="tag">Qwen3.5-35B-A3B</span>
       <span class="tag">Qwen-Image-Edit-2511</span>
       <span class="tag">DiffSynth-Studio</span>
+      <span class="tag">WebSearch Research</span>
+      <span class="tag">research_prior.json</span>
       <span class="tag">LoRA (PEFT)</span>
       <span class="tag">3×A800 80GB</span>
     </div>
@@ -1518,7 +2323,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
     <div class="section-label">Get Started</div>
     <h2 class="section-title">Quick Start</h2>
     <p class="section-desc">
-      DataEvolver runs on a Linux server with GPU access and Blender. Clone the repo and start building self-improving data pipelines.
+      Start with the lightweight dry-run path. It validates the setup shape and prints the local plan without downloading models, writing tokens, or launching GPU jobs.
     </p>
 
     <div class="code-block">
@@ -1534,13 +2339,16 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 <pre>git clone https://github.com/PRIS-CV/DataEvolver.git
 <span class="kw">cd</span> DataEvolver
 
-<span class="cm"># Explore the pipeline</span>
-<span class="kw">ls</span> pipeline/     <span class="cm"># 6-stage data synthesis</span>
-<span class="kw">ls</span> configs/      <span class="cm"># Action space, scene templates</span>
-<span class="kw">ls</span> scripts/      <span class="cm"># Agent monitor, dataset builders</span>
+<span class="cm"># Safe onboarding dry-run</span>
+bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
+  --profile quick \
+  --dry-run
 
-<span class="cm"># Read the full documentation</span>
-<span class="kw">cat</span> CLAUDE.md     <span class="cm"># Comprehensive project guide</span></pre>
+<span class="cm"># Review the reproducible research handoff format</span>
+<span class="kw">find</span> outputs -name research_prior.json -print
+
+<span class="cm"># Read the public documentation</span>
+<span class="kw">cat</span> README.md</pre>
       </div>
     </div>
   </div>
@@ -1612,7 +2420,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 
       <div class="visual-frame certificate-frame">
         <div class="visual-frame-inner">
-          <img src="images/readme/baai_agent4s_poster_certificate.jpg" alt="DataEvolver BAAI Agent for Science poster presentation certificate" onclick="openLightbox(this)">
+          <img src="images/extracted/index3/image-35-46c13a919afb.jpg" alt="DataEvolver BAAI Agent for Science poster presentation certificate" onclick="openLightbox(this)">
           <div class="visual-caption">
             <strong>BAAI Agent for Science Competition</strong>
             <span>Certificate of Poster Presentation, 2026.</span>
@@ -1627,8 +2435,8 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 <section class="section">
   <div class="section-inner">
     <div class="cta-band">
-      <h2>Ready to Build Self-Improving Data?</h2>
-      <p>Clone the repository and start running goal-driven loop agents on your own scenes and objects.</p>
+      <h2>Ready to Build Research-Grounded Data Pipelines?</h2>
+      <p>Clone the repository, run the safe dry-run, and choose either the multimodal generation route or the WebSearch-guided research route.</p>
       <a href="https://github.com/PRIS-CV/DataEvolver" class="btn btn-secondary" target="_blank" rel="noopener">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
         Get Started on GitHub
@@ -1641,7 +2449,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-brand">
-      <img src="logo.png" alt="DataEvolver" style="height:24px;width:auto;border-radius:3px">
+      <img src="images/extracted/index3/image-01-af2d95cdebb7.png" alt="DataEvolver" style="height:24px;width:auto;border-radius:3px">
       DataEvolver
     </div>
     <div class="footer-grid">
@@ -1653,15 +2461,16 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
       </div>
       <div class="footer-col">
         <h4>Resources</h4>
-        <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/CLAUDE.md" target="_blank" rel="noopener">Documentation</a>
+        <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/README.md" target="_blank" rel="noopener">Documentation</a>
         <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/configs/scene_action_space.json" target="_blank" rel="noopener">Action Space</a>
-        <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
+        <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/configs/schemas/universal_3d_layout_dataset_schema.json" target="_blank" rel="noopener">Universal Schema</a>
       </div>
       <div class="footer-col">
         <h4>Pipeline</h4>
         <a href="#pipeline">Overview</a>
+        <a href="#research">Research Prior</a>
+        <a href="#worldmodel">Scene Context</a>
         <a href="#evolution">VLM Loop</a>
-        <a href="#dataset">Dataset</a>
       </div>
       <div class="footer-col">
         <h4>Connect</h4>
@@ -1679,7 +2488,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 
 <!-- Lightbox -->
 <div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
-  <img id="lightbox-img" src="" alt="">
+  <img id="lightbox-img" src="images/extracted/index3/image-36-1e85ec81b980.gif" alt="">
 </div>
 
 <script>
@@ -1699,6 +2508,52 @@ function scrollGallery(dir){
   var step=cardW?(cardW.offsetWidth+20)*2:680;
   el.scrollBy({left:dir*step,behavior:'smooth'});
 }
+function scrollResearchGallery(dir){
+  var el=document.getElementById('researchGalleryScroll');
+  if(!el)return;
+  var cardW=el.querySelector('.gallery-card');
+  var step=cardW?(cardW.offsetWidth+20)*2:640;
+  el.scrollBy({left:dir*step,behavior:'smooth'});
+}
+
+(function(){
+  var scroll=document.getElementById('researchGalleryScroll');
+  var indicator=document.getElementById('researchGalleryIndicator');
+  if(!scroll||!indicator)return;
+
+  function buildDots(){
+    var cards=scroll.querySelectorAll('.gallery-card');
+    var visibleW=scroll.clientWidth;
+    var cardW=cards[0]?cards[0].offsetWidth+20:320;
+    var perPage=Math.max(1,Math.floor(visibleW/cardW));
+    var pages=Math.ceil(cards.length/perPage);
+    indicator.innerHTML='';
+    for(var i=0;i<pages;i++){
+      var d=document.createElement('span');
+      d.className='dot'+(i===0?' active':'');
+      indicator.appendChild(d);
+    }
+    return{perPage:perPage,pages:pages};
+  }
+
+  function updateDots(){
+    var cards=scroll.querySelectorAll('.gallery-card');
+    var visibleW=scroll.clientWidth;
+    var cardW=cards[0]?cards[0].offsetWidth+20:320;
+    var perPage=Math.max(1,Math.floor(visibleW/cardW));
+    var pages=Math.ceil(cards.length/perPage);
+    var currentPage=Math.round(scroll.scrollLeft/(cardW*perPage));
+    currentPage=Math.min(currentPage,pages-1);
+    var dots=indicator.querySelectorAll('.dot');
+    dots.forEach(function(d,i){
+      d.className=i===currentPage?'dot active':'dot';
+    });
+  }
+
+  buildDots();
+  scroll.addEventListener('scroll',updateDots);
+  window.addEventListener('resize',function(){buildDots();updateDots();});
+})();
 
 (function(){
   var scroll=document.getElementById('galleryScroll');
