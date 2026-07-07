@@ -1,19 +1,30 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Dict, Optional
+
+from dataevolver.paths import DATAEVOLVER_ROOT
+
+
+LOCAL_ROOT = Path(os.environ.get("DATAEVOLVER_LOCAL_ROOT", os.fspath(DATAEVOLVER_ROOT / "local")))
+LOCAL_MODEL_ROOT = Path(os.environ.get("DATAEVOLVER_MODEL_ROOT", os.fspath(LOCAL_ROOT / "model_hub")))
+
+
+def _local_model_path(name: str) -> str:
+    return os.fspath(LOCAL_MODEL_ROOT / name)
 
 
 MODEL_REGISTRY: Dict[str, Dict[str, str]] = {
     "qwen-image-2512": {
         "route": "t2i",
         "env": "QWEN_IMAGE_MODEL_PATH",
-        "default_path": "/data/wuwenzhuo/Qwen-Image-2512",
+        "default_path": _local_model_path("Qwen-Image-2512"),
     },
     "qwen-image-edit-2511": {
         "route": "edit",
         "env": "QWEN_IMAGE_EDIT_MODEL_PATH",
-        "default_path": "/data/wuwenzhuo/Qwen-Image-Edit-2511",
+        "default_path": _local_model_path("Qwen-Image-Edit-2511"),
     },
     "dataevolver-blender-existing": {
         "route": "blender",
@@ -23,12 +34,12 @@ MODEL_REGISTRY: Dict[str, Dict[str, str]] = {
     "wan2.1-t2v-1.3b": {
         "route": "t2v",
         "env": "WAN_T2V_MODEL_PATH",
-        "default_path": "/data/jiazhuangzhuang/Wan2.1-T2V-1.3B-Diffusers",
+        "default_path": _local_model_path("Wan2.1-T2V-1.3B-Diffusers"),
     },
     "t2v-placeholder": {
         "route": "t2v",
         "env": "DATAEVOLVER_T2V_MODEL_PATH",
-        "default_path": "/data/jiazhuangzhuang/Wan2.1-T2V-1.3B-Diffusers",
+        "default_path": _local_model_path("Wan2.1-T2V-1.3B-Diffusers"),
     },
 }
 

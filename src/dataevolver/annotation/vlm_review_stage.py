@@ -34,7 +34,7 @@ from typing import List, Optional
 
 import numpy as np
 from PIL import Image
-from dataevolver.paths import CONFIGS_ROOT, REPO_ROOT
+from dataevolver.paths import CONFIGS_ROOT, DATAEVOLVER_ROOT, REPO_ROOT
 from dataevolver.runtime.asset_lifecycle import (
     ABANDON_CONFIDENCE_VALUES,
     ASSET_VIABILITY_VALUES,
@@ -45,7 +45,10 @@ from dataevolver.runtime.asset_lifecycle import (
 # Constants
 # ─────────────────────────────────────────────────────────────────────────────
 
-VLM_MODEL_PATH = os.environ.get("VLM_MODEL_PATH", "/data/wuwenzhuo/Qwen3.5-35B-A3B")
+LOCAL_MODEL_ROOT = Path(
+    os.environ.get("DATAEVOLVER_MODEL_ROOT", os.fspath(DATAEVOLVER_ROOT / "local" / "model_hub"))
+)
+VLM_MODEL_PATH = os.environ.get("VLM_MODEL_PATH", os.fspath(LOCAL_MODEL_ROOT / "Qwen3.5-35B-A3B"))
 VLM_MODEL_NAME = "Qwen3.5-35B-A3B"
 DATA_BUILD_ROOT = os.fspath(REPO_ROOT)
 ACTION_SPACE_PATH = os.fspath(CONFIGS_ROOT / "action_space.json")
@@ -384,8 +387,8 @@ def _resolve_reference_image(obj_id, profile_cfg, renders_dir):
 
     if ref_dir is None:
         # Default: infer from renders_dir sibling directory
-        # renders_dir = /aaaidata/.../.dataevolver/runtime/renders
-        # -> ref_dir = /aaaidata/.../.dataevolver/runtime/images
+        # renders_dir = .dataevolver/runtime/renders
+        # -> ref_dir = .dataevolver/runtime/images
         ref_dir = os.path.join(os.path.dirname(renders_dir), "images")
 
     if not os.path.isabs(ref_dir):

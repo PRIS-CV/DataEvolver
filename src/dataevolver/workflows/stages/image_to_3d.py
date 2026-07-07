@@ -14,7 +14,8 @@ Use --shape-only to skip paint (debug / fallback to shape-only GLB).
 Supports --ids for parallel multi-GPU runs (each worker handles a subset).
 
 Prerequisites:
-  cd /aaaidata/zhangqisong/data_build
+  mkdir -p .dataevolver/local/vendor
+  cd .dataevolver/local/vendor
   git clone https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1.git
   cd Hunyuan3D-2.1 && pip install -r requirements.txt
 
@@ -40,14 +41,18 @@ import traceback
 from pathlib import Path
 import torch
 
-from dataevolver.paths import runtime_path
+from dataevolver.paths import DATAEVOLVER_ROOT, runtime_path
 
-HUNYUAN3D_REPO = os.environ.get("HUNYUAN3D_REPO", "/aaaidata/zhangqisong/data_build/Hunyuan3D-2.1")
-MODEL_HUB = os.environ.get("MODEL_HUB", "/huggingface/model_hub/Hunyuan3D-2.1")
+LOCAL_ROOT = Path(os.environ.get("DATAEVOLVER_LOCAL_ROOT", os.fspath(DATAEVOLVER_ROOT / "local")))
+LOCAL_VENDOR_ROOT = Path(os.environ.get("DATAEVOLVER_VENDOR_ROOT", os.fspath(LOCAL_ROOT / "vendor")))
+LOCAL_MODEL_ROOT = Path(os.environ.get("DATAEVOLVER_MODEL_ROOT", os.fspath(LOCAL_ROOT / "model_hub")))
+
+HUNYUAN3D_REPO = os.environ.get("HUNYUAN3D_REPO", os.fspath(LOCAL_VENDOR_ROOT / "Hunyuan3D-2.1-src"))
+MODEL_HUB = os.environ.get("MODEL_HUB", os.fspath(LOCAL_MODEL_ROOT / "Hunyuan3D-2.1"))
 # Paint model: hunyuan3d-paintpbr-v2-1 lives under the model hub root
 # multiview_utils expects parent dir; it appends "hunyuan3d-paintpbr-v2-1" itself
 PAINT_MODEL_HUB = os.environ.get("PAINT_MODEL_HUB", MODEL_HUB)
-DINO_MODEL_PATH = os.environ.get("DINO_MODEL_PATH", "/huggingface/model_hub/dinov2-giant")
+DINO_MODEL_PATH = os.environ.get("DINO_MODEL_PATH", os.fspath(LOCAL_MODEL_ROOT / "dinov2-giant"))
 REALESRGAN_CKPT = os.environ.get(
     "REALESRGAN_CKPT",
     os.path.join(HUNYUAN3D_REPO, "hy3dpaint", "ckpt", "RealESRGAN_x4plus.pth"),
@@ -201,9 +206,9 @@ def build_paint_pipeline(device):
     """Load Hunyuan3DPaintPipeline with local model weights.
 
     Key path overrides (all local, no HF download):
-      - multiview_pretrained_path → /huggingface/model_hub/Hunyuan3D-2.1
-        (multiview_utils.py will resolve → .../hunyuan3d-paintpbr-v2-1/)
-      - dino_ckpt_path → /huggingface/model_hub/dinov2-giant
+      - multiview_pretrained_path -> .dataevolver/local/model_hub/Hunyuan3D-2.1
+        (multiview_utils.py will resolve -> .../hunyuan3d-paintpbr-v2-1/)
+      - dino_ckpt_path -> .dataevolver/local/model_hub/dinov2-giant
       - realesrgan_ckpt_path → hy3dpaint/ckpt/RealESRGAN_x4plus.pth
     """
     preload_torch_shared_libs()

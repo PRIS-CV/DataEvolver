@@ -952,9 +952,9 @@ world_model_usage = """HYWorld / WorldMirror scene reconstruction uses the stage
 Typical commands after paths pass `doctor`:
 
 ```bash
-python -m dataevolver.workflows.hyworld.scene_pano --scene-prompts-path /data/scenes/scene_prompts.json --output-root /data/hyworld_scenes
-python -m dataevolver.workflows.hyworld.full_worldgen --profile .dataevolver/local/production_profile.json --scene-dir /data/hyworld_scenes/scene_001 --intermediate-root /data/hyworld_intermediates/scene_001
-python -m dataevolver.workflows.hyworld.finalize_object_scene_report --dataset-base /data/hyworld_dataset --strict-scene-views
+python -m dataevolver.workflows.hyworld.scene_pano --scene-prompts-path .dataevolver/runtime/scenes/scene_prompts.json --output-root .dataevolver/runtime/hyworld_scenes
+python -m dataevolver.workflows.hyworld.full_worldgen --profile .dataevolver/local/production_profile.json --scene-dir .dataevolver/runtime/hyworld_scenes/scene_001 --intermediate-root .dataevolver/runtime/hyworld_intermediates/scene_001
+python -m dataevolver.workflows.hyworld.finalize_object_scene_report --dataset-base .dataevolver/runtime/hyworld_dataset --strict-scene-views
 ```
 
 Do not treat a VLM pass as authoritative for world-model completion. Use contract-backed geometry, multi-view pure-scene renders, and final manifest/lineage evidence."""

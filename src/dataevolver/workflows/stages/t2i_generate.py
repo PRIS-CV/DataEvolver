@@ -10,11 +10,15 @@ import json
 import os
 import sys
 import time
+from pathlib import Path
 import torch
 
-from dataevolver.paths import runtime_path
+from dataevolver.paths import DATAEVOLVER_ROOT, runtime_path
 
-MODEL_PATH = os.environ.get("QWEN_IMAGE_MODEL_PATH", "/data/wuwenzhuo/Qwen-Image-2512")
+LOCAL_ROOT = Path(os.environ.get("DATAEVOLVER_LOCAL_ROOT", os.fspath(DATAEVOLVER_ROOT / "local")))
+LOCAL_MODEL_ROOT = Path(os.environ.get("DATAEVOLVER_MODEL_ROOT", os.fspath(LOCAL_ROOT / "model_hub")))
+
+MODEL_PATH = os.environ.get("QWEN_IMAGE_MODEL_PATH", os.fspath(LOCAL_MODEL_ROOT / "Qwen-Image-2512"))
 DATA_DIR = os.fspath(runtime_path())
 PROMPTS_PATH = os.path.join(DATA_DIR, "prompts.json")
 IMAGES_DIR = os.path.join(DATA_DIR, "images")

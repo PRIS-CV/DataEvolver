@@ -3,7 +3,7 @@
 # Usage: bash src/dataevolver/cli/stage4_batch_render.sh [--single obj_001] [--resolution 512]
 #                                              [--camera-distance 3.5]
 #
-# Blender 4.2+: /aaaidata/zhangqisong/blender-4.24/blender
+# Blender 4.2+: set BLENDER_BIN=/path/to/blender
 
 set -euo pipefail
 
