@@ -41,6 +41,13 @@ DataEvolver turns synthetic data construction into a **goal-driven optimization 
 - **Repair with structured actions** — 24 bounded atomic actions adjust lighting, object pose, scene environment, and material appearance without uncontrolled drift.
 - **Export training-ready data** — RGB, masks, depth, normals, geometry metadata, and object-disjoint splits are produced for downstream model training.
 
+## Current Capabilities
+
+DataEvolver is organized around two connected dataset-construction tracks:
+
+- **Agent-orchestrated multimodal generation and 3D reconstruction** - from a user request, the agent can choose among text-to-image, image edit, text-to-video, and image-to-3D reconstruction interfaces. These interfaces can be composed in parallel, in series, or as hybrid serial-plus-parallel strategies. The 3D route uses a serial object-image -> textured 3D asset -> Blender insertion -> VLM review/repair loop; optional HYWorld / WorldMirror scene generation strengthens this route by building contract-backed scene context before object insertion.
+- **WebSearch-guided reproducible research pipelines** - for one paper or a family of related papers, Stage0 WebSearch records paper evidence, extracts dataset construction methods, maps official open datasets and evaluation criteria as ground-truth references, and produces a reproducible handoff for building stable, high-quality dataset pipelines.
+
 ## Key Features
 
 - **Goal-Driven Loop Agents** — VLM reviewer provides semantic feedback ("flat lighting", "floating object") &rarr; AI agent selects targeted actions &rarr; re-render &rarr; repeat until quality goals are met
@@ -400,16 +407,43 @@ universal 3D layout schema, but does not publish the old local Blender batch
 scripts, private scene pools, generated meshes, `.blend` scene files, model
 weights, API keys, or paper source.
 
+Stage0 is an agent-run research harness: the active agent performs WebSearch and
+paper reading, while DataEvolver records evidence, trace events, handoff
+documents, and `research_prior.json`. The prior is soft guidance for downstream
+generation; missing or invalid priors should warn and continue rather than block
+the pipeline.
+
 Core entry points:
 
 - Stage0 WebSearch prior: [`python -m dataevolver.tools.stage0_web_research`](python -m dataevolver.tools.stage0_web_research)
 - Universal dataset schema: [`configs/schemas/universal_3d_layout_dataset_schema.json`](configs/schemas/universal_3d_layout_dataset_schema.json)
 
-Start a WebSearch prior session:
+### Single-paper reproduction mode
+
+Use `--dataset-mode single-paper` when the user provides one paper and wants a
+reproducible dataset-construction handoff. For example, a SeeThrough3D session
+should separate official resources from self-generated proxies, capture the
+paper's dataset construction method, and record evaluation signals before any
+large run.
 
 ```bash
 python -m dataevolver.tools.stage0_web_research init \
   --query "SeeThrough3D: Occlusion Aware 3D Control in Text-to-Image Generation" \
+  --output-dir .dataevolver/runtime/research_priors/demo_seethrough3d \
+  --dataset-mode single-paper \
+  --tag seethrough3d-reproduction
+```
+
+### Multi-paper universal mode
+
+Use `--dataset-mode universal` when the user provides a topic or idea. The
+agent should narrow the search to 3-5 highly related papers, extract their
+dataset construction methods, quality gates, and failure modes, then synthesize
+the reusable requirements into the universal 3D layout contract.
+
+```bash
+python -m dataevolver.tools.stage0_web_research init \
+  --query "occlusion-aware 3D control datasets for text-to-image generation" \
   --output-dir .dataevolver/runtime/research_priors/demo_universal \
   --dataset-mode universal \
   --tag universal-3d-layout
@@ -631,7 +665,9 @@ Claude Code will read your `CLAUDE.md` and understand the full project context. 
 
 - [ ] **Structured VLM knowledge base** — current scoring already uses structured VLM/CV criteria, mask coverage checks, depth-order proxy checks, geometry-review metadata, and a VGGT-Omega proxy hook. A persistent prior-knowledge store for reusable VLM assessment criteria is still under development.
 - [ ] **Real-world dataset ingestion** — WebSearch can discover public datasets and paper resources, and public artifacts such as SeeThrough3D are used as references. A full crawl-clean-process-ingest pipeline for arbitrary real-world datasets is still pending.
-- [ ] **Auto-generated reasoning-evaluation datasets** — current records include validation logs, hybrid scores, and promotion traces. Fully automated benchmark generation after downstream model training remains a future release target.
+- [ ] **Automated evaluation-set generation** — next focus is converting validation logs, hybrid VLM/CV scores, promotion traces, and research priors into reusable evaluation datasets with task specs, answer keys, object/scene splits, provenance checks, and regression gates.
+- [ ] **Faster 3D reconstruction loop** — reduce image-to-3D and mesh-to-scene iteration time with profile-aware dry-runs, caching, batched renders, and lightweight review passes before expensive VLM checks.
+- [ ] **LoRA tuning for 3D reconstruction models** — experiment with parameter-efficient fine-tuning on accepted reconstruction traces and failure cases to improve shape fidelity, texture consistency, and Blender insertion quality.
 
 ### Pending
 
