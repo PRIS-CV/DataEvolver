@@ -9,7 +9,7 @@ default Stage 4 pipeline or any model execution path.
 Start with the dry-run onboarding profile:
 
 ```bash
-bash scripts/bootstrap_dataevolver_default.sh \
+bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
   --profile blender_mcp \
   --dry-run \
   --write-local-config
@@ -54,14 +54,14 @@ export DATAEVOLVER_REMOTE_BLENDER_BIN=/path/to/blender
 Start the remote addon:
 
 ```bash
-scripts/setup_blender_mcp_remote.sh start
-scripts/setup_blender_mcp_remote.sh status
+src/dataevolver/workflows/stages/setup_blender_mcp_remote.sh start
+src/dataevolver/workflows/stages/setup_blender_mcp_remote.sh status
 ```
 
 Optional tunnel mode for manual socket debugging:
 
 ```bash
-scripts/setup_blender_mcp_remote.sh tunnel
+src/dataevolver/workflows/stages/setup_blender_mcp_remote.sh tunnel
 ```
 
 The tunnel forwards local `127.0.0.1:9876` to the remote Blender addon. This is
@@ -76,7 +76,7 @@ BLENDER_PORT=9876
 Stop the remote Blender session:
 
 ```bash
-scripts/setup_blender_mcp_remote.sh stop
+src/dataevolver/workflows/stages/setup_blender_mcp_remote.sh stop
 ```
 
 ## Codex MCP Config
