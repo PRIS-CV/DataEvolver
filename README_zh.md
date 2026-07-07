@@ -86,6 +86,17 @@ cd DataEvolver
 bash pipeline/run_all.sh
 ```
 
+可选的 Blender MCP operator 配置，用于 Codex 控制远端 Blender 调试：
+
+```bash
+bash scripts/bootstrap_dataevolver_default.sh \
+  --profile blender_mcp \
+  --dry-run \
+  --write-local-config
+```
+
+这会写入 `.dataevolver/local/blender_mcp.codex.toml`，并生成远端 Blender 预检/启动说明。Blender MCP 用于交互式场景诊断、viewport 截图、临时执行 Blender Python，以及快速调试灯光/相机/材质；正式数据集生成仍走 DataEvolver pipeline 脚本和已审查的 `BLENDER_BIN` 配置。详见 [`docs/BLENDER_MCP_REMOTE.md`](docs/BLENDER_MCP_REMOTE.md)。
+
 ---
 
 ## 项目结构

@@ -1,0 +1,74 @@
+---
+name: dataevolver-onboarding
+description: Guide a lightweight DataEvolver setup interview and dry-run deployment handoff. Use when a user wants quick DataEvolver onboarding, server/environment discovery, default or custom model setup planning, Hugging Face token-safe download planning, or generation of local ENVIRONMENT.md and env.config.json setup profiles.
+---
+
+# DataEvolver Onboarding
+
+Use this skill to help a user quickly become ready to run DataEvolver without overwhelming them with the full environment surface. Keep the first pass light: interview, write a local profile, and hand off a dry-run deployment plan. Do not store secrets.
+
+## Workflow
+
+1. Ask at most five setup questions:
+   - Target route: `quick_demo`, `t2i`, `edit`, `t2v`, `blender_3d`, `vlm_review`, `full_pipeline`, `blender_mcp`, or `custom`.
+   - Runtime location: local Linux path, remote SSH alias plus project path, or not cloned yet.
+   - Install policy: inspect only, generate plan, install Python deps, download models, or full setup later.
+   - Model strategy: default DataEvolver models, existing paths, custom replacement models, or skip for now.
+   - Work/output paths: default `runtime/`, user path, or remote path.
+2. Do not ask tool-version questions in the interview. Let the demo script probe Python, `uv`, `uvx`, `conda`, `hf`, GPU, and Blender availability.
+3. Summarize known values, missing blockers, and the selected profile: `quick`, `default`, `full`, or `custom`.
+4. Generate or update `.dataevolver/local/ENVIRONMENT.md` and `.dataevolver/local/env.config.json` only when the user asks to save the profile.
+5. Hand off to the main agent with the demo command:
+   `bash scripts/bootstrap_dataevolver_default.sh --profile <profile> --dry-run --write-local-config`
+6. Tell the user that v0 is dry-run only: it prints install/download/config plans but does not install dependencies, download model weights, or launch long jobs.
+
+## Profiles
+
+- `quick`: environment probes and a dry-run route only.
+- `default`: current core pipeline defaults: Qwen-Image-2512, SAM3, Hunyuan3D-2.1, DINOv2 Giant, Qwen3.5-35B-A3B, and Blender.
+- `full`: `default` plus Qwen-Image-Edit-2511 and Wan2.1-T2V.
+- `custom`: record user-supplied model replacements as `needs_check`; do not perform compatibility review during onboarding.
+- `blender_mcp`: optional operator/debug profile for remote Blender MCP control. It configures Codex-to-Blender inspection tools, viewport screenshots, and temporary Blender Python execution; it is not the production Stage 4 render path and must not change default pipeline behavior.
+
+## Safety Rules
+
+- Never write Hugging Face, OpenAI, Anthropic, SSH, cookie, or API tokens to project files.
+- Mention `HF_TOKEN` only as a shell environment variable for future real downloads.
+- Treat SAM3 and other gated models as access-dependent; ask the user to obtain access instead of trying to bypass it.
+- Treat missing `uv`, `uvx`, `conda`, `hf`, `nvidia-smi`, or `blender` as non-blocking in v0. Surface them as next actions for real setup.
+- Do not modify `CLAUDE.md`; the main agent may decide later whether to sync selected non-sensitive facts.
+- If the user asks for real installation or real downloads, first use the demo script output as the plan and ask for explicit confirmation in the main conversation.
+- Prefer `uvx --from huggingface_hub hf download ...` for printed Hugging Face download plans, with `hf download ...` as fallback. Do not execute either command in v0.
+- For `blender_mcp`, do not write the user's global Codex config automatically. Generate `.dataevolver/local/blender_mcp.codex.toml` and ask the user to review/copy it.
+- For `blender_mcp`, do not start remote Blender or install remote system packages during onboarding. Print preflight/start commands only unless the user explicitly asks for real setup outside the dry-run flow.
+
+## Known V1 Requirements
+
+- Source or export environment-variable overrides before real one-click setup runs legacy pipeline stages:
+  `QWEN_IMAGE_MODEL_PATH`, `SAM3_CKPT`, `SAM3_DIR`, `HUNYUAN3D_REPO`, `MODEL_HUB`, `PAINT_MODEL_HUB`, `DINO_MODEL_PATH`, `REALESRGAN_CKPT`, and `VLM_MODEL_PATH`.
+- Install SAM3 and Hunyuan3D repo-specific dependencies only after target-host preflight.
+- Compile Hunyuan3D CUDA/C++ extensions only after CUDA/nvcc compatibility is confirmed.
+
+## Local Profile Contents
+
+`ENVIRONMENT.md` should be human-readable and include:
+
+- Selected profile and target workflow.
+- Runtime location and workspace/model roots.
+- Install policy.
+- Model choices and missing values.
+- Tooling status and missing commands.
+- Hugging Face gated/access-dependent repos.
+- Runtime path override plan for v1.
+- Optional operator configuration such as `operators.blender_mcp` when the selected route is `blender_mcp`.
+- Next actions for the main agent.
+
+`env.config.json` should include:
+
+- `profile`, `target_workflow`, `runtime_location`, `install_policy`
+- `model_root`, `workspace_root`
+- `tooling_status`, `models`, `custom_models`, `access_requirements`
+- `operators.blender_mcp` for the `blender_mcp` profile, including `enabled`, `connection_mode`, `ssh_alias`, `remote_root`, `remote_blender_bin`, `remote_addon_dir`, `remote_port`, `remote_uvx`, `tmux_session`, and `codex_mcp_server_name`
+- `path_override_plan`, `v1_blockers`, `next_actions`, `generated_at`
+
+Keep both files concise. Use `unknown`, `not_requested`, or `needs_check` instead of blocking onboarding when the user is unsure.
