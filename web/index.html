@@ -554,6 +554,17 @@ em{font-style:italic;color:var(--body-strong)}
 .visual-caption strong{
   color:var(--body-strong);font-weight:500;
 }
+.research-diagram-frame{
+  margin-top:28px;
+}
+.research-diagram-scroll{
+  background:var(--canvas);
+}
+.research-diagram-scroll img{
+  aspect-ratio:2/1;
+  object-fit:contain;
+  background:var(--canvas);
+}
 .section-dark .visual-frame{
   background:rgba(255,255,255,0.06);
   border-color:rgba(255,255,255,0.10);
@@ -823,6 +834,8 @@ em{font-style:italic;color:var(--body-strong)}
   .pipeline-arrow{display:none}
   .pipeline-step{min-width:130px;flex:0 0 auto}
   .worldmodel-layout{grid-template-columns:1fr;gap:28px}
+  .research-diagram-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .research-diagram-scroll img{width:720px;max-width:none}
   .loop-diagram{grid-template-columns:1fr;gap:12px}
   .loop-arrow{display:none}
   .stats-grid{grid-template-columns:repeat(2,1fr)}
@@ -905,7 +918,7 @@ em{font-style:italic;color:var(--body-strong)}
           <div class="hero-stat-label">Repair Actions</div>
         </div>
         <div>
-          <div class="hero-stat-value">Stage0</div>
+          <div class="hero-stat-value">Web</div>
           <div class="hero-stat-label">Research Prior</div>
         </div>
       </div>
@@ -1046,34 +1059,28 @@ em{font-style:italic;color:var(--body-strong)}
     <div class="section-label">Research Prior</div>
     <h2 class="section-title">WebSearch-Guided Reproducible Research Pipelines</h2>
     <p class="section-desc">
-      Stage0 turns a paper or topic into a reproducible dataset-construction handoff. The active agent performs WebSearch and paper reading; DataEvolver records evidence, trace events, handoff documents, and <code>research_prior.json</code> for downstream generation.
+      The research-prior workflow turns a paper or topic into a reproducible dataset-construction handoff. The active agent performs WebSearch and paper reading; DataEvolver records evidence, trace events, handoff documents, and <code>research_prior.json</code> for downstream generation.
     </p>
 
-    <div class="worldmodel-layout">
-      <div class="card-grid">
-        <div class="card">
-          <h3 class="card-title">Single-Paper Mode</h3>
-          <p class="card-desc">For a user-provided paper, such as a SeeThrough3D-style reproduction, the agent separates official artifacts from generated proxies and records the paper's dataset method, evaluation criteria, and GT references.</p>
-        </div>
-        <div class="card">
-          <h3 class="card-title">Universal Mode</h3>
-          <p class="card-desc">For a topic or idea, the agent narrows the search to 3-5 closely related papers, extracts their shared dataset construction requirements, and synthesizes a reusable pipeline contract.</p>
-        </div>
+    <div class="card-grid">
+      <div class="card">
+        <h3 class="card-title">Single-Paper Mode</h3>
+        <p class="card-desc">For a user-provided paper, such as a SeeThrough3D-style reproduction, the agent separates official artifacts from generated proxies and records the paper's dataset method, evaluation criteria, and GT references.</p>
       </div>
-      <div class="worldmodel-evidence">
-        <h3>Stage0 Evidence Contract</h3>
-        <ul class="worldmodel-list">
-          <li>Agent-run WebSearch and paper reading, with DataEvolver preserving source evidence and trace events.</li>
-          <li><code>single-paper</code> mode for paper-specific reproduction handoffs before large execution.</li>
-          <li><code>universal</code> mode for multi-paper requirements synthesis and schema-backed dataset planning.</li>
-          <li>Official open datasets and evaluation criteria are treated as GT references, not replaced by VLM-only acceptance.</li>
-        </ul>
-        <div class="worldmodel-chip-row">
-          <span class="worldmodel-chip">Stage0 WebSearch</span>
-          <span class="worldmodel-chip">single-paper</span>
-          <span class="worldmodel-chip">universal</span>
-          <span class="worldmodel-chip">SeeThrough3D</span>
-          <span class="worldmodel-chip">research_prior.json</span>
+      <div class="card">
+        <h3 class="card-title">Universal Mode</h3>
+        <p class="card-desc">For a topic or idea, the agent narrows the search to 3-5 closely related papers, extracts their shared dataset construction requirements, and synthesizes a reusable pipeline contract.</p>
+      </div>
+    </div>
+
+    <div class="visual-frame research-diagram-frame">
+      <div class="visual-frame-inner">
+        <div class="research-diagram-scroll">
+          <img src="images/readme/web-search.png" alt="WebSearch-guided reproducible research pipeline from paper or topic input to evidence handoff">
+        </div>
+        <div class="visual-caption">
+          <strong>WebSearch-guided reproducible research pipelines</strong>
+          <span>The agent retrieves papers, project pages, code, datasets, and official artifacts, then records GT references, manifests, lineage, and research_prior.json.</span>
         </div>
       </div>
     </div>
@@ -1534,7 +1541,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
         <h3 class="card-title">Research-Grounded Pipelines</h3>
-        <p class="card-desc">Stage0 WebSearch records source evidence, dataset methods, official artifacts, and evaluation references before downstream generation.</p>
+        <p class="card-desc">WebSearch research priors record source evidence, dataset methods, official artifacts, and evaluation references before downstream generation.</p>
       </div>
       <div class="card-dark">
         <div class="card-icon" style="background:rgba(232,165,90,0.15)">
@@ -1568,7 +1575,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
       <span class="tag">Qwen3.5-35B-A3B</span>
       <span class="tag">Qwen-Image-Edit-2511</span>
       <span class="tag">DiffSynth-Studio</span>
-      <span class="tag">Stage0 WebSearch</span>
+      <span class="tag">WebSearch Research Prior</span>
       <span class="tag">research_prior.json</span>
       <span class="tag">LoRA (PEFT)</span>
       <span class="tag">3×A800 80GB</span>
@@ -1695,7 +1702,7 @@ PYTHONPATH=src python -m dataevolver.tools.stage0_web_research --help
   <div class="section-inner">
     <div class="cta-band">
       <h2>Ready to Build Research-Grounded Data Pipelines?</h2>
-      <p>Clone the repository, run the safe dry-run, and choose either the multimodal generation route or the Stage0 research-prior route.</p>
+      <p>Clone the repository, run the safe dry-run, and choose either the multimodal generation route or the WebSearch research-prior route.</p>
       <a href="https://github.com/PRIS-CV/DataEvolver" class="btn btn-secondary" target="_blank" rel="noopener">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
         Get Started on GitHub
