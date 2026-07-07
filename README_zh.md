@@ -100,8 +100,8 @@ DataEvolver 将合成数据构建转化为一个 **目标驱动的优化闭环**
 ## 快速开始
 
 建议先从轻量 onboarding dry-run 开始。它会检查你的环境形态，打印安装、
-模型下载和配置写入计划，并在需要时生成本地非敏感配置文件。它**不会**
-安装依赖、下载模型权重、写入 token，或启动 GPU 长任务。
+模型下载、GPU 策略和配置写入计划，并在需要时生成本地非敏感配置文件。
+它**不会**安装依赖、下载模型权重、写入 token、kill 服务，或启动 GPU 长任务。
 
 ### 1. 克隆仓库
 
@@ -144,11 +144,33 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
   --write-local-config
 ```
 
-脚本会输出四段内容：
+如果是 HYWorld / WorldMirror 或论文验证实验，首次 dry-run 先显式记录
+GPU 探测策略，便于后续 agent 按目标机器实际状态选择动态分片或保护服务卡：
+
+```bash
+bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
+  --profile world_model \
+  --model-root /path/to/dataevolver-models \
+  --workspace-root "$PWD" \
+  --gpu-policy inspect_only \
+  --include-gpus all \
+  --paper-validation \
+  --dry-run \
+  --write-local-config
+```
+
+完成目标机器探测后，再按用户选择改用 `--gpu-policy dynamic_backfill` 或
+`--gpu-policy fixed_range`。如果某张 GPU 已经在运行 vLLM、VLM review 或其他服务，
+按该机器实际情况追加 `--reserve-gpus <user-reserved-gpu-spec>`。不要把具体机器的
+GPU 范围、服务卡配置或策略选择提交到公共仓库；这些内容只应写入被忽略的
+`.dataevolver/local/` profile。
+
+脚本会输出五段内容：
 
 | 段落 | 说明 |
 |------|------|
 | `preflight` | Linux、GPU、Python、`uv`/`conda`、Blender、Hugging Face CLI 可用性 |
+| `gpu plan` | 面向后续 shard 的 inspect-only、dynamic backfill 或 fixed-range GPU 规划 |
 | `env plan` | 优先 `uv` 的环境计划，以及 `conda` fallback |
 | `model plan` | Hugging Face repo、目标路径、gated access 提示和打印出的下载命令 |
 | `config plan` | pipeline 可读取的非敏感环境变量 |
@@ -173,8 +195,10 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
 OpenAI、SSH、cookie 或 API token 写入这些文件。
 
 如果你在支持 skills 的 agent 环境中使用 DataEvolver，可以让 agent 使用
-`dataevolver-onboarding` skill。它应该只围绕五类信息进行访谈：目标路线、
-运行位置、安装策略、模型策略、工作/输出路径，然后运行上面的 dry-run 脚本。
+`dataevolver-onboarding` skill。它应该围绕五类基础信息进行访谈：目标路线、
+运行位置、安装策略、模型策略、工作/输出路径。若选择 HYWorld 或论文验证路线，
+还应记录 GPU 策略（`inspect_only`、`dynamic_backfill` 或 `fixed_range`）、
+可用 GPU 范围和保留 GPU，然后运行上面的 dry-run 脚本。
 
 ### 4. Production Setup（生产部署）
 
