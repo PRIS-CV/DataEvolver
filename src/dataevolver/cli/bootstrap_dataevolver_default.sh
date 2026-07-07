@@ -9,6 +9,10 @@ WORKSPACE_ROOT="${DATAEVOLVER_WORKSPACE_ROOT:-${ROOT}}"
 PYTHON_BACKEND="auto"
 DRY_RUN=1
 WRITE_LOCAL_CONFIG=0
+GPU_POLICY="${DATAEVOLVER_GPU_POLICY:-inspect_only}"
+INCLUDE_GPUS="${DATAEVOLVER_INCLUDE_GPUS:-all}"
+RESERVE_GPUS="${DATAEVOLVER_RESERVE_GPUS:-}"
+PAPER_VALIDATION=0
 
 usage() {
   cat <<'USAGE'
@@ -25,6 +29,10 @@ Options:
   --model-root PATH            Target model root for the printed plan.
   --workspace-root PATH        DataEvolver checkout path for the printed plan.
   --python-backend auto|uv|conda
+  --gpu-policy inspect_only|dynamic_backfill|fixed_range
+  --include-gpus SPEC          User-provided GPU ids/ranges allowed for future shards.
+  --reserve-gpus SPEC          User-provided GPU ids/ranges reserved for existing services.
+  --paper-validation           Mark generated config as a paper-validation run.
   --write-local-config         Write .dataevolver/local demo profile files.
   -h, --help                   Show this help.
 USAGE
@@ -65,6 +73,25 @@ while [[ $# -gt 0 ]]; do
       PYTHON_BACKEND="$2"
       shift 2
       ;;
+    --gpu-policy)
+      [[ $# -ge 2 ]] || die "--gpu-policy requires a value"
+      GPU_POLICY="$2"
+      shift 2
+      ;;
+    --include-gpus)
+      [[ $# -ge 2 ]] || die "--include-gpus requires a value"
+      INCLUDE_GPUS="$2"
+      shift 2
+      ;;
+    --reserve-gpus)
+      [[ $# -ge 2 ]] || die "--reserve-gpus requires a value"
+      RESERVE_GPUS="$2"
+      shift 2
+      ;;
+    --paper-validation)
+      PAPER_VALIDATION=1
+      shift
+      ;;
     --write-local-config)
       WRITE_LOCAL_CONFIG=1
       shift
@@ -87,6 +114,11 @@ esac
 case "$PYTHON_BACKEND" in
   auto|uv|conda) ;;
   *) die "--python-backend must be one of: auto, uv, conda" ;;
+esac
+
+case "$GPU_POLICY" in
+  inspect_only|dynamic_backfill|fixed_range) ;;
+  *) die "--gpu-policy must be one of: inspect_only, dynamic_backfill, fixed_range" ;;
 esac
 
 if [[ "$DRY_RUN" != "1" ]]; then
@@ -161,6 +193,7 @@ print_probe_plan() {
   printf 'workspace_root: %s\n' "$WORKSPACE_ROOT"
   printf 'model_root: %s\n' "$MODEL_ROOT"
   printf 'python_backend: %s\n' "$PYTHON_BACKEND"
+  printf 'paper_validation: %s\n' "$PAPER_VALIDATION"
   printf '\nDetected commands:\n'
   for name in uname git curl python3 python uv uvx conda nvidia-smi blender hf; do
     cmd_status "$name"
@@ -174,6 +207,39 @@ print_probe_plan() {
   printf '  uvx --from huggingface_hub hf --help || hf --help\n'
   printf '  blender --version\n'
   printf '  hf auth whoami\n'
+}
+
+print_gpu_plan() {
+  section "gpu plan"
+  printf 'mode: dry-run only; no GPU lease or process launch will run\n'
+  printf 'gpu_policy: %s\n' "$GPU_POLICY"
+  printf 'include_gpus: %s\n' "$INCLUDE_GPUS"
+  printf 'reserve_gpus: %s\n' "${RESERVE_GPUS:-none}"
+  printf 'paper_validation: %s\n' "$PAPER_VALIDATION"
+  printf '\nGPU preflight commands to run on the target host before real work:\n'
+  printf '  nvidia-smi --query-gpu=index,name,memory.used,memory.total,utilization.gpu,uuid --format=csv\n'
+  printf '  nvidia-smi --query-compute-apps=gpu_uuid,pid,process_name,used_memory --format=csv || true\n'
+  printf '  ps -eo pid,comm,args | grep -Ei "vllm|hyworld|blender|python" | head -n 80\n'
+  printf '\nScheduling guidance:\n'
+  case "$GPU_POLICY" in
+    inspect_only)
+      printf '  - Inspect and report GPU state only; do not propose shard leases.\n'
+      ;;
+    dynamic_backfill)
+      printf '  - Use dataevolver.runtime.gpu_scheduler for each scheduling cycle.\n'
+      printf '  - Reserve explicitly reserved GPUs and busy/high-utilization GPUs before leasing new shards.\n'
+      printf '  - Fill idle GPUs with independent Blender render, scene-view gate, rotation8, SR/contact-sheet, VLM request, or audit shards.\n'
+      printf '  - Keep fragile HYWorld pano/worldgen on the smallest stable GPU set; do not fan out same-resolution OOM retries.\n'
+      ;;
+    fixed_range)
+      printf '  - Restrict future leases to include_gpus after subtracting reserve_gpus.\n'
+      printf '  - Treat GPUs outside the fixed range as unavailable even if nvidia-smi shows them idle.\n'
+      ;;
+  esac
+  if [[ "$PAPER_VALIDATION" == "1" ]]; then
+    printf '  - Paper validation requires timing_ledger.json, gpu_shards.json, RUN_STATE.json, quality reports, and failure evidence.\n'
+    printf '  - Quality gates and intermediate review outrank raw GPU occupancy.\n'
+  fi
 }
 
 print_env_plan() {
@@ -297,6 +363,10 @@ print_config_plan() {
   printf '\nNon-sensitive variables to export later:\n'
   printf '  DATAEVOLVER_MODEL_ROOT=%s\n' "$MODEL_ROOT"
   printf '  DATAEVOLVER_WORKSPACE_ROOT=%s\n' "$WORKSPACE_ROOT"
+  printf '  DATAEVOLVER_GPU_POLICY=%s\n' "$GPU_POLICY"
+  printf '  DATAEVOLVER_INCLUDE_GPUS=%s\n' "$INCLUDE_GPUS"
+  printf '  DATAEVOLVER_RESERVE_GPUS=%s\n' "${RESERVE_GPUS:-}"
+  printf '  DATAEVOLVER_PAPER_VALIDATION=%s\n' "$PAPER_VALIDATION"
   printf '  BLENDER_BIN=/path/to/blender\n'
   if [[ "$PROFILE" == "default" || "$PROFILE" == "full" || "$PROFILE" == "world_model" ]]; then
     printf '  QWEN_IMAGE_MODEL_PATH=%s/Qwen-Image-2512\n' "$MODEL_ROOT"
@@ -348,7 +418,7 @@ write_local_config() {
     die "--write-local-config requires python3 or python for safe JSON writing"
   fi
 
-  MODEL_MANIFEST="$(model_manifest)" "$python_bin" - "$PROFILE" "$WORKSPACE_ROOT" "$MODEL_ROOT" "$PYTHON_BACKEND" "$out_dir" <<'PY'
+  MODEL_MANIFEST="$(model_manifest)" "$python_bin" - "$PROFILE" "$WORKSPACE_ROOT" "$MODEL_ROOT" "$PYTHON_BACKEND" "$out_dir" "$GPU_POLICY" "$INCLUDE_GPUS" "$RESERVE_GPUS" "$PAPER_VALIDATION" <<'PY'
 import json
 import os
 import shutil
@@ -357,7 +427,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-profile, workspace_root, model_root, python_backend, out_dir = sys.argv[1:6]
+profile, workspace_root, model_root, python_backend, out_dir, gpu_policy, include_gpus, reserve_gpus, paper_validation_text = sys.argv[1:10]
+paper_validation = paper_validation_text == "1"
 out = Path(out_dir)
 out.mkdir(parents=True, exist_ok=True)
 
@@ -481,6 +552,14 @@ if tooling_status["nvidia-smi"]["status"] == "missing":
     next_actions.append("Confirm GPU/CUDA on the target host before real model setup.")
 if access_requirements:
     next_actions.append("Confirm Hugging Face access for gated/access-dependent model repos.")
+if gpu_policy == "inspect_only":
+    next_actions.append("Inspect GPU inventory and service occupancy before choosing a real shard policy.")
+elif gpu_policy == "dynamic_backfill":
+    next_actions.append("Before real GPU work, run a fresh nvidia-smi probe and use dataevolver.runtime.gpu_scheduler for each dynamic backfill cycle.")
+elif gpu_policy == "fixed_range":
+    next_actions.append("Before real GPU work, confirm include_gpus and reserve_gpus still match the target host state.")
+if paper_validation:
+    next_actions.append("For paper validation, initialize timing_ledger.json, gpu_shards.json, RUN_STATE.json, quality reports, and failure evidence before the first real shard.")
 next_actions.append("Before real setup, source reviewed path overrides derived from env.sh.example.")
 next_actions.append("Run the generated production profile through `python -m dataevolver.cli.production doctor` before starting workers.")
 next_actions.append("Run smoke tests in order: preflight, import smoke, Stage 2, Stage 2.5, Stage 3 shape-only, Stage 3 textured, Stage 5.5 VLM loader.")
@@ -492,6 +571,42 @@ target_workflow = {
     "world_model": "world_model_scene",
     "custom": "custom_model_planning",
 }[profile]
+
+gpu_plan = {
+    "mode": "dry_run_only",
+    "policy": gpu_policy,
+    "include_gpus": include_gpus,
+    "reserve_gpus": reserve_gpus,
+    "scheduler": "dataevolver.runtime.gpu_scheduler",
+    "preflight_commands": [
+        "nvidia-smi --query-gpu=index,name,memory.used,memory.total,utilization.gpu,uuid --format=csv",
+        "nvidia-smi --query-compute-apps=gpu_uuid,pid,process_name,used_memory --format=csv || true",
+        "ps -eo pid,comm,args | grep -Ei 'vllm|hyworld|blender|python' | head -n 80",
+    ],
+    "rules": [
+        "Do not launch GPU jobs from onboarding.",
+        "Reserve explicitly reserved GPUs and busy/high-utilization GPUs before leasing new shards.",
+        "Use independent render, scene-view, rotation8, SR/contact-sheet, VLM request, and audit shards as backfill work.",
+        "Keep fragile HYWorld pano/worldgen on the smallest stable GPU set before scaling.",
+    ],
+}
+
+server_preflight = {
+    "mode": "dry_run_local_probe",
+    "tooling_status": tooling_status,
+    "gpu_probe_required_on_target_host": True,
+    "disk_probe_required_on_target_host": True,
+    "commands_not_executed_by_onboarding": gpu_plan["preflight_commands"],
+}
+
+ledger_requirements = {
+    "timing_ledger": paper_validation,
+    "gpu_shards": paper_validation or gpu_policy in {"dynamic_backfill", "fixed_range"},
+    "run_state": paper_validation,
+    "quality_report": paper_validation,
+    "failure_cases": paper_validation,
+    "gpu_hours_formula": "elapsed_seconds * gpu_count / 3600",
+}
 
 payload = {
     "profile": profile,
@@ -506,9 +621,17 @@ payload = {
         "allow_real_install": False,
         "allow_real_model_download": False,
     },
+    "execution_mode": {
+        "mode": "dry_run_only",
+        "allow_gpu_jobs": False,
+        "allow_service_kill": False,
+        "allow_long_running_jobs": False,
+    },
+    "paper_validation": paper_validation,
     "model_root": model_root,
     "workspace_root": workspace_root,
     "tooling_status": tooling_status,
+    "server_preflight": server_preflight,
     "models": models,
     "custom_models": [] if profile != "custom" else [{
         "role": "unspecified",
@@ -517,6 +640,11 @@ payload = {
         "notes": "Fill from onboarding interview before real deployment.",
     }],
     "access_requirements": access_requirements,
+    "gpu_policy": gpu_policy,
+    "include_gpus": include_gpus,
+    "reserve_gpus": reserve_gpus,
+    "gpu_plan": gpu_plan,
+    "ledger_requirements": ledger_requirements,
     "path_override_plan": path_override_plan,
     "v1_blockers": [
         "Source or export the path override variables before running the pipeline on a new host.",
@@ -571,6 +699,13 @@ production_profile = {
         {"name": "stage2-qwen-image", "kind": "stage2", "python": "dataevolver_python", "device": "cuda:0", "model_path": str(Path(model_root) / "Qwen-Image-2512")},
         {"name": "stage3-hunyuan", "kind": "stage3", "python": "dataevolver_python", "device": "cuda:1"},
     ],
+    "gpu_policy": {
+        "policy": gpu_policy,
+        "include_gpus": include_gpus,
+        "reserve_gpus": reserve_gpus,
+        "scheduler": "dataevolver.runtime.gpu_scheduler",
+    },
+    "paper_validation": paper_validation,
     "health_endpoints": [],
 }
 if profile == "world_model":
@@ -632,6 +767,17 @@ override_rows = "\n".join(
 )
 
 next_action_rows = "\n".join(f"- {item}" for item in next_actions)
+
+gpu_policy_rows = f"""- GPU policy: `{gpu_policy}`
+- Included GPUs: `{include_gpus}`
+- Reserved GPUs: `{reserve_gpus or 'none'}`
+- Scheduler: `dataevolver.runtime.gpu_scheduler`
+- Execution boundary: dry-run only; no GPU jobs, service restarts, or long-running jobs were launched."""
+
+ledger_rows = "\n".join(
+    f"- {key}: {value}"
+    for key, value in ledger_requirements.items()
+)
 
 dependency_plan = """Use `uv venv .venv --python 3.10 --system-site-packages` first on shared GPU servers so a validated system NVIDIA PyTorch build can be reused. Install the CUDA wheel only when `import torch` fails inside the venv or reports no usable CUDA.
 
@@ -700,6 +846,7 @@ Generated by `src/dataevolver/cli/bootstrap_dataevolver_default.sh` in dry-run m
 - Workspace root: `{workspace_root}`
 - Model root: `{model_root}`
 - Python backend preference: `{python_backend}`
+- Paper validation: `{paper_validation}`
 - Install policy: dry-run only; no real install or model download has been performed.
 
 ## Models
@@ -709,6 +856,14 @@ Generated by `src/dataevolver/cli/bootstrap_dataevolver_default.sh` in dry-run m
 ## Preflight Gaps
 
 {missing_tool_rows}
+
+## GPU Policy
+
+{gpu_policy_rows}
+
+## Ledger Requirements
+
+{ledger_rows}
 
 ## Hugging Face Access
 
@@ -754,6 +909,10 @@ env_lines = [
     f"export BLENDER_BIN={shlex.quote(shutil.which('blender') or '/path/to/blender')}",
     f"export DATAEVOLVER_PYTHON={shlex.quote(str(Path(workspace_root) / '.venv/bin/python'))}",
     f"export DATAEVOLVER_PRODUCTION_PROFILE={shlex.quote(str(Path(workspace_root) / '.dataevolver/local/production_profile.json'))}",
+    f"export DATAEVOLVER_GPU_POLICY={shlex.quote(gpu_policy)}",
+    f"export DATAEVOLVER_INCLUDE_GPUS={shlex.quote(include_gpus)}",
+    f"export DATAEVOLVER_RESERVE_GPUS={shlex.quote(reserve_gpus)}",
+    f"export DATAEVOLVER_PAPER_VALIDATION={shlex.quote('1' if paper_validation else '0')}",
 ]
 for model in models:
     env_name = model.get("env")
@@ -795,6 +954,7 @@ PY
 }
 
 print_probe_plan
+print_gpu_plan
 print_env_plan
 print_model_plan
 print_config_plan

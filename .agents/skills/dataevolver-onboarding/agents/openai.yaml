@@ -1,4 +1,4 @@
 interface:
   display_name: "DataEvolver Onboarding"
-  short_description: "Quick dry-run DataEvolver setup profiles"
-  default_prompt: "Use $dataevolver-onboarding to create a quick dry-run setup profile for DataEvolver."
+  short_description: "Server, uv, and GPU dry-run setup"
+  default_prompt: "Use $dataevolver-onboarding to inspect my DataEvolver server, choose a GPU policy, and write a dry-run setup profile."

@@ -100,9 +100,9 @@ The core innovation: a **goal-driven loop agent** that iteratively improves rend
 ## Quick Start
 
 Start with the lightweight onboarding dry-run. It checks the shape of your
-environment, prints the setup and model download plan, and writes local
+environment, prints the setup, model download, and GPU policy plan, and writes local
 non-sensitive config files. It does **not** install dependencies, download model
-weights, write tokens, or launch GPU jobs.
+weights, write tokens, kill services, or launch GPU jobs.
 
 ### 1. Clone the repository
 
@@ -146,11 +146,34 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
   --write-local-config
 ```
 
-The script prints four sections:
+For HYWorld / WorldMirror or paper-validation runs, add an explicit GPU policy
+so the first dry-run records how future agents should inspect or reserve GPUs:
+
+```bash
+bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
+  --profile world_model \
+  --model-root /path/to/dataevolver-models \
+  --workspace-root "$PWD" \
+  --gpu-policy inspect_only \
+  --include-gpus all \
+  --paper-validation \
+  --dry-run \
+  --write-local-config
+```
+
+After inspecting the target host, rerun with a user-chosen policy such as
+`--gpu-policy dynamic_backfill` or `--gpu-policy fixed_range`. If a GPU is
+already serving vLLM, VLM review, or another service, add
+`--reserve-gpus <user-reserved-gpu-spec>` for that host. Do not commit concrete
+host-specific GPU ranges or policy choices to the public repository; they belong
+in ignored `.dataevolver/local/` profiles.
+
+The script prints five sections:
 
 | Section | What it tells you |
 |---------|-------------------|
 | `preflight` | Linux, GPU, Python, `uv`/`conda`, Blender, and Hugging Face CLI availability |
+| `gpu plan` | Inspect-only, dynamic backfill, or fixed-range GPU planning for future shards |
 | `env plan` | The preferred `uv` environment plan and `conda` fallback |
 | `model plan` | Hugging Face repos, target paths, gated-access notes, and printed download commands |
 | `config plan` | Non-sensitive environment variables that the pipeline can read |
@@ -175,9 +198,11 @@ When `--write-local-config` is used, the generated local files are:
 OpenAI, SSH, cookie, or API tokens in these files.
 
 If you are working with an agent environment that supports skills, ask it to use
-the `dataevolver-onboarding` skill. It should interview you for only five setup
+the `dataevolver-onboarding` skill. It should interview you for five setup
 areas: target route, runtime location, install policy, model strategy, and
-workspace/output paths, then run the dry-run script above.
+workspace/output paths. For HYWorld or paper-validation routes, it should also
+record the GPU policy (`inspect_only`, `dynamic_backfill`, or `fixed_range`),
+included GPUs, and reserved GPUs before running the dry-run script above.
 
 ### 4. Production Setup
 
