@@ -118,6 +118,8 @@ python -m pip install -e .
 
 只在确实要运行对应路线时安装可选依赖，例如 HYWorld / WorldMirror 使用
 `python -m pip install -e ".[hyworld]"`。
+`hyworld` extra 只覆盖可由 pip 管理的运行依赖；模型权重、源码 checkout、
+Blender、CUDA/native extension 构建仍需在目标机器 preflight 后显式配置。
 
 ### 3. 运行安全的 onboarding dry-run
 
@@ -197,7 +199,7 @@ uv pip install \
   diffsynth transformers accelerate diffusers safetensors \
   pillow opencv-python scipy scikit-image imageio trimesh \
   rembg[gpu] anthropic qwen-vl-utils lpips basicsr realesrgan \
-  iopath timm ftfy \
+  iopath timm ftfy moviepy==1.0.3 nerfview rtree \
   opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http
 ```
 
@@ -298,6 +300,10 @@ uv pip install --no-build-isolation -e "$HUNYUAN3D_REPO/hy3dpaint/custom_rasteri
 cd "$HUNYUAN3D_REPO/hy3dpaint/DifferentiableRenderer"
 bash compile_mesh_painter.sh
 ```
+
+`cupy-cuda12x`、`flash-attn`、`pytorch3d`、`fused_ssim` 这类 HYWorld
+vendor CUDA/source-build 包，只应在目标 HYWorld Python 环境通过 CUDA、
+`nvcc`、编译器和 PyTorch ABI preflight 后安装。
 
 ### 5. 生产 Smoke Tests
 
