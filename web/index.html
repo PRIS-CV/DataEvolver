@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DataEvolver — Let Your Data Build and Improve Itself via Goal-Driven Loop Agents</title>
-<meta name="description" content="DataEvolver: Let Your Data Build and Improve Itself via Goal-Driven Loop Agents. An autonomous synthetic data construction framework powered by goal-driven AI agents.">
+<meta name="description" content="DataEvolver: autonomous dataset construction with agent-orchestrated multimodal generation, 3D reconstruction, VLM repair loops, and WebSearch-guided research priors.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -856,12 +856,12 @@ em{font-style:italic;color:var(--body-strong)}
     </a>
     <ul class="nav-links">
       <li><a href="#pipeline">Pipeline</a></li>
-      <li><a href="#worldmodel">3D Scenes</a></li>
+      <li><a href="#research">Research</a></li>
+      <li><a href="#worldmodel">Scene Context</a></li>
       <li><a href="#evolution">VLM Loop</a></li>
       <li><a href="#dataset">Dataset</a></li>
       <li><a href="#gallery">Gallery</a></li>
-      <li><a href="#recognition">Recognition</a></li>
-      <li><a href="#start">Get Started</a></li>
+      <li><a href="#start">Start</a></li>
     </ul>
     <a href="https://github.com/PRIS-CV/DataEvolver" class="nav-cta" target="_blank" rel="noopener">GitHub</a>
   </div>
@@ -876,7 +876,7 @@ em{font-style:italic;color:var(--body-strong)}
       </div>
       <h1>Let Your Data Build and Improve Itself</h1>
       <p class="hero-subtitle">
-        DataEvolver is an autonomous synthetic data construction framework where <em>goal-driven loop agents</em> orchestrate the full pipeline — from text-to-image generation through 3D reconstruction to scene-aware rendering — and iteratively refine output quality via VLM feedback loops.
+        DataEvolver is an autonomous dataset construction framework where <em>goal-driven loop agents</em> choose and compose text-to-image, image editing, text-to-video, and image-to-3D interfaces, then use VLM feedback and WebSearch research priors to turn user requests or papers into reproducible data pipelines.
       </p>
       <div class="hero-awards" aria-label="Project highlights">
         <span class="hero-award">📄 arXiv 2605.01789</span>
@@ -893,20 +893,20 @@ em{font-style:italic;color:var(--body-strong)}
       </div>
       <div class="hero-stats">
         <div>
-          <div class="hero-stat-value">350</div>
-          <div class="hero-stat-label">Training Pairs</div>
+          <div class="hero-stat-value">4</div>
+          <div class="hero-stat-label">Generation Interfaces</div>
         </div>
         <div>
-          <div class="hero-stat-value">50</div>
-          <div class="hero-stat-label">Unique Objects</div>
+          <div class="hero-stat-value">2</div>
+          <div class="hero-stat-label">Construction Tracks</div>
         </div>
         <div>
           <div class="hero-stat-value">24</div>
-          <div class="hero-stat-label">Atomic Actions</div>
+          <div class="hero-stat-label">Repair Actions</div>
         </div>
         <div>
-          <div class="hero-stat-value">6</div>
-          <div class="hero-stat-label">Pipeline Stages</div>
+          <div class="hero-stat-value">Stage0</div>
+          <div class="hero-stat-label">Research Prior</div>
         </div>
       </div>
     </div>
@@ -917,10 +917,10 @@ em{font-style:italic;color:var(--body-strong)}
         <img src="images/readme/showcase.png" alt="DataEvolver autonomous synthetic data construction workflow">
         <div class="hero-showcase-caption">
           <div>
-            <strong>Autonomous render-review-fix data construction</strong>
-            <span>Seed concept → 3D rendering → VLM review loop → multimodal dataset output</span>
+            <strong>Agent-orchestrated multimodal data construction</strong>
+            <span>User request or paper → strategy selection → VLM repair loop → dataset handoff</span>
           </div>
-          <div class="hero-showcase-pill">VLM-guided</div>
+          <div class="hero-showcase-pill">Agent-guided</div>
         </div>
       </div>
     </div>
@@ -931,9 +931,9 @@ em{font-style:italic;color:var(--body-strong)}
 <section class="section section-card" id="problem">
   <div class="section-inner">
     <div class="section-label">The Problem</div>
-    <h2 class="section-title">Why Goal-Driven Agents Are the Missing Piece</h2>
+    <h2 class="section-title">Why Dataset Construction Needs Agent Strategy</h2>
     <p class="section-desc">
-      Naive automated rendering produces artifacts — flat lighting, color shifts, floating objects. Traditional pipelines rely on rigid scoring rules that lack semantic understanding. What's needed are <em>goal-driven agents</em> that can perceive, diagnose, and act.
+      Dataset construction is no longer a single fixed path. Some tasks need image generation, some need editing or video synthesis, some need 3D reconstruction and Blender insertion, and paper reproduction needs source-backed methodology rather than ad hoc prompting.
     </p>
 
     <div class="card-grid">
@@ -941,22 +941,22 @@ em{font-style:italic;color:var(--body-strong)}
         <div class="card-icon" style="background:rgba(198,69,69,0.1)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         </div>
-        <h3 class="card-title">Naive Renders Have Artifacts</h3>
-        <p class="card-desc">Auto-rendered 3D objects often exhibit flat lighting, implausible shadows, and color mismatches with the scene environment.</p>
+        <h3 class="card-title">Single-Path Pipelines Are Too Rigid</h3>
+        <p class="card-desc">A user request may require parallel T2I candidates, an image-edit branch, a text-to-video branch, or a serial image-to-3D route. The agent must choose the right composition.</p>
       </div>
       <div class="card">
         <div class="card-icon" style="background:rgba(212,160,23,0.1)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
         </div>
-        <h3 class="card-title">Rule-Based QC Lacks Semantics</h3>
-        <p class="card-desc">Rigid numeric thresholds can't diagnose "this lighting feels flat" or "the object appears to float." Goal-driven agents with VLM perception can.</p>
+        <h3 class="card-title">Synthetic Outputs Need Semantic Repair</h3>
+        <p class="card-desc">Rigid numeric thresholds cannot diagnose "this object floats" or "the lighting is inconsistent." Goal-driven agents use VLM feedback to decide targeted repairs.</p>
       </div>
       <div class="card">
         <div class="card-icon" style="background:rgba(204,120,92,0.1)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
-        <h3 class="card-title">Manual Tuning Can't Scale</h3>
-        <p class="card-desc">Human artists spend minutes per object adjusting Blender parameters. At 50+ objects with 8+ viewpoints, this becomes infeasible.</p>
+        <h3 class="card-title">Paper Reproduction Needs Evidence</h3>
+        <p class="card-desc">A paper or topic should produce a traceable dataset construction handoff: cited sources, official artifacts, evaluation references, and reusable requirements.</p>
       </div>
     </div>
   </div>
@@ -966,17 +966,36 @@ em{font-style:italic;color:var(--body-strong)}
 <section class="section" id="pipeline">
   <div class="section-inner">
     <div class="section-label">Pipeline</div>
-    <h2 class="section-title">The Goal-Driven Data Construction Pipeline</h2>
+    <h2 class="section-title">Two Connected Dataset Construction Tracks</h2>
     <p class="section-desc">
-      From a natural language seed concept to quality-verified rendered pairs — fully automated by goal-driven loop agents, no human intervention required.
+      DataEvolver combines an agent-orchestrated multimodal generation track with a WebSearch-guided research-prior track. The agent can run interfaces in parallel, in series, or as a hybrid strategy to build faster, higher-quality datasets.
     </p>
+
+    <div class="connector-grid" style="margin-bottom:32px">
+      <div class="connector-tile">
+        <h4>Text-to-Image</h4>
+        <p>Generate source objects, scene references, or candidate visual concepts from prompts.</p>
+      </div>
+      <div class="connector-tile">
+        <h4>Image Edit</h4>
+        <p>Produce controlled variants, target images, and editing pairs from accepted sources.</p>
+      </div>
+      <div class="connector-tile">
+        <h4>Text-to-Video</h4>
+        <p>Extend static generation into temporal object or scene workflows when sequence data is needed.</p>
+      </div>
+      <div class="connector-tile">
+        <h4>Image-to-3D</h4>
+        <p>Reconstruct textured objects for Blender insertion, scene rendering, and VLM repair.</p>
+      </div>
+    </div>
 
     <div class="visual-frame">
       <div class="visual-frame-inner">
         <img src="images/readme/pipeline_show.svg" alt="DataEvolver six-stage synthetic data generation pipeline">
         <div class="visual-caption">
-          <strong>6-stage data synthesis workflow</strong>
-          <span>Text expansion, T2I generation, segmentation, 3D reconstruction, scene rendering, and VLM review.</span>
+          <strong>Representative serial 3D route</strong>
+          <span>The image-to-3D path remains a concrete serial strategy: prompt/image generation, segmentation, 3D reconstruction, Blender rendering, and VLM review.</span>
         </div>
       </div>
     </div>
@@ -984,58 +1003,98 @@ em{font-style:italic;color:var(--body-strong)}
     <div class="pipeline-visual">
       <div class="pipeline-step">
         <div class="pipeline-step-num">1</div>
-        <div class="pipeline-step-title">Text Expansion</div>
-        <div class="pipeline-step-desc">LLM expands seed into T2I prompt</div>
+        <div class="pipeline-step-title">Request Strategy</div>
+        <div class="pipeline-step-desc">Agent maps the user goal to interface choices</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">2</div>
-        <div class="pipeline-step-title">T2I Generation</div>
-        <div class="pipeline-step-desc">Qwen-Image-2512 at 1024×1024</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step">
-        <div class="pipeline-step-num">2.5</div>
-        <div class="pipeline-step-title">Segmentation</div>
-        <div class="pipeline-step-desc">SAM3 extracts RGBA foreground</div>
+        <div class="pipeline-step-title">Composable Interfaces</div>
+        <div class="pipeline-step-desc">T2I, image edit, T2V, and image-to-3D</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">3</div>
-        <div class="pipeline-step-title">3D Reconstruction</div>
-        <div class="pipeline-step-desc">Hunyuan3D-2.1 textured mesh</div>
+        <div class="pipeline-step-title">Branch Orchestration</div>
+        <div class="pipeline-step-desc">Parallel, serial, or hybrid execution</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">4</div>
-        <div class="pipeline-step-title">Scene Rendering</div>
-        <div class="pipeline-step-desc">Blender 4.2+ with Cycles 512spp</div>
+        <div class="pipeline-step-title">3D Route</div>
+        <div class="pipeline-step-desc">Object image to textured mesh to Blender</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">5</div>
-        <div class="pipeline-step-title">VLM Review Loop</div>
-        <div class="pipeline-step-desc">Review → act → re-render until keep</div>
+        <div class="pipeline-step-title">Scene Context</div>
+        <div class="pipeline-step-desc">Optional HYWorld / WorldMirror support</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">6</div>
+        <div class="pipeline-step-title">Review & Export</div>
+        <div class="pipeline-step-desc">VLM repair loop, metadata, and dataset handoff</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Research Prior — Cream Card -->
+<section class="section section-card" id="research">
+  <div class="section-inner">
+    <div class="section-label">Research Prior</div>
+    <h2 class="section-title">WebSearch-Guided Reproducible Research Pipelines</h2>
+    <p class="section-desc">
+      Stage0 turns a paper or topic into a reproducible dataset-construction handoff. The active agent performs WebSearch and paper reading; DataEvolver records evidence, trace events, handoff documents, and <code>research_prior.json</code> for downstream generation.
+    </p>
+
+    <div class="worldmodel-layout">
+      <div class="card-grid">
+        <div class="card">
+          <h3 class="card-title">Single-Paper Mode</h3>
+          <p class="card-desc">For a user-provided paper, such as a SeeThrough3D-style reproduction, the agent separates official artifacts from generated proxies and records the paper's dataset method, evaluation criteria, and GT references.</p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Universal Mode</h3>
+          <p class="card-desc">For a topic or idea, the agent narrows the search to 3-5 closely related papers, extracts their shared dataset construction requirements, and synthesizes a reusable pipeline contract.</p>
+        </div>
+      </div>
+      <div class="worldmodel-evidence">
+        <h3>Stage0 Evidence Contract</h3>
+        <ul class="worldmodel-list">
+          <li>Agent-run WebSearch and paper reading, with DataEvolver preserving source evidence and trace events.</li>
+          <li><code>single-paper</code> mode for paper-specific reproduction handoffs before large execution.</li>
+          <li><code>universal</code> mode for multi-paper requirements synthesis and schema-backed dataset planning.</li>
+          <li>Official open datasets and evaluation criteria are treated as GT references, not replaced by VLM-only acceptance.</li>
+        </ul>
+        <div class="worldmodel-chip-row">
+          <span class="worldmodel-chip">Stage0 WebSearch</span>
+          <span class="worldmodel-chip">single-paper</span>
+          <span class="worldmodel-chip">universal</span>
+          <span class="worldmodel-chip">SeeThrough3D</span>
+          <span class="worldmodel-chip">research_prior.json</span>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- HYWorld World Model Scene Reconstruction -->
-<section class="section section-card" id="worldmodel">
+<section class="section" id="worldmodel">
   <div class="section-inner">
-    <div class="section-label">World Model Reconstruction</div>
-    <h2 class="section-title">Automated 3D Scene Construction</h2>
+    <div class="section-label">Scene Context</div>
+    <h2 class="section-title">HYWorld / WorldMirror as a 3D Route Enhancer</h2>
     <p class="section-desc">
-      DataEvolver can extend beyond object reconstruction into full scene reconstruction. The HYWorld / WorldMirror route converts a scene prompt or input image into a panorama, reconstructs metric scene geometry, validates the Blender scene contract, and produces multi-view evidence before object insertion.
+      HYWorld / WorldMirror is an optional <code>world_model</code> route for strengthening the 3D reconstruction track. It builds scene context before object insertion, then requires contract-backed geometry, pure-scene multi-view renders, manifests, and lineage evidence.
     </p>
 
     <div class="visual-frame">
       <div class="visual-frame-inner">
         <img src="images/readme/3D-build.png" alt="HYWorld automated 3D scene reconstruction pipeline">
         <div class="visual-caption">
-          <strong>HYWorld / WorldMirror scene pipeline</strong>
-          <span>Prompt or image → HY-Pano → real 3D reconstruction → scene contract → multi-view validation → final manifest.</span>
+          <strong>Optional scene context route</strong>
+          <span>Prompt or image → HY-Pano → HYWorld / WorldMirror geometry → Blender scene contract → pure-scene validation → object insertion.</span>
         </div>
       </div>
     </div>
@@ -1043,21 +1102,21 @@ em{font-style:italic;color:var(--body-strong)}
     <div class="worldmodel-layout">
       <div class="card-grid">
         <div class="card">
-          <h3 class="card-title">Panorama to Metric Scene</h3>
-          <p class="card-desc">HY-Pano creates a 360° scene context; HYWorld and WorldMirror reconstruct depth, camera priors, and scene geometry instead of relying on a fixed panorama shell.</p>
+          <h3 class="card-title">Contract-Backed Geometry</h3>
+          <p class="card-desc">HY-Pano creates a 360° context; HYWorld and WorldMirror reconstruct depth, camera priors, support surfaces, and scene geometry instead of accepting a fixed panorama shell.</p>
         </div>
         <div class="card">
-          <h3 class="card-title">Blender Scene Contract</h3>
-          <p class="card-desc">The reconstructed mesh is converted into a contract with camera alignment, support surfaces, lineage hashes, and gates that reject constant-depth pseudo-3D outputs.</p>
+          <h3 class="card-title">Evidence Before Acceptance</h3>
+          <p class="card-desc">The route preserves pure-scene renders, placement contracts, support checks, and lineage hashes before any object-scene render can be promoted.</p>
         </div>
       </div>
       <div class="worldmodel-evidence">
-        <h3>Review Evidence</h3>
+        <h3>Route Evidence</h3>
         <ul class="worldmodel-list">
           <li>Preserved stage artifacts and SHA-256 manifests for HY-Pano and full worldgen.</li>
           <li>Pure-scene multi-view renders before object insertion.</li>
           <li>Mesh-raycast support placement with scene-camera matching.</li>
-          <li>Final object-scene report with RGB, masks, depth, normals, metadata gates, and lineage.</li>
+          <li>Final object-scene reports include RGB, masks, depth, normals, metadata gates, and lineage instead of VLM-only acceptance.</li>
         </ul>
         <div class="worldmodel-chip-row">
           <span class="worldmodel-chip">world_model profile</span>
@@ -1076,7 +1135,7 @@ em{font-style:italic;color:var(--body-strong)}
     <div class="section-label">Core Innovation</div>
     <h2 class="section-title">Goal-Driven Loop Agents: Perceive, Diagnose, Act, Repeat</h2>
     <p class="section-desc">
-      The heart of DataEvolver: a <em style="color:var(--on-dark)">goal-driven loop agent</em> that perceives rendered outputs via VLM review, diagnoses semantic issues, selects targeted rendering adjustments from a structured action space, and repeats until quality goals are met.
+      In the 3D reconstruction route, a <em style="color:var(--on-dark)">goal-driven loop agent</em> perceives rendered outputs via VLM review, diagnoses semantic issues, selects targeted rendering adjustments from a structured action space, and repeats until quality goals are met.
     </p>
 
     <div class="visual-frame">
@@ -1136,7 +1195,7 @@ em{font-style:italic;color:var(--body-strong)}
       </div>
       <div class="card-dark">
         <h3 class="card-title">Scene-Aware Rendering</h3>
-        <p class="card-desc">Objects placed in real Blender scenes with HDRI environments. Raycast ground detection ensures physical plausibility.</p>
+        <p class="card-desc">Objects can be inserted into configured Blender scenes or optional HYWorld / WorldMirror scene context with support-surface checks.</p>
       </div>
       <div class="card-dark">
         <h3 class="card-title">24 Atomic Actions</h3>
@@ -1411,7 +1470,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
     <div class="section-label">Action Space</div>
     <h2 class="section-title">24 Structured Atomic Actions</h2>
     <p class="section-desc">
-      The AI agent selects from a discrete, structured action space to address VLM-identified issues. Each action targets a specific rendering parameter.
+      In the 3D reconstruction route, the agent selects from a discrete, structured action space to address VLM-identified rendering issues. Each action targets a bounded Blender parameter.
     </p>
 
     <div class="connector-grid">
@@ -1452,7 +1511,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
     <div class="section-label">Why DataEvolver</div>
     <h2 class="section-title">Key Differentiators</h2>
     <p class="section-desc">
-      What sets DataEvolver apart from other synthetic data pipelines and why goal-driven loop agents produce better training data.
+      What sets DataEvolver apart is not one model call, but the way agents choose routes, preserve evidence, repair failures, and export reusable dataset construction traces.
     </p>
 
     <div class="card-grid">
@@ -1460,29 +1519,29 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         <div class="card-icon" style="background:rgba(93,184,114,0.15)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
-        <h3 class="card-title">VLM-as-Feedback, Not Score</h3>
-        <p class="card-desc">Free-form natural language feedback provides semantic diagnosis that numeric scores cannot. The reviewer identifies <em style="color:var(--on-dark)">why</em> a render fails.</p>
+        <h3 class="card-title">Agent-Orchestrated Interfaces</h3>
+        <p class="card-desc">The agent can compose T2I, image edit, T2V, and image-to-3D routes in parallel, in series, or as hybrid strategies based on dataset goals.</p>
       </div>
       <div class="card-dark">
         <div class="card-icon" style="background:rgba(204,120,92,0.15)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </div>
-        <h3 class="card-title">AI Agent Autonomy</h3>
-        <p class="card-desc">The agent reads raw review text and reasons about which action to take — no scripted rule engine, no score-threshold mapping.</p>
+        <h3 class="card-title">VLM-as-Feedback, Not Score</h3>
+        <p class="card-desc">Free-form natural language feedback provides semantic diagnosis that numeric scores cannot. The reviewer identifies <em style="color:var(--on-dark)">why</em> a render fails.</p>
       </div>
       <div class="card-dark">
         <div class="card-icon" style="background:rgba(93,184,166,0.15)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
-        <h3 class="card-title">Proven Downstream Value</h3>
-        <p class="card-desc">LoRA fine-tuning on DataEvolver-Rotate improves Qwen Image Edit 2511 on PSNR, SSIM, and LPIPS vs. the base model.</p>
+        <h3 class="card-title">Research-Grounded Pipelines</h3>
+        <p class="card-desc">Stage0 WebSearch records source evidence, dataset methods, official artifacts, and evaluation references before downstream generation.</p>
       </div>
       <div class="card-dark">
         <div class="card-icon" style="background:rgba(232,165,90,0.15)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
-        <h3 class="card-title">Multi-Modal Data Support</h3>
-        <p class="card-desc">Beyond RGB pairs: mask, depth, normal maps, and geometry metadata — enabling multi-modal conditioning research.</p>
+        <h3 class="card-title">Evaluation-to-Optimization Path</h3>
+        <p class="card-desc">Accepted traces, failure cases, and generated evaluation sets can guide future LoRA tuning for stronger reconstruction and editing models.</p>
       </div>
     </div>
   </div>
@@ -1493,7 +1552,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
   <div class="section-inner">
     <div class="section-label">Tech Stack</div>
     <h2 class="section-title">Built With</h2>
-    <p class="section-desc">The models, frameworks, and infrastructure powering the DataEvolver pipeline.</p>
+    <p class="section-desc">The models, frameworks, and evidence contracts powering DataEvolver's multimodal generation, 3D reconstruction, and research-prior workflows.</p>
 
     <div class="tag-grid">
       <span class="tag">Python 3.10+</span>
@@ -1501,11 +1560,16 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
       <span class="tag">Cycles Path Tracing</span>
       <span class="tag">PyTorch 2.8</span>
       <span class="tag">Qwen-Image-2512</span>
+      <span class="tag">Image Edit Workflow</span>
+      <span class="tag">Text-to-Video Workflow</span>
       <span class="tag">SAM3</span>
       <span class="tag">Hunyuan3D-2.1</span>
+      <span class="tag">HYWorld / WorldMirror</span>
       <span class="tag">Qwen3.5-35B-A3B</span>
       <span class="tag">Qwen-Image-Edit-2511</span>
       <span class="tag">DiffSynth-Studio</span>
+      <span class="tag">Stage0 WebSearch</span>
+      <span class="tag">research_prior.json</span>
       <span class="tag">LoRA (PEFT)</span>
       <span class="tag">3×A800 80GB</span>
     </div>
@@ -1518,7 +1582,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
     <div class="section-label">Get Started</div>
     <h2 class="section-title">Quick Start</h2>
     <p class="section-desc">
-      DataEvolver runs on a Linux server with GPU access and Blender. Clone the repo and start building self-improving data pipelines.
+      Start with the lightweight dry-run path. It validates the setup shape and prints the local plan without downloading models, writing tokens, or launching GPU jobs.
     </p>
 
     <div class="code-block">
@@ -1534,13 +1598,16 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 <pre>git clone https://github.com/PRIS-CV/DataEvolver.git
 <span class="kw">cd</span> DataEvolver
 
-<span class="cm"># Explore the pipeline</span>
-<span class="kw">ls</span> pipeline/     <span class="cm"># 6-stage data synthesis</span>
-<span class="kw">ls</span> configs/      <span class="cm"># Action space, scene templates</span>
-<span class="kw">ls</span> scripts/      <span class="cm"># Agent monitor, dataset builders</span>
+<span class="cm"># Safe onboarding dry-run</span>
+bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
+  --profile quick \
+  --dry-run
 
-<span class="cm"># Read the full documentation</span>
-<span class="kw">cat</span> CLAUDE.md     <span class="cm"># Comprehensive project guide</span></pre>
+<span class="cm"># Research-prior entry point</span>
+PYTHONPATH=src python -m dataevolver.tools.stage0_web_research --help
+
+<span class="cm"># Read the public documentation</span>
+<span class="kw">cat</span> README.md</pre>
       </div>
     </div>
   </div>
@@ -1627,8 +1694,8 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 <section class="section">
   <div class="section-inner">
     <div class="cta-band">
-      <h2>Ready to Build Self-Improving Data?</h2>
-      <p>Clone the repository and start running goal-driven loop agents on your own scenes and objects.</p>
+      <h2>Ready to Build Research-Grounded Data Pipelines?</h2>
+      <p>Clone the repository, run the safe dry-run, and choose either the multimodal generation route or the Stage0 research-prior route.</p>
       <a href="https://github.com/PRIS-CV/DataEvolver" class="btn btn-secondary" target="_blank" rel="noopener">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
         Get Started on GitHub
@@ -1653,15 +1720,16 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
       </div>
       <div class="footer-col">
         <h4>Resources</h4>
-        <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/CLAUDE.md" target="_blank" rel="noopener">Documentation</a>
+        <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/README.md" target="_blank" rel="noopener">Documentation</a>
         <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/configs/scene_action_space.json" target="_blank" rel="noopener">Action Space</a>
-        <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
+        <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/configs/schemas/universal_3d_layout_dataset_schema.json" target="_blank" rel="noopener">Universal Schema</a>
       </div>
       <div class="footer-col">
         <h4>Pipeline</h4>
         <a href="#pipeline">Overview</a>
+        <a href="#research">Research Prior</a>
+        <a href="#worldmodel">Scene Context</a>
         <a href="#evolution">VLM Loop</a>
-        <a href="#dataset">Dataset</a>
       </div>
       <div class="footer-col">
         <h4>Connect</h4>
