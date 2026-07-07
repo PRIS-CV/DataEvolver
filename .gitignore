@@ -40,6 +40,8 @@ notion-weekly/
 
 # Internal docs, intermediate results, and deliverables
 docs/
+!docs/
+!docs/BLENDER_MCP_REMOTE.md
 deliverables/
 v6_staging/
 mcp-servers/
@@ -67,3 +69,13 @@ CONTRIBUTING_CN.md
 README_CN.md
 memory/
 skills/
+
+# Local onboarding outputs and external tool checkouts
+.dataevolver/local/
+external/
+
+# Repository-provided onboarding skill
+!.agents/
+!.agents/skills/
+!.agents/skills/dataevolver-onboarding/
+!.agents/skills/dataevolver-onboarding/**
