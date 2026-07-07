@@ -42,7 +42,7 @@ Do not put world-model setup into `default`. When a user wants standard DataEvol
 - Do not modify `CLAUDE.md`; the main agent may decide later whether to sync selected non-sensitive facts.
 - If the user asks for real installation or real downloads, first use the demo script output as the plan and ask for explicit confirmation in the main conversation.
 - Prefer `uvx --from huggingface_hub hf download ...` for printed Hugging Face download plans, with `hf download ...` as fallback. Do not execute either command in v0.
-- Use `python -m pip install -e ".[hyworld]"` only for the optional `world_model_scene` route; keep the default install lightweight.
+- Use `python -m pip install -e ".[hyworld]"` only for the optional `world_model_scene` route; keep the default install lightweight. The extra covers pip-managed packages, not model weights, source checkouts, Blender, or CUDA/native extension builds.
 
 ## Known V1 Requirements
 

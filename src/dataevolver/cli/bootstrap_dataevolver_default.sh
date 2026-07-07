@@ -189,7 +189,7 @@ print_env_plan() {
     printf '  python -c "import torch; print(torch.__version__, torch.cuda.is_available())"\n'
     printf '  # Fallback only if the torch import above fails or has no usable CUDA:\n'
     printf '  uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121\n'
-    printf '  uv pip install "numpy<2" "tokenizers==0.22.1" diffsynth transformers accelerate diffusers safetensors pillow opencv-python scipy scikit-image imageio trimesh rembg[gpu] anthropic qwen-vl-utils lpips basicsr realesrgan iopath timm ftfy opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http\n'
+    printf '  uv pip install "numpy<2" "tokenizers==0.22.1" diffsynth transformers accelerate diffusers safetensors pillow opencv-python scipy scikit-image imageio trimesh rembg[gpu] anthropic qwen-vl-utils lpips basicsr realesrgan iopath timm ftfy moviepy==1.0.3 nerfview rtree opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http\n'
   fi
   if [[ "$PYTHON_BACKEND" == "conda" || "$PYTHON_BACKEND" == "auto" ]]; then
     printf '\nConda fallback plan:\n'
@@ -200,7 +200,7 @@ print_env_plan() {
     printf '  python -m pip install -e ".[hyworld]"\n'
     printf '  python -c "import torch; print(torch.__version__, torch.cuda.is_available())" || true\n'
     printf '  pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121\n'
-    printf '  pip install "numpy<2" "tokenizers==0.22.1" diffsynth transformers accelerate diffusers safetensors pillow opencv-python scipy scikit-image imageio trimesh rembg[gpu] anthropic qwen-vl-utils lpips basicsr realesrgan iopath timm ftfy opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http\n'
+    printf '  pip install "numpy<2" "tokenizers==0.22.1" diffsynth transformers accelerate diffusers safetensors pillow opencv-python scipy scikit-image imageio trimesh rembg[gpu] anthropic qwen-vl-utils lpips basicsr realesrgan iopath timm ftfy moviepy==1.0.3 nerfview rtree opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http\n'
   fi
   printf '\nTool bootstrap plan if commands are missing (printed only):\n'
   printf '  # Install uv for the fastest Python environment path:\n'
@@ -642,8 +642,10 @@ Runtime pins from production validation:
 - package entry points: `python -m pip install -e .`
 - optional HYWorld extras: `python -m pip install -e ".[hyworld]"`
 - SAM3 extras: `iopath`, `timm`, `ftfy`
+- HYWorld/WorldMirror pip extras: `moviepy==1.0.3`, `nerfview`, `rtree`
 - Hunyuan paint/native build: `uv pip install --no-build-isolation -e "$HUNYUAN3D_REPO/hy3dpaint/custom_rasterizer"` after CUDA/nvcc preflight
-- DifferentiableRenderer: compile only after CUDA/nvcc compatibility is confirmed"""
+- DifferentiableRenderer: compile only after CUDA/nvcc compatibility is confirmed
+- HYWorld CUDA/source packages such as `cupy-cuda12x`, `flash-attn`, `pytorch3d`, and `fused_ssim`: install only in the target HYWorld Python environment after CUDA/PyTorch ABI preflight"""
 
 path_separation = """Keep code and weights separate:
 

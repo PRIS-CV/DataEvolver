@@ -119,6 +119,9 @@ python -m pip install -e .
 
 Use optional extras only for routes you actually plan to run, for example
 `python -m pip install -e ".[hyworld]"` for HYWorld / WorldMirror setup.
+The `hyworld` extra covers pip-managed runtime packages only; model weights,
+source checkouts, Blender, and CUDA/native extension builds remain explicit
+setup steps after target-host preflight.
 
 ### 3. Run the safe onboarding dry-run
 
@@ -200,7 +203,7 @@ uv pip install \
   diffsynth transformers accelerate diffusers safetensors \
   pillow opencv-python scipy scikit-image imageio trimesh \
   rembg[gpu] anthropic qwen-vl-utils lpips basicsr realesrgan \
-  iopath timm ftfy \
+  iopath timm ftfy moviepy==1.0.3 nerfview rtree \
   opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http
 ```
 
@@ -303,6 +306,10 @@ uv pip install --no-build-isolation -e "$HUNYUAN3D_REPO/hy3dpaint/custom_rasteri
 cd "$HUNYUAN3D_REPO/hy3dpaint/DifferentiableRenderer"
 bash compile_mesh_painter.sh
 ```
+
+Install HYWorld vendor CUDA/source-build packages such as `cupy-cuda12x`,
+`flash-attn`, `pytorch3d`, and `fused_ssim` only in the target HYWorld Python
+environment after CUDA, `nvcc`, compiler, and PyTorch ABI preflight pass.
 
 ### 5. Production Smoke Tests
 
