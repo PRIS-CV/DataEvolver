@@ -10,6 +10,11 @@
 </p>
 
 <p align="center">
+  <strong>Qisong Zhang, Wenzhuo Wu, Zhuangzhuang Jia, Yunhao Yang, Shuo Zhang</strong><br/>
+  School of Artificial Intelligence, Beijing University of Posts and Telecommunications (BUPT)
+</p>
+
+<p align="center">
   <a href="https://arxiv.org/abs/2605.01789"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b?logo=arxiv&logoColor=white" alt="Paper: arXiv"/></a>
   <a href="https://pris-cv.github.io/DataEvolver/"><img src="https://img.shields.io/badge/Website-Project%20Page-1f6feb?logo=githubpages&logoColor=white" alt="Project website"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-green" alt="License: Apache-2.0"/></a>

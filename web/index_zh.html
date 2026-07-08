@@ -218,7 +218,28 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .hero-subtitle{
   font-size:1.0625rem;line-height:1.6;max-width:560px;
-  color:var(--body);margin-bottom:32px;
+  color:var(--body);margin-bottom:18px;
+}
+.hero-authors{
+  max-width:560px;
+  background:rgba(239,233,222,0.72);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-lg);
+  padding:14px 16px;
+  margin-bottom:18px;
+}
+.hero-authors strong{
+  display:block;
+  color:var(--body-strong);
+  font-size:0.9rem;
+  line-height:1.45;
+}
+.hero-affiliation{
+  display:block;
+  color:var(--muted);
+  font-size:0.82rem;
+  line-height:1.45;
+  margin-top:4px;
 }
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
 .hero-awards{
@@ -1419,6 +1440,10 @@ em{font-style:italic;color:var(--body-strong)}
       <p class="hero-subtitle">
         DataEvolver 是一个自动化数据集构建框架，其中 <em>目标驱动的 loop agents</em> 会选择并组合 text-to-image、image editing、text-to-video 与 image-to-3D 接口，再利用 VLM 反馈和 WebSearch 研究先验，将用户需求或论文转化为可复现的数据 pipeline。
       </p>
+      <div class="hero-authors" aria-label="作者和单位">
+        <strong>Qisong Zhang, Wenzhuo Wu, Zhuangzhuang Jia, Yunhao Yang, Shuo Zhang</strong>
+        <span class="hero-affiliation">北京邮电大学人工智能学院</span>
+      </div>
       <div class="hero-awards" aria-label="Project highlights">
         <span class="hero-award">📄 arXiv 2605.01789</span>
         <span class="hero-award">🏆 KDD Workshop Oral</span>
