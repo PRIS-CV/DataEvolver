@@ -195,7 +195,7 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .hero-inner{
   max-width:var(--max-width);margin:0 auto;
-  display:grid;grid-template-columns:minmax(0,0.88fr) minmax(0,1.12fr);gap:56px;align-items:center;
+  display:grid;grid-template-columns:minmax(0,0.88fr) minmax(0,1.12fr);gap:56px;align-items:start;
 }
 .hero-content{position:relative;z-index:1}
 .hero-badge{
@@ -255,6 +255,10 @@ em{font-style:italic;color:var(--body-strong)}
 }
 
 /* Hero showcase */
+.hero-visual{
+  align-self:start;
+  padding-top:48px;
+}
 .hero-showcase{
   background:linear-gradient(135deg,rgba(204,120,92,0.16),rgba(93,184,166,0.10));
   border:1px solid rgba(204,120,92,0.18);
@@ -323,8 +327,10 @@ em{font-style:italic;color:var(--body-strong)}
 .hero-code-block .num{color:var(--success)}
 
 .hero-stats{
-  display:flex;gap:32px;margin-top:40px;
-  padding-top:24px;border-top:1px solid var(--hairline);
+  display:flex;justify-content:space-between;gap:18px;margin-top:16px;
+  padding:18px 20px;border:1px solid var(--hairline);
+  border-radius:var(--radius-lg);
+  background:rgba(239,233,222,0.72);
 }
 .hero-stat-value{
   font-family:var(--font-display);font-size:2rem;font-weight:400;
@@ -1343,6 +1349,7 @@ em{font-style:italic;color:var(--body-strong)}
 /* ===== Responsive ===== */
 @media(max-width:1024px){
   .hero-inner{grid-template-columns:1fr;gap:48px}
+  .hero-visual{padding-top:0}
   .hero-illustration{max-width:560px}
 }
 @media(max-width:768px){
@@ -1356,7 +1363,7 @@ em{font-style:italic;color:var(--body-strong)}
   .nav-cta{display:none}
   .hero{padding:100px 24px 64px}
   .section{padding:64px 24px}
-  .hero-stats{flex-wrap:wrap;gap:24px}
+  .hero-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
   .pipeline-visual{flex-wrap:wrap;gap:12px;justify-content:center}
   .pipeline-arrow{display:none}
   .pipeline-step{min-width:130px;flex:0 0 auto}
@@ -1457,6 +1464,22 @@ em{font-style:italic;color:var(--body-strong)}
         <a href="#pipeline" class="btn btn-secondary">工作方式</a>
         <a href="https://arxiv.org/abs/2605.01789" class="btn btn-secondary" target="_blank" rel="noopener">阅读论文</a>
       </div>
+    </div>
+
+    <!-- Hero Showcase -->
+    <div class="hero-visual">
+      <div class="hero-showcase">
+        <div class="hero-showcase-inner">
+          <img src="images/extracted/index3/image-02-9f97f7fec6e6.png" alt="DataEvolver autonomous synthetic data construction workflow">
+          <div class="hero-showcase-caption">
+            <div>
+              <strong>由 Agent 编排的多模态数据构建</strong>
+              <span>用户需求或论文 → 策略选择 → VLM 修复 loop → 数据集交付</span>
+            </div>
+            <div class="hero-showcase-pill">Agent 引导</div>
+          </div>
+        </div>
+      </div>
       <div class="hero-stats">
         <div>
           <div class="hero-stat-value">4</div>
@@ -1473,20 +1496,6 @@ em{font-style:italic;color:var(--body-strong)}
         <div>
           <div class="hero-stat-value">Web</div>
           <div class="hero-stat-label">Research Prior</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Hero Showcase -->
-    <div class="hero-showcase">
-      <div class="hero-showcase-inner">
-        <img src="images/extracted/index3/image-02-9f97f7fec6e6.png" alt="DataEvolver autonomous synthetic data construction workflow">
-        <div class="hero-showcase-caption">
-          <div>
-            <strong>由 Agent 编排的多模态数据构建</strong>
-            <span>用户需求或论文 → 策略选择 → VLM 修复 loop → 数据集交付</span>
-          </div>
-          <div class="hero-showcase-pill">Agent 引导</div>
         </div>
       </div>
     </div>
