@@ -218,7 +218,28 @@ em{font-style:italic;color:var(--body-strong)}
 }
 .hero-subtitle{
   font-size:1.0625rem;line-height:1.6;max-width:560px;
-  color:var(--body);margin-bottom:32px;
+  color:var(--body);margin-bottom:18px;
+}
+.hero-authors{
+  max-width:560px;
+  background:rgba(239,233,222,0.72);
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-lg);
+  padding:14px 16px;
+  margin-bottom:18px;
+}
+.hero-authors strong{
+  display:block;
+  color:var(--body-strong);
+  font-size:0.9rem;
+  line-height:1.45;
+}
+.hero-affiliation{
+  display:block;
+  color:var(--muted);
+  font-size:0.82rem;
+  line-height:1.45;
+  margin-top:4px;
 }
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
 .hero-awards{
@@ -1419,6 +1440,10 @@ em{font-style:italic;color:var(--body-strong)}
       <p class="hero-subtitle">
         DataEvolver is an autonomous dataset construction framework where <em>goal-driven loop agents</em> choose and compose text-to-image, image editing, text-to-video, and image-to-3D interfaces, then use VLM feedback and WebSearch research priors to turn user requests or papers into reproducible data pipelines.
       </p>
+      <div class="hero-authors" aria-label="Authors and affiliation">
+        <strong>Qisong Zhang, Wenzhuo Wu, Zhuangzhuang Jia, Yunhao Yang, Shuo Zhang</strong>
+        <span class="hero-affiliation">School of Artificial Intelligence, Beijing University of Posts and Telecommunications (BUPT)</span>
+      </div>
       <div class="hero-awards" aria-label="Project highlights">
         <span class="hero-award">📄 arXiv 2605.01789</span>
         <span class="hero-award">🏆 KDD Workshop Oral</span>
