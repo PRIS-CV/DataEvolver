@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hans">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DataEvolver — Let Your Data Build and Improve Itself via Goal-Driven Loop Agents</title>
-<meta name="description" content="DataEvolver: autonomous dataset construction with agent-orchestrated multimodal generation, 3D reconstruction, VLM repair loops, and WebSearch-guided research priors.">
+<title>DataEvolver — 让数据通过目标驱动 Loop Agent 自我构建和改进</title>
+<meta name="description" content="DataEvolver：面向自动化数据集构建的框架，结合 agent 编排的多模态生成、3D 重建、VLM 修复 loop 与 WebSearch 研究先验。">
 <link rel="icon" type="image/png" href="images/extracted/index3/image-01-af2d95cdebb7.png">
 <link rel="alternate" hreflang="en-US" href="index.html">
 <link rel="alternate" hreflang="zh-Hans" href="index_zh.html">
@@ -1415,19 +1415,19 @@ em{font-style:italic;color:var(--body-strong)}
     </a>
     <ul class="nav-links">
       <li><a href="#pipeline">Pipeline</a></li>
-      <li><a href="#research">Research</a></li>
-      <li><a href="#worldmodel">Scene Context</a></li>
+      <li><a href="#research">研究</a></li>
+      <li><a href="#worldmodel">场景上下文</a></li>
       <li><a href="#evolution">VLM Loop</a></li>
-      <li><a href="#dataset">Dataset</a></li>
-      <li><a href="#gallery">Gallery</a></li>
-      <li><a href="#start">Start</a></li>
+      <li><a href="#dataset">数据集</a></li>
+      <li><a href="#gallery">示例集</a></li>
+      <li><a href="#start">开始</a></li>
     </ul>
     <div class="nav-actions">
-      <div class="language-switch" aria-label="Language selector">
-        <a href="index.html" class="active" lang="en-US" aria-current="page" aria-label="US English">
+      <div class="language-switch" aria-label="语言选择">
+        <a href="index.html" lang="en-US" aria-label="US English">
           <span class="lang-full">US English</span><span class="lang-short">EN</span>
         </a>
-        <a href="index_zh.html" lang="zh-Hans" aria-label="Simplified Chinese">
+        <a href="index_zh.html" class="active" lang="zh-Hans" aria-current="page" aria-label="Simplified Chinese">
           <span class="lang-full">Simplified Chinese</span><span class="lang-short">简中</span>
         </a>
       </div>
@@ -1441,15 +1441,15 @@ em{font-style:italic;color:var(--body-strong)}
   <div class="hero-inner">
     <div class="hero-content">
       <div class="hero-badge">
-        <span class="badge-dot"></span>Technical Report · 2026
+        <span class="badge-dot"></span>技术报告 · 2026
       </div>
-      <h1>Let Your Data Build and Improve Itself</h1>
+      <h1>让数据自我构建和改进</h1>
       <p class="hero-subtitle">
-        DataEvolver is an autonomous dataset construction framework where <em>goal-driven loop agents</em> choose and compose text-to-image, image editing, text-to-video, and image-to-3D interfaces, then use VLM feedback and WebSearch research priors to turn user requests or papers into reproducible data pipelines.
+        DataEvolver 是一个自动化数据集构建框架，其中 <em>目标驱动的 loop agents</em> 会选择并组合 text-to-image、image editing、text-to-video 与 image-to-3D 接口，再利用 VLM 反馈和 WebSearch 研究先验，将用户需求或论文转化为可复现的数据 pipeline。
       </p>
-      <div class="hero-authors" aria-label="Authors and affiliation">
+      <div class="hero-authors" aria-label="作者和单位">
         <strong>Qisong Zhang, Wenzhuo Wu, Zhuangzhuang Jia, Yunhao Yang, Shuo Zhang</strong>
-        <span class="hero-affiliation">School of Artificial Intelligence, Beijing University of Posts and Telecommunications (BUPT)</span>
+        <span class="hero-affiliation">北京邮电大学人工智能学院</span>
       </div>
       <div class="hero-awards" aria-label="Project highlights">
         <span class="hero-award">📄 arXiv 2605.01789</span>
@@ -1459,10 +1459,10 @@ em{font-style:italic;color:var(--body-strong)}
       <div class="hero-actions">
         <a href="https://github.com/PRIS-CV/DataEvolver" class="btn btn-primary" target="_blank" rel="noopener">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-          View on GitHub
+          查看 GitHub
         </a>
-        <a href="#pipeline" class="btn btn-secondary">How It Works</a>
-        <a href="https://arxiv.org/abs/2605.01789" class="btn btn-secondary" target="_blank" rel="noopener">Read Paper</a>
+        <a href="#pipeline" class="btn btn-secondary">工作方式</a>
+        <a href="https://arxiv.org/abs/2605.01789" class="btn btn-secondary" target="_blank" rel="noopener">阅读论文</a>
       </div>
     </div>
 
@@ -1473,25 +1473,25 @@ em{font-style:italic;color:var(--body-strong)}
           <img src="images/extracted/index3/image-02-9f97f7fec6e6.png" alt="DataEvolver autonomous synthetic data construction workflow">
           <div class="hero-showcase-caption">
             <div>
-              <strong>Agent-orchestrated multimodal data construction</strong>
-              <span>User request or paper → strategy selection → VLM repair loop → dataset handoff</span>
+              <strong>由 Agent 编排的多模态数据构建</strong>
+              <span>用户需求或论文 → 策略选择 → VLM 修复 loop → 数据集交付</span>
             </div>
-            <div class="hero-showcase-pill">Agent-guided</div>
+            <div class="hero-showcase-pill">Agent 引导</div>
           </div>
         </div>
       </div>
       <div class="hero-stats">
         <div>
           <div class="hero-stat-value">4</div>
-          <div class="hero-stat-label">Generation Interfaces</div>
+          <div class="hero-stat-label">生成接口</div>
         </div>
         <div>
           <div class="hero-stat-value">2</div>
-          <div class="hero-stat-label">Construction Tracks</div>
+          <div class="hero-stat-label">构建路线</div>
         </div>
         <div>
           <div class="hero-stat-value">24</div>
-          <div class="hero-stat-label">Repair Actions</div>
+          <div class="hero-stat-label">修复动作</div>
         </div>
         <div>
           <div class="hero-stat-value">Web</div>
@@ -1507,10 +1507,10 @@ em{font-style:italic;color:var(--body-strong)}
 <!-- Problem / Solution — Cream Card Section -->
 <section class="section section-card" id="problem">
   <div class="section-inner">
-    <div class="section-label">The Problem</div>
-    <h2 class="section-title">Why Dataset Construction Needs Agent Strategy</h2>
+    <div class="section-label">问题</div>
+    <h2 class="section-title">为什么数据集构建需要 Agent 策略</h2>
     <p class="section-desc">
-      Dataset construction is no longer a single fixed path. Some tasks need image generation, some need editing or video synthesis, some need 3D reconstruction and Blender insertion, and paper reproduction needs source-backed methodology rather than ad hoc prompting.
+      数据集构建已经不再是一条固定路径。有些任务需要图像生成，有些需要图像编辑或视频合成，有些需要 3D 重建和 Blender 插入；论文复现则需要有来源支撑的方法，而不是临时 prompt。
     </p>
 
     <div class="card-grid">
@@ -1518,22 +1518,22 @@ em{font-style:italic;color:var(--body-strong)}
         <div class="card-icon" style="background:rgba(198,69,69,0.1)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         </div>
-        <h3 class="card-title">Single-Path Pipelines Are Too Rigid</h3>
-        <p class="card-desc">A user request may require parallel T2I candidates, an image-edit branch, a text-to-video branch, or a serial image-to-3D route. The agent must choose the right composition.</p>
+        <h3 class="card-title">单一路径 pipeline 过于僵硬</h3>
+        <p class="card-desc">一个用户需求可能需要并行的 T2I 候选、一个 image-edit 分支、一个 text-to-video 分支，或一条串行 image-to-3D route。Agent 需要选择合适的组合方式。</p>
       </div>
       <div class="card">
         <div class="card-icon" style="background:rgba(212,160,23,0.1)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
         </div>
-        <h3 class="card-title">Synthetic Outputs Need Semantic Repair</h3>
-        <p class="card-desc">Rigid numeric thresholds cannot diagnose "this object floats" or "the lighting is inconsistent." Goal-driven agents use VLM feedback to decide targeted repairs.</p>
+        <h3 class="card-title">合成结果需要语义级修复</h3>
+        <p class="card-desc">僵硬的数值阈值无法诊断“物体漂浮”或“光照不一致”。目标驱动的 agent 会使用 VLM 反馈来决定有针对性的修复。</p>
       </div>
       <div class="card">
         <div class="card-icon" style="background:rgba(204,120,92,0.1)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
-        <h3 class="card-title">Paper Reproduction Needs Sources</h3>
-        <p class="card-desc">A paper or topic should produce a traceable dataset construction handoff: cited sources, official artifacts, evaluation references, and reusable requirements.</p>
+        <h3 class="card-title">论文复现需要来源依据</h3>
+        <p class="card-desc">一篇论文或一个 topic 应该产出可追溯的数据集构建交付：引用来源、官方 artifacts、评价参考和可复用需求。</p>
       </div>
     </div>
   </div>
@@ -1543,27 +1543,27 @@ em{font-style:italic;color:var(--body-strong)}
 <section class="section" id="pipeline">
   <div class="section-inner">
     <div class="section-label">Pipeline</div>
-    <h2 class="section-title">Two Connected Dataset Construction Tracks</h2>
+    <h2 class="section-title">两条相互连接的数据集构建路线</h2>
     <p class="section-desc">
-      DataEvolver combines an agent-orchestrated multimodal generation track with a WebSearch-guided research-prior track. The agent can run interfaces in parallel, in series, or as a hybrid strategy to build faster, higher-quality datasets.
+      DataEvolver 将 agent 编排的多模态生成路线与 WebSearch 引导的研究先验路线结合起来。Agent 可以并行、串行，或采用混合策略运行不同接口，以更快构建更高质量的数据集。
     </p>
 
     <div class="connector-grid" style="margin-bottom:32px">
       <div class="connector-tile">
         <h4>Text-to-Image</h4>
-        <p>Generate source objects, scene references, or candidate visual concepts from prompts.</p>
+        <p>从 prompt 生成源物体、场景参考或候选视觉概念。</p>
       </div>
       <div class="connector-tile">
         <h4>Image Edit</h4>
-        <p>Produce controlled variants, target images, and editing pairs from accepted sources.</p>
+        <p>基于已接受的 source 生成受控变体、目标图像和编辑样本对。</p>
       </div>
       <div class="connector-tile">
         <h4>Text-to-Video</h4>
-        <p>Extend static generation into temporal object or scene workflows when sequence data is needed.</p>
+        <p>当需要序列数据时，将静态生成扩展到时序物体或场景工作流。</p>
       </div>
       <div class="connector-tile">
         <h4>Image-to-3D</h4>
-        <p>Reconstruct textured objects for Blender insertion, scene rendering, and VLM repair.</p>
+        <p>重建带纹理的物体，用于 Blender 插入、场景渲染和 VLM 修复。</p>
       </div>
     </div>
 
@@ -1571,8 +1571,8 @@ em{font-style:italic;color:var(--body-strong)}
       <div class="visual-frame-inner">
         <img src="images/extracted/index3/image-03-5b8cffe2a14d.svg" alt="DataEvolver six-stage synthetic data generation pipeline">
         <div class="visual-caption">
-          <strong>Representative serial 3D route</strong>
-          <span>The image-to-3D path remains a concrete serial strategy: prompt/image generation, segmentation, 3D reconstruction, Blender rendering, and VLM review.</span>
+          <strong>代表性的串行 3D route</strong>
+          <span>image-to-3D 路径是一条具体的串行策略：prompt / 图像生成、分割、3D 重建、Blender 渲染和 VLM review。</span>
         </div>
       </div>
     </div>
@@ -1580,38 +1580,38 @@ em{font-style:italic;color:var(--body-strong)}
     <div class="pipeline-visual">
       <div class="pipeline-step">
         <div class="pipeline-step-num">1</div>
-        <div class="pipeline-step-title">Request Strategy</div>
-        <div class="pipeline-step-desc">Agent maps the user goal to interface choices</div>
+        <div class="pipeline-step-title">需求策略</div>
+        <div class="pipeline-step-desc">Agent 将用户目标映射到接口选择</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">2</div>
-        <div class="pipeline-step-title">Composable Interfaces</div>
-        <div class="pipeline-step-desc">T2I, image edit, T2V, and image-to-3D</div>
+        <div class="pipeline-step-title">可组合接口</div>
+        <div class="pipeline-step-desc">T2I、image edit、T2V 和 image-to-3D</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">3</div>
-        <div class="pipeline-step-title">Branch Orchestration</div>
-        <div class="pipeline-step-desc">Parallel, serial, or hybrid execution</div>
+        <div class="pipeline-step-title">分支编排</div>
+        <div class="pipeline-step-desc">并行、串行或混合执行</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">4</div>
         <div class="pipeline-step-title">3D Route</div>
-        <div class="pipeline-step-desc">Object image to textured mesh to Blender</div>
+        <div class="pipeline-step-desc">物体图像到纹理 mesh，再进入 Blender</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">5</div>
-        <div class="pipeline-step-title">Scene Context</div>
-        <div class="pipeline-step-desc">Optional HYWorld / WorldMirror support</div>
+        <div class="pipeline-step-title">场景上下文</div>
+        <div class="pipeline-step-desc">可选 HYWorld / WorldMirror 支持</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">6</div>
-        <div class="pipeline-step-title">Review & Export</div>
-        <div class="pipeline-step-desc">VLM repair loop, metadata, and dataset handoff</div>
+        <div class="pipeline-step-title">Review 与导出</div>
+        <div class="pipeline-step-desc">VLM 修复 loop、metadata 与数据集交付</div>
       </div>
     </div>
   </div>
@@ -1621,14 +1621,14 @@ em{font-style:italic;color:var(--body-strong)}
 <section class="section section-card" id="research">
   <div class="section-inner">
     <div class="section-label">Research Prior</div>
-    <h2 class="section-title">WebSearch-Guided Reproducible Research Pipelines</h2>
+    <h2 class="section-title">WebSearch 引导的可复现研究 pipeline</h2>
     <p class="section-desc">
-      The research-prior workflow turns a paper, topic, or generation request into a reproducible dataset-construction handoff. The active agent performs WebSearch and paper reading, then dynamically composes serial and parallel t2i, edit, i2v, and 3D routes while DataEvolver keeps source notes, trace events, gallery sheets, and <code>research_prior.json</code> attached for replay.
+      研究先验工作流会将论文、topic 或生成需求转化为可复现的数据集构建交付。当前 agent 执行 WebSearch 和论文阅读，并动态组合串行与并行的 t2i、edit、i2v 和 3D routes；DataEvolver 则保留来源笔记、trace 事件、gallery sheets 和 <code>research_prior.json</code> 以便 replay。
     </p>
 
     <div class="research-showcase-head">
-      <h3>Research-Guided Pipeline</h3>
-      <p>Single-paper and universal modes merge into one source-backed workflow for reproducible dataset construction and evaluation-ready handoff.</p>
+      <h3>研究引导的 Pipeline</h3>
+      <p>single-paper 与 universal 两种模式合并为一个有来源支撑的工作流，用于可复现的数据集构建和可评价的交付。</p>
     </div>
 
     <div class="visual-frame research-diagram-frame">
@@ -1637,16 +1637,16 @@ em{font-style:italic;color:var(--body-strong)}
           <img src="images/readme/web-search.png" alt="WebSearch-guided reproducible research pipeline from paper or topic input to evidence handoff">
         </div>
         <div class="visual-caption">
-          <strong>WebSearch-guided reproducible research pipelines</strong>
-          <span>The agent retrieves papers, official artifacts, code, and datasets, then records evidence, GT references, manifests, lineage, and research_prior.json.</span>
+          <strong>WebSearch 引导的可复现研究 pipelines</strong>
+          <span>Agent 检索论文、官方 artifacts、代码和数据集，然后记录 evidence、GT references、manifests、lineage 和 research_prior.json。</span>
         </div>
       </div>
     </div>
 
     <div class="research-gallery-block">
       <div class="research-gallery-head">
-        <h3>Pipeline & Gallery Snapshots</h3>
-        <p>Visual checkpoints for the edit route, universal paper synthesis, VLM review, and one-page handoff.</p>
+        <h3>Pipeline 与 Gallery 快照</h3>
+        <p>展示 edit route、universal 论文综合、VLM review 和单页交付的可视化检查点。</p>
       </div>
       <div class="gallery-scroll-wrapper">
         <button class="gallery-scroll-btn left" onclick="scrollResearchGallery(-1)" aria-label="Previous research gallery items">‹</button>
@@ -1655,16 +1655,16 @@ em{font-style:italic;color:var(--body-strong)}
             <img src="images/extracted/index3/image-04-6de6001048e1.png" alt="Multi-case image edit contact sheet" onclick="openLightbox(this)">
             <div class="gallery-info">
               <div class="gallery-tag">Edit Route</div>
-              <div class="gallery-obj-name">Multi-case edit gallery</div>
-              <div class="gallery-meta">Parallel edit prompts, references, and generated outputs</div>
+              <div class="gallery-obj-name">多案例 edit gallery</div>
+              <div class="gallery-meta">并行 edit prompts、references 和生成结果</div>
             </div>
           </div>
           <div class="gallery-card">
             <img src="images/extracted/index3/image-05-c1f9c29473cc.jpg" alt="Four-paper universal mode case comparison sheet" onclick="openLightbox(this)">
             <div class="gallery-info">
               <div class="gallery-tag">Universal Mode</div>
-              <div class="gallery-obj-name">Four-paper case synthesis</div>
-              <div class="gallery-meta">Shared construction requirements distilled from related work</div>
+              <div class="gallery-obj-name">四篇论文案例综合</div>
+              <div class="gallery-meta">从相关工作中提炼出的共享构建需求</div>
             </div>
           </div>
           <div class="gallery-card research-tall">
@@ -1672,15 +1672,15 @@ em{font-style:italic;color:var(--body-strong)}
             <div class="gallery-info">
               <div class="gallery-tag">Review Loop</div>
               <div class="gallery-obj-name">VLM review contact sheet</div>
-              <div class="gallery-meta">Candidate renders packaged with review-ready context</div>
+              <div class="gallery-meta">候选渲染结果与 review-ready context 打包展示</div>
             </div>
           </div>
           <div class="gallery-card">
             <img src="images/extracted/index3/image-07-c5402412b014.png" alt="One-page research and visual results handoff preview" onclick="openLightbox(this)">
             <div class="gallery-info">
-              <div class="gallery-tag">Handoff</div>
-              <div class="gallery-obj-name">One-page research handoff</div>
-              <div class="gallery-meta">Compact summary for downstream generation review</div>
+              <div class="gallery-tag">交付</div>
+              <div class="gallery-obj-name">单页研究交付</div>
+              <div class="gallery-meta">面向下游生成 review 的紧凑摘要</div>
             </div>
           </div>
         </div>
@@ -1692,17 +1692,17 @@ em{font-style:italic;color:var(--body-strong)}
     <div class="robot-route-case">
       <div class="robot-route-head">
         <div>
-          <div class="robot-route-kicker">Single-Image Route Case</div>
+          <div class="robot-route-kicker">单图 Route 案例</div>
           <h3>Robot Safety Signal: T2I → Edit → I2V</h3>
           <p>
-            A compact three-stage example from one accepted image. The route starts with a text-to-image base render, promotes the selected frame through targeted image editing, then uses the edited result as the anchor for short motion synthesis.
+            这是从一张已接受图像出发的三阶段示例。route 先生成 text-to-image 基础图，再通过定向 image editing 推进选中帧，最后以编辑结果作为短运动合成的 anchor。
           </p>
         </div>
         <div class="robot-route-stats">
-          <div class="robot-route-stat"><strong>1</strong><span>Base Image</span></div>
+          <div class="robot-route-stat"><strong>1</strong><span>基础图像</span></div>
           <div class="robot-route-stat"><strong>1</strong><span>Edit Pass</span></div>
           <div class="robot-route-stat"><strong>1</strong><span>I2V Clip</span></div>
-          <div class="robot-route-stat"><strong>Mix</strong><span>Strategy</span></div>
+          <div class="robot-route-stat"><strong>混合</strong><span>策略</span></div>
         </div>
       </div>
 
@@ -1713,8 +1713,8 @@ em{font-style:italic;color:var(--body-strong)}
           </div>
           <div class="robot-stage-info">
             <div class="robot-stage-tag">T2I Base</div>
-            <div class="robot-stage-title">Initial robot render</div>
-            <p class="robot-stage-desc">Clean lab robot scene with a blue transparent cube held at the center.</p>
+            <div class="robot-stage-title">初始机器人渲染</div>
+            <p class="robot-stage-desc">干净的实验室机器人场景，中央握持一个蓝色透明立方体。</p>
           </div>
         </div>
         <div class="robot-stage-card">
@@ -1723,8 +1723,8 @@ em{font-style:italic;color:var(--body-strong)}
           </div>
           <div class="robot-stage-info">
             <div class="robot-stage-tag">Edit Pass</div>
-            <div class="robot-stage-title">Safety signal added</div>
-            <p class="robot-stage-desc">Targeted edit adds a green status light and a front safety mark while preserving pose and scene layout.</p>
+            <div class="robot-stage-title">加入安全信号</div>
+            <p class="robot-stage-desc">定向 edit 在保留姿态和场景布局的同时，加入绿色状态灯和前部安全标记。</p>
           </div>
         </div>
         <div class="robot-stage-card">
@@ -1733,8 +1733,8 @@ em{font-style:italic;color:var(--body-strong)}
           </div>
           <div class="robot-stage-info">
             <div class="robot-stage-tag">I2V Output</div>
-            <div class="robot-stage-title">Motion-ready result</div>
-            <p class="robot-stage-desc">The edited image becomes the visual anchor for a short image-to-video generation pass.</p>
+            <div class="robot-stage-title">可用于运动生成的结果</div>
+            <p class="robot-stage-desc">编辑后的图像成为短 image-to-video 生成 pass 的视觉 anchor。</p>
           </div>
         </div>
       </div>
@@ -1742,70 +1742,70 @@ em{font-style:italic;color:var(--body-strong)}
       <div class="robot-strategy-board">
         <div class="robot-strategy-head">
           <div>
-            <h4>Serial / Parallel Strategy Orchestration</h4>
-            <p>Use parallel search where alternatives are cheap, then switch to serial promotion once a stable image anchor is selected.</p>
+            <h4>串行 / 并行策略编排</h4>
+            <p>当替代方案成本较低时使用并行搜索；一旦选中稳定图像 anchor，再切换到串行推进。</p>
           </div>
         </div>
         <div class="robot-strategy-grid">
           <div class="robot-strategy-step">
-            <span>Parallel</span>
-            <strong>Explore base candidates</strong>
-            <p>Fan out prompts, seeds, or style variants to quickly compare possible robot scenes.</p>
+            <span>并行</span>
+            <strong>探索基础候选</strong>
+            <p>展开 prompts、seeds 或风格变体，快速比较可能的机器人场景。</p>
           </div>
           <div class="robot-strategy-step">
-            <span>Select</span>
-            <strong>Promote one anchor</strong>
-            <p>Choose the frame with the clearest pose, object placement, and scene consistency.</p>
+            <span>选择</span>
+            <strong>推进一个 anchor</strong>
+            <p>选择姿态、物体位置和场景一致性最清晰的一帧。</p>
           </div>
           <div class="robot-strategy-step">
-            <span>Serial</span>
-            <strong>Apply targeted edit</strong>
-            <p>Lock geometry and camera first, then add the safety indicator and status lights.</p>
+            <span>串行</span>
+            <strong>应用定向 edit</strong>
+            <p>先锁定几何和相机，再加入安全指示和状态灯。</p>
           </div>
           <div class="robot-strategy-step">
-            <span>Serial</span>
-            <strong>Generate motion</strong>
-            <p>Use the edited image as the input anchor for I2V so identity and visual edits carry forward.</p>
+            <span>串行</span>
+            <strong>生成运动</strong>
+            <p>将编辑后的图像作为 I2V 输入 anchor，使 identity 和视觉编辑延续下去。</p>
           </div>
         </div>
         <div class="robot-strategy-flow">
-          <strong>Parallel T2I search</strong><span>→</span>
-          <strong>Anchor selection</strong><span>→</span>
-          <strong>Serial edit</strong><span>→</span>
-          <strong>Serial I2V</strong><span>→</span>
-          <strong>Replayable handoff</strong>
+          <strong>并行 T2I 搜索</strong><span>→</span>
+          <strong>Anchor 选择</strong><span>→</span>
+          <strong>串行 edit</strong><span>→</span>
+          <strong>串行 I2V</strong><span>→</span>
+          <strong>可 replay 的交付</strong>
         </div>
       </div>
     </div>
 
     <div class="research-planner-board">
       <div class="research-planner-head">
-        <h3>Serial / Parallel Route Planner</h3>
-        <p>The agent turns the research prior into a route decision: run cheap branches together, cascade dependent steps only when needed, and keep the selected plan replayable through manifests and gallery records.</p>
+        <h3>串行 / 并行 Route Planner</h3>
+        <p>Agent 将 research prior 转化为 route 决策：将低成本分支一起运行，仅在必要时级联依赖步骤，并通过 manifests 和 gallery records 保持选定方案可 replay。</p>
       </div>
       <div class="research-planner-grid">
         <div class="research-planner-card">
-          <div class="research-planner-kicker">Parallel</div>
-          <div class="research-planner-title">Fan-out candidates</div>
-          <p>Run t2i, edit, or i2v candidates side by side when the task needs diversity, fast comparison, or multiple visual hypotheses.</p>
+          <div class="research-planner-kicker">并行</div>
+          <div class="research-planner-title">展开候选</div>
+          <p>当任务需要多样性、快速比较或多个视觉假设时，并排运行 t2i、edit 或 i2v 候选。</p>
         </div>
         <div class="research-planner-card">
-          <div class="research-planner-kicker">Serial</div>
-          <div class="research-planner-title">Cascade dependencies</div>
-          <p>Chain image -> edit -> i2v or image -> 3D -> Blender when later stages need validated upstream artifacts.</p>
+          <div class="research-planner-kicker">串行</div>
+          <div class="research-planner-title">级联依赖</div>
+          <p>当后续阶段需要已验证的上游 artifacts 时，串联 image -> edit -> i2v 或 image -> 3D -> Blender。</p>
         </div>
         <div class="research-planner-card">
-          <div class="research-planner-kicker">Plan Choice</div>
-          <div class="research-planner-title">Score route utility</div>
-          <p>Select the lowest-risk plan from cost, source coverage, reference availability, expected quality, and replay requirements.</p>
+          <div class="research-planner-kicker">方案选择</div>
+          <div class="research-planner-title">评估 route utility</div>
+          <p>从成本、来源覆盖、reference 可用性、预期质量和 replay 要求中选择风险最低的方案。</p>
         </div>
       </div>
       <div class="research-route-band">
         <strong>WebSearch prior</strong><span>-></span>
-        <strong>Source plan</strong><span>-></span>
-        <strong>Route scoring</strong><span>-></span>
-        <strong>Serial / parallel execution</strong><span>-></span>
-        <strong>Gallery handoff</strong>
+        <strong>来源方案</strong><span>-></span>
+        <strong>Route 评分</strong><span>-></span>
+        <strong>串行 / 并行执行</strong><span>-></span>
+        <strong>Gallery 交付</strong>
       </div>
     </div>
 
@@ -1813,30 +1813,30 @@ em{font-style:italic;color:var(--body-strong)}
       <div class="research-route-stack">
         <div class="research-mode-grid">
           <div class="research-mode-card">
-            <div class="research-mode-kicker">Paper</div>
+            <div class="research-mode-kicker">论文</div>
             <div class="research-mode-title">Single-Paper Mode</div>
-            <p class="research-mode-desc">Reproduce a target paper by separating official artifacts from generated proxies, then recording dataset method, metrics, GT references, and missing-assets decisions.</p>
+            <p class="research-mode-desc">通过区分官方 artifacts 和生成代理来复现目标论文，并记录数据集方法、metrics、GT references 以及缺失资产决策。</p>
           </div>
           <div class="research-mode-card">
             <div class="research-mode-kicker">Topic</div>
             <div class="research-mode-title">Universal Mode</div>
-            <p class="research-mode-desc">Search 3-5 related papers, extract shared dataset requirements, and synthesize a reusable plan for generation, evaluation, and traceable outputs.</p>
+            <p class="research-mode-desc">搜索 3-5 篇相关论文，提取共享数据集需求，并综合出可用于生成、评价和可追溯输出的复用方案。</p>
           </div>
         </div>
 
         <div class="worldmodel-evidence research-route-summary">
           <h3>Research Handoff</h3>
           <ul class="worldmodel-list">
-            <li>Agent-run WebSearch and paper reading, with DataEvolver preserving source notes and trace events.</li>
-            <li>Dynamic route planning chooses when to run t2i, edit, i2v, and 3D in sequence or in parallel.</li>
-            <li>Official open datasets and evaluation criteria are treated as GT references, not replaced by VLM-only acceptance.</li>
-            <li>Every accepted route exports prompts, manifests, review sheets, and replayable handoff records.</li>
+            <li>由 agent 执行 WebSearch 和论文阅读，DataEvolver 保留来源笔记和 trace events。</li>
+            <li>动态 route planning 决定何时串行或并行运行 t2i、edit、i2v 与 3D。</li>
+            <li>官方开放数据集和评价标准会作为 GT references，而不是被 VLM-only acceptance 取代。</li>
+            <li>每条被接受的 route 都会导出 prompts、manifests、review sheets 和可 replay 的交付记录。</li>
           </ul>
           <div class="worldmodel-chip-row">
             <span class="worldmodel-chip">WebSearch-guided</span>
             <span class="worldmodel-chip">single-paper</span>
             <span class="worldmodel-chip">universal</span>
-            <span class="worldmodel-chip">dynamic plan</span>
+            <span class="worldmodel-chip">动态方案</span>
             <span class="worldmodel-chip">research_prior.json</span>
           </div>
         </div>
@@ -1852,17 +1852,17 @@ em{font-style:italic;color:var(--body-strong)}
 <!-- HYWorld World Model Scene Reconstruction -->
 <section class="section" id="worldmodel">
   <div class="section-inner">
-    <div class="section-label">Scene Context</div>
-    <h2 class="section-title">HYWorld / WorldMirror as a 3D Route Enhancer</h2>
+    <div class="section-label">场景上下文</div>
+    <h2 class="section-title">作为 3D Route 增强项的 HYWorld / WorldMirror</h2>
     <p class="section-desc">
-      HYWorld / WorldMirror is an optional <code>world_model</code> route for strengthening the 3D reconstruction track. It builds scene context before object insertion, then requires contract-backed geometry, pure-scene multi-view renders, manifests, and lineage records.
+      HYWorld / WorldMirror 是一个可选的 <code>world_model</code> route，用于增强 3D reconstruction 路线。它会在物体插入前构建场景上下文，并要求 contract-backed geometry、pure-scene multi-view renders、manifests 和 lineage records。
     </p>
 
     <div class="visual-frame">
       <div class="visual-frame-inner">
         <img src="images/extracted/index3/image-10-620cde72f0b9.png" alt="HYWorld automated 3D scene reconstruction pipeline">
         <div class="visual-caption">
-          <strong>Optional scene context route</strong>
+          <strong>可选场景上下文 route</strong>
           <span>Prompt or image → HY-Pano → HYWorld / WorldMirror geometry → Blender scene contract → pure-scene validation → object insertion.</span>
         </div>
       </div>
@@ -1872,20 +1872,20 @@ em{font-style:italic;color:var(--body-strong)}
       <div class="card-grid">
         <div class="card">
           <h3 class="card-title">Contract-Backed Geometry</h3>
-          <p class="card-desc">HY-Pano creates a 360° context; HYWorld and WorldMirror reconstruct depth, camera priors, support surfaces, and scene geometry instead of accepting a fixed panorama shell.</p>
+          <p class="card-desc">HY-Pano 生成 360° context；HYWorld 和 WorldMirror 重建 depth、camera priors、support surfaces 与 scene geometry，而不是接受固定的 panorama shell。</p>
         </div>
         <div class="card">
-          <h3 class="card-title">Traceable Review</h3>
-          <p class="card-desc">The route preserves pure-scene renders, placement contracts, support checks, and lineage hashes before any object-scene render can be promoted.</p>
+          <h3 class="card-title">可追溯 Review</h3>
+          <p class="card-desc">在任何 object-scene render 被推进前，该 route 会保留 pure-scene renders、placement contracts、support checks 和 lineage hashes。</p>
         </div>
       </div>
       <div class="worldmodel-evidence">
         <h3>Route Records</h3>
         <ul class="worldmodel-list">
-          <li>Preserved run artifacts and SHA-256 manifests for HY-Pano and full worldgen.</li>
-          <li>Pure-scene multi-view renders before object insertion.</li>
-          <li>Mesh-raycast support placement with scene-camera matching.</li>
-          <li>Final object-scene reports include RGB, masks, depth, normals, metadata gates, and lineage instead of VLM-only acceptance.</li>
+          <li>保留 HY-Pano 与完整 worldgen 的运行 artifacts 和 SHA-256 manifests。</li>
+          <li>物体插入前的 pure-scene multi-view renders。</li>
+          <li>带 scene-camera matching 的 mesh-raycast support placement。</li>
+          <li>最终 object-scene reports 包含 RGB、masks、depth、normals、metadata gates 和 lineage，而不是 VLM-only acceptance。</li>
         </ul>
         <div class="worldmodel-chip-row">
           <span class="worldmodel-chip">world_model profile</span>
@@ -1902,16 +1902,16 @@ em{font-style:italic;color:var(--body-strong)}
           <div class="hyworld-case-kicker">720p 3D Route Case Pack</div>
           <h3>HYWorld Qwen2.5-12B In-place Object Rotation</h3>
           <p>
-            A compact preview extracted from the zipped report. It packages two HYWorld scenes, fixed-camera source RGB backgrounds, mesh-zbuffer object placement, eight yaw angles per object, and validation records for replayable 3D dataset construction.
+            这是从压缩报告中抽出的紧凑预览，打包了两个 HYWorld scenes、固定相机 source RGB backgrounds、mesh-zbuffer object placement、每个物体八个 yaw angles，以及用于可 replay 3D 数据集构建的 validation records。
           </p>
         </div>
         <div class="hyworld-case-stats">
-          <div class="hyworld-case-stat"><strong>2</strong><span>Scenes</span></div>
-          <div class="hyworld-case-stat"><strong>2</strong><span>Objects</span></div>
+          <div class="hyworld-case-stat"><strong>2</strong><span>场景</span></div>
+          <div class="hyworld-case-stat"><strong>2</strong><span>物体</span></div>
           <div class="hyworld-case-stat"><strong>8</strong><span>Yaw Views</span></div>
-          <div class="hyworld-case-stat"><strong>720p</strong><span>Output</span></div>
-          <div class="hyworld-case-stat"><strong>34</strong><span>Enhanced RGB</span></div>
-          <div class="hyworld-case-stat"><strong>Pass</strong><span>Validation</span></div>
+          <div class="hyworld-case-stat"><strong>720p</strong><span>输出</span></div>
+          <div class="hyworld-case-stat"><strong>34</strong><span>增强 RGB</span></div>
+          <div class="hyworld-case-stat"><strong>通过</strong><span>验证</span></div>
         </div>
       </div>
 
@@ -1920,25 +1920,25 @@ em{font-style:italic;color:var(--body-strong)}
           <img src="images/extracted/index3/image-11-81489ba71c53.jpg" alt="HYWorld scene 001 object 001 in-place rotation contact sheet" onclick="openLightbox(this)">
           <div class="hyworld-case-caption">
             <strong>Scene 001 / object 001</strong>
-            <span>Original bundled contact sheet: static camera, fixed world position, eight yaw samples.</span>
+            <span>原始打包 contact sheet：静态相机、固定世界位置、八个 yaw samples。</span>
           </div>
         </div>
         <div class="hyworld-contact-sheet">
           <img src="images/extracted/index3/image-12-47d0b541d16d.jpg" alt="HYWorld scene 002 object 009 in-place rotation contact sheet" onclick="openLightbox(this)">
           <div class="hyworld-case-caption">
             <strong>Scene 002 / object 009</strong>
-            <span>Original bundled contact sheet: second scene, same in-place rotation review checks.</span>
+            <span>原始打包 contact sheet：第二个场景，同样的原地旋转 review checks。</span>
           </div>
         </div>
       </div>
 
       <div class="hyworld-case-notes hyworld-case-notes-compact">
-        <h4>Validation Summary</h4>
+        <h4>验证摘要</h4>
         <ul>
-          <li>Scene static, camera static, and source RGB background preserved.</li>
-          <li>Object remains fixed in world space while rotating in place.</li>
-          <li>All yaw angles are visible after harmonization and super-resolution.</li>
-          <li>Manifest, lineage, masks, metadata, and validation report stay bundled with the archive.</li>
+          <li>场景静态、相机静态，并保留 source RGB background。</li>
+          <li>物体在原地旋转时保持固定世界坐标。</li>
+          <li>经过 harmonization 和 super-resolution 后，所有 yaw angles 都可见。</li>
+          <li>Manifest、lineage、masks、metadata 与 validation report 随 archive 一起保留。</li>
         </ul>
       </div>
     </div>
@@ -1948,18 +1948,18 @@ em{font-style:italic;color:var(--body-strong)}
 <!-- VLM Evolution Loop — Dark Navy Section -->
 <section class="section section-dark" id="evolution">
   <div class="section-inner">
-    <div class="section-label">Core Innovation</div>
-    <h2 class="section-title">Goal-Driven Loop Agents: Perceive, Diagnose, Act, Repeat</h2>
+    <div class="section-label">核心创新</div>
+    <h2 class="section-title">目标驱动 Loop Agents：感知、诊断、行动、重复</h2>
     <p class="section-desc">
-      In the 3D reconstruction route, a <em style="color:var(--on-dark)">goal-driven loop agent</em> perceives rendered outputs via VLM review, diagnoses semantic issues, selects targeted rendering adjustments from a structured action space, and repeats until quality goals are met.
+      在 3D reconstruction route 中， <em style="color:var(--on-dark)">goal-driven loop agent</em> 通过 VLM review 感知渲染结果，诊断语义问题，从结构化 action space 中选择定向渲染调整，并不断重复直到达到质量目标。
     </p>
 
     <div class="visual-frame">
       <div class="visual-frame-inner">
         <img src="images/extracted/index3/image-13-29b8dfddf415.svg" alt="DataEvolver closed-loop scene refinement pipeline">
         <div class="visual-caption">
-          <strong>Closed-loop scene refinement</strong>
-          <span>Render, review, act, and stop when the quality gate returns keep.</span>
+          <strong>闭环场景优化</strong>
+          <span>渲染、review、行动，并在 quality gate 返回 keep 时停止。</span>
         </div>
       </div>
     </div>
@@ -1970,7 +1970,7 @@ em{font-style:italic;color:var(--body-strong)}
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
         <div class="loop-node-title">Blender Render</div>
-        <div class="loop-node-desc">Cycles 512spp at 1024×1024</div>
+        <div class="loop-node-desc">Cycles 512spp，1024×1024</div>
       </div>
       <div class="loop-arrow">→</div>
       <div class="loop-node">
@@ -1978,15 +1978,15 @@ em{font-style:italic;color:var(--body-strong)}
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
         <div class="loop-node-title">VLM Review</div>
-        <div class="loop-node-desc">Qwen3.5-35B free-form critique</div>
+        <div class="loop-node-desc">Qwen3.5-35B 自由形式 critique</div>
       </div>
       <div class="loop-arrow">→</div>
       <div class="loop-node">
         <div class="loop-node-icon">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </div>
-        <div class="loop-node-title">Agent Decision</div>
-        <div class="loop-node-desc">Reads review, selects from 24 actions</div>
+        <div class="loop-node-title">Agent 决策</div>
+        <div class="loop-node-desc">读取 review，并从 24 个 actions 中选择</div>
       </div>
       <div class="loop-arrow">→</div>
       <div class="loop-node">
@@ -1994,28 +1994,28 @@ em{font-style:italic;color:var(--body-strong)}
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <div class="loop-node-title">Quality Gate</div>
-        <div class="loop-node-desc">Verdict: keep / revise / reject</div>
+        <div class="loop-node-desc">判定：keep / revise / reject</div>
       </div>
     </div>
     <div class="loop-feedback">
       <div class="loop-feedback-line">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-        Loop continues until reviewer says <strong>keep</strong>
+        Loop 持续到 reviewer 给出 <strong>keep</strong>
       </div>
     </div>
 
     <div class="card-grid" style="margin-top:48px">
       <div class="card-dark">
-        <h3 class="card-title">Anti-Oscillation Control</h3>
-        <p class="card-desc">Sign-flip tracking, dead-zone detection, and step-scale scheduling prevent infinite loops and parameter thrashing.</p>
+        <h3 class="card-title">抗振荡控制</h3>
+        <p class="card-desc">通过 sign-flip tracking、dead-zone detection 和 step-scale scheduling 防止无限 loop 和参数震荡。</p>
       </div>
       <div class="card-dark">
-        <h3 class="card-title">Scene-Aware Rendering</h3>
-        <p class="card-desc">Objects can be inserted into configured Blender scenes or optional HYWorld / WorldMirror scene context with support-surface checks.</p>
+        <h3 class="card-title">场景感知渲染</h3>
+        <p class="card-desc">物体可插入配置好的 Blender scenes，或带 support-surface checks 的可选 HYWorld / WorldMirror scene context。</p>
       </div>
       <div class="card-dark">
-        <h3 class="card-title">24 Atomic Actions</h3>
-        <p class="card-desc">Structured action space across lighting, object transform, scene environment, and material property groups.</p>
+        <h3 class="card-title">24 个 Atomic Actions</h3>
+        <p class="card-desc">覆盖光照、物体 transform、场景环境和材质属性组的结构化 action space。</p>
       </div>
     </div>
   </div>
@@ -2024,28 +2024,28 @@ em{font-style:italic;color:var(--body-strong)}
 <!-- Dataset — Cream Card -->
 <section class="section section-card" id="dataset">
   <div class="section-inner">
-    <div class="section-label">Dataset</div>
-    <h2 class="section-title">DataEvolver-Rotate: View-Controlled Rotation Editing</h2>
+    <div class="section-label">数据集</div>
+    <h2 class="section-title">DataEvolver-Rotate：视角可控的旋转编辑</h2>
     <p class="section-desc">
-      A benchmark dataset for rotation-conditioned image editing. Each sample pairs a canonical front-view image with a target view specified in natural language.
+      一个用于 rotation-conditioned image editing 的 benchmark 数据集。每个样本将标准正面图与自然语言指定的目标视角配对。
     </p>
 
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-value">50</div>
-        <div class="stat-label">Unique Objects</div>
+        <div class="stat-label">唯一物体</div>
       </div>
       <div class="stat-card">
         <div class="stat-value">8</div>
-        <div class="stat-label">Viewpoints / Object</div>
+        <div class="stat-label">每个物体的视角</div>
       </div>
       <div class="stat-card">
         <div class="stat-value">350</div>
-        <div class="stat-label">Training Pairs</div>
+        <div class="stat-label">训练样本对</div>
       </div>
       <div class="stat-card">
         <div class="stat-value">3×A800</div>
-        <div class="stat-label">Infrastructure</div>
+        <div class="stat-label">基础设施</div>
       </div>
     </div>
 
@@ -2056,7 +2056,7 @@ em{font-style:italic;color:var(--body-strong)}
           <span class="code-block-dot y"></span>
           <span class="code-block-dot g"></span>
         </div>
-        <span class="code-block-lang">Python — Load Dataset</span>
+        <span class="code-block-lang">Python — 加载数据集</span>
       </div>
       <div class="code-block-body">
 <pre><span class="kw">import</span> json
@@ -2081,10 +2081,10 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 <!-- Gallery — Cream Canvas -->
 <section class="section" id="gallery">
   <div class="section-inner">
-    <div class="section-label">Gallery</div>
-    <h2 class="section-title">Scene-Aware Rendering Showcase</h2>
+    <div class="section-label">示例集</div>
+    <h2 class="section-title">场景感知渲染 Showcase</h2>
     <p class="section-desc">
-      Best VLM-gated renders across 7 diverse Blender scenes. Each object is automatically placed, lit, and iteratively refined by goal-driven loop agents.
+      展示 7 个不同 Blender scenes 中通过 VLM gate 的最佳渲染结果。每个物体都会由目标驱动 loop agents 自动放置、打光并迭代优化。
     </p>
 
     <div class="gallery-scroll-wrapper">
@@ -2284,39 +2284,39 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 <section class="section section-card">
   <div class="section-inner">
     <div class="section-label">Action Space</div>
-    <h2 class="section-title">24 Structured Atomic Actions</h2>
+    <h2 class="section-title">24 个结构化 Atomic Actions</h2>
     <p class="section-desc">
-      In the 3D reconstruction route, the agent selects from a discrete, structured action space to address VLM-identified rendering issues. Each action targets a bounded Blender parameter.
+      在 3D reconstruction route 中，agent 从离散、结构化的 action space 中选择动作，处理 VLM 识别出的渲染问题。每个 action 都对应一个有边界的 Blender 参数。
     </p>
 
     <div class="connector-grid">
       <div class="connector-tile">
-        <h4>Key Light Intensity</h4>
-        <p>×1.2 / ×0.8 multiplicative, bounded [0.5, 2.0]</p>
+        <h4>Key Light 强度</h4>
+        <p>×1.2 / ×0.8 乘法调整，边界 [0.5, 2.0]</p>
       </div>
       <div class="connector-tile">
-        <h4>Key Light Rotation</h4>
-        <p>±15° yaw step, bounded [-90°, 90°]</p>
+        <h4>Key Light 旋转</h4>
+        <p>±15° yaw 步长，边界 [-90°, 90°]</p>
       </div>
       <div class="connector-tile">
-        <h4>Env Light Intensity</h4>
-        <p>×1.2 / ×0.8 multiplicative, bounded [0.5, 2.0]</p>
+        <h4>环境光强度</h4>
+        <p>×1.2 / ×0.8 乘法调整，边界 [0.5, 2.0]</p>
       </div>
       <div class="connector-tile">
-        <h4>Env Rotation (Z)</h4>
-        <p>±30° step, bounded [-180°, 180°]</p>
+        <h4>环境旋转 (Z)</h4>
+        <p>±30° 步长，边界 [-180°, 180°]</p>
       </div>
       <div class="connector-tile">
-        <h4>Object Elevation</h4>
-        <p>±0.02 step, bounded [-0.1, 0.1]</p>
+        <h4>物体高度</h4>
+        <p>±0.02 步长，边界 [-0.1, 0.1]</p>
       </div>
       <div class="connector-tile">
-        <h4>Material Roughness</h4>
-        <p>±0.08 step, bounded [-0.3, 0.6]</p>
+        <h4>材质粗糙度</h4>
+        <p>±0.08 步长，边界 [-0.3, 0.6]</p>
       </div>
     </div>
     <p style="text-align:center;margin-top:24px;font-size:0.8125rem;color:var(--muted)">
-      + 18 more actions — see <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/configs/scene_action_space.json" target="_blank" rel="noopener">scene_action_space.json</a>
+      + 另有 18 个 actions — 见 <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/configs/scene_action_space.json" target="_blank" rel="noopener">scene_action_space.json</a>
     </p>
   </div>
 </section>
@@ -2324,10 +2324,10 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 <!-- Key Highlights — Dark Navy -->
 <section class="section section-dark">
   <div class="section-inner">
-    <div class="section-label">Why DataEvolver</div>
-    <h2 class="section-title">Key Differentiators</h2>
+    <div class="section-label">为什么选择 DataEvolver</div>
+    <h2 class="section-title">关键差异点</h2>
     <p class="section-desc">
-      What sets DataEvolver apart is not one model call, but the way agents choose routes, preserve run records, repair failures, and export reusable dataset construction traces.
+      DataEvolver 的差异不在于一次模型调用，而在于 agent 如何选择 routes、保留运行记录、修复失败并导出可复用的数据集构建 traces。
     </p>
 
     <div class="card-grid">
@@ -2335,29 +2335,29 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
         <div class="card-icon" style="background:rgba(93,184,114,0.15)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
-        <h3 class="card-title">Agent-Orchestrated Interfaces</h3>
-        <p class="card-desc">The agent can compose T2I, image edit, T2V, and image-to-3D routes in parallel, in series, or as hybrid strategies based on dataset goals.</p>
+        <h3 class="card-title">Agent 编排接口</h3>
+        <p class="card-desc">Agent 可以根据数据集目标，并行、串行或以混合策略组合 T2I、image edit、T2V 和 image-to-3D routes。</p>
       </div>
       <div class="card-dark">
         <div class="card-icon" style="background:rgba(204,120,92,0.15)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </div>
-        <h3 class="card-title">VLM-as-Feedback, Not Score</h3>
-        <p class="card-desc">Free-form natural language feedback provides semantic diagnosis that numeric scores cannot. The reviewer identifies <em style="color:var(--on-dark)">why</em> a render fails.</p>
+        <h3 class="card-title">VLM 作为反馈，而不是分数</h3>
+        <p class="card-desc">自由形式的自然语言反馈能提供数值分数无法表达的语义诊断。reviewer 会指出 <em style="color:var(--on-dark)">为什么</em> 一次渲染失败。</p>
       </div>
       <div class="card-dark">
         <div class="card-icon" style="background:rgba(93,184,166,0.15)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
-        <h3 class="card-title">Research-Grounded Pipelines</h3>
-        <p class="card-desc">WebSearch-guided research records source notes, dataset methods, official artifacts, and evaluation references before downstream generation.</p>
+        <h3 class="card-title">研究支撑的 Pipelines</h3>
+        <p class="card-desc">WebSearch 引导的研究会在下游生成前记录来源笔记、数据集方法、官方 artifacts 和评价 references。</p>
       </div>
       <div class="card-dark">
         <div class="card-icon" style="background:rgba(232,165,90,0.15)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
-        <h3 class="card-title">Evaluation-to-Optimization Path</h3>
-        <p class="card-desc">Accepted traces, failure cases, and generated evaluation sets can guide future LoRA tuning for stronger reconstruction and editing models.</p>
+        <h3 class="card-title">从评价到优化的路径</h3>
+        <p class="card-desc">已接受 traces、失败案例和生成的 evaluation sets 可用于指导后续 LoRA tuning，从而获得更强的重建和编辑模型。</p>
       </div>
     </div>
   </div>
@@ -2366,9 +2366,9 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 <!-- Tech Stack — Cream Card -->
 <section class="section section-card">
   <div class="section-inner">
-    <div class="section-label">Tech Stack</div>
-    <h2 class="section-title">Built With</h2>
-    <p class="section-desc">The models, frameworks, and traceability records powering DataEvolver's multimodal generation, 3D reconstruction, and research-prior workflows.</p>
+    <div class="section-label">技术栈</div>
+    <h2 class="section-title">构建技术</h2>
+    <p class="section-desc">支撑 DataEvolver 多模态生成、3D 重建和 research-prior workflows 的模型、框架和可追溯记录。</p>
 
     <div class="tag-grid">
       <span class="tag">Python 3.10+</span>
@@ -2395,10 +2395,10 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
 <!-- Getting Started — Cream Canvas -->
 <section class="section" id="start">
   <div class="section-inner">
-    <div class="section-label">Get Started</div>
-    <h2 class="section-title">Quick Start</h2>
+    <div class="section-label">开始使用</div>
+    <h2 class="section-title">快速开始</h2>
     <p class="section-desc">
-      Start with the lightweight dry-run path. It validates the setup shape and prints the local plan without downloading models, writing tokens, or launching GPU jobs.
+      从轻量 dry-run 路径开始。它会验证 setup 形态并打印本地计划，不下载模型、不写入 tokens，也不启动 GPU 作业。
     </p>
 
     <div class="code-block">
@@ -2408,7 +2408,7 @@ instruction = row[<span class="str">"instruction"</span>]</pre>
           <span class="code-block-dot y"></span>
           <span class="code-block-dot g"></span>
         </div>
-        <span class="code-block-lang">Shell — Setup</span>
+        <span class="code-block-lang">Shell — 设置</span>
       </div>
       <div class="code-block-body">
 <pre>git clone https://github.com/PRIS-CV/DataEvolver.git
@@ -2432,10 +2432,10 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
 <!-- Citation — Cream Card -->
 <section class="section section-card">
   <div class="section-inner" style="text-align:center">
-    <div class="section-label">Cite</div>
-    <h2 class="section-title">Citation</h2>
+    <div class="section-label">引用</div>
+    <h2 class="section-title">引用</h2>
     <p class="section-desc" style="margin:0 auto 32px">
-      If you use DataEvolver or DataEvolver-Rotate in your research, please cite our work.
+      如果你在研究中使用 DataEvolver 或 DataEvolver-Rotate，请引用我们的工作。
     </p>
 
     <div class="code-block" style="text-align:left;max-width:720px;margin:0 auto">
@@ -2469,10 +2469,10 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
 <!-- Recognition — Cream Canvas -->
 <section class="section" id="recognition">
   <div class="section-inner">
-    <div class="section-label">Recognition</div>
+    <div class="section-label">荣誉</div>
     <h2 class="section-title">Honors &amp; Recognition</h2>
     <p class="section-desc">
-      Public recognition for DataEvolver across academic workshop review and agent-for-science competition presentation.
+      DataEvolver 在学术 workshop review 和 agent-for-science competition presentation 中获得的公开认可。
     </p>
 
     <div class="recognition-grid">
@@ -2480,7 +2480,7 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
         <div class="recognition-item">
           <div class="recognition-kicker">🏆 Oral Presentation</div>
           <h3>AIDataSci 2026, KDD 2026 Workshop</h3>
-          <p>DataEvolver was accepted as an Oral Presentation for the AIDataSci 2026 workshop.</p>
+          <p>DataEvolver 被 AIDataSci 2026 workshop 接收为 Oral Presentation。</p>
           <div class="recognition-links">
             <a href="https://usail-hkust.github.io/aidatasci/" target="_blank" rel="noopener">Workshop</a>
             <a href="https://openreview.net/forum?id=8ppusILCIH" target="_blank" rel="noopener">OpenReview</a>
@@ -2489,7 +2489,7 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
         <div class="recognition-item">
           <div class="recognition-kicker">🎖️ Poster Presentation</div>
           <h3>2026 BAAI Conference Agent for Science Competition</h3>
-          <p>DataEvolver received a Certificate of Poster Presentation and was selected for on-site poster presentation.</p>
+          <p>DataEvolver 获得 Certificate of Poster Presentation，并入选现场 poster presentation。</p>
         </div>
       </div>
 
@@ -2510,11 +2510,11 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
 <section class="section">
   <div class="section-inner">
     <div class="cta-band">
-      <h2>Ready to Build Research-Grounded Data Pipelines?</h2>
-      <p>Clone the repository, run the safe dry-run, and choose either the multimodal generation route or the WebSearch-guided research route.</p>
+      <h2>准备构建有研究支撑的数据 pipeline 了吗？</h2>
+      <p>克隆仓库，运行安全 dry-run，然后选择多模态生成 route 或 WebSearch 引导的研究 route。</p>
       <a href="https://github.com/PRIS-CV/DataEvolver" class="btn btn-secondary" target="_blank" rel="noopener">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-        Get Started on GitHub
+        在 GitHub 上开始
       </a>
     </div>
   </div>
@@ -2529,30 +2529,30 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
     </div>
     <div class="footer-grid">
       <div class="footer-col">
-        <h4>Project</h4>
+        <h4>项目</h4>
         <a href="https://github.com/PRIS-CV/DataEvolver" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://arxiv.org/abs/2605.01789" target="_blank" rel="noopener">Technical Report</a>
-        <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
+        <a href="https://arxiv.org/abs/2605.01789" target="_blank" rel="noopener">技术报告</a>
+        <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/LICENSE" target="_blank" rel="noopener">许可证</a>
       </div>
       <div class="footer-col">
-        <h4>Resources</h4>
-        <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/README.md" target="_blank" rel="noopener">Documentation</a>
+        <h4>资源</h4>
+        <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/README.md" target="_blank" rel="noopener">文档</a>
         <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/configs/scene_action_space.json" target="_blank" rel="noopener">Action Space</a>
         <a href="https://github.com/PRIS-CV/DataEvolver/blob/main/configs/schemas/universal_3d_layout_dataset_schema.json" target="_blank" rel="noopener">Universal Schema</a>
       </div>
       <div class="footer-col">
         <h4>Pipeline</h4>
-        <a href="#pipeline">Overview</a>
+        <a href="#pipeline">概览</a>
         <a href="#research">Research Prior</a>
-        <a href="#worldmodel">Scene Context</a>
+        <a href="#worldmodel">场景上下文</a>
         <a href="#evolution">VLM Loop</a>
       </div>
       <div class="footer-col">
-        <h4>Connect</h4>
+        <h4>链接</h4>
         <a href="https://github.com/PRIS-CV/DataEvolver" target="_blank" rel="noopener">GitHub</a>
-        <a href="#gallery">Gallery</a>
-        <a href="#recognition">Recognition</a>
-        <a href="#start">Get Started</a>
+        <a href="#gallery">示例集</a>
+        <a href="#recognition">荣誉</a>
+        <a href="#start">开始使用</a>
       </div>
     </div>
     <div class="footer-bottom">

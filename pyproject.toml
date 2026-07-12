@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dataevolver"
+version = "0.0.0"
+description = "Source package boundary for DataEvolver."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+
+[project.optional-dependencies]
+# Pip-managed runtime packages only. HYWorld vendor source checkouts, weights,
+# Blender, and CUDA/native extensions remain target-host setup steps.
+hyworld = [
+    "accelerate",
+    "anthropic",
+    "basicsr",
+    "diffusers",
+    "diffsynth",
+    "ftfy",
+    "gsplat",
+    "huggingface-hub",
+    "imageio",
+    "iopath",
+    "lpips",
+    "moviepy==1.0.3",
+    "nerfview",
+    "numpy<2",
+    "opencv-python",
+    "opentelemetry-api",
+    "opentelemetry-exporter-otlp-proto-http",
+    "opentelemetry-sdk",
+    "pillow",
+    "qwen-vl-utils",
+    "realesrgan",
+    "rembg[gpu]",
+    "rtree",
+    "safetensors",
+    "scikit-image",
+    "scipy",
+    "timm",
+    "tokenizers==0.22.1",
+    "torch",
+    "torchvision",
+    "transformers",
+    "trimesh",
+]
+test = [
+    "pytest",
+    "numpy<2",
+]
+
+[project.scripts]
+dataevolver-production = "dataevolver.cli.production:main"
+dataevolver-multimodal = "dataevolver.workflows.multimodal.run_multimodal_dataset:main"
+dataevolver-stage0-web-research = "dataevolver.tools.stage0_web_research:main"
+dataevolver-hyworld-pano = "dataevolver.workflows.hyworld.scene_pano:main"
+dataevolver-hyworld-full-worldgen = "dataevolver.workflows.hyworld.full_worldgen:main"
+dataevolver-hyworld-finalize-report = "dataevolver.workflows.hyworld.finalize_object_scene_report:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+dataevolver = ["cli/*.sh"]
+
+[tool.pytest.ini_options]
+testpaths = ["src/dataevolver/testing"]

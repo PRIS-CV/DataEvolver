@@ -1,1 +1,0 @@
-/home/wuwenzhuo/blender-4.24/blender -b -P /home/wuwenzhuo/blender/scripts/4-2.py
