@@ -38,6 +38,12 @@
 
 ---
 
+> [!NOTE]
+> **研究更新：DataRSI**  
+> 我们的 ICASSP 2027 论文研究 DataRSI 基于 DataEvolver 的合成数据构建基础设施，专注于失败驱动的有界合成监督修订协议。  
+> [[DataRSI 项目主页]](https://pris-cv.github.io/DataRSI/) &bull; [[DataRSI 代码仓库]](https://github.com/PRIS-CV/DataRSI)
+
+---
 ## 为什么是 DataEvolver？
 
 DataEvolver 将合成数据构建转化为一个 **目标驱动的优化闭环**：VLM 用自然语言审查渲染结果，Agent 诊断具体问题，并通过有界参数更新重新渲染，直到样本达到可保留质量。
