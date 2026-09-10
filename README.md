@@ -38,6 +38,12 @@
 
 ---
 
+> [!NOTE]
+> **Research update: DataRSI**  
+> Our ICASSP 2027 work, DataRSI, builds on DataEvolver's synthetic-data construction infrastructure and studies failure-driven bounded revisions of synthetic supervision.  
+> [[DataRSI Project]](https://pris-cv.github.io/DataRSI/) &bull; [[DataRSI Code]](https://github.com/PRIS-CV/DataRSI)
+
+---
 ## Why DataEvolver?
 
 DataEvolver turns synthetic data construction into a **goal-driven optimization loop**: a VLM reviews rendered scenes in natural language, an agent diagnoses concrete rendering issues, and the scene is re-rendered with targeted parameter updates until the result is worth keeping.
