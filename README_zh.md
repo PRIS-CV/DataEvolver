@@ -5,6 +5,11 @@
 <h1 align="center">DataEvolver</h1>
 
 <p align="center">
+  <strong><a href="https://github.com/PRIS-CV/DataRSI">DataRSI</a> 的配套工程仓库</strong><br/>
+  为 <em>DataRSI: A 3D Data Harness for Failure-to-Data Evolution</em> 提供合成数据构建基础设施。
+</p>
+
+<p align="center">
   <strong>基于 VLM 引导迭代渲染的自主合成数据构建系统</strong><br/>
   通过 3D 渲染、VLM 审查和参数修复闭环，构建逼真、场景感知、训练就绪的合成数据。
 </p>
@@ -15,7 +20,8 @@
 </p>
 
 <p align="center">
-  <a href="https://arxiv.org/abs/2605.01789"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b?logo=arxiv&logoColor=white" alt="Paper: arXiv"/></a>
+  <a href="https://github.com/PRIS-CV/DataRSI"><img src="https://img.shields.io/badge/DataRSI-Research%20Repository-0057b8?logo=github&logoColor=white" alt="DataRSI 论文仓库"/></a>
+  <a href="https://arxiv.org/abs/2605.01789"><img src="https://img.shields.io/badge/DataEvolver-Paper-b31b1b?logo=arxiv&logoColor=white" alt="DataEvolver 论文：arXiv"/></a>
   <a href="https://pris-cv.github.io/DataEvolver/"><img src="https://img.shields.io/badge/Website-Project%20Page-1f6feb?logo=githubpages&logoColor=white" alt="Project website"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-green" alt="License: Apache-2.0"/></a>
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white" alt="Python 3.10+"/>
@@ -24,8 +30,9 @@
 
 <p align="center">
   <a href="README.md">🇬🇧 English</a> •
+  <a href="#dataevolver-与-datarsi">DataRSI 配套工程</a> •
   <a href="https://pris-cv.github.io/DataEvolver/">🌐 Website</a> •
-  <a href="https://arxiv.org/abs/2605.01789">📄 Paper</a> •
+  <a href="https://arxiv.org/abs/2605.01789">📄 DataEvolver 论文</a> •
   <a href="#荣誉展示">🏆 荣誉展示</a> •
   <a href="#dataevolver-rotate">🧩 数据集: DataEvolver-Rotate</a>
 </p>
@@ -37,6 +44,19 @@
 </p>
 
 ---
+
+## DataEvolver 与 DataRSI
+
+**这是我们为 [DataRSI](https://github.com/PRIS-CV/DataRSI) 维护的配套工程仓库。** DataEvolver 提供合成数据构建基础设施，DataRSI 在此基础上研究由模型失败驱动、预算和准入规则固定的有界数据修订过程。
+
+| 仓库 | 定位 | 使用入口 |
+|---|---|---|
+| **DataEvolver**（本仓库） | 工程基础设施：资产生成、3D 重建、场景渲染、VLM 审查与修复、多模态数据导出。 | 下文的安装与运行说明 |
+| **[DataRSI](https://github.com/PRIS-CV/DataRSI)** | 论文 *DataRSI: A 3D Data Harness for Failure-to-Data Evolution* 的研究框架、注册协议和实验材料。 | [论文仓库 README](https://github.com/PRIS-CV/DataRSI#readme) · [实验复现指南](https://github.com/PRIS-CV/DataRSI/blob/main/docs/REPRODUCTION.md) |
+
+DataRSI 通过 **Failure-to-Data Feedback（失败到数据反馈）** 接口连接 **Data Self-Evolution Loop（数据自进化闭环）** 与 **Model Admission Loop（模型准入闭环）**。每轮修订预先固定预算和准入规则，根据目标区域收益与受保护区域的退化检查，决定晋升或回滚候选模型。
+
+DataEvolver 继续使用现有仓库名称、Python 包名（`dataevolver`）和命令行接口。论文的固定实验设置、结果与引用信息以 DataRSI 论文仓库为准。详见[仓库关系与引用说明](docs/DATARSI_RELATION.md)。
 
 ## 为什么是 DataEvolver？
 

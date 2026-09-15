@@ -5,6 +5,11 @@
 <h1 align="center">DataEvolver</h1>
 
 <p align="center">
+  <strong>Engineering companion repository for <a href="https://github.com/PRIS-CV/DataRSI">DataRSI</a></strong><br/>
+  Synthetic-data construction infrastructure supporting <em>DataRSI: A 3D Data Harness for Failure-to-Data Evolution</em>.
+</p>
+
+<p align="center">
   <strong>Autonomous Synthetic Data Construction via VLM-Guided Iterative Rendering</strong><br/>
   Build photorealistic, scene-aware training data with a closed loop of 3D rendering, VLM review, and targeted parameter repair.
 </p>
@@ -15,7 +20,8 @@
 </p>
 
 <p align="center">
-  <a href="https://arxiv.org/abs/2605.01789"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b?logo=arxiv&logoColor=white" alt="Paper: arXiv"/></a>
+  <a href="https://github.com/PRIS-CV/DataRSI"><img src="https://img.shields.io/badge/DataRSI-Research%20Repository-0057b8?logo=github&logoColor=white" alt="DataRSI research repository"/></a>
+  <a href="https://arxiv.org/abs/2605.01789"><img src="https://img.shields.io/badge/DataEvolver-Paper-b31b1b?logo=arxiv&logoColor=white" alt="DataEvolver paper: arXiv"/></a>
   <a href="https://pris-cv.github.io/DataEvolver/"><img src="https://img.shields.io/badge/Website-Project%20Page-1f6feb?logo=githubpages&logoColor=white" alt="Project website"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-green" alt="License: Apache-2.0"/></a>
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white" alt="Python 3.10+"/>
@@ -24,8 +30,9 @@
 
 <p align="center">
   <a href="README_zh.md">🇨🇳 中文</a> •
+  <a href="#dataevolver-and-datarsi">DataRSI Companion</a> •
   <a href="https://pris-cv.github.io/DataEvolver/">🌐 Website</a> •
-  <a href="https://arxiv.org/abs/2605.01789">📄 Paper</a> •
+  <a href="https://arxiv.org/abs/2605.01789">📄 DataEvolver Paper</a> •
   <a href="#honors--recognition">🏆 Recognition</a> •
   <a href="#dataevolver-rotate">🧩 Dataset: DataEvolver-Rotate</a>
 </p>
@@ -37,6 +44,19 @@
 </p>
 
 ---
+
+## DataEvolver and DataRSI
+
+**This is our engineering companion repository for [DataRSI](https://github.com/PRIS-CV/DataRSI).** DataEvolver provides the synthetic-data construction infrastructure on which DataRSI builds its failure-driven, bounded revision framework.
+
+| Repository | Role | Start here |
+|---|---|---|
+| **DataEvolver** (this repository) | Engineering infrastructure for asset generation, 3D reconstruction, scene rendering, VLM review/repair, and multimodal data export. | [Quick Start](#quick-start) |
+| **[DataRSI](https://github.com/PRIS-CV/DataRSI)** | Research framework, registered protocols, and experimental artifacts for *DataRSI: A 3D Data Harness for Failure-to-Data Evolution*. | [Research README](https://github.com/PRIS-CV/DataRSI#readme) · [Reproduction guide](https://github.com/PRIS-CV/DataRSI/blob/main/docs/REPRODUCTION.md) |
+
+DataRSI connects a **Data Self-Evolution Loop** and a **Model Admission Loop** through a **Failure-to-Data Feedback** interface. Its registered protocol freezes the revision budget and admission rules; candidate model updates are promoted or rolled back based on target utility and protected-region regression checks.
+
+DataEvolver retains its existing repository name, Python package (`dataevolver`), and command-line interfaces. For the paper's frozen experimental settings, results, and citation metadata, use the DataRSI research repository. See [the repository relationship guide](docs/DATARSI_RELATION.md) for scope and citation guidance.
 
 ## Why DataEvolver?
 
