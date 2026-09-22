@@ -12,6 +12,12 @@ test('build contains the homepage, subpage, six original frames and runtime conf
     assert.deepEqual(await readFile(resolve(destination, image)), await readFile(resolve(root, 'frontend', image)));
   }
   assert.match(await readFile(resolve(destination, 'traces/config.js'), 'utf8'), /"apiBase":"\/"/);
+  for (const [file, lang, label] of [['index.html', 'en', 'Traces'], ['index_zh.html', 'zh', '过程演示']]) {
+    const homepage = await readFile(resolve(destination, file), 'utf8');
+    const navigation = homepage.match(/<nav class="nav">[\s\S]*?<\/nav>/)?.[0];
+    assert.ok(navigation, `${file} includes the main navigation`);
+    assert.ok(navigation.includes(`<li class="nav-traces"><a href="traces/?lang=${lang}">${label}</a></li>`), `${file} links directly to the localized Trace subpage from the header`);
+  }
   await assert.rejects(access(resolve(destination, 'traces/build_showcase.py')));
   await assert.rejects(access(resolve(destination, 'traces/data-source.test.mjs')));
   await build({ apiBase: '' }); // Leave the default Pages-ready static build.
