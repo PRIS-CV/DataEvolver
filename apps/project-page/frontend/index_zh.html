@@ -166,11 +166,12 @@ em{font-style:italic;color:var(--body-strong)}
   will-change:transform;
 }
 .nav-inner{
-  max-width:var(--max-width);margin:0 auto;
-  display:flex;align-items:center;justify-content:space-between;
+  max-width:1440px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
   padding:0 32px;height:100%;
 }
 .nav-logo{
+  flex-shrink:0;white-space:nowrap;
   font-family:var(--font-display);
   font-size:1.4rem;font-weight:500;
   color:var(--ink);
@@ -180,16 +181,19 @@ em{font-style:italic;color:var(--body-strong)}
 .nav-logo .logo-img{
   height:28px;width:auto;border-radius:6px;
 }
-.nav-links{display:flex;gap:26px;list-style:none}
+.nav-links{display:flex;align-items:center;gap:18px;list-style:none;white-space:nowrap}
 .nav-links a{
+  display:inline-flex;align-items:center;min-height:44px;
   color:var(--muted);font-size:0.78rem;font-weight:500;
   font-family:var(--font-code);
   letter-spacing:0.02em;
   transition:color var(--transition);
 }
 .nav-links a:hover{color:var(--primary-active)}
+.nav-traces a{color:var(--primary-active);font-weight:600}
+.nav-traces a:focus-visible{outline:2px solid var(--primary-active);outline-offset:4px;border-radius:4px}
 .nav-actions{
-  display:flex;align-items:center;gap:12px;
+  display:flex;align-items:center;gap:12px;flex-shrink:0;
 }
 .language-switch{
   display:inline-flex;align-items:center;
@@ -1540,13 +1544,22 @@ em{font-style:italic;color:var(--body-strong)}
 }
 
 /* ===== Responsive ===== */
+@media(max-width:1280px){
+  .nav-inner{gap:16px;padding:0 24px}
+  .nav-links{gap:16px}
+  .lang-full{display:none}
+  .lang-short{display:inline}
+}
+@media(max-width:1100px){
+  .nav-links li:not(.nav-traces){display:none}
+}
 @media(max-width:1024px){
   .hero-visual{max-width:none}
 }
 @media(max-width:768px){
   :root{--section-pad:72px}
-  .nav-links{display:none}
-  .nav-inner{padding:0 16px}
+  .nav-inner{padding:0 16px;gap:8px}
+  .nav-logo{font-size:1.2rem;gap:8px}
   .nav-actions{gap:8px}
   .language-switch a{padding:0 9px;font-size:0.75rem}
   .lang-full{display:none}
@@ -1633,6 +1646,12 @@ html[data-theme="light"] .theme-toggle-knob{
 .theme-toggle-icon.icon-sun{left:0}
 .theme-toggle-icon.icon-moon{right:0}
 .theme-toggle-icon svg{width:11px;height:11px;display:block}
+@media(max-width:360px){
+  .nav-inner{padding:0 12px;gap:6px}
+  .nav-logo{font-size:1rem;gap:6px}
+  .nav-logo .logo-img{height:24px}
+  .nav-actions{gap:6px}
+}
 html[data-theme="dark"] .theme-toggle-icon.icon-moon{opacity:1;color:var(--primary-active)}
 html[data-theme="light"] .theme-toggle-icon.icon-sun{opacity:1;color:var(--primary-active)}
 html.theme-anim,html.theme-anim body,html.theme-anim *{
@@ -1661,6 +1680,7 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
       <li><a href="#research">研究</a></li>
       <li><a href="#worldmodel">场景上下文</a></li>
       <li><a href="#evolution">VLM Loop</a></li>
+      <li class="nav-traces"><a href="traces/?lang=zh">过程演示</a></li>
       <li><a href="#dataset">数据集</a></li>
       <li><a href="#gallery">示例集</a></li>
       <li><a href="#start">开始</a></li>
