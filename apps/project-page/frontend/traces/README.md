@@ -9,6 +9,23 @@ See [frontend and backend deployment](../../deploy/README.md).
 
 ## Evidence policy
 
+The featured Qwen / FLUX section is a separate historical **configuration
+comparison**, not a third continuous agent trace. It preserves six original
+images (reference, depth, two Qwen arms, FLUX baseline/retry), model names and
+source hashes in `model-cases.json`. Qwen-to-FLUX changes generators; the overall
+experiment remained blocked. No per-case metric is inferred from a summary.
+The read-only `/api/traces` contract still contains the original two traces;
+the comparison is a bundled static asset, including when the API is connected.
+
+To rebuild the comparison from an explicitly reviewed local archive:
+
+```sh
+node tooling/export-model-case.mjs PATH_TO_REVIEWED_ARCHIVE
+```
+
+This validates existing SHA256 records and copies original bytes. It does not
+reach a server, invoke a model, edit images or expose private source paths.
+
 - Original PNG bytes are preserved; source SHA256 hashes are included.
 - Ground-contact crops are display-only SVG viewports with identical image-space
   bounds; full frames remain visible. Realized cameras differ across rounds.

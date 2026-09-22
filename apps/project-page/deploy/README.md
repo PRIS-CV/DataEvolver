@@ -3,7 +3,9 @@
 公开入口：<https://pris-cv.github.io/DataEvolver/traces/?lang=zh>
 
 这是 Project Page 的**公开、只读 trace 展示服务**，不是私有 Harness 的训练控制台。
-只包含经过整理的两条历史案例、六张原图、轮次评价、实际修改与证据 JSON。
+Trace API 包含经过整理的两条历史轨迹、六张原图、轮次评价、实际修改与证据 JSON。
+前端另有一组三物体 Qwen / FLUX 配置对比（六张原图），作为独立静态证据展示，
+不混入逐轮 trace API，也不把跨模型对比描述成单模型的自进化。
 不读取任意实验目录，不启动渲染、VLM 或训练，不提供停止、恢复或删除接口。
 
 ## 1. 安装与本地开发

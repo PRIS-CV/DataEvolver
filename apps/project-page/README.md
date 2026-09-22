@@ -67,3 +67,5 @@ See [deployment instructions](deploy/README.md) for CORS, templates and API rout
 - Original frames and evidence stay byte-identical during build and deployment.
 
 See [the trace evidence policy](frontend/traces/README.md) before adding examples.
+The featured Qwen / FLUX configuration comparison is bundled separately from
+the two API traces; it does not imply a continuous single-model repair chain.

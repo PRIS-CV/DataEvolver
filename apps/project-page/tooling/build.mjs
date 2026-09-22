@@ -29,6 +29,16 @@ export async function build({ apiBase = process.env.TRACE_API_BASE_URL || '' } =
       if (!expected || createHash('sha256').update(bytes).digest('hex') !== expected.sha256) throw new Error('Original image checksum mismatch');
     }
   }
+  const comparison = JSON.parse(await readFile(resolve(root, 'frontend/traces/model-cases.json'), 'utf8'));
+  const moduleText = await readFile(resolve(root, 'frontend/traces/model-cases-data.js'), 'utf8');
+  const comparisonModule = JSON.parse(moduleText.replace(/^export default /, '').trim().replace(/;$/, ''));
+  if (!isDeepStrictEqual(comparison, comparisonModule)) throw new Error('Model comparison differs from public JSON');
+  if (comparison.schema_version !== 'dataevolver.public_model_comparison.v1' || comparison.images?.length !== 6) throw new Error('Invalid model comparison');
+  for (const frame of comparison.images) {
+    if (!/^images\/models-medium-[a-z-]+\.(png|jpg)$/.test(frame.image)) throw new Error('Invalid comparison image path');
+    const bytes = await readFile(resolve(root, 'frontend/traces', frame.image));
+    if (createHash('sha256').update(bytes).digest('hex') !== frame.sha256) throw new Error('Model comparison image checksum mismatch');
+  }
   const source = resolve(root, 'frontend'), destination = resolve(root, 'dist');
   // Only the fixed, generated output directory is replaced; source data is untouched.
   await rm(destination, { recursive: true, force: true });
