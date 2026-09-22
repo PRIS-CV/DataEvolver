@@ -12,7 +12,7 @@ location /api/ {
 
 # Optional: serve the entire npm-built site alongside the API on the same host.
 location / {
-    root /aaaidata/dataevolver-project/dist;
+    root /aaaidata/dataevolver-project/apps/project-page/dist;
     index index.html;
     try_files $uri $uri/ =404;
 }

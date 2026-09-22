@@ -4,43 +4,68 @@ on:
   push:
     branches: [main]
     paths:
-      - 'web/**'
-      - 'tooling/project-page/**'
-      - 'services/trace-api/**'
-      - 'package.json'
-      - 'package-lock.json'
+      - 'apps/project-page/**'
+      - '.github/workflows/deploy-pages.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/project-page/**'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: project-page-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    defaults:
+      run:
+        working-directory: apps/project-page
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
+          cache-dependency-path: apps/project-page/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - run: npm ci
       - run: npm test
+      - run: npm run test:evidence
       - run: npm run build
         env:
           TRACE_API_BASE_URL: ${{ vars.TRACE_API_BASE_URL }}
-      - uses: actions/configure-pages@v4
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'pull_request'
         with:
-          path: dist
+          name: project-page-preview
+          path: apps/project-page/dist
+          retention-days: 7
+          include-hidden-files: true
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        with:
+          path: apps/project-page/dist
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v4
       - id: deployment
         uses: actions/deploy-pages@v4

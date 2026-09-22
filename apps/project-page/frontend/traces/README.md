@@ -4,8 +4,8 @@ Bilingual subpage for the existing DataEvolver project site. Query `?lang=zh`
 selects Chinese. The default public mode uses the bundled archive without a
 backend; an optional read-only API is provided. Use an HTTP service for ES modules.
 
-From the repository root: `npm ci`, then `npm run dev` or `npm run build`.
-See [frontend and backend deployment](../../deploy/traces/README.md).
+From `apps/project-page/`: `npm ci`, then `npm run dev` or `npm run build`.
+See [frontend and backend deployment](../../deploy/README.md).
 
 ## Evidence policy
 
@@ -24,9 +24,9 @@ See [frontend and backend deployment](../../deploy/traces/README.md).
 experiments or calls models:
 
 ```sh
-python3 web/traces/build_showcase.py --evidence-root PATH --archive-root PATH
-python3 web/traces/test_showcase.py
-node --check web/traces/trace.js
+python3 frontend/traces/build_showcase.py --evidence-root PATH --archive-root PATH
+python3 frontend/traces/test_showcase.py
+node --check frontend/traces/trace.js
 ```
 
 The evidence root contains the selected grounding case's metadata under

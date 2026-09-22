@@ -69,10 +69,12 @@ DataEvolver turns synthetic data construction into a **goal-driven optimization 
 ## Project Page trace showcase
 
 Explore [curated repair traces](https://pris-cv.github.io/DataEvolver/traces/) with
-original frames, recorded changes, and explicit evidence boundaries. Run
-`npm ci && npm run dev` for the frontend and read-only archive API, or
+original frames, recorded changes, and explicit evidence boundaries. The frontend,
+backend, npm dependencies and deployment templates are isolated in
+[`apps/project-page/`](apps/project-page/README.md), separate from the Harness.
+Run `cd apps/project-page`, then `npm ci && npm run dev` for the frontend and read-only archive API, or
 `npm run build` for the GitHub Pages site. See the
-[frontend/backend deployment guide](deploy/traces/README.md) for npm publishing,
+[frontend/backend deployment guide](apps/project-page/deploy/README.md) for npm publishing,
 Docker, systemd, and HTTPS integration. This public service does not expose the
 private Harness or training controls.
 
@@ -547,7 +549,7 @@ DataEvolver/
 ├── assets/
 │   ├── hdri/                                # HDRI environment maps
 │   └── scene/                               # Blender scene files (.blend)
-└── web/                                     # Project website (GitHub Pages)
+└── apps/project-page/                       # Isolated website + read-only API (GitHub Pages)
 ```
 
 ---

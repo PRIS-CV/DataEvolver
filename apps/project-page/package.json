@@ -1,0 +1,17 @@
+{
+  "name": "dataevolver-project-page",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "node --watch backend/server.mjs --dev",
+    "build": "node tooling/build.mjs",
+    "preview": "node backend/server.mjs --static-only",
+    "start": "node backend/server.mjs",
+    "start:api": "node backend/server.mjs --api-only",
+    "test": "node --test tooling/*.test.mjs backend/*.test.mjs frontend/traces/*.test.mjs",
+    "test:evidence": "python3 frontend/traces/test_showcase.py",
+    "deploy": "node tooling/deploy.mjs"
+  }
+}

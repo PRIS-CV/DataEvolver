@@ -1,0 +1,13 @@
+*
+!package.json
+!package-lock.json
+!frontend
+!frontend/**
+!tooling
+!tooling/**
+!backend
+!backend/server.mjs
+!deploy
+!deploy/Dockerfile
+**/__pycache__
+**/*.pyc
