@@ -6,10 +6,14 @@
   <meta name="description" content="Two historical DataEvolver repair traces: original images, review findings, recorded actions, parameter changes, and honest outcome boundaries.">
   <title>Repair Traces — DataEvolver</title>
   <link rel="icon" href="../logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="trace.css">
   <script src="theme.js"></script>
+  <script src="config.js"></script>
   <script src="traces-data.js" defer></script>
-  <script src="trace.js" defer></script>
+  <script src="trace.js" type="module"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -22,7 +26,8 @@
     </nav>
   </header>
   <main id="main" class="wrap" tabindex="-1">
-    <div id="showcase"></div>
+    <div id="source-status" class="source-status" role="status" aria-live="polite">Loading trace archive…</div>
+    <div id="showcase" aria-busy="true"></div>
     <noscript><h1>Repair traces</h1><p>Enable JavaScript to explore the rounds, or read the complete evidence:</p><ul><li><a href="evidence/grounding.json">Scene grounding trace</a></li><li><a href="evidence/count.json">Bottle count trace</a></li></ul></noscript>
   </main>
   <footer class="wrap footer"><span id="footer-note">DataEvolver · Historical traces, curated September 2026</span><a href="traces.json" download>JSON ↓</a></footer>

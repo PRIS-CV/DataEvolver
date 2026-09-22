@@ -1,0 +1,28 @@
+[Unit]
+Description=DataEvolver public trace archive (read-only)
+After=network.target
+
+[Service]
+Type=simple
+# Create this unprivileged account and checkout first; adapt these three paths.
+User=dataevolver
+WorkingDirectory=/aaaidata/dataevolver-project
+ExecStart=/usr/bin/node /aaaidata/dataevolver-project/services/trace-api/server.mjs
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=8787
+Environment=TRACE_DATA_DIR=/aaaidata/dataevolver-project/dist/traces
+Environment=TRACE_ALLOWED_ORIGINS=https://pris-cv.github.io
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/aaaidata/dataevolver-project
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

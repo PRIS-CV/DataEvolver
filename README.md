@@ -66,6 +66,16 @@ DataEvolver turns synthetic data construction into a **goal-driven optimization 
 - **Repair with structured actions** — 24 bounded atomic actions adjust lighting, object pose, scene environment, and material appearance without uncontrolled drift.
 - **Export training-ready data** — RGB, masks, depth, normals, geometry metadata, and object-disjoint splits are produced for downstream model training.
 
+## Project Page trace showcase
+
+Explore [curated repair traces](https://pris-cv.github.io/DataEvolver/traces/) with
+original frames, recorded changes, and explicit evidence boundaries. Run
+`npm ci && npm run dev` for the frontend and read-only archive API, or
+`npm run build` for the GitHub Pages site. See the
+[frontend/backend deployment guide](deploy/traces/README.md) for npm publishing,
+Docker, systemd, and HTTPS integration. This public service does not expose the
+private Harness or training controls.
+
 ## Current Capabilities
 
 DataEvolver is organized around two connected dataset-construction tracks:

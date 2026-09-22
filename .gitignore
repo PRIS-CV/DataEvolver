@@ -2,6 +2,11 @@
 .DS_Store
 Thumbs.db
 
+# npm project-page build and local caches
+/node_modules/
+/dist/
+/.npm/
+
 # Editor
 *.swp
 *.swo

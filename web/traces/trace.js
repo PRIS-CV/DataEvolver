@@ -1,9 +1,17 @@
 'use strict';
-(() => {
+import { loadTraces } from './data-source.js';
+(async () => {
   const zh = new URLSearchParams(location.search).get('lang') === 'zh';
   const t = (en, cn) => zh ? cn : en;
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const data = window.TRACE_SHOWCASE;
+  const sourceStatus = document.querySelector('#source-status');
+  sourceStatus.textContent = t('Loading trace archive…', '正在加载轨迹记录…');
+  const source = await loadTraces({ snapshot: window.TRACE_SHOWCASE, apiBase: window.TRACE_CONFIG?.apiBase });
+  const data = source.data;
+  sourceStatus.dataset.mode = source.mode;
+  sourceStatus.textContent = source.mode === 'connected' ? t('Service connected · read-only archive', '服务已连接 · 只读归档') : source.mode === 'fallback' ? t('Service unavailable · showing bundled archive. Reload to retry.', '服务暂不可用 · 当前显示归档副本，可刷新重试。') : t('Public archive · no training controls', '公开归档 · 不含训练控制');
+  const evidenceUrl = id => source.mode === 'connected' ? `${source.base}/api/traces${id ? '/'+id : ''}` : id ? `evidence/${id}.json` : 'traces.json';
+  document.querySelector('.footer a').href = evidenceUrl();
   document.documentElement.lang = zh ? 'zh-Hans' : 'en';
   document.title = t('Repair Traces — DataEvolver', '修复轨迹 — DataEvolver');
   const language = document.querySelector('#language');
@@ -50,10 +58,10 @@
     return `<section class="case" id="${c.id}" aria-labelledby="${c.id}-title"><div class="case-heading"><div><p class="case-number">0${index+1} / ${ground ? '3D SCENE REPAIR' : 'TEXT-TO-IMAGE REPAIR'} · ${c.date}</p><h2 id="${c.id}-title">${title}</h2><p class="case-description">${description}</p></div><span class="badge ${ground?'':'partial'}">${ground?t('Historical gate: accepted','历史 gate：通过'):t('Partial repair · not fully passed','局部修复 · 未完全通过')}</span></div>
       <div class="round-controls" role="group" aria-label="${t('Select a round','选择轮次')}">${c.rounds.map(r=>`<button type="button" data-case="${c.id}" data-round="${r.round}" aria-pressed="false">${r.round === 0 ? t('R0 · Initial','R0 · 初始生成') : `R${r.round} · ${ground?t('Ground snap','接地修复'):r.round===2?t('Regression','发生退步'):r.round===3?t('Count recovered','数量恢复'):t('First repair','首次修复')}`}</button>`).join('')}</div>
       <div id="${c.id}-panel"></div>
-      <div class="evidence-links"><a href="evidence/${c.id}.json" download>${t('Download trace JSON ↓','下载轨迹 JSON ↓')}</a><a href="evidence/${c.id}.json" target="_blank" rel="noopener">${t('Inspect evidence ↗','查看证据 ↗')}</a></div>
+      <div class="evidence-links"><a href="${esc(evidenceUrl(c.id))}" download>${t('Download trace JSON ↓','下载轨迹 JSON ↓')}</a><a href="${esc(evidenceUrl(c.id))}" target="_blank" rel="noopener">${t('Inspect evidence ↗','查看证据 ↗')}</a></div>
       <p class="source-id">${esc(c.source_run)}${ground ? ' / '+esc(c.source_case) : ''}</p></section>`;
   }
-  document.querySelector('#showcase').innerHTML = `<section class="hero"><p class="kicker">Evidence / Action / Outcome</p><h1>${t('Watch a repair happen.', '看见一次修复如何发生。')}</h1><p>${t('Original images, recorded changes, and the result—not just a score. Explore two selected historical traces, including what improved and what still did not work.', '不只看分数，而是看原图、真实修改与结果。两条精选历史轨迹，展示改善发生在哪里，也保留尚未解决的问题。')}</p></section>
+  document.querySelector('#showcase').innerHTML = `<section class="hero"><div><p class="kicker">DataEvolver / Repair traces</p><h1>${t('Repair, made visible.', '修复轨迹。<br>每一步都有依据。')}</h1><p class="hero-description">${t('Follow the image, the review, and the action. A close look at what changed—and what still needs work.', '从原图到评价，从实际修改到下一轮结果。看清改变，也保留尚未解决的问题。')}</p><a class="primary-link" href="#grounding">${t('Explore the traces','浏览修复案例')} <span aria-hidden="true">↗</span></a></div><aside class="archive-card"><p class="kicker">${t('Inside the archive','本页收录')}</p><div class="archive-numbers"><strong>${data.cases.length}<small>${t('curated traces','精选轨迹')}</small></strong><strong>${data.cases.reduce((n,c)=>n+c.rounds.length,0)}<small>${t('original rounds','原始轮次')}</small></strong></div><p>${t('Original frames. Recorded actions. Open evidence.', '原始图像、修改记录与可下载证据。')}</p><ol><li>${t('Review findings','发现问题')}</li><li>${t('Actual changes','实际修改')}</li><li>${t('Images & decisions','结果与决定')}</li></ol></aside></section>
     <nav class="case-nav" aria-label="${t('Trace cases','轨迹案例')}"><a href="#grounding">01 ${t('Ground contact','接地修复')}</a><a href="#count">02 ${t('Bottle count','数量修复')}</a><a href="#method">${t('How to read the evidence','如何理解这些证据')}</a></nav>
     <p class="scope">${t('Curated examples, not a benchmark. These are archived scene and prompt-repair loops, not new Harness runs and not evidence of improved trained-model performance. All source frames are unchanged.', '这是精选案例，不是总体评测。它们来自历史场景与提示词修复循环，不是本次新跑的 Harness，也不代表训练后模型性能提升。所有原图保持不变。')}</p>
     ${data.cases.map(shell).join('')}
@@ -62,7 +70,8 @@
       <li>${t('The scene trace has render-level ground-snap evidence, but no isolated shadow-effect proof. Its realized camera also moves slightly, so this is not a fixed-camera ablation.', '场景案例有渲染层面的接地记录，但没有独立的阴影改善证据。实际相机位置也略有变化，因此不是固定相机的单因素消融。')}</li>
       <li>${t('The bottle trace repairs one failed constraint, after an earlier regression. The full four-round history remains available; it is not monotonic progress or final success.', '瓶子案例在前轮退步后修复了一个失败约束。完整四轮都可查看，不能解释为持续进步或最终达标。')}</li>
       <li>${t('Downloads contain scoped structured excerpts, image hashes, and source-file hashes. Private host paths and raw model transcripts are omitted. Missing intermediate images disqualify score-only candidates.', '下载内容包含结构化摘录、图片哈希与源文件哈希。内部主机路径和原始模型文本不公开。只有分数、缺少中间图片的候选不纳入展示。')}</li>
-    </ul><p>${t('No new model calls, rendering, training, or evaluator calibration were performed for this page.', '本页整理没有重新调用模型、渲染、训练或校准评测器。')}</p></section>`;
+    </ul><p>${t('No new model calls, rendering, training, or evaluator calibration were performed for this page.', '本页整理没有重新调用模型、渲染、训练或校准评测器。')}</p></section><section class="reuse"><div><p class="kicker">Build / Deploy</p><h2>${t('Run your own trace page.', '部署与复用')}</h2><p>${t('The frontend and read-only service are available in the repository, with npm commands and deployment examples.', '前端与只读服务代码已开放，包含 npm 命令、部署配置与使用说明。')}</p></div><a class="primary-link" href="https://github.com/PRIS-CV/DataEvolver/blob/main/deploy/traces/README.md" target="_blank" rel="noopener">${t('Deployment guide ↗','部署文档 ↗')}</a></section>`;
+  document.querySelector('#showcase').setAttribute('aria-busy', 'false');
 
   function render(id, index) {
     const c = data.cases.find(x => x.id === id);
@@ -99,4 +108,8 @@
   document.querySelectorAll('[data-case]').forEach(button=>button.addEventListener('click',()=>render(button.dataset.case,Number(button.dataset.round))));
   render('grounding',1);
   render('count',3);
-})();
+})().catch(() => {
+  document.querySelector('#source-status').textContent = new URLSearchParams(location.search).get('lang') === 'zh' ? '轨迹记录无法加载，请刷新重试或下载下方 JSON。' : 'Trace archive could not be loaded. Reload or download the JSON below.';
+  document.querySelector('#source-status').dataset.mode = 'fallback';
+  document.querySelector('#showcase').setAttribute('aria-busy', 'false');
+});

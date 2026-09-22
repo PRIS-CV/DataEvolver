@@ -1,0 +1,16 @@
+*
+!package.json
+!package-lock.json
+!web
+!web/**
+!tooling
+!tooling/project-page
+!tooling/project-page/**
+!services
+!services/trace-api
+!services/trace-api/server.mjs
+!deploy
+!deploy/traces
+!deploy/traces/Dockerfile
+**/__pycache__
+**/*.pyc

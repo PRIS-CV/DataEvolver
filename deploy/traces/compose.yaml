@@ -1,0 +1,16 @@
+services:
+  traces:
+    build:
+      context: ../..
+      dockerfile: deploy/traces/Dockerfile
+      args:
+        TRACE_API_BASE_URL: /
+    ports:
+      - "127.0.0.1:8787:8787"
+    environment:
+      TRACE_ALLOWED_ORIGINS: "https://pris-cv.github.io"
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true

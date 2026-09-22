@@ -1,8 +1,11 @@
 # Public repair traces
 
-Static, bilingual subpage for the existing DataEvolver project site. No backend,
-training process, or remote model access is required. Query `?lang=zh` selects
-Chinese. The data script also allows opening `index.html` locally without fetch.
+Bilingual subpage for the existing DataEvolver project site. Query `?lang=zh`
+selects Chinese. The default public mode uses the bundled archive without a
+backend; an optional read-only API is provided. Use an HTTP service for ES modules.
+
+From the repository root: `npm ci`, then `npm run dev` or `npm run build`.
+See [frontend and backend deployment](../../deploy/traces/README.md).
 
 ## Evidence policy
 
@@ -29,5 +32,6 @@ node --check web/traces/trace.js
 The evidence root contains the selected grounding case's metadata under
 `grounding/`. The archive root contains the preserved scene frames and the
 four-round `t2i_constraint_loop_hard_glass_antireg_20260622_142826` experiment.
-Exports are deterministic for unchanged sources. Public copies are served by the
-repository's existing GitHub Pages deployment; no new publishing service is used.
+Exports are deterministic for unchanged sources. The npm build retains the exact
+original frames and creates `dist/` for the existing GitHub Pages deployment.
+It does not rerun experiments. API and data-source checks run with `npm test`.
