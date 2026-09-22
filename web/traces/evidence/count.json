@@ -1,0 +1,359 @@
+{
+  "id": "count",
+  "source_run": "t2i_constraint_loop_hard_glass_antireg_20260622_142826",
+  "kind": "historical_t2i_prompt_repair",
+  "date": "2026-06-22",
+  "rounds": [
+    {
+      "round": 0,
+      "image": "images/count-r0.png",
+      "prompt": "Create a detailed, visually coherent dataset image that fully matches this scene request: Create a high-difficulty verification scene with exactly three cobalt-blue transparent glass bottles as the primary subjects. Place a matte black ruler on the left and a white ceramic cup on the right; put a silver coin in front of the bottles and a folded gray notebook behind them. The translucent tracing paper must partially occlude only the rightmost bottle, leaving the other two fully visible. Each bottle must show two narrow neck rings and a cork stopper. Include blue glass marbles in the background as same-color distractors that must not be counted as primary bottles. Show clear transparent or reflective behavior where appropriate, use realistic material cues, and avoid readable text, logos, labels, or watermarks. Preserve all named subjects, objects, colors, materials, lighting cues, and spatial relationships from the request. Use coherent perspective, natural depth, balanced exposure, visible shadows, and clear separation between foreground, midground, and background. Keep the main focal elements easy to inspect while retaining the requested environment and supporting objects.",
+      "rewrite_reason": "initial_prompt_rewrite: preserve the original request while making it dataset-oriented",
+      "failed_constraints": [
+        "c_front_back_anchors"
+      ],
+      "uncertain_constraints": [],
+      "passed_constraints": [
+        "c_count_primary",
+        "c_left_right_anchors",
+        "c_controlled_occlusion",
+        "c_primary_material",
+        "c_no_text",
+        "c_transparent_reflective",
+        "c_local_parts",
+        "c_same_color_distractor"
+      ],
+      "changes_from_previous": {},
+      "constraint_status": [
+        {
+          "constraint_id": "c_count_primary",
+          "description": "Exactly three primary bottles are visible.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_left_right_anchors",
+          "description": "a matte black ruler is on the left and a white ceramic cup is on the right.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_front_back_anchors",
+          "description": "a silver coin is in front of the bottles and a folded gray notebook is behind them.",
+          "status": "fail"
+        },
+        {
+          "constraint_id": "c_controlled_occlusion",
+          "description": "The translucent tracing paper occludes only the rightmost bottle.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_primary_material",
+          "description": "The primary bottles read as cobalt-blue transparent glass.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_no_text",
+          "description": "No readable text, logos, labels, or watermarks are present.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_transparent_reflective",
+          "description": "Transparent or reflective behavior is visible where appropriate.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_local_parts",
+          "description": "Each primary bottle shows two narrow neck rings and a cork stopper.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_same_color_distractor",
+          "description": "The blue glass marbles are visible but not counted as primary bottles.",
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "round": 1,
+      "image": "images/count-r1.png",
+      "prompt": "Create a detailed, visually coherent dataset image that fully matches this scene request: Create a high-difficulty verification scene with exactly three cobalt-blue transparent glass bottles as the primary subjects. Place a matte black ruler on the left and a white ceramic cup on the right; put a silver coin in front of the bottles and a folded gray notebook behind them. The translucent tracing paper must partially occlude only the rightmost bottle, leaving the other two fully visible. Each bottle must show two narrow neck rings and a cork stopper. Include blue glass marbles in the background as same-color distractors that must not be counted as primary bottles. Show clear transparent or reflective behavior where appropriate, use realistic material cues, and avoid readable text, logos, labels, or watermarks. Preserve all named subjects, objects, colors, materials, lighting cues, and spatial relationships from the request. Use coherent perspective, natural depth, balanced exposure, visible shadows, and clear separation between foreground, midground, and background. Keep the main focal elements easy to inspect while retaining the requested environment and supporting objects. Strictly satisfy negative constraints from the request, especially no-text, no-logo, and no-watermark constraints. This is revision 1; correct the previous issues while preserving the original complex scene request. Constraint repair checklist for this revision: c_front_back_anchors: a silver coin is in front of the bottles and a folded gray notebook is behind them. (previous status=fail). Anti-regression checklist: preserve every previously passing constraint exactly: c_count_primary: Exactly three primary bottles are visible. ; c_left_right_anchors: a matte black ruler is on the left and a white ceramic cup is on the right. ; c_controlled_occlusion: The translucent tracing paper occludes only the rightmost bottle. ; c_primary_material: The primary bottles read as cobalt-blue transparent glass. ; c_no_text: No readable text, logos, labels, or watermarks are present. ; c_transparent_reflective: Transparent or reflective behavior is visible where appropriate. ; c_local_parts: Each primary bottle shows two narrow neck rings and a cork stopper. ; c_same_color_distractor: The blue glass marbles are visible but not counted as primary bottles..",
+      "rewrite_reason": "repair_failed_constraints: c_front_back_anchors",
+      "failed_constraints": [
+        "c_local_parts"
+      ],
+      "uncertain_constraints": [],
+      "passed_constraints": [
+        "c_count_primary",
+        "c_left_right_anchors",
+        "c_front_back_anchors",
+        "c_controlled_occlusion",
+        "c_primary_material",
+        "c_no_text",
+        "c_transparent_reflective",
+        "c_same_color_distractor"
+      ],
+      "changes_from_previous": {
+        "improved_constraints": [
+          "c_front_back_anchors"
+        ],
+        "regressed_constraints": [
+          "c_local_parts"
+        ],
+        "prev_bad_count": 1,
+        "current_bad_count": 1,
+        "bad_count_delta": 0,
+        "has_improvement": false
+      },
+      "constraint_status": [
+        {
+          "constraint_id": "c_count_primary",
+          "description": "Exactly three primary bottles are visible.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_left_right_anchors",
+          "description": "a matte black ruler is on the left and a white ceramic cup is on the right.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_front_back_anchors",
+          "description": "a silver coin is in front of the bottles and a folded gray notebook is behind them.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_controlled_occlusion",
+          "description": "The translucent tracing paper occludes only the rightmost bottle.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_primary_material",
+          "description": "The primary bottles read as cobalt-blue transparent glass.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_no_text",
+          "description": "No readable text, logos, labels, or watermarks are present.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_transparent_reflective",
+          "description": "Transparent or reflective behavior is visible where appropriate.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_local_parts",
+          "description": "Each primary bottle shows two narrow neck rings and a cork stopper.",
+          "status": "fail"
+        },
+        {
+          "constraint_id": "c_same_color_distractor",
+          "description": "The blue glass marbles are visible but not counted as primary bottles.",
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "image": "images/count-r2.png",
+      "prompt": "Create a detailed, visually coherent dataset image that fully matches this scene request: Create a high-difficulty verification scene with exactly three cobalt-blue transparent glass bottles as the primary subjects. Place a matte black ruler on the left and a white ceramic cup on the right; put a silver coin in front of the bottles and a folded gray notebook behind them. The translucent tracing paper must partially occlude only the rightmost bottle, leaving the other two fully visible. Each bottle must show two narrow neck rings and a cork stopper. Include blue glass marbles in the background as same-color distractors that must not be counted as primary bottles. Show clear transparent or reflective behavior where appropriate, use realistic material cues, and avoid readable text, logos, labels, or watermarks. Preserve all named subjects, objects, colors, materials, lighting cues, and spatial relationships from the request. Use coherent perspective, natural depth, balanced exposure, visible shadows, and clear separation between foreground, midground, and background. Keep the main focal elements easy to inspect while retaining the requested environment and supporting objects. Strictly satisfy negative constraints from the request, especially no-text, no-logo, and no-watermark constraints. This is revision 2; correct the previous issues while preserving the original complex scene request. Constraint repair checklist for this revision: c_local_parts: Each primary bottle shows two narrow neck rings and a cork stopper. (previous status=fail) ; part_detail repair detail: simplify local geometry so the requested parts are countable and unambiguous. Anti-regression checklist: preserve every previously passing constraint exactly: c_count_primary: Exactly three primary bottles are visible. ; c_left_right_anchors: a matte black ruler is on the left and a white ceramic cup is on the right. ; c_front_back_anchors: a silver coin is in front of the bottles and a folded gray notebook is behind them. ; c_controlled_occlusion: The translucent tracing paper occludes only the rightmost bottle. ; c_primary_material: The primary bottles read as cobalt-blue transparent glass. ; c_no_text: No readable text, logos, labels, or watermarks are present. ; c_transparent_reflective: Transparent or reflective behavior is visible where appropriate. ; c_same_color_distractor: The blue glass marbles are visible but not counted as primary bottles..",
+      "rewrite_reason": "repair_failed_constraints: c_local_parts",
+      "failed_constraints": [
+        "c_count_primary",
+        "c_controlled_occlusion"
+      ],
+      "uncertain_constraints": [],
+      "passed_constraints": [
+        "c_left_right_anchors",
+        "c_front_back_anchors",
+        "c_primary_material",
+        "c_no_text",
+        "c_transparent_reflective",
+        "c_local_parts",
+        "c_same_color_distractor"
+      ],
+      "changes_from_previous": {
+        "improved_constraints": [
+          "c_local_parts"
+        ],
+        "regressed_constraints": [
+          "c_controlled_occlusion",
+          "c_count_primary"
+        ],
+        "prev_bad_count": 1,
+        "current_bad_count": 2,
+        "bad_count_delta": -1,
+        "has_improvement": false
+      },
+      "constraint_status": [
+        {
+          "constraint_id": "c_count_primary",
+          "description": "Exactly three primary bottles are visible.",
+          "status": "fail"
+        },
+        {
+          "constraint_id": "c_left_right_anchors",
+          "description": "a matte black ruler is on the left and a white ceramic cup is on the right.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_front_back_anchors",
+          "description": "a silver coin is in front of the bottles and a folded gray notebook is behind them.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_controlled_occlusion",
+          "description": "The translucent tracing paper occludes only the rightmost bottle.",
+          "status": "fail"
+        },
+        {
+          "constraint_id": "c_primary_material",
+          "description": "The primary bottles read as cobalt-blue transparent glass.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_no_text",
+          "description": "No readable text, logos, labels, or watermarks are present.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_transparent_reflective",
+          "description": "Transparent or reflective behavior is visible where appropriate.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_local_parts",
+          "description": "Each primary bottle shows two narrow neck rings and a cork stopper.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_same_color_distractor",
+          "description": "The blue glass marbles are visible but not counted as primary bottles.",
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "image": "images/count-r3.png",
+      "prompt": "Create a detailed, visually coherent dataset image that fully matches this scene request: Create a high-difficulty verification scene with exactly three cobalt-blue transparent glass bottles as the primary subjects. Place a matte black ruler on the left and a white ceramic cup on the right; put a silver coin in front of the bottles and a folded gray notebook behind them. The translucent tracing paper must partially occlude only the rightmost bottle, leaving the other two fully visible. Each bottle must show two narrow neck rings and a cork stopper. Include blue glass marbles in the background as same-color distractors that must not be counted as primary bottles. Show clear transparent or reflective behavior where appropriate, use realistic material cues, and avoid readable text, logos, labels, or watermarks. Preserve all named subjects, objects, colors, materials, lighting cues, and spatial relationships from the request. Use coherent perspective, natural depth, balanced exposure, visible shadows, and clear separation between foreground, midground, and background. Keep the main focal elements easy to inspect while retaining the requested environment and supporting objects. Strictly satisfy negative constraints from the request, especially no-text, no-logo, and no-watermark constraints. This is revision 3; correct the previous issues while preserving the original complex scene request. Constraint repair checklist for this revision: c_count_primary: Exactly three primary bottles are visible. (previous status=fail) ; c_controlled_occlusion: The translucent tracing paper occludes only the rightmost bottle. (previous status=fail) ; occlusion repair detail: put the occluding object physically in front of the named target, covering only the requested target and not the other primary subjects. Anti-regression checklist: preserve every previously passing constraint exactly: c_left_right_anchors: a matte black ruler is on the left and a white ceramic cup is on the right. ; c_front_back_anchors: a silver coin is in front of the bottles and a folded gray notebook is behind them. ; c_primary_material: The primary bottles read as cobalt-blue transparent glass. ; c_no_text: No readable text, logos, labels, or watermarks are present. ; c_transparent_reflective: Transparent or reflective behavior is visible where appropriate. ; c_local_parts: Each primary bottle shows two narrow neck rings and a cork stopper. ; c_same_color_distractor: The blue glass marbles are visible but not counted as primary bottles..",
+      "rewrite_reason": "repair_failed_constraints: c_count_primary; c_controlled_occlusion",
+      "failed_constraints": [
+        "c_controlled_occlusion"
+      ],
+      "uncertain_constraints": [],
+      "passed_constraints": [
+        "c_count_primary",
+        "c_left_right_anchors",
+        "c_front_back_anchors",
+        "c_primary_material",
+        "c_no_text",
+        "c_transparent_reflective",
+        "c_local_parts",
+        "c_same_color_distractor"
+      ],
+      "changes_from_previous": {
+        "improved_constraints": [
+          "c_count_primary"
+        ],
+        "regressed_constraints": [],
+        "prev_bad_count": 2,
+        "current_bad_count": 1,
+        "bad_count_delta": 1,
+        "has_improvement": true
+      },
+      "constraint_status": [
+        {
+          "constraint_id": "c_count_primary",
+          "description": "Exactly three primary bottles are visible.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_left_right_anchors",
+          "description": "a matte black ruler is on the left and a white ceramic cup is on the right.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_front_back_anchors",
+          "description": "a silver coin is in front of the bottles and a folded gray notebook is behind them.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_controlled_occlusion",
+          "description": "The translucent tracing paper occludes only the rightmost bottle.",
+          "status": "fail"
+        },
+        {
+          "constraint_id": "c_primary_material",
+          "description": "The primary bottles read as cobalt-blue transparent glass.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_no_text",
+          "description": "No readable text, logos, labels, or watermarks are present.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_transparent_reflective",
+          "description": "Transparent or reflective behavior is visible where appropriate.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_local_parts",
+          "description": "Each primary bottle shows two narrow neck rings and a cork stopper.",
+          "status": "pass"
+        },
+        {
+          "constraint_id": "c_same_color_distractor",
+          "description": "The blue glass marbles are visible but not counted as primary bottles.",
+          "status": "pass"
+        }
+      ]
+    }
+  ],
+  "decision": "improved_after_failure",
+  "success_criterion": "failure_then_constraint_improvement",
+  "success_evidence": {
+    "from_round": 2,
+    "to_round": 3,
+    "improved_constraints": [
+      "c_count_primary"
+    ],
+    "regressed_constraints": [],
+    "prev_bad_count": 2,
+    "current_bad_count": 1,
+    "bad_count_delta": 1,
+    "has_improvement": true
+  },
+  "limits": [
+    "Round 2 to 3 repairs bottle count; it does not pass the full request.",
+    "Occlusion still fails. Earlier regressions remain visible.",
+    "These are regenerated images, not edits preserving identical pixels or object identity.",
+    "Counts are archived VLM judgments, not an independent human benchmark. The final ruler also has visible markings.",
+    "No headline overall-score improvement is inferred from these records."
+  ],
+  "provenance": [
+    {
+      "file": "loop_state.json",
+      "sha256": "7074c2ab670587f2f952e350fcee41b0a02f57611652e6a4664d046444a5e4f6"
+    },
+    {
+      "file": "count-r0.png",
+      "sha256": "a635882640b1ff04a3a6db7aa7a392c80a2345d43baea1b613d36b23ff3b806c",
+      "transform": "byte-identical copy"
+    },
+    {
+      "file": "count-r1.png",
+      "sha256": "7dc933154f43d4ec711b4947cc8ec659beefc883518920f83094346b2428b5bd",
+      "transform": "byte-identical copy"
+    },
+    {
+      "file": "count-r2.png",
+      "sha256": "8e0a701ad7e098850788c26c71b1c66599d047421d4978b4c43724ae31ad2282",
+      "transform": "byte-identical copy"
+    },
+    {
+      "file": "count-r3.png",
+      "sha256": "0ce53433f30e0399bc16954deeef880025f04d814a922e930403408542269e48",
+      "transform": "byte-identical copy"
+    }
+  ]
+}

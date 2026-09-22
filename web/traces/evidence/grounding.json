@@ -1,0 +1,350 @@
+{
+  "id": "grounding",
+  "source_run": "universal_contract_selected108_vlm_scorecalib_t075_r5_20260519",
+  "source_case": "arisuniv_0130_obj1595__obj1645__outdoor7",
+  "kind": "historical_scene_loop",
+  "date": "2026-05-19",
+  "rounds": [
+    {
+      "round": 0,
+      "image": "images/grounding-r0.png",
+      "issues": [
+        "shadow_missing",
+        "floating_object",
+        "scene_light_mismatch"
+      ],
+      "hybrid_score": 0.7082,
+      "gate_passed": false,
+      "max_ground_gap": 0.28961,
+      "control_state": {
+        "object_a": {
+          "scale": 1.0,
+          "yaw_deg": 0.0,
+          "offset_xy": [
+            0.0,
+            0.0
+          ],
+          "offset_z": 0.0,
+          "ground_snap": 0.0
+        },
+        "object_b": {
+          "scale": 1.0,
+          "yaw_deg": 0.0,
+          "offset_xy": [
+            0.0,
+            0.0
+          ],
+          "offset_z": 0.0,
+          "ground_snap": 0.0
+        },
+        "pair": {
+          "distance_scale": 1.0,
+          "height_offset_scale": 1.0,
+          "side_sign": 0
+        },
+        "camera": {
+          "distance_scale": 1.0,
+          "azimuth_offset_deg": 0.0,
+          "elevation_deg": 19.808,
+          "focal_length_mm": 50.0,
+          "framing_margin": 1.0
+        },
+        "lighting": {
+          "spot_energy_scale": 1.0,
+          "fill_energy_scale": 1.0,
+          "spot_height": 5.0,
+          "spot_size_deg": 45.0,
+          "env_strength_scale": 1.0,
+          "scene_light_scale": 1.0,
+          "scene_area_light_scale": 1.0,
+          "scene_point_light_scale": 1.0,
+          "scene_spot_light_scale": 1.0,
+          "scene_sun_light_scale": 1.0,
+          "scene_light_max_energy": 500.0
+        },
+        "material": {
+          "a_value_scale": 1.0,
+          "b_value_scale": 1.0,
+          "a_saturation_scale": 1.0,
+          "b_saturation_scale": 1.0,
+          "a_contrast_scale": 1.0,
+          "b_contrast_scale": 1.0
+        },
+        "shadow": {
+          "contact_shadow_strength": 1.0,
+          "ambient_occlusion_strength": 1.0,
+          "ground_shadow_receiver": true
+        },
+        "scene": {
+          "seed_offset": 0
+        }
+      },
+      "camera": {
+        "name": "DualPlacementCam",
+        "location": [
+          12.509514,
+          18.256611,
+          8.706907
+        ],
+        "lens": 50.0
+      }
+    },
+    {
+      "round": 1,
+      "image": "images/grounding-r1.png",
+      "issues": [
+        "none"
+      ],
+      "hybrid_score": 0.9092,
+      "gate_passed": true,
+      "max_ground_gap": 0.01506,
+      "control_state": {
+        "object_a": {
+          "scale": 1.0,
+          "yaw_deg": 0.0,
+          "offset_xy": [
+            0.0,
+            0.0
+          ],
+          "offset_z": 0.0,
+          "ground_snap": 1.0
+        },
+        "object_b": {
+          "scale": 1.0,
+          "yaw_deg": 0.0,
+          "offset_xy": [
+            0.0,
+            0.0
+          ],
+          "offset_z": 0.0,
+          "ground_snap": 1.0
+        },
+        "pair": {
+          "distance_scale": 1.0,
+          "height_offset_scale": 1.0,
+          "side_sign": 0
+        },
+        "camera": {
+          "distance_scale": 1.0,
+          "azimuth_offset_deg": 0.0,
+          "elevation_deg": 19.808,
+          "focal_length_mm": 50.0,
+          "framing_margin": 1.0
+        },
+        "lighting": {
+          "spot_energy_scale": 1.0,
+          "fill_energy_scale": 1.0,
+          "spot_height": 5.0,
+          "spot_size_deg": 38.25,
+          "env_strength_scale": 1.0,
+          "scene_light_scale": 1.0,
+          "scene_area_light_scale": 1.0,
+          "scene_point_light_scale": 1.0,
+          "scene_spot_light_scale": 1.0,
+          "scene_sun_light_scale": 1.0,
+          "scene_light_max_energy": 500.0
+        },
+        "material": {
+          "a_value_scale": 1.0,
+          "b_value_scale": 1.0,
+          "a_saturation_scale": 1.0,
+          "b_saturation_scale": 1.0,
+          "a_contrast_scale": 1.0,
+          "b_contrast_scale": 1.0
+        },
+        "shadow": {
+          "contact_shadow_strength": 1.35,
+          "ambient_occlusion_strength": 1.35,
+          "ground_shadow_receiver": true
+        },
+        "scene": {
+          "seed_offset": 0
+        }
+      },
+      "camera": {
+        "name": "DualPlacementCam",
+        "location": [
+          12.347596,
+          18.078802,
+          8.514548
+        ],
+        "lens": 50.0
+      }
+    }
+  ],
+  "parameter_diff": [
+    {
+      "field": "/lighting/spot_size_deg",
+      "before": 45.0,
+      "after": 38.25
+    },
+    {
+      "field": "/object_a/ground_snap",
+      "before": 0.0,
+      "after": 1.0
+    },
+    {
+      "field": "/object_b/ground_snap",
+      "before": 0.0,
+      "after": 1.0
+    },
+    {
+      "field": "/shadow/ambient_occlusion_strength",
+      "before": 1.0,
+      "after": 1.35
+    },
+    {
+      "field": "/shadow/contact_shadow_strength",
+      "before": 1.0,
+      "after": 1.35
+    }
+  ],
+  "recorded_actions": [
+    {
+      "action": "BOTH_GROUND_SNAP",
+      "applied": true,
+      "target": "object_a.ground_snap,object_b.ground_snap",
+      "old_value": [
+        0.0,
+        0.0
+      ],
+      "new_value": [
+        1.0,
+        1.0
+      ],
+      "reset_offset_z": true
+    },
+    {
+      "action": "CONTACT_SHADOW_UP",
+      "applied": true,
+      "target": "shadow.contact_shadow_strength",
+      "old_value": 1.0,
+      "new_value": 1.35
+    },
+    {
+      "action": "AO_UP",
+      "applied": true,
+      "target": "shadow.ambient_occlusion_strength",
+      "old_value": 1.0,
+      "new_value": 1.35
+    },
+    {
+      "action": "L_SPOT_NARROWER",
+      "applied": true,
+      "target": "lighting.spot_size_deg",
+      "old_value": 45.0,
+      "new_value": 38.25
+    }
+  ],
+  "execution_evidence": {
+    "a": [
+      {
+        "object": "a",
+        "action": "ground_snap",
+        "snap_count": 1.0,
+        "xy": [
+          -3.77396,
+          2.01111
+        ],
+        "ground_z": 0.0,
+        "bottom_z_before": 0.05252,
+        "bottom_z_after": 0.005
+      }
+    ],
+    "b": [
+      {
+        "object": "b",
+        "action": "ground_snap",
+        "snap_count": 1.0,
+        "xy": [
+          -1.93212,
+          0.49006
+        ],
+        "ground_z": 0.010059,
+        "bottom_z_before": 0.28961,
+        "bottom_z_after": 0.015059
+      }
+    ]
+  },
+  "shadow_execution": {
+    "contact_shadow_strength": 1.35,
+    "ambient_occlusion_strength": 1.35,
+    "lights_touched": []
+  },
+  "pairwise_review": {
+    "available": true,
+    "winner": "current",
+    "lighting": "better",
+    "object_integrity": "same",
+    "composition": "same",
+    "render_quality_semantic": "better"
+  },
+  "realized_camera_diff": [
+    {
+      "field": "/location",
+      "before": [
+        12.509514,
+        18.256611,
+        8.706907
+      ],
+      "after": [
+        12.347596,
+        18.078802,
+        8.514548
+      ]
+    }
+  ],
+  "decision": "accepted",
+  "threshold": 0.75,
+  "limits": [
+    "Selected historical example, not a benchmark or a new Harness run.",
+    "Hybrid scores mix VLM, image and geometry signals; first and later review contexts differ.",
+    "Ground snapping has execution metadata. Shadow lights_touched is empty; no isolated shadow-improvement claim.",
+    "Requested camera controls stay fixed but the realized camera position changes; this is not a fixed-camera ablation.",
+    "Images are preserved local archive copies; intermediate remote renders were cleaned. Metadata was read from the server."
+  ],
+  "provenance": [
+    {
+      "file": "gate_status.json",
+      "sha256": "6ceb51c8e9d8439883a179fdf76c6f2fe23e140f319d25e3eee08f25c599ce80"
+    },
+    {
+      "file": "agent_round01.json",
+      "sha256": "40e9221c3a26aa5dd16576db7763a57f81727aa995cbf02b2c7c722791bcdd7a"
+    },
+    {
+      "file": "round00.json",
+      "sha256": "41826d5c6945f35a329067b4ff86a895267df8eb55b120deb860e7aa1532f10d"
+    },
+    {
+      "file": "round01.json",
+      "sha256": "673f1ef46e4d4433930e1aca1ec241635d8e6fa26700b6bf8d0750ced0782edb"
+    },
+    {
+      "file": "arisuniv_0130_obj1595__obj1645__outdoor7_r00_agg.json",
+      "sha256": "89b416b17989a1cd92852403d0964db617a453205f414ace6a2521f9ecf07609"
+    },
+    {
+      "file": "arisuniv_0130_obj1595__obj1645__outdoor7_r01_agg.json",
+      "sha256": "19a7563fea5a25bb0e8982042fddac2552edc689ad062ad56cd4c0c1c03e7897"
+    },
+    {
+      "file": "metadata.json",
+      "sha256": "ad66f443d82f4d3e4e7ac48120e864801f9be2b613e47b2c50de8823f5e7280f"
+    },
+    {
+      "file": "metadata.json",
+      "sha256": "d47934369583b543ccddfcb00a9133eb7e8aa25170c4dbf5150996c3f156512b"
+    },
+    {
+      "file": "grounding-r0.png",
+      "sha256": "56c0c9461b2e7249aeffe9d44ac6df2fbc16314b05add489476c8dae1a8396af",
+      "transform": "byte-identical copy"
+    },
+    {
+      "file": "grounding-r1.png",
+      "sha256": "3ce88665dc494993031ce8b521d61f3df0d912a524a85e8f98f4e562bfb9e004",
+      "transform": "byte-identical copy"
+    }
+  ]
+}
