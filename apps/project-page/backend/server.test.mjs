@@ -7,10 +7,10 @@ import { request } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { containedFile, createTraceServer, loadArchive } from './server.mjs';
 
-const root = fileURLToPath(new URL('../../', import.meta.url));
+const root = fileURLToPath(new URL('../', import.meta.url));
 let server, base, scratch;
 before(async () => {
-  server = await createTraceServer({ staticRoot: join(root, 'web'), allowedOrigins: ['https://pris-cv.github.io'], dev: true });
+  server = await createTraceServer({ staticRoot: join(root, 'frontend'), allowedOrigins: ['https://pris-cv.github.io'], dev: true });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   base = `http://127.0.0.1:${server.address().port}`;
   scratch = await mkdtemp(join(tmpdir(), 'dataevolver-traces-test-'));
@@ -25,7 +25,7 @@ test('health discloses only archive status', async () => {
   assert.equal(data.cases, 2); assert.match(data.revision, /^[a-f0-9]{64}$/);
 });
 test('manifest, case and round agree exactly with exported evidence', async () => {
-  const expected = JSON.parse(await readFile(join(root, 'web/traces/traces.json'), 'utf8'));
+  const expected = JSON.parse(await readFile(join(root, 'frontend/traces/traces.json'), 'utf8'));
   assert.deepEqual(await (await fetch(`${base}/api/traces`)).json(), expected);
   for (const c of expected.cases) {
     assert.deepEqual(await (await fetch(`${base}/api/traces/${c.id}`)).json(), c);
@@ -35,7 +35,7 @@ test('manifest, case and round agree exactly with exported evidence', async () =
 test('only registered image bytes are served', async () => {
   const r = await fetch(`${base}/api/assets/grounding-r0.png`);
   assert.equal(r.headers.get('content-type'), 'image/png');
-  assert.deepEqual(Buffer.from(await r.arrayBuffer()), await readFile(join(root, 'web/traces/images/grounding-r0.png')));
+  assert.deepEqual(Buffer.from(await r.arrayBuffer()), await readFile(join(root, 'frontend/traces/images/grounding-r0.png')));
   assert.equal((await fetch(`${base}/api/assets/private.png`)).status, 404);
 });
 test('API cannot start, stop or mutate experiments', async () => {
@@ -77,12 +77,12 @@ test('symlink cannot escape the public root', async () => {
 });
 test('changed original bytes fail archive admission', async () => {
   const bad = join(scratch, 'bad-archive');
-  await cp(join(root, 'web/traces'), bad, { recursive: true });
+  await cp(join(root, 'frontend/traces'), bad, { recursive: true });
   await writeFile(join(bad, 'images/grounding-r0.png'), 'modified');
   await assert.rejects(loadArchive(bad), /checksum/);
 });
 test('static preview does not pretend to have a backend', async () => {
-  const preview = await createTraceServer({ staticRoot: join(root, 'web'), apiEnabled: false });
+  const preview = await createTraceServer({ staticRoot: join(root, 'frontend'), apiEnabled: false });
   await new Promise(resolve => preview.listen(0, '127.0.0.1', resolve));
   try { assert.equal((await fetch(`http://127.0.0.1:${preview.address().port}/api/health`)).status, 404); }
   finally { await new Promise(resolve => preview.close(resolve)); }

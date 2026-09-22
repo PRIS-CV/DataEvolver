@@ -1,0 +1,116 @@
+export default {
+  "schema_version": "dataevolver.public_model_comparison.v1",
+  "curated_on": "2026-09-22",
+  "case_id": "prod_00475_layout_00334_v1",
+  "date": "2026-08-18",
+  "split": "tuning",
+  "subjects": [
+    "traffic barrier",
+    "electric kettle",
+    "shopping cart"
+  ],
+  "kind": "historical_configuration_comparison_not_continuous_agent_trace",
+  "images": [
+    {
+      "id": "reference",
+      "role": "blender_reference",
+      "model": "Blender",
+      "arm": null,
+      "image": "images/models-medium-reference.jpg",
+      "sha256": "fa5d187138cd20789ff48c223269bad7ea9eae791ff7e0ecbbf0dcb3ee6d4304",
+      "transform": "byte-identical copy",
+      "record_hash": null,
+      "evidence_level": "archived_provenance_or_generation_record"
+    },
+    {
+      "id": "depth",
+      "role": "depth_control",
+      "model": "raw8 depth",
+      "arm": null,
+      "image": "images/models-medium-depth.png",
+      "sha256": "b6471beef5abb710c1375296e1ef5f6a9030b612d182cfeb2c3e567a43399b8e",
+      "transform": "byte-identical copy",
+      "record_hash": null,
+      "evidence_level": "archived_provenance_or_generation_record"
+    },
+    {
+      "id": "qwen-free",
+      "role": "qwen_no_depth",
+      "model": "Qwen-Image-2512",
+      "arm": "no_depth__spatial",
+      "image": "images/models-medium-qwen-free.png",
+      "sha256": "2b10c516be3b38e731a47a55750c84c716eadd7224a796a5fa73b19b73a8bfca",
+      "transform": "byte-identical copy",
+      "record_hash": "96473252e23333c706e11398b8c597736411c067eaaa22e39c2efdc2e63db461",
+      "evidence_level": "archived_provenance_or_generation_record"
+    },
+    {
+      "id": "qwen-depth",
+      "role": "qwen_depth",
+      "model": "Qwen-Image-2512",
+      "arm": "raw8_s1p2__spatial",
+      "image": "images/models-medium-qwen-depth.png",
+      "sha256": "e72af43716111ab3efc03aff0b33374898a7f6113f22db7e894a033f8b73ac5d",
+      "transform": "byte-identical copy",
+      "record_hash": "815a5567009d544bc85d8fb6f0beb2b39146c9ad2410c8a6ed8dee98ad3522a6",
+      "evidence_level": "archived_provenance_or_generation_record"
+    },
+    {
+      "id": "flux-before",
+      "role": "flux_baseline",
+      "model": "FLUX.1-Depth-dev",
+      "arm": "flux_depth_g10__spatial",
+      "image": "images/models-medium-flux-before.png",
+      "sha256": "54c59f4c054e9755f0df045cf19facbd11c700c378379b8e80a9389f11800fc4",
+      "transform": "byte-identical copy",
+      "record_hash": "0fa9f48ff2395e782339cb96da66f82f4a33e90fecf8607a858e26d7f1d82569",
+      "evidence_level": "archived_provenance_or_generation_record"
+    },
+    {
+      "id": "flux-after",
+      "role": "flux_retry",
+      "model": "FLUX.1-Depth-dev",
+      "arm": "flux_depth_g10__simple_selection_seed0",
+      "image": "images/models-medium-flux-after.png",
+      "sha256": "c1bdf176f6f53fbca3d61ea631a4149119afcb53704ad4dfad1ea3c141b778d2",
+      "transform": "byte-identical copy",
+      "record_hash": null,
+      "evidence_level": "archived_report_image_hash"
+    }
+  ],
+  "findings": {
+    "qwen": "Photographic material and background, but object positions and sizes differ from the Blender layout.",
+    "flux": "Baseline and retry better follow the layout; kettle shape and handle change in the retry. This is a visual observation, not an isolated causal or final-success claim.",
+    "change": "FLUX prompt variant changes from spatial to simple; the source report labels both selection seed0. Raw retry request was not available in this local evidence package, so identical seed or other parameters are not independently asserted.",
+    "experiment_status": "blocked",
+    "vlm_used": false,
+    "qwen_compatibility": "Qwen-Image-2512 with Qwen-Image-Blockwise-ControlNet-Depth is experimental; it is not the official ControlNet training base."
+  },
+  "limits": [
+    "Curated tuning case, not a benchmark, independent test or new training result.",
+    "Qwen arms are a configuration comparison; Qwen to FLUX changes the generator and is not one continuous repair trace.",
+    "FLUX before/after is a historical baseline/retry comparison, not a newly executed autonomous Harness run.",
+    "No per-case numeric score is published without the corresponding original evaluator output.",
+    "The three-case experiment remained blocked according to the archived report; visual improvement is not full acceptance.",
+    "Original images are unedited; crops, scoring and model inference were not rerun."
+  ],
+  "provenance": [
+    {
+      "file": "SOURCE_PROVENANCE.json",
+      "sha256": "94b8b8fb3c65b60a226fd774fd2e09e15c2ffc3ad6c31ceb113cc37359888ba7"
+    },
+    {
+      "file": "qwen_manifest.jsonl",
+      "sha256": "af43b39b175619d605878c5dd550d4253e085b7790ea3a7260b2399d78d9b762"
+    },
+    {
+      "file": "flux_baseline_record.json",
+      "sha256": "b2c51faa6d3ddfa1d93facda190688f0e1195ec665c588917d4dcf8f4b35e80e"
+    },
+    {
+      "file": "REPORT.md",
+      "sha256": "7421aab7691df6d5b62e0fea35840742845b082bb0f26066a1a7887b6eb10c67",
+      "note": "Local archived report; raw retry evaluator outputs are not bundled."
+    }
+  ]
+};

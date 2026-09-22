@@ -1,8 +1,8 @@
 services:
   traces:
     build:
-      context: ../..
-      dockerfile: deploy/traces/Dockerfile
+      context: ..
+      dockerfile: deploy/Dockerfile
       args:
         TRACE_API_BASE_URL: /
     ports:

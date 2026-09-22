@@ -3,15 +3,19 @@
 公开入口：<https://pris-cv.github.io/DataEvolver/traces/?lang=zh>
 
 这是 Project Page 的**公开、只读 trace 展示服务**，不是私有 Harness 的训练控制台。
-只包含经过整理的两条历史案例、六张原图、轮次评价、实际修改与证据 JSON。
+Trace API 包含经过整理的两条历史轨迹、六张原图、轮次评价、实际修改与证据 JSON。
+前端另有一组三物体 Qwen / FLUX 配置对比（六张原图），作为独立静态证据展示，
+不混入逐轮 trace API，也不把跨模型对比描述成单模型的自进化。
 不读取任意实验目录，不启动渲染、VLM 或训练，不提供停止、恢复或删除接口。
 
 ## 1. 安装与本地开发
 
 要求 Node.js 22+（CI / Docker 使用 Node 24）和 npm。无第三方 npm 运行依赖。
-在仓库根目录执行：
+前后端、npm 依赖、构建产物与部署模板均隔离在 `apps/project-page/`，
+不依赖 Harness、训练环境或实验目录。先进入该目录执行：
 
 ```sh
+cd apps/project-page
 npm ci
 npm run dev
 ```
@@ -34,7 +38,10 @@ npm run preview  # 静态构建预览；默认 127.0.0.1:8787，不提供 API
 
 1. 将代码正常提交到 `main`。
 2. GitHub Actions 的 `Deploy GitHub Pages` 工作流执行 `npm ci → npm test → npm run build`。
-3. 上传 `dist/`，保留项目首页并发布 `/DataEvolver/traces/`。
+3. 上传 `apps/project-page/dist/`，保留项目首页并发布 `/DataEvolver/traces/`。
+
+Pull request 只做测试与构建，并提供可下载的 `project-page-preview` artifact，
+不会覆盖线上页面；合并到 `main` 后自动部署。Harness 改动不会触发该工作流。
 
 也可安装并登录 GitHub CLI 后运行：
 
@@ -50,12 +57,12 @@ GitHub Pages 是静态站点托管，不会运行 Node 后端：
 
 ## 3. 独立后端 / 同机前后端
 
-后端代码：`services/trace-api/server.mjs`。默认仅监听 loopback。
+后端代码：`apps/project-page/backend/server.mjs`。默认仅监听 loopback。
 Linux 示例把代码和 npm 缓存放在 `/aaaidata`，不占用 `/home` 的实验空间：
 
 ```sh
-cd /aaaidata/dataevolver-project
-npm ci --cache /aaaidata/dataevolver-project/.npm
+cd /aaaidata/dataevolver-project/apps/project-page
+npm ci --cache /aaaidata/dataevolver-project/apps/project-page/.npm
 TRACE_API_BASE_URL=/ npm run build
 npm start
 ```
@@ -71,7 +78,7 @@ npm start
 | --- | --- | --- |
 | `HOST` | `127.0.0.1` | 服务监听地址；不要直接将私有 Harness 暴露到公网 |
 | `PORT` | `8787`，开发 `4173` | 本只读服务端口 |
-| `TRACE_DATA_DIR` | 仓库的 `web/traces` | 已整理公开包，不是原始实验根目录 |
+| `TRACE_DATA_DIR` | 应用内的 `frontend/traces` | 已整理公开包，不是原始实验根目录 |
 | `TRACE_ALLOWED_ORIGINS` | 空 | 允许跨域访问的完整 origin，逗号分隔，不允许 `*` |
 | `TRACE_API_BASE_URL` | 空 | **构建时**前端 API 配置；`/` 为同源，或独立 HTTPS origin |
 
@@ -109,17 +116,18 @@ API 图像启动时验证原始 SHA256，之后从内存服务同一批字节，
 ### Docker Compose
 
 ```sh
-docker compose -f deploy/traces/compose.yaml up -d --build
-docker compose -f deploy/traces/compose.yaml logs --tail=50
+docker compose -f deploy/compose.yaml up -d --build
+docker compose -f deploy/compose.yaml logs --tail=50
 ```
 
 镜像用 npm 构建前端，运行时使用非 root 用户、只读文件系统；宿主机仅映射
-`127.0.0.1:8787`。不挂载实验根目录。构建上下文排除模型、数据集和本地配置。
+`127.0.0.1:8787`。不挂载实验根目录。构建上下文只包含 `apps/project-page/`，
+不会把 Harness、模型或实验目录发送给 Docker。
 
 ### systemd 与 Nginx
 
 - `dataevolver-traces.service`：示例单位文件。先创建专用非特权用户，核对 Node 路径、
-  `/aaaidata/dataevolver-project` 及只读权限，再由管理员安装启用。不要直接覆盖现有 Harness 服务。
+  `/aaaidata/dataevolver-project/apps/project-page` 及只读权限，再由管理员安装启用。不要直接覆盖现有 Harness 服务。
 - `nginx.conf.example`：加入已有 HTTPS server block；TLS 域名/证书由部署者提供。
   可以只代理 `/api/`，也可同时服务 `dist/`。
 
@@ -127,7 +135,7 @@ docker compose -f deploy/traces/compose.yaml logs --tail=50
 
 ## 5. 证据更新与设计边界
 
-- 保留原有 `web/traces/build_showcase.py` 导出器与 Python 证据核验；npm build 不重新生成实验数据。
+- 保留 `frontend/traces/build_showcase.py` 导出器与 Python 证据核验；npm build 不重新生成实验数据。
 - 当前 `v1` 合约仅接入 `grounding` 和 `count`，不是自动扫描任意 Harness runs。
   新案例类型需同时审核导出合约、字段渲染与 UI 事实文案；不能只替换分数。
 - 整理过程不调用模型，不改变原始图片，不删除失败轮次，不把局部恢复描述成全面达标。

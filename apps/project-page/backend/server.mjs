@@ -1,11 +1,12 @@
 import { createServer } from 'node:http';
 import { createHash } from 'node:crypto';
 import { readFile, realpath, stat } from 'node:fs/promises';
+import { realpathSync } from 'node:fs';
 import { resolve, relative, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validateManifest } from '../../web/traces/data-source.js';
+import { validateManifest } from '../frontend/traces/data-source.js';
 
-const repository = fileURLToPath(new URL('../../', import.meta.url));
+const appRoot = fileURLToPath(new URL('../', import.meta.url));
 const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.avif': 'image/avif', '.ico': 'image/x-icon', '.gif': 'image/gif', '.woff': 'font/woff', '.woff2': 'font/woff2', '.mp4': 'video/mp4', '.webm': 'video/webm', '.pdf': 'application/pdf', '.txt': 'text/plain; charset=utf-8' };
 const digest = buffer => createHash('sha256').update(buffer).digest('hex');
 
@@ -34,8 +35,8 @@ export async function loadArchive(dataRoot) {
 }
 
 export async function createTraceServer({
-  dataRoot = resolve(repository, 'web/traces'),
-  staticRoot = resolve(repository, 'dist'),
+  dataRoot = resolve(appRoot, 'frontend/traces'),
+  staticRoot = resolve(appRoot, 'dist'),
   allowedOrigins = [], apiEnabled = true, dev = false,
 } = {}) {
   const archive = apiEnabled ? await loadArchive(dataRoot) : null;
@@ -115,7 +116,7 @@ export async function createTraceServer({
   return server;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))) {
   const dev = process.argv.includes('--dev');
   const onlyApi = process.argv.includes('--api-only');
   const staticOnly = process.argv.includes('--static-only');
@@ -123,8 +124,8 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const port = Number(process.env.PORT || (dev ? 4173 : 8787));
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid PORT');
   const server = await createTraceServer({
-    dataRoot: process.env.TRACE_DATA_DIR || resolve(repository, 'web/traces'),
-    staticRoot: onlyApi ? null : resolve(repository, dev ? 'web' : 'dist'),
+    dataRoot: process.env.TRACE_DATA_DIR || resolve(appRoot, 'frontend/traces'),
+    staticRoot: onlyApi ? null : resolve(appRoot, dev ? 'frontend' : 'dist'),
     allowedOrigins: (process.env.TRACE_ALLOWED_ORIGINS || '').split(',').map(x => x.trim()).filter(Boolean),
     apiEnabled: !staticOnly, dev,
   });

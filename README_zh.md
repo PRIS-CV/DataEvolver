@@ -517,7 +517,7 @@ DataEvolver/
 ├── assets/
 │   ├── hdri/                                # HDRI 环境贴图
 │   └── scene/                               # Blender 场景文件 (.blend)
-└── web/                                     # 项目展示页面 (GitHub Pages)
+└── apps/project-page/                       # 独立项目页面 + 只读 API（不依赖 Harness）
 ```
 
 ---
