@@ -5,8 +5,8 @@
 <h1 align="center">DataEvolver</h1>
 
 <p align="center">
-  <strong><a href="https://github.com/PRIS-CV/DataRSI">DataRSI</a> 的配套工程仓库</strong><br/>
-  为 <em>DataRSI: A 3D Data Harness for Failure-to-Data Evolution</em> 提供合成数据构建基础设施。
+  <strong>面向合成数据构建的实际工程项目</strong><br/>
+  从第一版 DataEvolver 技术报告持续迭代，形成了已投稿至 ICASSP 2027 的 <a href="https://github.com/PRIS-CV/DataRSI">DataRSI</a>。
 </p>
 
 <p align="center">
@@ -21,7 +21,8 @@
 
 <p align="center">
   <a href="https://github.com/PRIS-CV/DataRSI"><img src="https://img.shields.io/badge/DataRSI-Research%20Repository-0057b8?logo=github&logoColor=white" alt="DataRSI 论文仓库"/></a>
-  <a href="https://arxiv.org/abs/2605.01789"><img src="https://img.shields.io/badge/DataEvolver-Paper-b31b1b?logo=arxiv&logoColor=white" alt="DataEvolver 论文：arXiv"/></a>
+  <a href="https://arxiv.org/abs/2605.01789"><img src="https://img.shields.io/badge/arXiv-First%20Technical%20Report-b31b1b?logo=arxiv&logoColor=white" alt="DataEvolver：第一版 arXiv 技术报告"/></a>
+  <a href="https://github.com/PRIS-CV/DataRSI"><img src="https://img.shields.io/badge/ICASSP%202027-Submitted-cc785c" alt="DataRSI 已投稿至 ICASSP 2027"/></a>
   <a href="https://pris-cv.github.io/DataEvolver/"><img src="https://img.shields.io/badge/Website-Project%20Page-1f6feb?logo=githubpages&logoColor=white" alt="Project website"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-green" alt="License: Apache-2.0"/></a>
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white" alt="Python 3.10+"/>
@@ -30,9 +31,11 @@
 
 <p align="center">
   <a href="README.md">🇬🇧 English</a> •
-  <a href="#dataevolver-与-datarsi">DataRSI 配套工程</a> •
+  <a href="#dataevolver-与-datarsi">项目与论文</a> •
   <a href="https://pris-cv.github.io/DataEvolver/">🌐 Website</a> •
-  <a href="https://arxiv.org/abs/2605.01789">📄 DataEvolver 论文</a> •
+  <a href="https://arxiv.org/abs/2605.01789">📄 第一版技术报告</a> •
+  <a href="https://pris-cv.github.io/DataEvolver/traces/?lang=zh">🔎 修复轨迹</a> •
+  <a href="#快速开始">快速开始</a> •
   <a href="#荣誉展示">🏆 荣誉展示</a> •
   <a href="#dataevolver-rotate">🧩 数据集: DataEvolver-Rotate</a>
 </p>
@@ -47,16 +50,17 @@
 
 ## DataEvolver 与 DataRSI
 
-**这是我们为 [DataRSI](https://github.com/PRIS-CV/DataRSI) 维护的配套工程仓库。** DataEvolver 提供合成数据构建基础设施，DataRSI 在此基础上研究由模型失败驱动、预算和准入规则固定的有界数据修订过程。
+**DataEvolver 是我们实际维护的工程项目。** arXiv 上的 DataEvolver 是第一版技术报告。项目进一步迭代后，我们形成了新论文 **DataRSI: A 3D Data Harness for Failure-to-Data Evolution**，并投稿至 **ICASSP 2027**。
 
-| 仓库 | 定位 | 使用入口 |
+| 项目 / 论文 | 定位 | 使用入口 |
 |---|---|---|
-| **DataEvolver**（本仓库） | 工程基础设施：资产生成、3D 重建、场景渲染、VLM 审查与修复、多模态数据导出。 | 下文的安装与运行说明 |
-| **[DataRSI](https://github.com/PRIS-CV/DataRSI)** | 论文 *DataRSI: A 3D Data Harness for Failure-to-Data Evolution* 的研究框架、注册协议和实验材料。 | [论文仓库 README](https://github.com/PRIS-CV/DataRSI#readme) · [实验复现指南](https://github.com/PRIS-CV/DataRSI/blob/main/docs/REPRODUCTION.md) |
+| **DataEvolver**（本仓库） | 工程基础设施：资产生成、3D 重建、场景渲染、VLM 审查与修复、多模态数据导出。 | [快速开始](#快速开始) |
+| **arXiv 上的 DataEvolver** | 第一版技术报告，题为 *Let Your Data Build and Improve Itself via Goal-Driven Loop Agents*。 | [arXiv 2605.01789](https://arxiv.org/abs/2605.01789) · [引用](#引用) |
+| **DataRSI** | 后续迭代形成的研究论文，在固定预算和准入规则下研究失败驱动的数据修订。已投稿至 ICASSP 2027。 | [研究更新](#datarsi-研究更新) · [论文仓库](https://github.com/PRIS-CV/DataRSI) |
 
 DataRSI 通过 **Failure-to-Data Feedback（失败到数据反馈）** 接口连接 **Data Self-Evolution Loop（数据自进化闭环）** 与 **Model Admission Loop（模型准入闭环）**。每轮修订预先固定预算和准入规则，根据目标区域收益与受保护区域的退化检查，决定晋升或回滚候选模型。
 
-DataEvolver 继续使用现有仓库名称、Python 包名（`dataevolver`）和命令行接口。论文的固定实验设置、结果与引用信息以 DataRSI 论文仓库为准。详见[仓库关系与引用说明](docs/DATARSI_RELATION.md)。
+DataRSI 的公开仓库目前公告：实现代码与复现材料仍在整理，准备后续开源。下方的方法图和论文结果描述投稿工作，完整公开复现包尚未发布。详见[项目、论文与发布状态说明](docs/DATARSI_RELATION.md)。
 
 ## 为什么是 DataEvolver？
 
@@ -65,6 +69,40 @@ DataEvolver 将合成数据构建转化为一个 **目标驱动的优化闭环**
 - **超越固定评分规则** — 自由形式 VLM 反馈能发现规则难以覆盖的场景关系、物体摆放、光照和材质问题。
 - **用结构化动作修复问题** — 24 种有界原子操作覆盖光照、物体位姿、场景环境和材质外观，减少无约束漂移。
 - **直接导出训练数据** — 输出 RGB、mask、depth、normal、几何元数据和物体隔离划分，便于下游模型训练。
+
+## 项目网页与修复轨迹
+
+[项目网页](https://pris-cv.github.io/DataEvolver/) 展示工程路线、论文图、研究结果和渲染图库。[Trace 子页](https://pris-cv.github.io/DataEvolver/traces/?lang=zh) 包含一组 Qwen / FLUX 配置对比，以及地面接触、瓶子数量两条历史修复轨迹。页面保留原图、实际修改、回退和未解决结果。配置对比涉及不同生成模型，独立于两条修复轨迹；这些示例不代表同一模型持续改进，也不证明训练后模型收益。
+
+网页应用独立位于 [`apps/project-page/`](apps/project-page/README.md)。本地开发需要 **Node.js 22+ 和 npm**。网页及只读归档 API 不依赖 Harness、模型权重或 GPU：
+
+```sh
+cd apps/project-page
+npm ci
+npm run dev
+```
+
+打开 `http://127.0.0.1:4173/` 或 `http://127.0.0.1:4173/traces/?lang=zh`。运行 `npm run build` 生成 `apps/project-page/dist/`，再用 `npm run preview` 在 8787 端口预览静态构建。
+
+修改应用目录的 PR 会执行测试并生成预览包。网页改动合并到 `main` 后，GitHub Pages 自动发布。Pages 默认提供随站点发布的公开归档；可选的只读后端需单独托管。API、Docker、systemd 和 HTTPS 配置见[部署指南](apps/project-page/deploy/README.md)。
+
+## DataRSI 研究更新
+
+**已投稿至 ICASSP 2027。** DataRSI 连接数据修订循环与模型准入循环。VLM 检查提供缺陷证据，已注册的策略在预算内修复，确定性样本合同决定训练样本准入。候选模型更新须通过目标效用与受保护区域的回归检查。
+
+![DataRSI 方法：数据修订、失败到数据反馈与模型准入](apps/project-page/frontend/images/paper/datarsi-method.jpg)
+
+论文比较 Uniform-72 与 Targeted-72，**每组使用 72 次请求**，训练设置和候选池相同，种子为 **42、43、44**。评测采用 **288 对开发样本，分辨率为 1024 × 1024**。Weak-4 是诊断出的四个相机控制单元。下表为三个种子的均值 ± 标准差。
+
+| 指标 | Uniform-72 | Targeted-72 |
+|---|---|---|
+| Weak-4 旋转误差（°）↓ | 50.45 ± 2.15 | 35.50 ± 3.23 |
+| Weak-4 PSNR（dB）↑ | 13.88 ± 0.07 | 14.43 ± 0.09 |
+| 整体 LPIPS ↓ | 0.2058 ± 0.0028 | 0.2014 ± 0.0030 |
+
+相对 Uniform，非 Weak-4 区域旋转误差增加 **2.370 ± 0.046°**，整体旋转误差增加 **0.205 ± 0.125°**。相机准入回放将三个定向候选与冻结的基准模型比较，均返回 `Promote`。物体移动案例虽然 18 个样本全部准入、目标效用达到要求，但受保护空间单元出现回退，因此返回 `Rollback`。
+
+这些结果覆盖**一次预算内的修订**。论文尚未证明多轮递归改进。另一组历史 DataRSI-Bench 评测采用 384 对样本、512 × 512 分辨率；下文的原始 DataEvolver-Rotate 数据集包含 350 对训练样本。几组评测各有适用范围。修复图与历史检查点对比图见[网页结果区](https://pris-cv.github.io/DataEvolver/#results)。此处数字来自论文稿件，本次文档更新没有重跑实验。
 
 ## 当前能力
 
@@ -76,14 +114,16 @@ DataEvolver 目前由两条相互连接的数据构建主线组成：
 ## 核心特性
 
 - **目标驱动闭环智能体** — VLM 审查器提供语义反馈（"光照平淡"、"物体悬浮"）&rarr; AI Agent 选择目标行为 &rarr; 重新渲染 &rarr; 重复直至达到质量标准
-- **24 种原子操作** — 覆盖光照、物体位姿、场景环境和材质属性 5 大类别的结构化操作空间，配备抗振荡控制和步长衰减调度
+- **24 种原子操作** — 光照、物体位姿、场景环境和材质属性构成四个有效类别，第五个相机类别预留；配备抗振荡控制和步长衰减调度
 - **场景感知渲染** — 物体置于真实 Blender 场景中，支持 HDRI 环境光、射线检测地面定位，保留原场景光照
 - **多模态输出** — 同步输出 RGB、mask、depth、normal 以及几何元数据
-- **端到端自动化** — 从自然语言种子概念到训练就绪数据集，全过程零人工干预
+- **流水线自动化** — 在已配置的预算与质量检查下，编排生成、渲染、审查和导出
 
 ---
 
 ## 流水线概览
+
+下图是 DataEvolver 的一条工程路线。上方 DataRSI 方法图补充了样本与模型准入的研究协议。
 
 ![Pipeline Overview](assets/pipeline_show.svg)
 
@@ -456,7 +496,7 @@ DataEvolver 负责记录 evidence、trace event、handoff 文档和 `research_pr
 
 核心入口：
 
-- Stage0 WebSearch prior：[`python -m dataevolver.tools.stage0_web_research`](python -m dataevolver.tools.stage0_web_research)
+- Stage0 WebSearch prior：`python -m dataevolver.tools.stage0_web_research`（[源码](src/dataevolver/tools/stage0_web_research.py)）
 - Universal dataset schema：[`configs/schemas/universal_3d_layout_dataset_schema.json`](configs/schemas/universal_3d_layout_dataset_schema.json)
 
 ### 单论文复现模式
@@ -515,8 +555,8 @@ DataEvolver/
 ├── .agents/                                 # Agent skills 与配置说明
 ├── .github/                                 # GitHub workflow 与仓库元信息
 ├── assets/
-│   ├── hdri/                                # HDRI 环境贴图
-│   └── scene/                               # Blender 场景文件 (.blend)
+│   ├── hdri/                                # 本地 HDRI 贴图占位目录
+│   └── scene/                               # 场景引用；运行时需自行提供 .blend 资产
 └── apps/project-page/                       # 独立项目页面 + 只读 API（不依赖 Harness）
 ```
 
@@ -524,7 +564,7 @@ DataEvolver/
 
 ## 操作空间
 
-AI Agent 从 5 大类 **24 种结构化原子操作**中选择：
+AI Agent 从四个有效类别的 **24 种结构化原子操作**中选择，第五个相机类别预留：
 
 | 类别 | 操作数 | 参数说明 |
 |------|--------|----------|
@@ -664,6 +704,8 @@ Claude Code 读取 `CLAUDE.md` 后将理解完整项目上下文。示例指令�
 ---
 
 ## 引用
+
+下方条目引用的是**第一版 arXiv DataEvolver 技术报告**。DataRSI 是后续投稿论文，发布与引用信息请查阅其[论文仓库](https://github.com/PRIS-CV/DataRSI)。
 
 ```bibtex
 @misc{zhang2026dataevolverletdatabuild,
