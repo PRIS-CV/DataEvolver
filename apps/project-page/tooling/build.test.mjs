@@ -14,7 +14,7 @@ test('build contains the homepage, subpage, six original frames and runtime conf
   assert.match(await readFile(resolve(destination, 'traces/config.js'), 'utf8'), /"apiBase":"\/"/);
   for (const [file, lang, label] of [['index.html', 'en', 'Traces'], ['index_zh.html', 'zh', '过程演示']]) {
     const homepage = await readFile(resolve(destination, file), 'utf8');
-    const navigation = homepage.match(/<nav class="nav">[\s\S]*?<\/nav>/)?.[0];
+    const navigation = homepage.match(/<nav class="nav"[^>]*>[\s\S]*?<\/nav>/)?.[0];
     assert.ok(navigation, `${file} includes the main navigation`);
     assert.ok(navigation.includes(`<li class="nav-traces"><a href="traces/?lang=${lang}">${label}</a></li>`), `${file} links directly to the localized Trace subpage from the header`);
   }

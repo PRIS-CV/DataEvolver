@@ -1663,29 +1663,33 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
   html.theme-anim,html.theme-anim body,html.theme-anim *{transition:none !important}
 }
 </style>
-<script>(function(){var t=null;try{t=localStorage.getItem('de-theme')}catch(e){}if(t!=='light'&&t!=='dark'){var m=document.cookie.match(/(?:^|;\s*)de-theme=(light|dark)/);if(m)t=m[1]}if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}document.documentElement.setAttribute('data-theme',t)})();</script>
+<link rel="stylesheet" href="homepage.css">
+<script>(function(){var t=null;try{t=localStorage.getItem('de-theme')}catch(e){}if(t!=='light'&&t!=='dark'){var m=document.cookie.match(/(?:^|;\s*)de-theme=(light|dark)/);if(m)t=m[1]}if(t!=='light'&&t!=='dark'){t='light'}document.documentElement.setAttribute('data-theme',t)})();</script>
 </head>
 <body>
+<a class="skip-link" href="#main">跳至正文</a>
 
 <!-- Navigation -->
-<nav class="nav">
+<nav class="nav" aria-label="主导航">
   <div class="nav-progress" aria-hidden="true"></div>
   <div class="nav-inner">
     <a href="#" class="nav-logo">
       <img src="images/extracted/index3/image-01-af2d95cdebb7.png" alt="DataEvolver" class="logo-img">
       DataEvolver
     </a>
-    <ul class="nav-links">
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#publications">项目与论文</a></li>
       <li><a href="#pipeline">Pipeline</a></li>
       <li><a href="#research">研究</a></li>
-      <li><a href="#worldmodel">场景上下文</a></li>
+
       <li><a href="#evolution">VLM Loop</a></li>
+      <li><a href="#results">研究结果</a></li>
       <li class="nav-traces"><a href="traces/?lang=zh">过程演示</a></li>
-      <li><a href="#dataset">数据集</a></li>
       <li><a href="#gallery">示例集</a></li>
       <li><a href="#start">开始</a></li>
     </ul>
     <div class="nav-actions">
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="navLinks">目录</button>
       <button class="theme-toggle" type="button" role="switch" aria-checked="false" aria-label="切换主题" title="切换主题">
   <span class="theme-toggle-track">
     <span class="theme-toggle-icon icon-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>
@@ -1706,13 +1710,13 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
   </div>
 </nav>
 
+<main id="main" tabindex="-1">
 <!-- Hero -->
 <section class="hero">
   <div class="hero-inner">
     <div class="hero-content">
       <div class="hero-badge">
-        <span class="badge-dot"></span>技术报告 · 2026
-      </div>
+        <span class="badge-dot"></span>DataEvolver · 工程项目</div>
       <h1>让数据自我构建和改进</h1>
       <p class="hero-subtitle">
         DataEvolver 是一个自动化数据集构建框架，其中 <em>目标驱动的 loop agents</em> 会选择并组合 text-to-image、image editing、text-to-video 与 image-to-3D 接口，再利用 VLM 反馈和 WebSearch 研究先验，将用户需求或论文转化为可复现的数据 pipeline。
@@ -1732,8 +1736,9 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
           查看 GitHub
         </a>
         <a href="#pipeline" class="btn btn-secondary">工作方式</a>
-        <a href="https://arxiv.org/abs/2605.01789" class="btn btn-secondary" target="_blank" rel="noopener">阅读论文</a>
+        <a href="https://arxiv.org/abs/2605.01789" class="btn btn-secondary" target="_blank" rel="noopener">第一版技术报告</a>
       </div>
+    <p class="research-note"><a href="#publications">DataRSI · 已投稿至 ICASSP 2027 · 项目与论文 ↗</a></p>
     </div>
 
     <!-- Hero Showcase -->
@@ -1774,6 +1779,34 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
   </div>
 </section>
 
+<section class="section research-section" id="publications" aria-labelledby="publications-title">
+ <div class="section-inner">
+  <div class="section-label">项目与论文</div>
+  <h2 class="section-title" id="publications-title">工程项目与研究论文。</h2>
+  <p class="section-desc">DataEvolver 是实际工程项目。两份研究报告记录了项目的持续迭代。</p>
+  <div class="publication-grid">
+   <a class="publication-card publication-card-project" href="https://github.com/PRIS-CV/DataEvolver" target="_blank" rel="noopener">
+    <div class="publication-meta"><span>工程项目</span><span class="publication-number" aria-hidden="true">↳</span></div>
+    <h3>DataEvolver</h3>
+    <p>DataEvolver 是我们实际维护和迭代的合成数据工程项目。</p>
+    <span class="publication-link">查看工程代码 <span class="publication-arrow" aria-hidden="true">↗</span></span>
+   </a>
+   <a class="publication-card" href="https://arxiv.org/abs/2605.01789" target="_blank" rel="noopener">
+    <div class="publication-meta"><span>第一版技术报告 · arXiv</span><span class="publication-number" aria-hidden="true">01</span></div>
+    <h3>DataEvolver</h3>
+    <p>我们在 arXiv 上发布的第一版技术报告，介绍了面向合成数据构建的目标驱动循环智能体。</p>
+    <span class="publication-link">阅读首版技术报告 <span class="publication-arrow" aria-hidden="true">↗</span></span>
+   </a>
+   <a class="publication-card" href="#pipeline">
+    <div class="publication-meta"><span class="submission-status">已投稿 · ICASSP 2027</span><span class="publication-number" aria-hidden="true">02</span></div>
+    <h3>DataRSI</h3>
+    <p>工程项目进一步迭代后，我们形成了新论文 <em>DataRSI: A 3D Data Harness for Failure-to-Data Evolution</em>，并投稿至 ICASSP 2027。</p>
+    <span class="publication-link">了解 DataRSI <span class="publication-arrow" aria-hidden="true">↘</span></span>
+   </a>
+  </div>
+ </div>
+</section>
+
 <!-- Problem / Solution — Cream Card Section -->
 <section class="section section-card" id="problem">
   <div class="section-inner">
@@ -1812,6 +1845,23 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
 <!-- Pipeline — Cream Canvas -->
 <section class="section" id="pipeline">
   <div class="section-inner">
+    <div class="section-label">DataRSI · 已投稿至 ICASSP 2027</div>
+    <h2 class="section-title">数据与模型修订的双循环</h2>
+    <p class="section-desc">
+      DataRSI 论文把模型失败诊断转成可执行的 3D 数据合成请求。数据循环检查、修复并准入样本；模型循环将训练后的候选与冻结的基准模型比较，再决定晋升或回退。
+    </p>
+
+    <div class="visual-frame paper-method">
+      <div class="visual-frame-inner">
+        <img src="images/paper/datarsi-method.jpg" alt="DataRSI method: data self-evolution, failure-to-data feedback, and model admission within one bounded revision" onclick="openLightbox(this)" width="1019" height="395" loading="lazy">
+        <div class="visual-caption">
+          <strong>DataRSI · 图 1</strong>
+          <span>数据自演化循环与模型准入循环遵守已注册的协议和固定修订预算。</span>
+        </div>
+      </div>
+    </div>
+
+
     <div class="section-label">Pipeline</div>
     <h2 class="section-title">两条相互连接的数据集构建路线</h2>
     <p class="section-desc">
@@ -2237,6 +2287,19 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
       </div>
     </div>
 
+<h3 class="subsection-title">DataRSI：预算内的样本修复</h3>
+<p class="results-note">视觉语言模型诊断缺陷，已注册的策略在预算内修复，确定性合同决定样本准入。请求指定的视角保持固定。</p>
+    <div class="visual-frame">
+      <div class="visual-frame-inner">
+        <img src="images/paper/datarsi-occlusion-repair.png" alt="Paper occlusion-repair example: reference camera, obstructed rendering, and repaired rendering" onclick="openLightbox(this)" width="2422" height="912" loading="lazy">
+        <div class="visual-caption">
+          <strong>固定目标与相机的遮挡修复</strong>
+          <span>移动非目标装饰组后，目标可见像素占图像的比例从 1.04% 增至 5.33%。</span>
+        </div>
+      </div>
+    </div>
+
+
     <div class="loop-diagram">
       <div class="loop-node">
         <div class="loop-node-icon">
@@ -2289,6 +2352,57 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
       <div class="card-dark">
         <h3 class="card-title">24 个 Atomic Actions</h3>
         <p class="card-desc">覆盖光照、物体 transform、场景环境和材质属性组的结构化 action space。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="results">
+  <div class="section-inner">
+    <div class="section-label">研究结果 · DataRSI 投稿稿</div>
+    <h2 class="section-title">固定预算下的定向数据合成</h2>
+    <p class="section-desc">Uniform-72 与 Targeted-72 使用相同的训练设置和候选池。Weak-4 是诊断出的四个相机控制单元。论文对种子 42、43、44 做配对比较，评测集包含 288 对开发样本，分辨率为 1024 × 1024。</p>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value">72</div><div class="stat-label">每组请求数</div></div>
+      <div class="stat-card"><div class="stat-value">3</div><div class="stat-label">训练种子数</div></div>
+      <div class="stat-card"><div class="stat-value">−14.95°</div><div class="stat-label">Weak-4 旋转误差变化</div></div>
+      <div class="stat-card"><div class="stat-value">+0.54 dB</div><div class="stat-label">Weak-4 PSNR 变化</div></div>
+    </div>
+
+    <div class="results-table-wrap" tabindex="0" role="region" aria-label="相同预算下的结果。窄屏可横向滚动。">
+      <table class="results-table">
+        <caption>每组 72 次请求 · 三个种子的均值 ± 标准差</caption>
+        <thead><tr><th scope="col">指标</th><th scope="col">Uniform-72</th><th scope="col">Targeted-72</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Weak-4 旋转误差（°）↓</th><td>50.45 ± 2.15</td><td><strong>35.50 ± 3.23</strong></td></tr>
+          <tr><th scope="row">Weak-4 PSNR (dB) ↑</th><td>13.88 ± 0.07</td><td><strong>14.43 ± 0.09</strong></td></tr>
+          <tr><th scope="row">整体 LPIPS ↓</th><td>0.2058 ± 0.0028</td><td><strong>0.2014 ± 0.0030</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="results-note">Weak-4 的配对变化为 −14.950 ± 1.097° 和 +0.543 ± 0.023 dB。相对 Uniform，非 Weak-4 区域旋转误差增加 2.370 ± 0.046°，整体旋转误差增加 0.205 ± 0.125°。模型准入检查将候选与冻结的基准模型比较。</p>
+
+    <div class="admission-grid">
+      <article class="card">
+        <span class="outcome outcome-promote">Promote · 相机准入回放</span>
+        <h3 class="card-title">三个相机候选通过准入检查</h3>
+        <p class="card-desc">准入回放对三个定向候选均返回 Promote。规则要求 Weak-4 至少改善 5%，相对冻结基准模型的非目标区域回退不超过 2%，标准视角误差低于 5.000°。</p>
+      </article>
+      <article class="card">
+        <span class="outcome outcome-rollback">Rollback · 物体移动</span>
+        <h3 class="card-title">目标收益仍须通过回归检查</h3>
+        <p class="card-desc">18 个样本全部准入，目标效用也达到要求。受保护空间单元出现回退，控制器因此返回 Rollback。诊断与准入使用相同的开发集网格。</p>
+      </article>
+    </div>
+    <p class="results-note">这些实验覆盖一次预算内的修订。独立的 Blender 修复研究在两轮内恢复了 7 个符合条件缺陷中的 2 个，样本准入数从 29/72 增至 31/72。</p>
+
+    <h3 class="subsection-title">历史检查点对比</h3>
+    <p class="results-note">论文另有一组 DataRSI-Bench 评测，包含 384 对样本，分辨率为 512 × 512。下图属于这组评测，比较的是历史检查点。</p>
+    <div class="visual-frame">
+      <div class="visual-frame-inner">
+        <img src="images/paper/datarsi-qualitative.png" alt="Paper qualitative comparison: input, ground truth, Qwen-Image-Edit, fal LoRA, and historical DataRSI on two camera-control examples" onclick="openLightbox(this)" width="1885" height="921" loading="lazy">
+        <div class="visual-caption"><strong>DataRSI · 图 2</strong><span>DataRSI-Bench 验证样本中的后侧视角与俯侧视角示例。</span></div>
       </div>
     </div>
   </div>
@@ -2703,12 +2817,12 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
 </section>
 
 <!-- Citation — Cream Card -->
-<section class="section section-card">
+<section class="section section-card" id="citation">
   <div class="section-inner" style="text-align:center">
-    <div class="section-label">引用</div>
+    <div class="section-label">第一版技术报告</div>
     <h2 class="section-title">引用</h2>
     <p class="section-desc" style="margin:0 auto 32px">
-      如果你在研究中使用 DataEvolver 或 DataEvolver-Rotate，请引用我们的工作。
+      如果研究使用了 DataEvolver 或 DataEvolver-Rotate，请引用下方的第一版 arXiv 技术报告。
     </p>
 
     <div class="code-block" style="text-align:left;max-width:720px;margin:0 auto">
@@ -2719,6 +2833,11 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
           <span class="code-block-dot g"></span>
         </div>
         <span class="code-block-lang">BibTeX</span>
+        <button class="select-citation" type="button" aria-label="选中第一版技术报告的 BibTeX" aria-describedby="citation-status">
+         <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
+         <svg class="copy-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+         <span class="citation-label">选中 BibTeX</span>
+        </button>
       </div>
       <div class="code-block-body">
 <pre>@misc{zhang2026dataevolverletdatabuild,
@@ -2736,6 +2855,7 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
 }</pre>
       </div>
     </div>
+    <span id="citation-status" class="citation-status" role="status" aria-live="polite"></span>
   </div>
 </section>
 
@@ -2793,6 +2913,7 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
   </div>
 </section>
 
+</main>
 <!-- Footer — Dark Navy -->
 <footer class="footer">
   <div class="footer-inner">
@@ -2817,6 +2938,7 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
         <h4>Pipeline</h4>
         <a href="#pipeline">概览</a>
         <a href="#research">Research Prior</a>
+        <a href="#dataset">数据集</a>
         <a href="#worldmodel">场景上下文</a>
         <a href="#evolution">VLM Loop</a>
       </div>
@@ -2835,220 +2957,12 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
 </footer>
 
 <!-- Lightbox -->
-<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
-  <img id="lightbox-img" src="images/extracted/index3/image-36-1e85ec81b980.gif" alt="">
-</div>
+<dialog class="lightbox-overlay" id="lightbox" aria-label="图片预览">
+  <button class="lightbox-close" type="button" onclick="closeLightbox()" aria-label="关闭图片预览">×</button>
+  <img id="lightbox-img" alt="">
+</dialog>
 
-<script>
-function openLightbox(img){
-  document.getElementById('lightbox-img').src=img.src;
-  document.getElementById('lightbox').classList.add('open');
-}
-function closeLightbox(){
-  document.getElementById('lightbox').classList.remove('open');
-}
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox();});
-
-function scrollGallery(dir){
-  var el=document.getElementById('galleryScroll');
-  if(!el)return;
-  var cardW=el.querySelector('.gallery-card');
-  var step=cardW?(cardW.offsetWidth+20)*2:680;
-  el.scrollBy({left:dir*step,behavior:'smooth'});
-}
-function scrollResearchGallery(dir){
-  var el=document.getElementById('researchGalleryScroll');
-  if(!el)return;
-  var cardW=el.querySelector('.gallery-card');
-  var step=cardW?(cardW.offsetWidth+20)*2:640;
-  el.scrollBy({left:dir*step,behavior:'smooth'});
-}
-
-(function(){
-  var scroll=document.getElementById('researchGalleryScroll');
-  var indicator=document.getElementById('researchGalleryIndicator');
-  if(!scroll||!indicator)return;
-
-  function buildDots(){
-    var cards=scroll.querySelectorAll('.gallery-card');
-    var visibleW=scroll.clientWidth;
-    var cardW=cards[0]?cards[0].offsetWidth+20:320;
-    var perPage=Math.max(1,Math.floor(visibleW/cardW));
-    var pages=Math.ceil(cards.length/perPage);
-    indicator.innerHTML='';
-    for(var i=0;i<pages;i++){
-      var d=document.createElement('span');
-      d.className='dot'+(i===0?' active':'');
-      indicator.appendChild(d);
-    }
-    return{perPage:perPage,pages:pages};
-  }
-
-  function updateDots(){
-    var cards=scroll.querySelectorAll('.gallery-card');
-    var visibleW=scroll.clientWidth;
-    var cardW=cards[0]?cards[0].offsetWidth+20:320;
-    var perPage=Math.max(1,Math.floor(visibleW/cardW));
-    var pages=Math.ceil(cards.length/perPage);
-    var currentPage=Math.round(scroll.scrollLeft/(cardW*perPage));
-    currentPage=Math.min(currentPage,pages-1);
-    var dots=indicator.querySelectorAll('.dot');
-    dots.forEach(function(d,i){
-      d.className=i===currentPage?'dot active':'dot';
-    });
-  }
-
-  buildDots();
-  scroll.addEventListener('scroll',updateDots);
-  window.addEventListener('resize',function(){buildDots();updateDots();});
-})();
-
-(function(){
-  var scroll=document.getElementById('galleryScroll');
-  var indicator=document.getElementById('galleryIndicator');
-  if(!scroll||!indicator)return;
-
-  function buildDots(){
-    var cards=scroll.querySelectorAll('.gallery-card');
-    var visibleW=scroll.clientWidth;
-    var cardW=cards[0]?cards[0].offsetWidth+20:340;
-    var perPage=Math.max(1,Math.floor(visibleW/cardW));
-    var pages=Math.ceil(cards.length/perPage);
-    indicator.innerHTML='';
-    for(var i=0;i<pages;i++){
-      var d=document.createElement('span');
-      d.className='dot'+(i===0?' active':'');
-      indicator.appendChild(d);
-    }
-    return{perPage:perPage,pages:pages};
-  }
-
-  function updateDots(){
-    var cards=scroll.querySelectorAll('.gallery-card');
-    var visibleW=scroll.clientWidth;
-    var cardW=cards[0]?cards[0].offsetWidth+20:340;
-    var perPage=Math.max(1,Math.floor(visibleW/cardW));
-    var pages=Math.ceil(cards.length/perPage);
-    var currentPage=Math.round(scroll.scrollLeft/(cardW*perPage));
-    currentPage=Math.min(currentPage,pages-1);
-    var dots=indicator.querySelectorAll('.dot');
-    dots.forEach(function(d,i){
-      d.className=i===currentPage?'dot active':'dot';
-    });
-  }
-
-  buildDots();
-  scroll.addEventListener('scroll',updateDots);
-  window.addEventListener('resize',function(){buildDots();updateDots();});
-
-  document.addEventListener('keydown',function(e){
-    var rect=scroll.getBoundingClientRect();
-    var inView=rect.top<window.innerHeight&&rect.bottom>0;
-    if(!inView)return;
-    if(e.key==='ArrowLeft')scrollGallery(-1);
-    if(e.key==='ArrowRight')scrollGallery(1);
-  });
-
-  var autoScrollTimer;
-  var paused=false;
-  function startAutoScroll(){
-    autoScrollTimer=setInterval(function(){
-      if(paused)return;
-      var maxScroll=scroll.scrollWidth-scroll.clientWidth;
-      if(scroll.scrollLeft>=maxScroll-10){
-        scroll.scrollTo({left:0,behavior:'smooth'});
-      }else{
-        scrollGallery(1);
-      }
-    },4000);
-  }
-  scroll.addEventListener('mouseenter',function(){paused=true;});
-  scroll.addEventListener('mouseleave',function(){paused=false;});
-  scroll.addEventListener('touchstart',function(){paused=true;});
-  scroll.addEventListener('touchend',function(){setTimeout(function(){paused=false;},3000);});
-  startAutoScroll();
-})();
-
-/* ===== Reading progress bar ===== */
-(function(){
-  var bar=document.querySelector('.nav-progress');
-  if(!bar)return;
-  var ticking=false;
-  function updateBar(){
-    var max=document.documentElement.scrollHeight-window.innerHeight;
-    var p=max>0?window.scrollY/max:0;
-    bar.style.transform='scaleX('+Math.min(1,Math.max(0,p))+')';
-    ticking=false;
-  }
-  window.addEventListener('scroll',function(){
-    if(!ticking){ticking=true;requestAnimationFrame(updateBar);}
-  },{passive:true});
-  updateBar();
-})();
-
-/* ===== Scroll reveal — skipped entirely under reduced motion ===== */
-(function(){
-  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduced||!('IntersectionObserver' in window))return;
-
-  var targets=[];
-  document.querySelectorAll('.section-inner').forEach(function(inner){
-    ['section-label','section-title','section-desc'].forEach(function(cls,i){
-      var el=inner.querySelector('.'+cls);
-      if(el){
-        el.classList.add('reveal');
-        el.style.setProperty('--reveal-delay',(i*70)+'ms');
-        targets.push(el);
-      }
-    });
-    inner.querySelectorAll('.visual-frame').forEach(function(el){
-      el.classList.add('reveal');
-      el.style.setProperty('--reveal-delay','120ms');
-      targets.push(el);
-    });
-    ['.card-grid > .card','.connector-grid > .connector-tile','.stats-grid > .stat-card'].forEach(function(sel){
-      inner.querySelectorAll(sel).forEach(function(el,i){
-        el.classList.add('reveal');
-        el.style.setProperty('--reveal-delay',Math.min(i*60,240)+'ms');
-        targets.push(el);
-      });
-    });
-  });
-
-  var io=new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting){
-        entry.target.classList.add('in-view');
-        io.unobserve(entry.target);
-      }
-    });
-  },{rootMargin:'0px 0px -8% 0px',threshold:0.12});
-
-  targets.forEach(function(t){io.observe(t);});
-})();
-
-
-/* Theme toggle */
-(function(){
-  var btn=document.querySelector('.theme-toggle');
-  if(!btn)return;
-  function sync(){
-    var light=document.documentElement.getAttribute('data-theme')==='light';
-    btn.setAttribute('aria-checked',light?'true':'false');
-  }
-  sync();
-  btn.addEventListener('click',function(){
-    var next=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';
-    document.documentElement.setAttribute('data-theme',next);
-    try{localStorage.setItem('de-theme',next)}catch(e){}document.cookie='de-theme='+next+';path=/;max-age=31536000;samesite=lax';
-    sync();
-    if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-      document.documentElement.classList.add('theme-anim');
-      setTimeout(function(){document.documentElement.classList.remove('theme-anim')},320);
-    }
-  });
-})();
-</script>
+<script src="homepage.js"></script>
 
 </body>
 </html>

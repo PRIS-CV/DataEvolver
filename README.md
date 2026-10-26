@@ -5,8 +5,8 @@
 <h1 align="center">DataEvolver</h1>
 
 <p align="center">
-  <strong>Engineering companion repository for <a href="https://github.com/PRIS-CV/DataRSI">DataRSI</a></strong><br/>
-  Synthetic-data construction infrastructure supporting <em>DataRSI: A 3D Data Harness for Failure-to-Data Evolution</em>.
+  <strong>An engineering project for synthetic data construction</strong><br/>
+  From the first DataEvolver technical report to <a href="https://github.com/PRIS-CV/DataRSI">DataRSI</a>, submitted to ICASSP 2027.
 </p>
 
 <p align="center">
@@ -21,7 +21,8 @@
 
 <p align="center">
   <a href="https://github.com/PRIS-CV/DataRSI"><img src="https://img.shields.io/badge/DataRSI-Research%20Repository-0057b8?logo=github&logoColor=white" alt="DataRSI research repository"/></a>
-  <a href="https://arxiv.org/abs/2605.01789"><img src="https://img.shields.io/badge/DataEvolver-Paper-b31b1b?logo=arxiv&logoColor=white" alt="DataEvolver paper: arXiv"/></a>
+  <a href="https://arxiv.org/abs/2605.01789"><img src="https://img.shields.io/badge/arXiv-First%20Technical%20Report-b31b1b?logo=arxiv&logoColor=white" alt="DataEvolver: first technical report on arXiv"/></a>
+  <a href="https://github.com/PRIS-CV/DataRSI"><img src="https://img.shields.io/badge/ICASSP%202027-Submitted-cc785c" alt="DataRSI submitted to ICASSP 2027"/></a>
   <a href="https://pris-cv.github.io/DataEvolver/"><img src="https://img.shields.io/badge/Website-Project%20Page-1f6feb?logo=githubpages&logoColor=white" alt="Project website"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-green" alt="License: Apache-2.0"/></a>
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white" alt="Python 3.10+"/>
@@ -30,9 +31,11 @@
 
 <p align="center">
   <a href="README_zh.md">🇨🇳 中文</a> •
-  <a href="#dataevolver-and-datarsi">DataRSI Companion</a> •
+  <a href="#dataevolver-and-datarsi">Project &amp; Papers</a> •
   <a href="https://pris-cv.github.io/DataEvolver/">🌐 Website</a> •
-  <a href="https://arxiv.org/abs/2605.01789">📄 DataEvolver Paper</a> •
+  <a href="https://arxiv.org/abs/2605.01789">📄 First Technical Report</a> •
+  <a href="https://pris-cv.github.io/DataEvolver/traces/?lang=en">🔎 Repair Traces</a> •
+  <a href="#quick-start">Quick Start</a> •
   <a href="#honors--recognition">🏆 Recognition</a> •
   <a href="#dataevolver-rotate">🧩 Dataset: DataEvolver-Rotate</a>
 </p>
@@ -47,16 +50,17 @@
 
 ## DataEvolver and DataRSI
 
-**This is our engineering companion repository for [DataRSI](https://github.com/PRIS-CV/DataRSI).** DataEvolver provides the synthetic-data construction infrastructure on which DataRSI builds its failure-driven, bounded revision framework.
+**DataEvolver is our engineering project.** Its first technical report is on arXiv. Further project iterations led to **DataRSI: A 3D Data Harness for Failure-to-Data Evolution**, submitted to **ICASSP 2027**.
 
-| Repository | Role | Start here |
+| Project / publication | Role | Start here |
 |---|---|---|
 | **DataEvolver** (this repository) | Engineering infrastructure for asset generation, 3D reconstruction, scene rendering, VLM review/repair, and multimodal data export. | [Quick Start](#quick-start) |
-| **[DataRSI](https://github.com/PRIS-CV/DataRSI)** | Research framework, registered protocols, and experimental artifacts for *DataRSI: A 3D Data Harness for Failure-to-Data Evolution*. | [Research README](https://github.com/PRIS-CV/DataRSI#readme) · [Reproduction guide](https://github.com/PRIS-CV/DataRSI/blob/main/docs/REPRODUCTION.md) |
+| **DataEvolver on arXiv** | Our first technical report, *Let Your Data Build and Improve Itself via Goal-Driven Loop Agents*. | [arXiv 2605.01789](https://arxiv.org/abs/2605.01789) · [Citation](#citation) |
+| **DataRSI** | The subsequent research paper on failure-driven data revision under a fixed budget and admission rules. Submitted to ICASSP 2027. | [Research update](#datarsi-research-update) · [Research repository](https://github.com/PRIS-CV/DataRSI) |
 
 DataRSI connects a **Data Self-Evolution Loop** and a **Model Admission Loop** through a **Failure-to-Data Feedback** interface. Its registered protocol freezes the revision budget and admission rules; candidate model updates are promoted or rolled back based on target utility and protected-region regression checks.
 
-DataEvolver retains its existing repository name, Python package (`dataevolver`), and command-line interfaces. For the paper's frozen experimental settings, results, and citation metadata, use the DataRSI research repository. See [the repository relationship guide](docs/DATARSI_RELATION.md) for scope and citation guidance.
+The DataRSI public repository currently announces that its implementation and reproduction materials are being prepared for release. The method figure and manuscript results below describe the submitted work; they do not imply that a complete public reproduction package is available. See [the project and publication guide](docs/DATARSI_RELATION.md) for scope and release status.
 
 ## Why DataEvolver?
 
@@ -68,15 +72,37 @@ DataEvolver turns synthetic data construction into a **goal-driven optimization 
 
 ## Project Page trace showcase
 
-Explore [curated repair traces](https://pris-cv.github.io/DataEvolver/traces/) with
-original frames, recorded changes, and explicit evidence boundaries. The frontend,
-backend, npm dependencies and deployment templates are isolated in
-[`apps/project-page/`](apps/project-page/README.md), separate from the Harness.
-Run `cd apps/project-page`, then `npm ci && npm run dev` for the frontend and read-only archive API, or
-`npm run build` for the GitHub Pages site. See the
-[frontend/backend deployment guide](apps/project-page/deploy/README.md) for npm publishing,
-Docker, systemd, and HTTPS integration. This public service does not expose the
-private Harness or training controls.
+The [project website](https://pris-cv.github.io/DataEvolver/) presents the engineering routes, paper figures, research results and rendering gallery. The [Trace subpage](https://pris-cv.github.io/DataEvolver/traces/?lang=en) includes a Qwen / FLUX configuration comparison and two historical repair traces: ground contact and bottle count. Original frames, recorded changes, regressions and unresolved outcomes remain visible. The comparison uses different generators; it is separate from the two repair traces and does not establish a continuous single-model improvement chain or trained-model gains.
+
+The website is an independent app in [`apps/project-page/`](apps/project-page/README.md). Local development requires **Node.js 22+ and npm**. The site and its read-only archive API work without the Harness, model weights or a GPU:
+
+```sh
+cd apps/project-page
+npm ci
+npm run dev
+```
+
+Open `http://127.0.0.1:4173/` or `http://127.0.0.1:4173/traces/?lang=en`. Run `npm run build` to produce `apps/project-page/dist/`, then `npm run preview` to serve that static build on port 8787.
+
+Pull requests that change the app run tests and produce a preview artifact. Merging app changes into `main` automatically publishes the site through GitHub Pages. Pages serves the bundled public archive by default; the optional read-only backend is hosted separately. See the [deployment guide](apps/project-page/deploy/README.md) for API, Docker, systemd and HTTPS setup.
+
+## DataRSI research update
+
+**Submitted to ICASSP 2027.** DataRSI connects a data revision loop with a model admission loop. VLM inspection supplies defect evidence, a registered policy applies bounded repairs, and deterministic sample contracts admit training pairs. Candidate model updates face target-utility and protected-region regression checks.
+
+![DataRSI method: data revision, failure-to-data feedback and model admission](apps/project-page/frontend/images/paper/datarsi-method.jpg)
+
+The manuscript compares Uniform-72 and Targeted-72 with **72 requests per arm**, the same candidate pool and training setup, and seeds **42, 43 and 44**. Evaluation uses **288 development pairs at 1024 × 1024**. Weak-4 denotes the four diagnosed camera-control cells. Values below are mean ± standard deviation across the three seeds.
+
+| Metric | Uniform-72 | Targeted-72 |
+|---|---|---|
+| Weak-4 rotation error (°) ↓ | 50.45 ± 2.15 | 35.50 ± 3.23 |
+| Weak-4 PSNR (dB) ↑ | 13.88 ± 0.07 | 14.43 ± 0.09 |
+| Overall LPIPS ↓ | 0.2058 ± 0.0028 | 0.2014 ± 0.0030 |
+
+Relative to Uniform, non-Weak-4 rotation error increases by **2.370 ± 0.046°**, and overall rotation error by **0.205 ± 0.125°**. Camera admission replay returns `Promote` for three targeted candidates against the frozen champion. The object-relocation case returns `Rollback` because protected spatial cells regress, despite all 18 samples being admitted and target utility passing.
+
+These results cover **one bounded revision**, not repeated recursive improvement. The separate historical DataRSI-Bench comparison uses 384 pairs at 512 × 512; the original DataEvolver-Rotate dataset below contains 350 training pairs. These evaluations have different scopes. See the [website results section](https://pris-cv.github.io/DataEvolver/#results) for the repair and checkpoint figures. The numbers here are manuscript-reported results, not a new experiment run.
 
 ## Current Capabilities
 
@@ -88,14 +114,16 @@ DataEvolver is organized around two connected dataset-construction tracks:
 ## Key Features
 
 - **Goal-Driven Loop Agents** — VLM reviewer provides semantic feedback ("flat lighting", "floating object") &rarr; AI agent selects targeted actions &rarr; re-render &rarr; repeat until quality goals are met
-- **24 Atomic Actions** — Structured action space across 5 groups: lighting, object placement, scene environment, and material properties — with anti-oscillation control and step-scale scheduling
+- **24 Atomic Actions** — Four active groups cover lighting, object placement, scene environment and material properties; a fifth camera group is reserved — with anti-oscillation control and step-scale scheduling
 - **Scene-Aware Rendering** — Objects placed in real Blender scenes with HDRI environments, raycast ground detection, and preserved scene lighting
 - **Multi-Modal Output** — RGB, mask, depth, normal maps, and geometry metadata
-- **End-to-End Automation** — From natural language seed concept to training-ready dataset, zero human intervention
+- **Pipeline Automation** — Compose generation, rendering, review and export under configured budgets and quality checks
 
 ---
 
 ## Pipeline Overview
+
+This is a representative DataEvolver engineering route. The DataRSI figure above adds the research protocol for sample and model admission.
 
 ![Pipeline Overview](assets/pipeline_show.svg)
 
@@ -474,7 +502,7 @@ the pipeline.
 
 Core entry points:
 
-- Stage0 WebSearch prior: [`python -m dataevolver.tools.stage0_web_research`](python -m dataevolver.tools.stage0_web_research)
+- Stage0 WebSearch prior: `python -m dataevolver.tools.stage0_web_research` ([source](src/dataevolver/tools/stage0_web_research.py))
 - Universal dataset schema: [`configs/schemas/universal_3d_layout_dataset_schema.json`](configs/schemas/universal_3d_layout_dataset_schema.json)
 
 ### Single-paper reproduction mode
@@ -547,8 +575,8 @@ DataEvolver/
 ├── .agents/                                 # Agent skills and setup guidance
 ├── .github/                                 # GitHub workflows and repo metadata
 ├── assets/
-│   ├── hdri/                                # HDRI environment maps
-│   └── scene/                               # Blender scene files (.blend)
+│   ├── hdri/                                # Placeholder for locally supplied HDRI maps
+│   └── scene/                               # Scene references; supply runtime .blend assets
 └── apps/project-page/                       # Isolated website + read-only API (GitHub Pages)
 ```
 
@@ -556,7 +584,7 @@ DataEvolver/
 
 ## Action Space
 
-The AI agent selects from **24 structured atomic actions** organized in 5 groups:
+The AI agent selects from **24 structured atomic actions** in four active groups. A fifth camera group is reserved:
 
 | Group | Actions | Parameters |
 |-------|---------|-----------|
@@ -698,6 +726,8 @@ Claude Code will read your `CLAUDE.md` and understand the full project context. 
 ---
 
 ## Citation
+
+This entry cites the **first DataEvolver technical report on arXiv**. DataRSI is a subsequent submission; consult its [research repository](https://github.com/PRIS-CV/DataRSI) for release and citation updates.
 
 ```bibtex
 @misc{zhang2026dataevolverletdatabuild,
