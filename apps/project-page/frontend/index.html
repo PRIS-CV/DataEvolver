@@ -1663,29 +1663,33 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
   html.theme-anim,html.theme-anim body,html.theme-anim *{transition:none !important}
 }
 </style>
-<script>(function(){var t=null;try{t=localStorage.getItem('de-theme')}catch(e){}if(t!=='light'&&t!=='dark'){var m=document.cookie.match(/(?:^|;\s*)de-theme=(light|dark)/);if(m)t=m[1]}if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}document.documentElement.setAttribute('data-theme',t)})();</script>
+<link rel="stylesheet" href="homepage.css">
+<script>(function(){var t=null;try{t=localStorage.getItem('de-theme')}catch(e){}if(t!=='light'&&t!=='dark'){var m=document.cookie.match(/(?:^|;\s*)de-theme=(light|dark)/);if(m)t=m[1]}if(t!=='light'&&t!=='dark'){t='light'}document.documentElement.setAttribute('data-theme',t)})();</script>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 
 <!-- Navigation -->
-<nav class="nav">
+<nav class="nav" aria-label="Main navigation">
   <div class="nav-progress" aria-hidden="true"></div>
   <div class="nav-inner">
     <a href="#" class="nav-logo">
       <img src="images/extracted/index3/image-01-af2d95cdebb7.png" alt="DataEvolver" class="logo-img">
       DataEvolver
     </a>
-    <ul class="nav-links">
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#publications">Project &amp; Papers</a></li>
       <li><a href="#pipeline">Pipeline</a></li>
       <li><a href="#research">Research</a></li>
-      <li><a href="#worldmodel">Scene Context</a></li>
+
       <li><a href="#evolution">VLM Loop</a></li>
+      <li><a href="#results">Results</a></li>
       <li class="nav-traces"><a href="traces/?lang=en">Traces</a></li>
-      <li><a href="#dataset">Dataset</a></li>
       <li><a href="#gallery">Gallery</a></li>
       <li><a href="#start">Start</a></li>
     </ul>
     <div class="nav-actions">
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="navLinks">Menu</button>
       <button class="theme-toggle" type="button" role="switch" aria-checked="false" aria-label="Toggle theme" title="Toggle theme">
   <span class="theme-toggle-track">
     <span class="theme-toggle-icon icon-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>
@@ -1706,13 +1710,13 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
   </div>
 </nav>
 
+<main id="main" tabindex="-1">
 <!-- Hero -->
 <section class="hero">
   <div class="hero-inner">
     <div class="hero-content">
       <div class="hero-badge">
-        <span class="badge-dot"></span>Technical Report · 2026
-      </div>
+        <span class="badge-dot"></span>DataEvolver · Engineering Project</div>
       <h1>Let Your Data Build and Improve Itself</h1>
       <p class="hero-subtitle">
         DataEvolver is an autonomous dataset construction framework where <em>goal-driven loop agents</em> choose and compose text-to-image, image editing, text-to-video, and image-to-3D interfaces, then use VLM feedback and WebSearch research priors to turn user requests or papers into reproducible data pipelines.
@@ -1732,8 +1736,9 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
           View on GitHub
         </a>
         <a href="#pipeline" class="btn btn-secondary">How It Works</a>
-        <a href="https://arxiv.org/abs/2605.01789" class="btn btn-secondary" target="_blank" rel="noopener">Read Paper</a>
+        <a href="https://arxiv.org/abs/2605.01789" class="btn btn-secondary" target="_blank" rel="noopener">First Technical Report</a>
       </div>
+    <p class="research-note"><a href="#publications">DataRSI · Submitted to ICASSP 2027 · Project &amp; papers ↗</a></p>
     </div>
 
     <!-- Hero Showcase -->
@@ -1774,6 +1779,34 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
   </div>
 </section>
 
+<section class="section research-section" id="publications" aria-labelledby="publications-title">
+ <div class="section-inner">
+  <div class="section-label">Project &amp; Publications</div>
+  <h2 class="section-title" id="publications-title">The project and the papers.</h2>
+  <p class="section-desc">Our engineering project and the research reports that document its evolution.</p>
+  <div class="publication-grid">
+   <a class="publication-card publication-card-project" href="https://github.com/PRIS-CV/DataEvolver" target="_blank" rel="noopener">
+    <div class="publication-meta"><span>Engineering project</span><span class="publication-number" aria-hidden="true">↳</span></div>
+    <h3>DataEvolver</h3>
+    <p>The codebase where we build and iterate our synthetic data construction framework.</p>
+    <span class="publication-link">Explore the code <span class="publication-arrow" aria-hidden="true">↗</span></span>
+   </a>
+   <a class="publication-card" href="https://arxiv.org/abs/2605.01789" target="_blank" rel="noopener">
+    <div class="publication-meta"><span>First technical report · arXiv</span><span class="publication-number" aria-hidden="true">01</span></div>
+    <h3>DataEvolver</h3>
+    <p>Our first technical report introduces goal-driven loop agents for synthetic data construction.</p>
+    <span class="publication-link">Read the first report <span class="publication-arrow" aria-hidden="true">↗</span></span>
+   </a>
+   <a class="publication-card" href="#pipeline">
+    <div class="publication-meta"><span class="submission-status">Submitted · ICASSP 2027</span><span class="publication-number" aria-hidden="true">02</span></div>
+    <h3>DataRSI</h3>
+    <p>Our subsequent paper, <em>A 3D Data Harness for Failure-to-Data Evolution</em>, presents the research developed through further project iterations.</p>
+    <span class="publication-link">Explore DataRSI <span class="publication-arrow" aria-hidden="true">↘</span></span>
+   </a>
+  </div>
+ </div>
+</section>
+
 <!-- Problem / Solution — Cream Card Section -->
 <section class="section section-card" id="problem">
   <div class="section-inner">
@@ -1812,6 +1845,23 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
 <!-- Pipeline — Cream Canvas -->
 <section class="section" id="pipeline">
   <div class="section-inner">
+    <div class="section-label">DataRSI · Submitted to ICASSP 2027</div>
+    <h2 class="section-title">Two Loops for Data and Model Revision</h2>
+    <p class="section-desc">
+      The DataRSI manuscript connects diagnosed model failures to executable 3D synthesis requests. One loop inspects, repairs, and admits samples; a second evaluates trained candidates against the frozen champion before promotion or rollback.
+    </p>
+
+    <div class="visual-frame paper-method">
+      <div class="visual-frame-inner">
+        <img src="images/paper/datarsi-method.jpg" alt="DataRSI method: data self-evolution, failure-to-data feedback, and model admission within one bounded revision" onclick="openLightbox(this)" width="1019" height="395" loading="lazy">
+        <div class="visual-caption">
+          <strong>DataRSI · Figure 1</strong>
+          <span>The data self-evolution loop and model admission loop share a registered protocol and a fixed revision budget.</span>
+        </div>
+      </div>
+    </div>
+
+
     <div class="section-label">Pipeline</div>
     <h2 class="section-title">Two Connected Dataset Construction Tracks</h2>
     <p class="section-desc">
@@ -2237,6 +2287,19 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
       </div>
     </div>
 
+<h3 class="subsection-title">DataRSI: bounded sample repair</h3>
+<p class="results-note">A VLM diagnoses defects; a registered policy applies bounded fixes; deterministic contracts admit samples. The requested viewpoint stays fixed.</p>
+    <div class="visual-frame">
+      <div class="visual-frame-inner">
+        <img src="images/paper/datarsi-occlusion-repair.png" alt="Paper occlusion-repair example: reference camera, obstructed rendering, and repaired rendering" onclick="openLightbox(this)" width="2422" height="912" loading="lazy">
+        <div class="visual-caption">
+          <strong>Occlusion repair with the target and camera fixed</strong>
+          <span>Visible target pixels increase from 1.04% to 5.33% of the image after a non-target decorative group is moved.</span>
+        </div>
+      </div>
+    </div>
+
+
     <div class="loop-diagram">
       <div class="loop-node">
         <div class="loop-node-icon">
@@ -2289,6 +2352,57 @@ html.theme-anim,html.theme-anim body,html.theme-anim *{
       <div class="card-dark">
         <h3 class="card-title">24 Atomic Actions</h3>
         <p class="card-desc">Structured action space across lighting, object transform, scene environment, and material property groups.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="results">
+  <div class="section-inner">
+    <div class="section-label">Research Results · DataRSI Submission</div>
+    <h2 class="section-title">Targeted Data, Measured Under a Fixed Budget</h2>
+    <p class="section-desc">Uniform-72 and Targeted-72 use the same training setup and candidate pool. Weak-4 denotes the four diagnosed camera-control cells. The manuscript reports a paired comparison across seeds 42, 43, and 44, evaluated on 288 development pairs at 1024 × 1024.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value">72</div><div class="stat-label">Requests per arm</div></div>
+      <div class="stat-card"><div class="stat-value">3</div><div class="stat-label">Training seeds</div></div>
+      <div class="stat-card"><div class="stat-value">−14.95°</div><div class="stat-label">Weak-4 rotation vs. Uniform</div></div>
+      <div class="stat-card"><div class="stat-value">+0.54 dB</div><div class="stat-label">Weak-4 PSNR vs. Uniform</div></div>
+    </div>
+
+    <div class="results-table-wrap" tabindex="0" role="region" aria-label="Matched-budget results. Scroll horizontally on narrow screens.">
+      <table class="results-table">
+        <caption>Matched 72-request allocation · mean ± SD across three seeds</caption>
+        <thead><tr><th scope="col">Metric</th><th scope="col">Uniform-72</th><th scope="col">Targeted-72</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Weak-4 rotation error (°) ↓</th><td>50.45 ± 2.15</td><td><strong>35.50 ± 3.23</strong></td></tr>
+          <tr><th scope="row">Weak-4 PSNR (dB) ↑</th><td>13.88 ± 0.07</td><td><strong>14.43 ± 0.09</strong></td></tr>
+          <tr><th scope="row">Overall LPIPS ↓</th><td>0.2058 ± 0.0028</td><td><strong>0.2014 ± 0.0030</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="results-note">The paired Weak-4 changes are −14.950 ± 1.097° and +0.543 ± 0.023 dB. Relative to Uniform, non-Weak-4 rotation error increases by 2.370 ± 0.046° and overall rotation error by 0.205 ± 0.125°. Model-admission guards compare candidates with the frozen champion.</p>
+
+    <div class="admission-grid">
+      <article class="card">
+        <span class="outcome outcome-promote">Promote · Camera admission replay</span>
+        <h3 class="card-title">Three Camera Candidates Pass the Guards</h3>
+        <p class="card-desc">Replay returns Promote for all three targeted candidates. The rules require at least 5% Weak-4 improvement, at most 2% non-target regression against the frozen champion, and canonical-view error below 5.000°.</p>
+      </article>
+      <article class="card">
+        <span class="outcome outcome-rollback">Rollback · Object relocation</span>
+        <h3 class="card-title">Target Gains Still Face Regression Checks</h3>
+        <p class="card-desc">All 18 samples are admitted and the target utility criterion passes. Regression in protected spatial cells causes the controller to return Rollback. Diagnosis and admission use the same development grid.</p>
+      </article>
+    </div>
+    <p class="results-note">These experiments cover one bounded revision. In a separate Blender repair study, two of seven eligible defects are recovered within two rounds, increasing sample admission from 29/72 to 31/72.</p>
+
+    <h3 class="subsection-title">Historical Checkpoint Comparison</h3>
+    <p class="results-note">The paper also reports a separate 384-pair DataRSI-Bench evaluation at 512 × 512. The examples below compare historical checkpoints; they belong to that evaluation.</p>
+    <div class="visual-frame">
+      <div class="visual-frame-inner">
+        <img src="images/paper/datarsi-qualitative.png" alt="Paper qualitative comparison: input, ground truth, Qwen-Image-Edit, fal LoRA, and historical DataRSI on two camera-control examples" onclick="openLightbox(this)" width="1885" height="921" loading="lazy">
+        <div class="visual-caption"><strong>DataRSI · Figure 2</strong><span>Rear-angle and elevated-side examples from DataRSI-Bench validation pairs.</span></div>
       </div>
     </div>
   </div>
@@ -2703,12 +2817,12 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
 </section>
 
 <!-- Citation — Cream Card -->
-<section class="section section-card">
+<section class="section section-card" id="citation">
   <div class="section-inner" style="text-align:center">
-    <div class="section-label">Cite</div>
+    <div class="section-label">First Technical Report</div>
     <h2 class="section-title">Citation</h2>
     <p class="section-desc" style="margin:0 auto 32px">
-      If you use DataEvolver or DataEvolver-Rotate in your research, please cite our work.
+      If you use DataEvolver or DataEvolver-Rotate in your research, please cite our work. The entry below cites our first technical report on arXiv.
     </p>
 
     <div class="code-block" style="text-align:left;max-width:720px;margin:0 auto">
@@ -2719,6 +2833,11 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
           <span class="code-block-dot g"></span>
         </div>
         <span class="code-block-lang">BibTeX</span>
+        <button class="select-citation" type="button" aria-label="Select first technical report BibTeX" aria-describedby="citation-status">
+         <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
+         <svg class="copy-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+         <span class="citation-label">Select BibTeX</span>
+        </button>
       </div>
       <div class="code-block-body">
 <pre>@misc{zhang2026dataevolverletdatabuild,
@@ -2736,6 +2855,7 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
 }</pre>
       </div>
     </div>
+    <span id="citation-status" class="citation-status" role="status" aria-live="polite"></span>
   </div>
 </section>
 
@@ -2793,6 +2913,7 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
   </div>
 </section>
 
+</main>
 <!-- Footer — Dark Navy -->
 <footer class="footer">
   <div class="footer-inner">
@@ -2817,6 +2938,7 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
         <h4>Pipeline</h4>
         <a href="#pipeline">Overview</a>
         <a href="#research">Research Prior</a>
+        <a href="#dataset">Dataset</a>
         <a href="#worldmodel">Scene Context</a>
         <a href="#evolution">VLM Loop</a>
       </div>
@@ -2835,220 +2957,12 @@ bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
 </footer>
 
 <!-- Lightbox -->
-<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
-  <img id="lightbox-img" src="images/extracted/index3/image-36-1e85ec81b980.gif" alt="">
-</div>
+<dialog class="lightbox-overlay" id="lightbox" aria-label="Image preview">
+  <button class="lightbox-close" type="button" onclick="closeLightbox()" aria-label="Close image preview">×</button>
+  <img id="lightbox-img" alt="">
+</dialog>
 
-<script>
-function openLightbox(img){
-  document.getElementById('lightbox-img').src=img.src;
-  document.getElementById('lightbox').classList.add('open');
-}
-function closeLightbox(){
-  document.getElementById('lightbox').classList.remove('open');
-}
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox();});
-
-function scrollGallery(dir){
-  var el=document.getElementById('galleryScroll');
-  if(!el)return;
-  var cardW=el.querySelector('.gallery-card');
-  var step=cardW?(cardW.offsetWidth+20)*2:680;
-  el.scrollBy({left:dir*step,behavior:'smooth'});
-}
-function scrollResearchGallery(dir){
-  var el=document.getElementById('researchGalleryScroll');
-  if(!el)return;
-  var cardW=el.querySelector('.gallery-card');
-  var step=cardW?(cardW.offsetWidth+20)*2:640;
-  el.scrollBy({left:dir*step,behavior:'smooth'});
-}
-
-(function(){
-  var scroll=document.getElementById('researchGalleryScroll');
-  var indicator=document.getElementById('researchGalleryIndicator');
-  if(!scroll||!indicator)return;
-
-  function buildDots(){
-    var cards=scroll.querySelectorAll('.gallery-card');
-    var visibleW=scroll.clientWidth;
-    var cardW=cards[0]?cards[0].offsetWidth+20:320;
-    var perPage=Math.max(1,Math.floor(visibleW/cardW));
-    var pages=Math.ceil(cards.length/perPage);
-    indicator.innerHTML='';
-    for(var i=0;i<pages;i++){
-      var d=document.createElement('span');
-      d.className='dot'+(i===0?' active':'');
-      indicator.appendChild(d);
-    }
-    return{perPage:perPage,pages:pages};
-  }
-
-  function updateDots(){
-    var cards=scroll.querySelectorAll('.gallery-card');
-    var visibleW=scroll.clientWidth;
-    var cardW=cards[0]?cards[0].offsetWidth+20:320;
-    var perPage=Math.max(1,Math.floor(visibleW/cardW));
-    var pages=Math.ceil(cards.length/perPage);
-    var currentPage=Math.round(scroll.scrollLeft/(cardW*perPage));
-    currentPage=Math.min(currentPage,pages-1);
-    var dots=indicator.querySelectorAll('.dot');
-    dots.forEach(function(d,i){
-      d.className=i===currentPage?'dot active':'dot';
-    });
-  }
-
-  buildDots();
-  scroll.addEventListener('scroll',updateDots);
-  window.addEventListener('resize',function(){buildDots();updateDots();});
-})();
-
-(function(){
-  var scroll=document.getElementById('galleryScroll');
-  var indicator=document.getElementById('galleryIndicator');
-  if(!scroll||!indicator)return;
-
-  function buildDots(){
-    var cards=scroll.querySelectorAll('.gallery-card');
-    var visibleW=scroll.clientWidth;
-    var cardW=cards[0]?cards[0].offsetWidth+20:340;
-    var perPage=Math.max(1,Math.floor(visibleW/cardW));
-    var pages=Math.ceil(cards.length/perPage);
-    indicator.innerHTML='';
-    for(var i=0;i<pages;i++){
-      var d=document.createElement('span');
-      d.className='dot'+(i===0?' active':'');
-      indicator.appendChild(d);
-    }
-    return{perPage:perPage,pages:pages};
-  }
-
-  function updateDots(){
-    var cards=scroll.querySelectorAll('.gallery-card');
-    var visibleW=scroll.clientWidth;
-    var cardW=cards[0]?cards[0].offsetWidth+20:340;
-    var perPage=Math.max(1,Math.floor(visibleW/cardW));
-    var pages=Math.ceil(cards.length/perPage);
-    var currentPage=Math.round(scroll.scrollLeft/(cardW*perPage));
-    currentPage=Math.min(currentPage,pages-1);
-    var dots=indicator.querySelectorAll('.dot');
-    dots.forEach(function(d,i){
-      d.className=i===currentPage?'dot active':'dot';
-    });
-  }
-
-  buildDots();
-  scroll.addEventListener('scroll',updateDots);
-  window.addEventListener('resize',function(){buildDots();updateDots();});
-
-  document.addEventListener('keydown',function(e){
-    var rect=scroll.getBoundingClientRect();
-    var inView=rect.top<window.innerHeight&&rect.bottom>0;
-    if(!inView)return;
-    if(e.key==='ArrowLeft')scrollGallery(-1);
-    if(e.key==='ArrowRight')scrollGallery(1);
-  });
-
-  var autoScrollTimer;
-  var paused=false;
-  function startAutoScroll(){
-    autoScrollTimer=setInterval(function(){
-      if(paused)return;
-      var maxScroll=scroll.scrollWidth-scroll.clientWidth;
-      if(scroll.scrollLeft>=maxScroll-10){
-        scroll.scrollTo({left:0,behavior:'smooth'});
-      }else{
-        scrollGallery(1);
-      }
-    },4000);
-  }
-  scroll.addEventListener('mouseenter',function(){paused=true;});
-  scroll.addEventListener('mouseleave',function(){paused=false;});
-  scroll.addEventListener('touchstart',function(){paused=true;});
-  scroll.addEventListener('touchend',function(){setTimeout(function(){paused=false;},3000);});
-  startAutoScroll();
-})();
-
-/* ===== Reading progress bar ===== */
-(function(){
-  var bar=document.querySelector('.nav-progress');
-  if(!bar)return;
-  var ticking=false;
-  function updateBar(){
-    var max=document.documentElement.scrollHeight-window.innerHeight;
-    var p=max>0?window.scrollY/max:0;
-    bar.style.transform='scaleX('+Math.min(1,Math.max(0,p))+')';
-    ticking=false;
-  }
-  window.addEventListener('scroll',function(){
-    if(!ticking){ticking=true;requestAnimationFrame(updateBar);}
-  },{passive:true});
-  updateBar();
-})();
-
-/* ===== Scroll reveal — skipped entirely under reduced motion ===== */
-(function(){
-  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduced||!('IntersectionObserver' in window))return;
-
-  var targets=[];
-  document.querySelectorAll('.section-inner').forEach(function(inner){
-    ['section-label','section-title','section-desc'].forEach(function(cls,i){
-      var el=inner.querySelector('.'+cls);
-      if(el){
-        el.classList.add('reveal');
-        el.style.setProperty('--reveal-delay',(i*70)+'ms');
-        targets.push(el);
-      }
-    });
-    inner.querySelectorAll('.visual-frame').forEach(function(el){
-      el.classList.add('reveal');
-      el.style.setProperty('--reveal-delay','120ms');
-      targets.push(el);
-    });
-    ['.card-grid > .card','.connector-grid > .connector-tile','.stats-grid > .stat-card'].forEach(function(sel){
-      inner.querySelectorAll(sel).forEach(function(el,i){
-        el.classList.add('reveal');
-        el.style.setProperty('--reveal-delay',Math.min(i*60,240)+'ms');
-        targets.push(el);
-      });
-    });
-  });
-
-  var io=new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting){
-        entry.target.classList.add('in-view');
-        io.unobserve(entry.target);
-      }
-    });
-  },{rootMargin:'0px 0px -8% 0px',threshold:0.12});
-
-  targets.forEach(function(t){io.observe(t);});
-})();
-
-
-/* Theme toggle */
-(function(){
-  var btn=document.querySelector('.theme-toggle');
-  if(!btn)return;
-  function sync(){
-    var light=document.documentElement.getAttribute('data-theme')==='light';
-    btn.setAttribute('aria-checked',light?'true':'false');
-  }
-  sync();
-  btn.addEventListener('click',function(){
-    var next=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';
-    document.documentElement.setAttribute('data-theme',next);
-    try{localStorage.setItem('de-theme',next)}catch(e){}document.cookie='de-theme='+next+';path=/;max-age=31536000;samesite=lax';
-    sync();
-    if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-      document.documentElement.classList.add('theme-anim');
-      setTimeout(function(){document.documentElement.classList.remove('theme-anim')},320);
-    }
-  });
-})();
-</script>
+<script src="homepage.js"></script>
 
 </body>
 </html>

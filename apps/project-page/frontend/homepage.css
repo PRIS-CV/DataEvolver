@@ -1,0 +1,162 @@
+/*
+Uiverse.io by cssbuttons-io: leading rule and hover transition, adapted to the Claude palette.
+Source: https://github.com/uiverse-io/galaxy/blob/main/Buttons/cssbuttons-io_brown-otter-21.html
+
+MIT License
+
+Copyright (c) 2023 Uiverse.io
+Copyright (c) 2026 Hallmark contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+html[data-theme="light"]{
+ --canvas:#faf9f5;--canvas-rgb:250,249,245;--surface-soft:#f5f0e8;
+ --surface-card:#fffdf8;--primary:#cc785c;--primary-active:#a9553d;
+ --primary-rgb:204,120,92;--ink:#26231e;--body:#57534a;
+ --hairline:rgba(38,35,30,.13);--section-pad:88px;
+}
+.hero::before{background:none}
+.hero-showcase{box-shadow:0 8px 28px rgba(38,35,30,.06);padding:6px}
+.hero-authors,.hero-award{background:transparent;border:0}
+.hero{padding-top:132px}
+.card,.card-dark{background:var(--surface-card)}
+.card:hover{background:var(--surface-card)}
+.section-title{max-width:28ch}
+.paper-method img{display:block;width:100%;height:auto}
+.paper-method .visual-caption{background:#fff}
+.paper-method .visual-caption strong{color:#26211b}
+.paper-method .visual-caption span{color:#6b6355}
+.section{scroll-margin-top:72px}
+:focus-visible{outline:2px solid var(--primary-active);outline-offset:5px}
+.skip-link{position:fixed;top:12px;left:16px;z-index:3000;padding:10px 16px;background:var(--ink);color:var(--canvas);transform:translateY(-160%)}
+.skip-link:focus{transform:translateY(0)}
+main:focus{outline:none}
+.nav-toggle{display:none}
+.nav-links{gap:14px}
+.nav-links a{font-family:var(--font-body);letter-spacing:0}
+.lightbox-overlay{
+ width:100vw;height:100dvh;max-width:none;max-height:none;border:0;padding:52px 24px;
+ background:rgba(20,20,19,.96);color:#fff;cursor:zoom-out;
+}
+.lightbox-overlay[open]{display:flex;opacity:1;visibility:visible}
+.lightbox-overlay img{max-width:100%;max-height:100%;object-fit:contain;transform:none}
+.lightbox-close{position:absolute;top:16px;right:20px;width:40px;height:40px;background:transparent;border:1px solid #777168;border-radius:50%;color:#fff;font-size:24px;cursor:pointer}
+body:has(.lightbox-overlay[open]){overflow:hidden}
+img[onclick]{cursor:zoom-in}
+.gallery-scroll-indicator .dot{position:relative;width:32px;height:28px;border:0;padding:0;background:transparent;cursor:pointer}
+.gallery-scroll-indicator .dot::after{content:"";position:absolute;inset:11px 10px;background:var(--muted);border-radius:4px}
+.gallery-scroll-indicator .dot.active::after{inset-inline:4px;background:var(--primary-active)}
+.code-block-header{gap:12px;flex-wrap:wrap}
+.select-citation{margin-left:auto}
+@media(max-width:1280px){
+ .nav-actions{margin-left:auto}
+ .nav-toggle{display:inline-flex;align-items:center;min-height:40px;padding:8px 10px;border:1px solid var(--hairline);border-radius:var(--radius-md);background:var(--canvas);color:var(--ink);font:500 .8125rem var(--font-body);cursor:pointer}
+ .nav-links{display:none;position:absolute;top:63px;left:0;right:0;padding:16px 24px;background:var(--canvas);border-bottom:1px solid var(--hairline);white-space:normal}
+ .nav-links.is-open{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
+ .nav-links li:not(.nav-traces){display:block}
+ .nav-links a{display:block;padding:14px 8px}
+}
+@media(max-width:480px){
+ .nav-logo .logo-img{display:none}
+ .nav-logo{font-size:1.1rem}
+ .nav-inner{gap:6px;padding-inline:12px}
+ .nav-actions{gap:6px}
+ .language-switch a{padding-inline:6px}
+}
+@media(prefers-reduced-motion:reduce){
+ html,.gallery-scroll{scroll-behavior:auto}
+ *,*::before,*::after{animation:none!important;transition:none!important}
+}
+
+/* Paper figures keep their original pixels and the surrounding site typography. */
+.research-note{margin-top:20px;font-size:0.8125rem;line-height:1.6}
+.research-note a{text-decoration:underline;text-underline-offset:4px}
+.paper-method .visual-frame-inner{background:#fff}
+.paper-method img{max-width:1019px;margin-inline:auto}
+.subsection-title{font-size:1rem;margin:28px 0 16px;line-height:1.5}
+.results-table-wrap{border:1px solid var(--hairline);border-radius:var(--radius-lg);overflow-x:auto}
+.results-table{width:100%;min-width:540px;border-collapse:collapse;text-align:left;font-size:0.875rem}
+.results-table caption{text-align:left;padding:18px 24px;background:var(--surface-soft);color:var(--muted);font-size:0.8125rem}
+.results-table th,.results-table td{padding:18px 24px;border-top:1px solid var(--hairline);font-weight:400}
+.results-table thead th{font-weight:500;color:var(--muted)}
+.results-table strong{font-weight:600;color:var(--primary-active)}
+.results-note{font-size:0.8125rem;line-height:1.75;color:var(--muted);margin:18px 0 28px;max-width:960px}
+.admission-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.outcome{display:inline-block;font-size:0.75rem;margin-bottom:16px;font-weight:500}
+.outcome-promote{color:var(--success)}
+.outcome-rollback{color:var(--error)}
+@media(max-width:600px){
+  .admission-grid{grid-template-columns:1fr;gap:16px}
+  .results-table caption,.results-table th,.results-table td{padding:16px}
+  #results .stat-value{font-size:clamp(1.75rem,6.8vw,2.5rem)}
+}
+
+/* Uiverse Prince4fff card corner + Galahhad copy feedback, adapted to the page.
+Sources:
+https://github.com/uiverse-io/galaxy/blob/main/Cards/Prince4fff_slippery-baboon-37.html
+https://github.com/uiverse-io/galaxy/blob/main/Buttons/Galahhad_kind-cheetah-52.html
+Hallmark: one entrance and press feedback; MIT notice accompanies this page.
+https://github.com/Nutlope/hallmark/blob/main/skills/hallmark/references/microinteractions.md
+*/
+:root{--ease-out:cubic-bezier(0.16,1,0.3,1)}
+.nav-links a{position:relative;padding-block:8px}
+.nav-links a::after{content:"";position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--primary-active);transform:scaleX(0);transform-origin:left;transition:transform 220ms var(--ease-out)}
+.nav-links a[aria-current="location"]{color:var(--ink)}
+.nav-links a[aria-current="location"]::after{transform:scaleX(1)}
+
+.research-section{background:var(--surface-soft);border-block:1px solid var(--hairline)}
+.publication-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.publication-card{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;min-width:0;padding:30px;min-height:340px;background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--radius-lg);color:var(--ink)}
+.publication-card::before{content:"";position:absolute;z-index:-1;top:-20px;right:-20px;width:56px;height:56px;border-radius:50%;background:var(--surface-card);transform:scale(1);transition:transform 420ms var(--ease-out)}
+.publication-card:focus-visible::before{transform:scale(22)}
+.publication-card:hover{color:var(--ink)}
+.publication-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:36px;font-size:0.6875rem;color:var(--muted);line-height:1.5}
+.publication-number{font-family:var(--font-display);font-size:1.5rem;color:var(--primary-active)}
+.publication-card h3{font-family:var(--font-display);font-size:2.5rem;line-height:1.1;letter-spacing:-0.03em;font-weight:400;margin-bottom:16px}
+.publication-card p{font-size:0.875rem;line-height:1.75;margin-bottom:28px}
+.publication-link{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:auto;font-size:0.8125rem;font-weight:500}
+.publication-arrow{font-size:1.125rem;transition:transform 220ms var(--ease-out)}
+.publication-card:focus-visible .publication-arrow{transform:translate(3px,-3px)}
+.publication-card-project{background:var(--surface-card);border-color:var(--primary);color:var(--ink)}
+.publication-card-project::before{background:var(--surface-dark-elevated)}
+.publication-card-project:hover,.publication-card-project h3{color:var(--ink)}
+.publication-card-project p,.publication-card-project .publication-meta{color:var(--body)}
+.publication-card-project .publication-number{color:#e4a28a}
+.submission-status{color:var(--primary-active);border:1px solid #dbc4b7;border-radius:var(--radius-pill);padding:5px 9px;font-size:0.6875rem;line-height:1.4}
+.select-citation{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:100px;min-height:40px;padding:8px 12px;border:1px solid #625b51;border-radius:var(--radius-sm);background:transparent;color:var(--ink);font:500 0.75rem var(--font-body);cursor:pointer;transition:background 180ms var(--ease-out),transform 120ms var(--ease-out)}
+.select-citation:hover{background:var(--surface-dark-elevated)}
+.select-citation .copy-check{display:none}
+.select-citation.is-selected .copy-icon{display:none}
+.select-citation.is-selected .copy-check{display:block}
+.citation-status{display:block;min-height:1.5em;margin:12px auto 0;font-size:0.75rem;color:var(--muted)}
+.btn:active,.select-citation:active{transform:translateY(1px)}
+@media(hover:hover) and (pointer:fine){
+ .publication-card:hover::before{transform:scale(22)}
+ .publication-card:hover .publication-arrow{transform:translate(3px,-3px)}
+ .gallery-card img{transition:transform 300ms var(--ease-out),filter 180ms ease}
+ .gallery-card:hover img{transform:scale(1.025)}
+}
+@media(max-width:1100px){.nav-links{gap:14px}}
+@media(max-width:1040px){.nav-links a{padding-block:14px}}
+@media(max-width:760px){
+ .publication-grid{grid-template-columns:1fr;gap:14px}
+ .publication-card{min-height:0;padding:24px}
+ .publication-meta{margin-bottom:24px}.publication-card h3{font-size:2.125rem}
+}

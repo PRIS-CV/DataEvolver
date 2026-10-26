@@ -114,3 +114,8 @@ skills/
 # Local onboarding outputs and external tool checkouts
 .dataevolver/local/
 external/
+
+# Paper figures published with the project page
+!/apps/project-page/frontend/images/paper/datarsi-method.jpg
+!/apps/project-page/frontend/images/paper/datarsi-occlusion-repair.png
+!/apps/project-page/frontend/images/paper/datarsi-qualitative.png
