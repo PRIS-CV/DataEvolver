@@ -12,22 +12,41 @@ import type {
   WorkbenchEvent,
 } from "./types";
 import {
+  ActionButton,
+  CompactSwitch,
+  DisclosureGroup,
+  DisclosureItem,
+  SelectField,
+  SettingsTabPanel,
+  SettingsTabs,
+  SwitchField,
+  TextField,
+  TooltipProvider,
+  withCurrentOption,
+} from "./components/ui";
+import {
   executionFieldLabel,
   formatState,
   getSettingsCategories,
   harnessCommandMeta,
   harnessFieldLabel,
+  IconAperture,
+  IconArrowRight,
   IconArrowUpRight,
   IconChat,
   IconClose,
+  IconCpu,
   IconGlobe,
   IconHarness,
   IconImage,
   IconKey,
   IconPlus,
+  IconRefresh,
   IconSend,
   IconSettings,
+  IconStop,
   imageRouteMeta,
+  isSettingsCategory,
   pathFieldLabel,
   runtimeFieldLabel,
   runtimeToggleMeta,
@@ -61,38 +80,6 @@ async function api<T = unknown>(path: string, value?: unknown): Promise<T> {
   return data;
 }
 
-function Field({
-  label,
-  value,
-  set,
-  type = "text",
-  placeholder = "",
-  mono = false,
-}: {
-  label: string;
-  value: string | number;
-  set: (value: string) => void;
-  type?: string;
-  placeholder?: string;
-  mono?: boolean;
-}) {
-  const id = React.useId();
-  return (
-    <label className="field" htmlFor={id}>
-      <span className="field-label">{label}</span>
-      <input
-        id={id}
-        className={mono ? "mono-input" : undefined}
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => set(e.target.value)}
-        autoComplete="off"
-      />
-    </label>
-  );
-}
-
 const THINKING_LEVELS = [
   "off",
   "minimal",
@@ -102,6 +89,37 @@ const THINKING_LEVELS = [
   "xhigh",
   "max",
 ] as const;
+
+const API_PROTOCOLS = [
+  "openai-completions",
+  "openai-responses",
+  "anthropic-messages",
+  "google-generative-ai",
+] as const;
+
+function buildProviderOptions(providers: Provider[], current: string) {
+  const base = providers
+    .filter((p) => p.id !== "")
+    .map((p) => ({ value: p.id, label: p.id }));
+  return withCurrentOption(base, current, "—");
+}
+
+function buildModelOptions(
+  providers: Provider[],
+  providerId: string,
+  currentModel: string,
+) {
+  const active = providers.find((p) => p.id === providerId);
+  const base = (active?.models ?? [])
+    .filter((m) => m.id !== "")
+    .map((m) => ({ value: m.id, label: m.id }));
+  return withCurrentOption(base, currentModel, "—");
+}
+
+function buildThinkingOptions(current: string) {
+  const base = THINKING_LEVELS.map((level) => ({ value: level, label: level }));
+  return withCurrentOption(base, current);
+}
 
 function AgentSelect({
   agent,
@@ -116,63 +134,27 @@ function AgentSelect({
   label: string;
   t?: Translate;
 }) {
-  const activeProvider = providers.find((p) => p.id === agent.provider);
-  const hasProviderInList = providers.some((p) => p.id === agent.provider);
-  const hasModelInList = Boolean(
-    activeProvider?.models.some((m) => m.id === agent.model),
-  );
   return (
     <fieldset className="agent-select">
       <legend>{label}</legend>
-      <label className="field">
-        <span className="field-label">{t("Provider", "服务提供方")}</span>
-        <select
-          value={agent.provider}
-          onChange={(e) =>
-            update({ ...agent, provider: e.target.value, model: "" })
-          }
-        >
-          <option value="">—</option>
-          {agent.provider && !hasProviderInList && (
-            <option value={agent.provider}>{agent.provider}</option>
-          )}
-          {providers.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.id}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="field">
-        <span className="field-label">{t("Model", "模型")}</span>
-        <select
-          value={agent.model}
-          onChange={(e) => update({ ...agent, model: e.target.value })}
-        >
-          <option value="">—</option>
-          {agent.model && !hasModelInList && (
-            <option value={agent.model}>{agent.model}</option>
-          )}
-          {activeProvider?.models.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.id}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="field">
-        <span className="field-label">{t("Thinking", "推理深度")}</span>
-        <select
-          value={agent.thinking}
-          onChange={(e) => update({ ...agent, thinking: e.target.value })}
-        >
-          {THINKING_LEVELS.map((x) => (
-            <option key={x} value={x}>
-              {x}
-            </option>
-          ))}
-        </select>
-      </label>
+      <SelectField
+        label={t("Provider", "服务提供方")}
+        value={agent.provider}
+        options={buildProviderOptions(providers, agent.provider)}
+        onChange={(provider) => update({ ...agent, provider, model: "" })}
+      />
+      <SelectField
+        label={t("Model", "模型")}
+        value={agent.model}
+        options={buildModelOptions(providers, agent.provider, agent.model)}
+        onChange={(model) => update({ ...agent, model })}
+      />
+      <SelectField
+        label={t("Thinking", "推理深度")}
+        value={agent.thinking}
+        options={buildThinkingOptions(agent.thinking)}
+        onChange={(thinking) => update({ ...agent, thinking })}
+      />
     </fieldset>
   );
 }
@@ -201,13 +183,16 @@ function Settings({
   const [saving, setSaving] = useState(false);
   const [category, setCategoryState] =
     useState<SettingsCategory>(defaultCategory);
+
   const setCategory = (next: SettingsCategory) => {
     setCategoryState(next);
     onCategoryChange?.(next);
   };
+
   useEffect(() => {
     setCategoryState(defaultCategory);
   }, [defaultCategory]);
+
   const t: Translate = (en, cn) => (zh ? cn : en);
 
   const updateProvider = (index: number, value: Provider) =>
@@ -215,6 +200,7 @@ function Settings({
       ...config,
       providers: config.providers.map((p, i) => (i === index ? value : p)),
     });
+
   const updateMap = (
     section: "paths" | "execution" | "pi",
     key: string,
@@ -222,13 +208,13 @@ function Settings({
   ) =>
     setConfig({ ...config, [section]: { ...config[section], [key]: value } });
 
-  const categories = getSettingsCategories(t);
   const allCredentialNames = [
     ...new Set([...credentials, ...Object.keys(secrets)]),
   ];
   const activeKeyCount = allCredentialNames.filter(
     (name) => secrets[name] !== "",
   ).length;
+
   const referencedEnvNames = [
     ...new Set(
       [
@@ -241,9 +227,30 @@ function Settings({
         .filter(Boolean),
     ),
   ];
+
   const hasUnsaved =
     Object.keys(secrets).length > 0 ||
     JSON.stringify(config) !== JSON.stringify(initial);
+
+  const tabsMeta = getSettingsCategories(t).map((cat) => ({
+    ...cat,
+    badge:
+      cat.id === "models"
+        ? String(config.providers.length)
+        : cat.id === "execution"
+          ? config.execution.target || "local"
+          : cat.id === "credentials"
+            ? String(activeKeyCount)
+            : null,
+  }));
+
+  const runtimeStages = [
+    "actionFusion",
+    "observationPack",
+    "evidencePreservingReducer",
+    "onlineContextCompact",
+  ] as const;
+  const enabledStageCount = runtimeStages.filter((k) => config.sol[k]).length;
 
   const addNewProvider = () =>
     setConfig({
@@ -286,9 +293,7 @@ function Settings({
     >
       <header className="section-heading settings-header">
         <div>
-          <span className="eyebrow">
-            {t("CONFIGURATION", "工作台配置")}
-          </span>
+          <span className="eyebrow">{t("CONFIGURATION", "工作台配置")}</span>
           <h1>{t("Your models. Your machines.", "你的模型，你的工作站。")}</h1>
           <p>
             {t(
@@ -303,806 +308,801 @@ function Settings({
               {t("Unsaved edits", "有未保存更改")}
             </span>
           )}
-          <button type="submit" className="primary" disabled={saving}>
+          <ActionButton type="submit" variant="primary" disabled={saving}>
             {saving
               ? t("Saving…", "保存中…")
               : t("Save configuration", "保存配置")}
-          </button>
+          </ActionButton>
         </div>
       </header>
 
-      <div className="settings-layout">
-        <nav
-          className="settings-nav"
-          aria-label={t("Settings categories", "设置分类")}
-        >
-          {categories.map((cat) => {
-            const active = category === cat.id;
-            const badge =
-              cat.id === "models"
-                ? String(config.providers.length)
-                : cat.id === "execution"
-                  ? config.execution.target || "local"
-                  : cat.id === "credentials"
-                    ? String(activeKeyCount)
-                    : null;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                className={active ? "settings-tab active" : "settings-tab"}
-                aria-current={active ? "true" : undefined}
-                onClick={() => setCategory(cat.id)}
-              >
-                <span className="settings-tab-top">
-                  <span className="settings-tab-title">{cat.label}</span>
-                  {badge !== null && (
-                    <span className="settings-tab-badge">{badge}</span>
+      <SettingsTabs
+        value={category}
+        onValueChange={(next) => {
+          if (isSettingsCategory(next)) setCategory(next);
+        }}
+        ariaLabel={t("Settings categories", "设置分类")}
+        tabs={tabsMeta}
+      >
+        <SettingsTabPanel value="models">
+          <section className="card">
+            <div className="card-head">
+              <div>
+                <h2>{t("Main and child agents", "主 Agent 与子 Agent")}</h2>
+                <p>
+                  {t(
+                    "Assign default provider, model and thinking budget for primary conversations and delegated child sessions.",
+                    "为主对话与派生的子会话分别设置默认服务、模型与推理深度。",
                   )}
-                </span>
-                <small className="settings-tab-desc">{cat.summary}</small>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="settings-panel">
-          {category === "models" && (
-            <>
-              <section className="card">
-                <div className="card-head">
-                  <div>
-                    <h2>
-                      {t("Main and child agents", "主 Agent 与子 Agent")}
-                    </h2>
-                    <p>
-                      {t(
-                        "Assign default provider, model and thinking budget for primary conversations and delegated child sessions.",
-                        "为主对话与派生的子会话分别设置默认服务、模型与推理深度。",
-                      )}
-                    </p>
-                  </div>
-                </div>
-                <div className="fields">
-                  {(["main", "child"] as const).map((role) => (
-                    <AgentSelect
-                      key={role}
-                      t={t}
-                      agent={config.agents[role]}
-                      providers={config.providers}
-                      label={
-                        role === "main"
-                          ? t("Main agent (main)", "主 Agent (main)")
-                          : t("Child agent (child)", "子 Agent (child)")
-                      }
-                      update={(agent) =>
-                        setConfig({
-                          ...config,
-                          agents: { ...config.agents, [role]: agent },
-                        })
-                      }
-                    />
-                  ))}
-                </div>
-              </section>
-
-              <section className="card">
-                <div className="card-head">
-                  <div>
-                    <h2>{t("Model providers", "模型服务")}</h2>
-                    <p>
-                      {t(
-                        "Select a supported API protocol. Model IDs and endpoints are supplied by your deployment.",
-                        "选择支持的 API 协议，模型 ID 和服务地址由你的部署提供。",
-                      )}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="secondary-btn"
-                    onClick={addNewProvider}
-                  >
-                    <IconPlus />
-                    <span>{t("Add provider", "添加服务")}</span>
-                  </button>
-                </div>
-
-                {config.providers.length === 0 ? (
-                  <p className="empty-box">
-                    {t(
-                      "No providers configured yet. Add a provider to register endpoints and models.",
-                      "尚未配置模型服务。点击「添加服务」注册接口地址与模型。",
-                    )}
-                  </p>
-                ) : (
-                  <div className="provider-stack">
-                    {config.providers.map((p, i) => (
-                      <fieldset className="provider-card" key={i}>
-                        <legend className="sr-only">
-                          {p.id || `Provider ${i + 1}`}
-                        </legend>
-                        <div className="provider-card-header">
-                          <div className="provider-title-group">
-                            <strong>
-                              {p.id ||
-                                t(`Provider ${i + 1}`, `模型服务 ${i + 1}`)}
-                            </strong>
-                            <span className="pill">{p.api}</span>
-                          </div>
-                          <button
-                            type="button"
-                            className="danger-ghost-btn"
-                            onClick={() =>
-                              setConfig({
-                                ...config,
-                                providers: config.providers.filter(
-                                  (_, k) => i !== k,
-                                ),
-                              })
-                            }
-                          >
-                            {t("Remove provider", "移除服务")}
-                          </button>
-                        </div>
-
-                        <div className="fields">
-                          <Field
-                            label={t("Provider ID", "服务标识 (Provider ID)")}
-                            value={p.id}
-                            mono
-                            set={(id) => updateProvider(i, { ...p, id })}
-                          />
-                          <label className="field">
-                            <span className="field-label">
-                              {t("API protocol", "API 协议")}
-                            </span>
-                            <select
-                              value={p.api}
-                              onChange={(e) =>
-                                updateProvider(i, { ...p, api: e.target.value })
-                              }
-                            >
-                              {[
-                                "openai-completions",
-                                "openai-responses",
-                                "anthropic-messages",
-                                "google-generative-ai",
-                              ].map((a) => (
-                                <option key={a} value={a}>
-                                  {a}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
-                          <Field
-                            label={t("Base URL", "接口地址 (Base URL)")}
-                            value={p.baseUrl}
-                            mono
-                            set={(baseUrl) =>
-                              updateProvider(i, { ...p, baseUrl })
-                            }
-                          />
-                          <div className="field-with-link">
-                            <Field
-                              label={t(
-                                "Key environment name (empty for no auth)",
-                                "密钥环境变量名（无鉴权留空）",
-                              )}
-                              value={p.apiKeyEnv}
-                              mono
-                              set={(apiKeyEnv) =>
-                                updateProvider(i, { ...p, apiKeyEnv })
-                              }
-                            />
-                            <button
-                              type="button"
-                              className="inline-link-btn"
-                              onClick={() => setCategory("credentials")}
-                            >
-                              <IconKey />
-                              <span>
-                                {t(
-                                  "Manage keys in Credentials",
-                                  "前往私有凭据配置密钥",
-                                )}
-                              </span>
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="models-subsection">
-                          <div className="models-subheader">
-                            <span>
-                              {t("Models", "模型列表")} ({p.models.length})
-                            </span>
-                            <button
-                              type="button"
-                              className="secondary-btn compact-btn"
-                              onClick={() =>
-                                updateProvider(i, {
-                                  ...p,
-                                  models: [
-                                    ...p.models,
-                                    {
-                                      id: "",
-                                      reasoning: true,
-                                      input: ["text", "image"],
-                                      contextWindow: 128000,
-                                      maxTokens: 16000,
-                                    },
-                                  ],
-                                })
-                              }
-                            >
-                              <IconPlus />
-                              <span>{t("Add model", "添加模型")}</span>
-                            </button>
-                          </div>
-
-                          {p.models.map((model, j) => {
-                            const patch = (value: Partial<typeof model>) =>
-                              updateProvider(i, {
-                                ...p,
-                                models: p.models.map((m, k) =>
-                                  j === k ? { ...m, ...value } : m,
-                                ),
-                              });
-                            return (
-                              <div className="model-row" key={j}>
-                                <Field
-                                  label={t("Model ID", "模型 ID")}
-                                  value={model.id}
-                                  mono
-                                  set={(id) => patch({ id })}
-                                />
-                                <Field
-                                  label={t("Context tokens", "上下文窗口")}
-                                  type="number"
-                                  value={model.contextWindow}
-                                  set={(n) =>
-                                    patch({ contextWindow: Number(n) })
-                                  }
-                                />
-                                <Field
-                                  label={t("Max output", "最大输出")}
-                                  type="number"
-                                  value={model.maxTokens}
-                                  set={(n) => patch({ maxTokens: Number(n) })}
-                                />
-                                <div className="model-capabilities">
-                                  <label className="check">
-                                    <input
-                                      type="checkbox"
-                                      checked={model.reasoning}
-                                      onChange={(e) =>
-                                        patch({ reasoning: e.target.checked })
-                                      }
-                                    />
-                                    <span>{t("Reasoning", "推理")}</span>
-                                  </label>
-                                  <label className="check">
-                                    <input
-                                      type="checkbox"
-                                      checked={model.input.includes("image")}
-                                      onChange={(e) =>
-                                        patch({
-                                          input: e.target.checked
-                                            ? ["text", "image"]
-                                            : ["text"],
-                                        })
-                                      }
-                                    />
-                                    <span>{t("Vision", "视觉")}</span>
-                                  </label>
-                                  <button
-                                    type="button"
-                                    className="icon-remove-btn"
-                                    aria-label={t(
-                                      `Remove model ${model.id || j + 1}`,
-                                      `移除模型 ${model.id || j + 1}`,
-                                    )}
-                                    onClick={() =>
-                                      updateProvider(i, {
-                                        ...p,
-                                        models: p.models.filter(
-                                          (_, k) => k !== j,
-                                        ),
-                                      })
-                                    }
-                                  >
-                                    <IconClose />
-                                  </button>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </fieldset>
-                    ))}
-                  </div>
-                )}
-              </section>
-            </>
-          )}
-
-          {category === "images" && (
-            <section className="card">
-              <div className="card-head">
-                <div>
-                  <h2>
-                    {t(
-                      "Image generation, editing and prompt enhancement",
-                      "图像生成、编辑与提示增强",
-                    )}
-                  </h2>
-                  <p>
-                    {t(
-                      "Image APIs use /images/generations and multipart /images/edits with b64_json responses. PE uses /chat/completions.",
-                      "图像接口使用 /images/generations 与 multipart /images/edits，响应需包含 b64_json。PE 使用 /chat/completions。",
-                    )}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className="secondary-btn"
-                  onClick={() => setCategory("credentials")}
-                >
-                  <IconKey />
-                  <span>{t("Credentials", "管理密钥")}</span>
-                </button>
+                </p>
               </div>
-
-              <div className="route-stack">
-                {(["generation", "edit", "promptEnhancer"] as const).map(
-                  (kind) => {
-                    const meta = imageRouteMeta(kind, t);
-                    return (
-                      <fieldset key={kind} className="route-card">
-                        <legend>
-                          {meta.title} · <code>{kind}</code>
-                        </legend>
-                        <p className="route-protocol">{meta.protocol}</p>
-                        <div className="fields fields-3">
-                          <Field
-                            label={t("Base URL", "接口地址 (baseUrl)")}
-                            value={config.image[kind].baseUrl}
-                            mono
-                            set={(value) =>
-                              setConfig({
-                                ...config,
-                                image: {
-                                  ...config.image,
-                                  [kind]: {
-                                    ...config.image[kind],
-                                    baseUrl: value,
-                                  },
-                                },
-                              })
-                            }
-                          />
-                          <Field
-                            label={t("Model ID", "模型 ID (model)")}
-                            value={config.image[kind].model}
-                            mono
-                            set={(value) =>
-                              setConfig({
-                                ...config,
-                                image: {
-                                  ...config.image,
-                                  [kind]: {
-                                    ...config.image[kind],
-                                    model: value,
-                                  },
-                                },
-                              })
-                            }
-                          />
-                          <Field
-                            label={t(
-                              "Key environment name",
-                              "密钥变量名 (apiKeyEnv)",
-                            )}
-                            value={config.image[kind].apiKeyEnv}
-                            mono
-                            set={(value) =>
-                              setConfig({
-                                ...config,
-                                image: {
-                                  ...config.image,
-                                  [kind]: {
-                                    ...config.image[kind],
-                                    apiKeyEnv: value,
-                                  },
-                                },
-                              })
-                            }
-                          />
-                        </div>
-                      </fieldset>
-                    );
-                  },
-                )}
-              </div>
-            </section>
-          )}
-
-          {category === "paths" && (
-            <section className="card">
-              <div className="card-head">
-                <div>
-                  <h2>{t("Workbench host paths", "工作台主机路径")}</h2>
-                  <p>
-                    {t(
-                      "Use executable files for Python, Blender and UE5. These paths are available to the agent and native subprocesses.",
-                      "Python、Blender 和 UE5 填写可执行文件路径。Agent 与原生子进程均可读取这些设置。",
-                    )}
-                  </p>
-                </div>
-              </div>
-              <div className="fields">
-                {Object.entries(config.paths).map(([key, value]) => {
-                  const detected = inspection?.paths?.[key];
-                  return (
-                    <div key={key} className="field-with-link">
-                      <Field
-                        label={pathFieldLabel(key, t)}
-                        value={value}
-                        mono
-                        set={(next) => updateMap("paths", key, next)}
-                      />
-                      {detected && (
-                        <span className="detected-hint">
-                          {t("Host inspection:", "主机检测：")}{" "}
-                          <code>{detected}</code>
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {category === "execution" && (
-            <section className="card">
-              <div className="card-head">
-                <div>
-                  <h2>{t("Execution host / OpenSSH", "执行主机 / OpenSSH")}</h2>
-                  <p>
-                    {t(
-                      "Choose where Harness jobs and remote commands run. Local runs directly on the workbench host.",
-                      "选择 Harness 任务与命令的执行位置。本地模式直接在工作台宿主机运行。",
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              <label className="field target-select-field">
-                <span className="field-label">
-                  {t("Execution target", "执行目标 (target)")}
-                </span>
-                <select
-                  value={config.execution.target}
-                  onChange={(e) =>
-                    updateMap("execution", "target", e.target.value)
+            </div>
+            <div className="fields">
+              {(["main", "child"] as const).map((role) => (
+                <AgentSelect
+                  key={role}
+                  t={t}
+                  agent={config.agents[role]}
+                  providers={config.providers}
+                  label={
+                    role === "main"
+                      ? t("Main agent (main)", "主 Agent (main)")
+                      : t("Child agent (child)", "子 Agent (child)")
                   }
-                >
-                  <option value="local">
-                    {t("Local workstation (local)", "本地工作站 (local)")}
-                  </option>
-                  <option value="ssh">
-                    {t("Remote OpenSSH host (ssh)", "远端 OpenSSH 主机 (ssh)")}
-                  </option>
-                </select>
-              </label>
+                  update={(agent) =>
+                    setConfig({
+                      ...config,
+                      agents: { ...config.agents, [role]: agent },
+                    })
+                  }
+                />
+              ))}
+            </div>
+          </section>
 
-              <div className="callout-note">
+          <section className="card">
+            <div className="card-head">
+              <div>
+                <h2>{t("Model providers", "模型服务")}</h2>
+                <p>
+                  {t(
+                    "Select a supported API protocol. Model IDs and endpoints are supplied by your deployment.",
+                    "选择支持的 API 协议，模型 ID 和服务地址由你的部署提供。",
+                  )}
+                </p>
+              </div>
+              <ActionButton variant="secondary" onClick={addNewProvider}>
+                <IconPlus />
+                <span>{t("Add provider", "添加服务")}</span>
+              </ActionButton>
+            </div>
+
+            {config.providers.length === 0 ? (
+              <p className="empty-box">
                 {t(
-                  "SSH uses your host config and ssh-agent, strict host keys and BatchMode. Remote paths refer to the server. Provision its checkout and environment separately.",
-                  "SSH 使用宿主机配置与 ssh-agent，启用严格主机密钥检查和 BatchMode。远端路径均指服务器路径；请先单独准备远端源码与运行环境。",
+                  "No providers configured yet. Add a provider to register endpoints and models.",
+                  "尚未配置模型服务。点击「添加服务」注册接口地址与模型。",
                 )}
-              </div>
-
-              {Boolean(inspection?.sshHosts?.length) &&
-                "sshHost" in config.execution && (
-                  <div className="env-suggestions">
-                    <span className="env-suggestions-label">
-                      {t(
-                        "Detected OpenSSH host aliases:",
-                        "检测到的本机 OpenSSH 主机别名：",
-                      )}
-                    </span>
-                    <div className="chip-row">
-                      {inspection!.sshHosts.map((host) => (
-                        <button
-                          key={host}
-                          type="button"
-                          className={
-                            config.execution.sshHost === host
-                              ? "chip-btn active"
-                              : "chip-btn"
-                          }
-                          onClick={() => updateMap("execution", "sshHost", host)}
-                        >
-                          {host}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-              <div className="fields">
-                {Object.entries(config.execution)
-                  .filter(([key]) => key !== "target")
-                  .map(([key, value]) => (
-                    <Field
-                      key={key}
-                      label={executionFieldLabel(key, t)}
-                      value={value}
-                      mono
-                      set={(next) => updateMap("execution", key, next)}
-                    />
-                  ))}
-              </div>
-            </section>
-          )}
-
-          {category === "runtime" && (
-            <section className="card">
-              <div className="card-head">
-                <div>
-                  <h2>{t("Agent runtime", "Agent 运行时")}</h2>
-                  <p>
-                    {t(
-                      "Configure the underlying runtime executable, extension path, context compaction and log reduction options.",
-                      "配置底层运行时可执行程序、扩展路径、上下文压缩与日志归约策略。",
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              <div className="fields">
-                {Object.entries(config.pi).map(([key, value]) => (
-                  <Field
-                    key={key}
-                    label={runtimeFieldLabel(key, t)}
-                    value={value}
-                    mono
-                    set={(next) => updateMap("pi", key, next)}
-                  />
-                ))}
-              </div>
-
-              <div className="toggle-grid">
-                {(
-                  [
-                    "enabled",
-                    "actionFusion",
-                    "observationPack",
-                    "evidencePreservingReducer",
-                    "onlineContextCompact",
-                  ] as const
-                ).map((key) => {
-                  const meta = runtimeToggleMeta(key, t);
-                  return (
-                    <label className="toggle-tile" key={key}>
-                      <input
-                        type="checkbox"
-                        checked={config.sol[key]}
-                        onChange={(e) =>
+              </p>
+            ) : (
+              <div className="provider-stack">
+                {config.providers.map((p, i) => (
+                  <fieldset className="provider-card" key={i}>
+                    <legend className="sr-only">
+                      {p.id || `Provider ${i + 1}`}
+                    </legend>
+                    <div className="provider-card-header">
+                      <div className="provider-title-group">
+                        <strong>
+                          {p.id || t(`Provider ${i + 1}`, `模型服务 ${i + 1}`)}
+                        </strong>
+                        <span className="pill">{p.api}</span>
+                      </div>
+                      <ActionButton
+                        variant="danger"
+                        size="sm"
+                        onClick={() =>
                           setConfig({
                             ...config,
-                            sol: { ...config.sol, [key]: e.target.checked },
+                            providers: config.providers.filter(
+                              (_, k) => i !== k,
+                            ),
                           })
                         }
+                      >
+                        {t("Remove provider", "移除服务")}
+                      </ActionButton>
+                    </div>
+
+                    <div className="fields">
+                      <TextField
+                        label={t("Provider ID", "服务标识 (Provider ID)")}
+                        value={p.id}
+                        mono
+                        set={(id) => updateProvider(i, { ...p, id })}
                       />
-                      <span className="toggle-copy">
-                        <strong>{meta.title}</strong>
-                        <small>{meta.hint}</small>
-                      </span>
-                    </label>
+                      <SelectField
+                        label={t("API protocol", "API 协议")}
+                        value={p.api}
+                        mono
+                        options={withCurrentOption(
+                          API_PROTOCOLS.map((a) => ({ value: a, label: a })),
+                          p.api,
+                        )}
+                        onChange={(nextApi) =>
+                          updateProvider(i, { ...p, api: nextApi })
+                        }
+                      />
+                      <TextField
+                        label={t("Base URL", "接口地址 (Base URL)")}
+                        value={p.baseUrl}
+                        mono
+                        set={(baseUrl) => updateProvider(i, { ...p, baseUrl })}
+                      />
+                      <div className="field-with-link">
+                        <TextField
+                          label={t(
+                            "Key environment name (empty for no auth)",
+                            "密钥环境变量名（无鉴权留空）",
+                          )}
+                          value={p.apiKeyEnv}
+                          mono
+                          set={(apiKeyEnv) =>
+                            updateProvider(i, { ...p, apiKeyEnv })
+                          }
+                        />
+                        <ActionButton
+                          variant="link"
+                          size="sm"
+                          onClick={() => setCategory("credentials")}
+                        >
+                          <IconKey size={13} />
+                          <span>
+                            {t(
+                              "Manage keys in Credentials",
+                              "前往私有凭据配置密钥",
+                            )}
+                          </span>
+                        </ActionButton>
+                      </div>
+                    </div>
+
+                    <div className="models-subsection">
+                      <div className="models-subheader">
+                        <span>
+                          {t("Models", "模型列表")} ({p.models.length})
+                        </span>
+                        <ActionButton
+                          variant="secondary"
+                          size="sm"
+                          onClick={() =>
+                            updateProvider(i, {
+                              ...p,
+                              models: [
+                                ...p.models,
+                                {
+                                  id: "",
+                                  reasoning: true,
+                                  input: ["text", "image"],
+                                  contextWindow: 128000,
+                                  maxTokens: 16000,
+                                },
+                              ],
+                            })
+                          }
+                        >
+                          <IconPlus size={14} />
+                          <span>{t("Add model", "添加模型")}</span>
+                        </ActionButton>
+                      </div>
+
+                      {p.models.map((model, j) => {
+                        const patch = (value: Partial<typeof model>) =>
+                          updateProvider(i, {
+                            ...p,
+                            models: p.models.map((m, k) =>
+                              j === k ? { ...m, ...value } : m,
+                            ),
+                          });
+                        return (
+                          <div className="model-card" key={j}>
+                            <div className="model-card-top">
+                              <TextField
+                                label={t("Model ID", "模型 ID")}
+                                value={model.id}
+                                mono
+                                set={(id) => patch({ id })}
+                              />
+                              <div className="model-capabilities">
+                                <CompactSwitch
+                                  label={t("Reasoning", "推理")}
+                                  checked={model.reasoning}
+                                  onChange={(reasoning) => patch({ reasoning })}
+                                />
+                                <CompactSwitch
+                                  label={t("Vision", "视觉")}
+                                  checked={model.input.includes("image")}
+                                  onChange={(vision) =>
+                                    patch({
+                                      input: vision
+                                        ? ["text", "image"]
+                                        : ["text"],
+                                    })
+                                  }
+                                />
+                                <ActionButton
+                                  variant="ghost"
+                                  size="icon"
+                                  aria-label={t(
+                                    `Remove model ${model.id || j + 1}`,
+                                    `移除模型 ${model.id || j + 1}`,
+                                  )}
+                                  tooltip={t(
+                                    "Remove this model entry",
+                                    "移除该模型条目",
+                                  )}
+                                  onClick={() =>
+                                    updateProvider(i, {
+                                      ...p,
+                                      models: p.models.filter(
+                                        (_, k) => k !== j,
+                                      ),
+                                    })
+                                  }
+                                >
+                                  <IconClose size={15} />
+                                </ActionButton>
+                              </div>
+                            </div>
+
+                            <DisclosureGroup className="model-limits-accordion">
+                              <DisclosureItem
+                                value={`limits-${i}-${j}`}
+                                title={t(
+                                  "Token window & output limits",
+                                  "上下文窗口与最大输出限制",
+                                )}
+                                summary={`${model.contextWindow} ctx · ${model.maxTokens} max`}
+                              >
+                                <div className="fields">
+                                  <TextField
+                                    label={t("Context tokens", "上下文窗口")}
+                                    type="number"
+                                    value={model.contextWindow}
+                                    set={(n) =>
+                                      patch({ contextWindow: Number(n) })
+                                    }
+                                  />
+                                  <TextField
+                                    label={t("Max output", "最大输出")}
+                                    type="number"
+                                    value={model.maxTokens}
+                                    set={(n) => patch({ maxTokens: Number(n) })}
+                                  />
+                                </div>
+                              </DisclosureItem>
+                            </DisclosureGroup>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
+                ))}
+              </div>
+            )}
+          </section>
+        </SettingsTabPanel>
+
+        <SettingsTabPanel value="images">
+          <section className="card">
+            <div className="card-head">
+              <div>
+                <h2>
+                  {t(
+                    "Image generation, editing and prompt enhancement",
+                    "图像生成、编辑与提示增强",
+                  )}
+                </h2>
+                <p>
+                  {t(
+                    "Image APIs use /images/generations and multipart /images/edits with b64_json responses. PE uses /chat/completions.",
+                    "图像接口使用 /images/generations 与 multipart /images/edits，响应需包含 b64_json。PE 使用 /chat/completions。",
+                  )}
+                </p>
+              </div>
+              <ActionButton
+                variant="secondary"
+                onClick={() => setCategory("credentials")}
+              >
+                <IconKey size={15} />
+                <span>{t("Credentials", "管理密钥")}</span>
+              </ActionButton>
+            </div>
+
+            <div className="route-stack">
+              {(["generation", "edit", "promptEnhancer"] as const).map(
+                (kind) => {
+                  const meta = imageRouteMeta(kind, t);
+                  return (
+                    <fieldset key={kind} className="route-card">
+                      <legend>
+                        {meta.title} · <code>{kind}</code>
+                      </legend>
+                      <p className="route-protocol">{meta.protocol}</p>
+                      <div className="fields fields-3">
+                        <TextField
+                          label={t("Base URL", "接口地址 (baseUrl)")}
+                          value={config.image[kind].baseUrl}
+                          mono
+                          set={(value) =>
+                            setConfig({
+                              ...config,
+                              image: {
+                                ...config.image,
+                                [kind]: {
+                                  ...config.image[kind],
+                                  baseUrl: value,
+                                },
+                              },
+                            })
+                          }
+                        />
+                        <TextField
+                          label={t("Model ID", "模型 ID (model)")}
+                          value={config.image[kind].model}
+                          mono
+                          set={(value) =>
+                            setConfig({
+                              ...config,
+                              image: {
+                                ...config.image,
+                                [kind]: {
+                                  ...config.image[kind],
+                                  model: value,
+                                },
+                              },
+                            })
+                          }
+                        />
+                        <TextField
+                          label={t(
+                            "Key environment name",
+                            "密钥变量名 (apiKeyEnv)",
+                          )}
+                          value={config.image[kind].apiKeyEnv}
+                          mono
+                          set={(value) =>
+                            setConfig({
+                              ...config,
+                              image: {
+                                ...config.image,
+                                [kind]: {
+                                  ...config.image[kind],
+                                  apiKeyEnv: value,
+                                },
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                    </fieldset>
                   );
-                })}
-              </div>
+                },
+              )}
+            </div>
+          </section>
+        </SettingsTabPanel>
 
-              <div className="callout-note">
-                {t(
-                  "Reducer sends eligible logs to its configured model. Compaction can make model calls and continue the task. Set both explicitly.",
-                  "Reducer 会将符合条件的日志发送给配置的模型。上下文压缩可能触发模型调用并继续任务，请显式配置这两项。",
-                )}
+        <SettingsTabPanel value="paths">
+          <section className="card">
+            <div className="card-head">
+              <div>
+                <h2>{t("Workbench host paths", "工作台主机路径")}</h2>
+                <p>
+                  {t(
+                    "Use executable files for Python, Blender and UE5. These paths are available to the agent and native subprocesses.",
+                    "Python、Blender 和 UE5 填写可执行文件路径。Agent 与原生子进程均可读取这些设置。",
+                  )}
+                </p>
               </div>
-
-              <div className="fields fields-3">
-                <Field
-                  label={t(
-                    "Reducer provider (reducerProvider)",
-                    "归约服务提供方 (reducerProvider)",
-                  )}
-                  value={config.sol.reducerProvider}
-                  mono
-                  set={(value) =>
-                    setConfig({
-                      ...config,
-                      sol: { ...config.sol, reducerProvider: value },
-                    })
-                  }
-                />
-                <Field
-                  label={t(
-                    "Reducer model (reducerModel)",
-                    "归约模型 (reducerModel)",
-                  )}
-                  value={config.sol.reducerModel}
-                  mono
-                  set={(value) =>
-                    setConfig({
-                      ...config,
-                      sol: { ...config.sol, reducerModel: value },
-                    })
-                  }
-                />
-                <Field
-                  label={t(
-                    "Cache write/read ratio (cacheWriteReadRatio)",
-                    "缓存写读比 (cacheWriteReadRatio)",
-                  )}
-                  type="number"
-                  value={config.sol.cacheWriteReadRatio}
-                  set={(value) =>
-                    setConfig({
-                      ...config,
-                      sol: {
-                        ...config.sol,
-                        cacheWriteReadRatio: Number(value),
-                      },
-                    })
-                  }
-                />
-              </div>
-            </section>
-          )}
-
-          {category === "credentials" && (
-            <section className="card">
-              <div className="card-head">
-                <div>
-                  <h2>{t("Private credentials", "私有凭据")}</h2>
-                  <p>
-                    {t(
-                      "Keys are write-only. Leave inputs empty to keep stored keys. SSH keys stay in OpenSSH, not this form.",
-                      "密钥仅写入，页面不会读取已保存的值。空白输入保留旧值；SSH 私钥由 OpenSSH 管理，无需在此填写。",
+            </div>
+            <div className="fields">
+              {Object.entries(config.paths).map(([key, value]) => {
+                const detected = inspection?.paths?.[key];
+                return (
+                  <div key={key} className="field-with-link">
+                    <TextField
+                      label={pathFieldLabel(key, t)}
+                      value={value}
+                      mono
+                      set={(next) => updateMap("paths", key, next)}
+                    />
+                    {detected && (
+                      <span className="detected-hint">
+                        {t("Host inspection:", "主机检测：")}{" "}
+                        <code>{detected}</code>
+                      </span>
                     )}
-                  </p>
-                </div>
-              </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        </SettingsTabPanel>
 
-              {referencedEnvNames.length > 0 && (
+        <SettingsTabPanel value="execution">
+          <section className="card">
+            <div className="card-head">
+              <div>
+                <h2>{t("Execution host / OpenSSH", "执行主机 / OpenSSH")}</h2>
+                <p>
+                  {t(
+                    "Choose where Harness jobs and remote commands run. Local runs directly on the workbench host.",
+                    "选择 Harness 任务与命令的执行位置。本地模式直接在工作台宿主机运行。",
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <SelectField
+              className="target-select-field"
+              label={t("Execution target", "执行目标 (target)")}
+              value={config.execution.target || "local"}
+              options={[
+                {
+                  value: "local",
+                  label: t("Local workstation (local)", "本地工作站 (local)"),
+                },
+                {
+                  value: "ssh",
+                  label: t(
+                    "Remote OpenSSH host (ssh)",
+                    "远端 OpenSSH 主机 (ssh)",
+                  ),
+                },
+              ]}
+              onChange={(target) => updateMap("execution", "target", target)}
+            />
+
+            <div className="callout-note">
+              {t(
+                "SSH uses your host config and ssh-agent, strict host keys and BatchMode. Remote paths refer to the server. Provision its checkout and environment separately.",
+                "SSH 使用宿主机配置与 ssh-agent，启用严格主机密钥检查和 BatchMode。远端路径均指服务器路径；请先单独准备远端源码与运行环境。",
+              )}
+            </div>
+
+            {Boolean(inspection?.sshHosts?.length) &&
+              "sshHost" in config.execution && (
                 <div className="env-suggestions">
                   <span className="env-suggestions-label">
                     {t(
-                      "Quick-fill from configured routes:",
-                      "从当前服务配置快速填入变量名：",
+                      "Detected OpenSSH host aliases:",
+                      "检测到的本机 OpenSSH 主机别名：",
                     )}
                   </span>
                   <div className="chip-row">
-                    {referencedEnvNames.map((envName) => (
+                    {inspection!.sshHosts.map((host) => (
                       <button
-                        key={envName}
+                        key={host}
                         type="button"
                         className={
-                          keyName === envName ? "chip-btn active" : "chip-btn"
+                          config.execution.sshHost === host
+                            ? "chip-btn active"
+                            : "chip-btn"
                         }
-                        onClick={() => setKeyName(envName)}
+                        onClick={() => updateMap("execution", "sshHost", host)}
                       >
-                        {envName}
+                        {host}
                       </button>
                     ))}
                   </div>
                 </div>
               )}
 
-              <div className="credential-stage-box">
-                <div className="fields">
-                  <Field
-                    label={t("Environment name", "环境变量名")}
-                    value={keyName}
-                    placeholder="API_KEY_ENV"
+            <div className="fields">
+              {Object.entries(config.execution)
+                .filter(([key]) => key !== "target")
+                .map(([key, value]) => (
+                  <TextField
+                    key={key}
+                    label={executionFieldLabel(key, t)}
+                    value={value}
                     mono
-                    set={setKeyName}
+                    set={(next) => updateMap("execution", key, next)}
                   />
-                  <Field
-                    label={t("API key (write-only)", "API 密钥（仅写入）")}
-                    type="password"
-                    value={keyValue}
-                    set={setKeyValue}
+                ))}
+            </div>
+          </section>
+        </SettingsTabPanel>
+
+        <SettingsTabPanel value="runtime">
+          <section className="card">
+            <div className="card-head">
+              <div>
+                <h2>{t("Agent runtime", "Agent 运行时")}</h2>
+                <p>
+                  {t(
+                    "Configure the underlying runtime executable, extension path, context compaction and log reduction options.",
+                    "配置底层运行时可执行程序、扩展路径、上下文压缩与日志归约策略。",
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <div className="fields">
+              {Object.entries(config.pi).map(([key, value]) => (
+                <TextField
+                  key={key}
+                  label={runtimeFieldLabel(key, t)}
+                  value={value}
+                  mono
+                  set={(next) => updateMap("pi", key, next)}
+                />
+              ))}
+            </div>
+
+            <div className="runtime-master-switch">
+              <SwitchField
+                title={runtimeToggleMeta("enabled", t).title}
+                description={runtimeToggleMeta("enabled", t).hint}
+                checked={config.sol.enabled}
+                onChange={(enabled) =>
+                  setConfig({
+                    ...config,
+                    sol: { ...config.sol, enabled },
+                  })
+                }
+              />
+            </div>
+
+            <div className="callout-note">
+              {t(
+                "Reducer sends eligible logs to its configured model. Compaction can make model calls and continue the task. Set both explicitly.",
+                "Reducer 会将符合条件的日志发送给配置的模型。上下文压缩可能触发模型调用并继续任务，请显式配置这两项。",
+              )}
+            </div>
+
+            <DisclosureGroup
+              defaultOpen={["stages", "reducer"]}
+              className="runtime-accordion"
+            >
+              <DisclosureItem
+                value="stages"
+                title={t(
+                  "Pipeline optimization stages",
+                  "运行时优化与上下文阶段",
+                )}
+                summary={t(
+                  `${enabledStageCount} / 4 active`,
+                  `已开启 ${enabledStageCount} / 4`,
+                )}
+              >
+                <div className="toggle-grid">
+                  {runtimeStages.map((key) => {
+                    const meta = runtimeToggleMeta(key, t);
+                    return (
+                      <SwitchField
+                        key={key}
+                        title={meta.title}
+                        description={meta.hint}
+                        checked={config.sol[key]}
+                        onChange={(checked) =>
+                          setConfig({
+                            ...config,
+                            sol: { ...config.sol, [key]: checked },
+                          })
+                        }
+                      />
+                    );
+                  })}
+                </div>
+              </DisclosureItem>
+
+              <DisclosureItem
+                value="reducer"
+                title={t(
+                  "Reducer model & cache ratio",
+                  "归约模型与缓存写读比参数",
+                )}
+                summary={
+                  config.sol.reducerModel || t("Unassigned", "未指定模型")
+                }
+              >
+                <div className="fields fields-3">
+                  <TextField
+                    label={t(
+                      "Reducer provider (reducerProvider)",
+                      "归约服务提供方 (reducerProvider)",
+                    )}
+                    value={config.sol.reducerProvider}
+                    mono
+                    set={(value) =>
+                      setConfig({
+                        ...config,
+                        sol: { ...config.sol, reducerProvider: value },
+                      })
+                    }
+                  />
+                  <TextField
+                    label={t(
+                      "Reducer model (reducerModel)",
+                      "归约模型 (reducerModel)",
+                    )}
+                    value={config.sol.reducerModel}
+                    mono
+                    set={(value) =>
+                      setConfig({
+                        ...config,
+                        sol: { ...config.sol, reducerModel: value },
+                      })
+                    }
+                  />
+                  <TextField
+                    label={t(
+                      "Cache write/read ratio (cacheWriteReadRatio)",
+                      "缓存写读比 (cacheWriteReadRatio)",
+                    )}
+                    type="number"
+                    value={config.sol.cacheWriteReadRatio}
+                    set={(value) =>
+                      setConfig({
+                        ...config,
+                        sol: {
+                          ...config.sol,
+                          cacheWriteReadRatio: Number(value),
+                        },
+                      })
+                    }
                   />
                 </div>
-                <div className="credential-stage-actions">
-                  <button
-                    type="button"
-                    className="secondary-btn"
-                    disabled={!keyName || !keyValue}
-                    onClick={() => {
-                      setSecrets({ ...secrets, [keyName]: keyValue });
-                      setKeyValue("");
-                      setKeyName("");
-                    }}
-                  >
-                    <IconKey />
-                    <span>{t("Stage key for save", "暂存密钥")}</span>
-                  </button>
-                  {keyName && keyValue && (
-                    <span className="stage-hint">
-                      {t(
-                        "Stage this key first, then click Save configuration.",
-                        "请先点击「暂存密钥」，再点击右上角「保存配置」。",
-                      )}
-                    </span>
+              </DisclosureItem>
+            </DisclosureGroup>
+          </section>
+        </SettingsTabPanel>
+
+        <SettingsTabPanel value="credentials">
+          <section className="card">
+            <div className="card-head">
+              <div>
+                <h2>{t("Private credentials", "私有凭据")}</h2>
+                <p>
+                  {t(
+                    "Keys are write-only. Leave inputs empty to keep stored keys. SSH keys stay in OpenSSH, not this form.",
+                    "密钥仅写入，页面不会读取已保存的值。空白输入保留旧值；SSH 私钥由 OpenSSH 管理，无需在此填写。",
                   )}
+                </p>
+              </div>
+            </div>
+
+            {referencedEnvNames.length > 0 && (
+              <div className="env-suggestions">
+                <span className="env-suggestions-label">
+                  {t(
+                    "Quick-fill from configured routes:",
+                    "从当前服务配置快速填入变量名：",
+                  )}
+                </span>
+                <div className="chip-row">
+                  {referencedEnvNames.map((envName) => (
+                    <button
+                      key={envName}
+                      type="button"
+                      className={
+                        keyName === envName ? "chip-btn active" : "chip-btn"
+                      }
+                      onClick={() => setKeyName(envName)}
+                    >
+                      {envName}
+                    </button>
+                  ))}
                 </div>
               </div>
+            )}
 
-              <div className="credentials-list-section">
-                <h3>{t("Stored and staged keys", "已配置与待保存密钥")}</h3>
-                {allCredentialNames.length === 0 ? (
-                  <p className="empty-box">
+            <div className="credential-stage-box">
+              <div className="fields">
+                <TextField
+                  label={t("Environment name", "环境变量名")}
+                  value={keyName}
+                  placeholder="API_KEY_ENV"
+                  mono
+                  set={setKeyName}
+                />
+                <TextField
+                  label={t("API key (write-only)", "API 密钥（仅写入）")}
+                  type="password"
+                  value={keyValue}
+                  set={setKeyValue}
+                />
+              </div>
+              <div className="credential-stage-actions">
+                <ActionButton
+                  variant="secondary"
+                  disabled={!keyName || !keyValue}
+                  onClick={() => {
+                    setSecrets({ ...secrets, [keyName]: keyValue });
+                    setKeyValue("");
+                    setKeyName("");
+                  }}
+                >
+                  <IconKey size={15} />
+                  <span>{t("Stage key for save", "暂存密钥")}</span>
+                </ActionButton>
+                {keyName && keyValue && (
+                  <span className="stage-hint">
                     {t(
-                      "No private credentials stored yet.",
-                      "当前尚未保存任何私有密钥。",
+                      "Stage this key first, then click Save configuration.",
+                      "请先点击「暂存密钥」，再点击右上角「保存配置」。",
                     )}
-                  </p>
-                ) : (
-                  <div className="credential-rows">
-                    {allCredentialNames.map((name) => {
-                      const pendingDelete = secrets[name] === "";
-                      const pendingWrite =
-                        typeof secrets[name] === "string" &&
-                        secrets[name].length > 0;
-                      return (
-                        <div
-                          key={name}
-                          className={
-                            pendingDelete
-                              ? "credential-row removing"
-                              : "credential-row"
-                          }
-                        >
-                          <code className="credential-name">{name}</code>
-                          <span
-                            className={`pill ${
-                              pendingDelete
-                                ? "pill-warn"
-                                : pendingWrite
-                                  ? "pill-active"
-                                  : "pill-success"
-                            }`}
-                          >
-                            {pendingDelete
-                              ? t("remove on save", "保存时删除")
-                              : pendingWrite
-                                ? t("staged · configured", "已暂存 · 待保存")
-                                : t("configured", "已配置")}
-                          </span>
-                          <button
-                            type="button"
-                            className="icon-remove-btn"
-                            aria-label={t(`Remove ${name}`, `移除 ${name}`)}
-                            onClick={() =>
-                              setSecrets({ ...secrets, [name]: "" })
-                            }
-                          >
-                            <IconClose />
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  </span>
                 )}
               </div>
-            </section>
-          )}
-        </div>
-      </div>
+            </div>
+
+            <div className="credentials-list-section">
+              <h3>{t("Stored and staged keys", "已配置与待保存密钥")}</h3>
+              {allCredentialNames.length === 0 ? (
+                <p className="empty-box">
+                  {t(
+                    "No private credentials stored yet.",
+                    "当前尚未保存任何私有密钥。",
+                  )}
+                </p>
+              ) : (
+                <div className="credential-rows">
+                  {allCredentialNames.map((name) => {
+                    const pendingDelete = secrets[name] === "";
+                    const pendingWrite =
+                      typeof secrets[name] === "string" &&
+                      secrets[name].length > 0;
+                    return (
+                      <div
+                        key={name}
+                        className={
+                          pendingDelete
+                            ? "credential-row removing"
+                            : "credential-row"
+                        }
+                      >
+                        <code className="credential-name">{name}</code>
+                        <span
+                          className={`pill ${
+                            pendingDelete
+                              ? "pill-warn"
+                              : pendingWrite
+                                ? "pill-active"
+                                : "pill-success"
+                          }`}
+                        >
+                          {pendingDelete
+                            ? t("remove on save", "保存时删除")
+                            : pendingWrite
+                              ? t("staged · configured", "已暂存 · 待保存")
+                              : t("configured", "已配置")}
+                        </span>
+                        <ActionButton
+                          variant="ghost"
+                          size="icon"
+                          aria-label={t(`Remove ${name}`, `移除 ${name}`)}
+                          tooltip={t(
+                            "Mark key for removal when saved",
+                            "标记在保存配置时删除该密钥",
+                          )}
+                          onClick={() =>
+                            setSecrets({ ...secrets, [name]: "" })
+                          }
+                        >
+                          <IconClose size={15} />
+                        </ActionButton>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </section>
+        </SettingsTabPanel>
+      </SettingsTabs>
     </form>
   );
 }
@@ -1118,6 +1118,362 @@ const commandFields: Record<string, string[]> = {
   pause: ["campaign", "campaignRoot"],
   resume: ["campaign", "campaignRoot"],
 };
+
+function StudioHome({
+  data,
+  workspaceScope,
+  t,
+  onCreateSession,
+  onChooseSession,
+  onOpenSettings,
+  onOpenHarness,
+  onOpenImages,
+}: {
+  data: Bootstrap;
+  workspaceScope: string;
+  t: Translate;
+  onCreateSession: () => void;
+  onChooseSession: (id: string) => void;
+  onOpenSettings: (category: SettingsCategory) => void;
+  onOpenHarness: (presetCommand?: string) => void;
+  onOpenImages: (presetRoute?: string) => void;
+}) {
+  const { config, credentials, sessions } = data;
+  const isSsh = config.execution.target === "ssh";
+  const mainLabel =
+    config.agents.main.provider && config.agents.main.model
+      ? `${config.agents.main.provider} / ${config.agents.main.model}`
+      : t("Unassigned", "未指定主模型");
+  const childLabel =
+    config.agents.child.provider && config.agents.child.model
+      ? `${config.agents.child.provider} / ${config.agents.child.model}`
+      : t("Unassigned", "未指定子模型");
+
+  return (
+    <section className="studio-home">
+      <div className="studio-rail studio-rail-left" aria-hidden="true" />
+      <div className="studio-rail studio-rail-right" aria-hidden="true" />
+
+      <div className="studio-hero">
+        <div className="studio-hero-main">
+          <div className="studio-kicker">
+            <span className="studio-kicker-mark" aria-hidden="true">
+              <img src="/logo.png" alt="" />
+            </span>
+            <span>DataEvolver Workbench</span>
+            <span className="studio-kicker-sep" aria-hidden="true">
+              ·
+            </span>
+            <span className="studio-kicker-mode">
+              {isSsh
+                ? `OpenSSH${config.execution.sshHost ? ` · ${config.execution.sshHost}` : ""}`
+                : t("Local host", "本地工作站")}
+            </span>
+          </div>
+
+          <h1 className="studio-title">
+            {t(
+              "From research plan to traceable execution.",
+              "让研究计划化为有据可查的工作流。",
+            )}
+          </h1>
+
+          <p className="studio-lead">
+            {t(
+              "Open an agent conversation with host tool access, advance bounded Campaigns through the Harness, and inspect receipt-backed image artifacts.",
+              "开启具备宿主机工具权限的 Agent 会话，通过 Harness 有界推进 Campaign，并核验附带回执的图像产物。",
+            )}
+          </p>
+
+          <div className="studio-actions">
+            <ActionButton
+              variant="primary"
+              className="studio-cta-primary"
+              onClick={onCreateSession}
+            >
+              <span>{t("New conversation", "新建对话")}</span>
+              <IconArrowRight size={16} className="studio-cta-arrow" />
+            </ActionButton>
+            <ActionButton
+              variant="secondary"
+              className="studio-cta-secondary"
+              onClick={() => onOpenSettings("models")}
+            >
+              <IconSettings size={15} />
+              <span>
+                {t("Configure models & host", "配置模型与执行主机")}
+              </span>
+            </ActionButton>
+          </div>
+        </div>
+
+        <aside
+          className="studio-hero-spec"
+          aria-label={t("Active workbench snapshot", "当前工作台配置摘要")}
+        >
+          <span className="eyebrow">
+            {t("WORKBENCH SNAPSHOT", "当前配置快照")}
+          </span>
+          <dl className="studio-spec-dl">
+            <div>
+              <dt>{t("Main agent", "主 Agent")}</dt>
+              <dd>{mainLabel}</dd>
+            </div>
+            <div>
+              <dt>{t("Execution", "执行目标")}</dt>
+              <dd>
+                {isSsh
+                  ? config.execution.sshHost || "ssh"
+                  : t("Local process", "本地进程 (local)")}
+              </dd>
+            </div>
+            <div>
+              <dt>{t("Workspace", "工作区路径")}</dt>
+              <dd>{workspaceScope || t("Not set", "未设置路径")}</dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
+
+      <div className="studio-bento-stage">
+        <div className="studio-bento-grid">
+          <article className="bento-card bento-harness">
+            <IconHarness
+              size={140}
+              strokeWidth={1}
+              className="bento-watermark"
+            />
+            <div className="bento-card-top">
+              <span className="eyebrow">01 · HARNESS</span>
+              <ActionButton
+                variant="ghost"
+                size="sm"
+                onClick={() => onOpenHarness()}
+              >
+                <span>{t("Open Harness", "打开 Harness")}</span>
+                <IconArrowUpRight size={14} />
+              </ActionButton>
+            </div>
+            <h2>
+              {t(
+                "Compile plans and run bounded steps",
+                "编译计划并执行有界步进",
+              )}
+            </h2>
+            <p>
+              {t(
+                "Separate persisted Campaign state from chat turns. Advance work with explicit action limits, inspect status, or replay retained receipts.",
+                "将持久化 Campaign 状态与对话轮次分离，按显式步数上限推进任务、查看状态或回放保留回执。",
+              )}
+            </p>
+            <div
+              className="bento-pipeline"
+              role="group"
+              aria-label={t("Harness quick commands", "Harness 快捷命令跳转")}
+            >
+              {(["compile-plan", "create", "step", "replay"] as const).map(
+                (cmd, idx) => (
+                  <button
+                    key={cmd}
+                    type="button"
+                    className="pipeline-node"
+                    onClick={() => onOpenHarness(cmd)}
+                  >
+                    <span className="pipeline-step">0{idx + 1}</span>
+                    <strong>{harnessCommandMeta(cmd, t).title}</strong>
+                    <code>{cmd}</code>
+                  </button>
+                ),
+              )}
+            </div>
+          </article>
+
+          <article className="bento-card bento-studio">
+            <IconAperture
+              size={136}
+              strokeWidth={1}
+              className="bento-watermark"
+            />
+            <div className="bento-card-top">
+              <span className="eyebrow">
+                02 · {t("IMAGE STUDIO", "图像工坊")}
+              </span>
+              <ActionButton
+                variant="ghost"
+                size="sm"
+                onClick={() => onOpenImages()}
+              >
+                <span>{t("Open Studio", "进入工坊")}</span>
+                <IconArrowUpRight size={14} />
+              </ActionButton>
+            </div>
+            <h2>
+              {t(
+                "Generate, edit and enhance prompts",
+                "图像生成、编辑与提示增强",
+              )}
+            </h2>
+            <p>
+              {t(
+                "Run host-path image generation, multipart edits, and prompt enhancement with retained receipts and no automatic retries.",
+                "执行主机路径图像生成、多部分编辑与提示词增强，保留校验回执且失败不自动重试。",
+              )}
+            </p>
+            <div className="bento-reticle">
+              <span className="reticle-corner tl" aria-hidden="true" />
+              <span className="reticle-corner tr" aria-hidden="true" />
+              <span className="reticle-corner bl" aria-hidden="true" />
+              <span className="reticle-corner br" aria-hidden="true" />
+              <div className="reticle-routes">
+                {(
+                  [
+                    ["generation", t("Generation", "图像生成")],
+                    ["edit", t("Multipart edit", "图像编辑")],
+                    ["promptEnhancer", t("Prompt enhancer", "提示词增强")],
+                  ] as const
+                ).map(([routeId, label]) => (
+                  <button
+                    key={routeId}
+                    type="button"
+                    className="reticle-chip"
+                    onClick={() => onOpenImages(routeId)}
+                  >
+                    <span>{label}</span>
+                    <code>{routeId}</code>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </article>
+
+          <article className="bento-card bento-dark">
+            <IconCpu size={132} strokeWidth={1} className="bento-watermark" />
+            <div className="bento-card-top">
+              <span className="eyebrow bento-eyebrow-dark">
+                03 · {t("ROUTING & KEYS", "路由与密钥")}
+              </span>
+            </div>
+            <h2>
+              {t(
+                "Agent profiles & write-only vault",
+                "主子 Agent 与仅写入凭据",
+              )}
+            </h2>
+            <dl className="bento-dark-specs">
+              <div>
+                <dt>main</dt>
+                <dd>
+                  {mainLabel} · {config.agents.main.thinking}
+                </dd>
+              </div>
+              <div>
+                <dt>child</dt>
+                <dd>
+                  {childLabel} · {config.agents.child.thinking}
+                </dd>
+              </div>
+              <div>
+                <dt>keys</dt>
+                <dd>
+                  {credentials.length > 0
+                    ? t(
+                        `${credentials.length} stored env key(s)`,
+                        `已保存 ${credentials.length} 项环境密钥`,
+                      )
+                    : t("Write-only env store", "环境变量仅写入存储")}
+                </dd>
+              </div>
+            </dl>
+            <div className="bento-dark-actions">
+              <ActionButton
+                variant="on-dark"
+                size="sm"
+                onClick={() => onOpenSettings("models")}
+              >
+                <IconCpu size={14} />
+                <span>{t("Models & agents", "模型与 Agent")}</span>
+              </ActionButton>
+              <ActionButton
+                variant="on-dark"
+                size="sm"
+                onClick={() => onOpenSettings("credentials")}
+              >
+                <IconKey size={14} />
+                <span>{t("Credentials", "私有凭据")}</span>
+              </ActionButton>
+            </div>
+          </article>
+
+          <article className="bento-card bento-sessions">
+            <div className="bento-card-top">
+              <span className="eyebrow">
+                04 · {t("CONVERSATIONS", "对话工作区")}
+              </span>
+              <ActionButton
+                variant="ghost"
+                size="sm"
+                onClick={onCreateSession}
+              >
+                <IconPlus size={14} />
+                <span>{t("Start session", "新建对话")}</span>
+              </ActionButton>
+            </div>
+
+            {sessions.length > 0 ? (
+              <>
+                <h2>{t("Resume recent sessions", "继续近期对话")}</h2>
+                <div className="bento-session-list">
+                  {sessions.slice(0, 3).map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      className="bento-session-row"
+                      onClick={() => onChooseSession(s.id)}
+                    >
+                      <span className="bento-session-title">
+                        {s.parentId ? "↳ " : ""}
+                        {s.name}
+                      </span>
+                      <span className="bento-session-meta">
+                        <code>
+                          {s.profile.model || t("Unassigned", "未选模型")}
+                        </code>
+                        <span className={`pill pill-${stateTone(s.state)}`}>
+                          {formatState(s.state, t)}
+                        </span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <h2>
+                  {t(
+                    "Interactive sessions with host tools",
+                    "具备宿主机权限的交互会话",
+                  )}
+                </h2>
+                <div className="bento-capability-strip">
+                  <span>{t("Prompt / Steer / Follow-up", "指令 / 转向 / 追问")}</span>
+                  <span>{t("Per-turn model switch", "轮次间模型切换")}</span>
+                  <span>{t("Python · Blender · UE5 paths", "原生子进程工具路径")}</span>
+                </div>
+              </>
+            )}
+
+            <p className="bento-boundary-note">
+              {t(
+                "Agents can edit files and run host commands. Conversation plans are separate from Campaign state, which belongs to the Harness.",
+                "Agent 可以编辑文件并执行宿主机命令。对话计划用于组织步骤；Campaign 状态由 Harness 独立管理。",
+              )}
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function App() {
   const [zh, setZh] = useState(navigator.language.startsWith("zh"));
@@ -1263,15 +1619,6 @@ function App() {
     api(`sessions/${selected}/commands`, input);
 
   const currentSession = data?.sessions.find((s) => s.id === selected);
-  const selectedProviderObj = data?.config.providers.find(
-    (p) => p.id === model.provider,
-  );
-  const providerInConfig = Boolean(
-    data?.config.providers.some((p) => p.id === model.provider),
-  );
-  const modelInProvider = Boolean(
-    selectedProviderObj?.models.some((m) => m.id === model.model),
-  );
   const modelChanged = Boolean(
     currentSession &&
       (currentSession.profile.provider !== model.provider ||
@@ -1296,207 +1643,219 @@ function App() {
     data?.config.image[imageKind as keyof Config["image"]];
 
   return (
-    <div className="shell">
-      <a className="skip" href="#workspace">
-        {t("Skip to workspace", "跳转到工作区")}
-      </a>
+    <TooltipProvider>
+      <div className="shell">
+        <a className="skip" href="#workspace">
+          {t("Skip to workspace", "跳转到工作区")}
+        </a>
 
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <a className="brand" href="/">
-            <span className="brand-mark">
-              <img src="/logo.png" alt="" />
-            </span>
-            <span className="brand-copy">
-              <span className="brand-title">DataEvolver</span>
-              <small>WORKBENCH</small>
-            </span>
-          </a>
-          <button
-            type="button"
-            className="new-session"
-            onClick={createNewConversation}
-          >
-            <IconPlus />
-            <span>{t("New conversation", "新建对话")}</span>
-          </button>
-        </div>
-
-        <nav className="primary-nav" aria-label={t("Workspace", "工作区导航")}>
-          <button
-            type="button"
-            className={tab === "chat" ? "active" : ""}
-            aria-current={tab === "chat" ? "page" : undefined}
-            onClick={() => setTab("chat")}
-          >
-            <IconChat />
-            <span>{t("Chat", "对话")}</span>
-          </button>
-          <button
-            type="button"
-            className={tab === "harness" ? "active" : ""}
-            aria-current={tab === "harness" ? "page" : undefined}
-            onClick={() => setTab("harness")}
-          >
-            <IconHarness />
-            <span>Harness</span>
-          </button>
-          <button
-            type="button"
-            className={tab === "images" ? "active" : ""}
-            aria-current={tab === "images" ? "page" : undefined}
-            onClick={() => setTab("images")}
-          >
-            <IconImage />
-            <span>{t("Image studio", "图像工坊")}</span>
-          </button>
-          <button
-            type="button"
-            className={tab === "settings" ? "active" : ""}
-            aria-current={tab === "settings" ? "page" : undefined}
-            onClick={() => setTab("settings")}
-          >
-            <IconSettings />
-            <span>{t("Settings", "设置")}</span>
-          </button>
-        </nav>
-
-        <div className="session-section">
-          <span className="eyebrow">
-            {t("SESSION HISTORY", "会话历史")}
-          </span>
-          <div className="session-list">
-            {!data ? (
-              <span className="sidebar-empty">
-                {t("Loading…", "读取中…")}
+        <aside className="sidebar">
+          <div className="sidebar-header">
+            <a className="brand" href="/">
+              <span className="brand-mark">
+                <img src="/logo.png" alt="" />
               </span>
-            ) : data.sessions.length === 0 ? (
-              <span className="sidebar-empty">
-                {t("No sessions yet", "暂无会话记录")}
+              <span className="brand-copy">
+                <span className="brand-title">DataEvolver</span>
+                <small>WORKBENCH</small>
               </span>
-            ) : (
-              data.sessions.map((s) => {
-                const isCurrent = s.id === selected && tab === "chat";
-                return (
-                  <button
-                    type="button"
-                    className={
-                      s.id === selected ? "session-item active" : "session-item"
-                    }
-                    aria-current={isCurrent ? "true" : undefined}
-                    key={s.id}
-                    onClick={() => void run(() => choose(s.id))}
-                  >
-                    <span className="session-name">
-                      {s.parentId ? "↳ " : ""}
-                      {s.name}
-                    </span>
-                    <small className="session-meta">
-                      <span>
-                        {s.profile.model || t("Unassigned", "未选模型")}
-                      </span>
-                      <span aria-hidden="true">·</span>
-                      <span>{formatState(s.state, t)}</span>
-                    </small>
-                  </button>
-                );
-              })
-            )}
+            </a>
+            <ActionButton
+              variant="secondary"
+              className="new-session"
+              onClick={createNewConversation}
+            >
+              <IconPlus size={15} />
+              <span>{t("New conversation", "新建对话")}</span>
+            </ActionButton>
           </div>
-        </div>
 
-        <footer className="sidebar-footer">
-          <button
-            type="button"
-            className="lang-btn"
-            aria-label={t(
-              "Switch interface language to Chinese",
-              "切换界面语言为英文",
-            )}
-            onClick={() => setZh(!zh)}
+          <nav
+            className="primary-nav"
+            aria-label={t("Workspace", "工作区导航")}
           >
-            <IconGlobe />
-            <span>{zh ? "English" : "简体中文"}</span>
-          </button>
-          {data && (
-            <span className="target-chip">
-              {data.config.execution.target === "ssh"
-                ? "SSH"
-                : t("Local", "本地")}
-            </span>
-          )}
-        </footer>
-      </aside>
-
-      <main id="workspace">
-        <header className="topbar">
-          <div className="topbar-left">
-            <span className="topbar-label">
-              {t("Private workspace", "私有研究工作区")}
-            </span>
-            {workspaceScope && (
-              <span className="topbar-scope" title={workspaceScope}>
-                {workspaceScope}
-              </span>
-            )}
-          </div>
-          <span className={notice ? "status status-active" : "status"}>
-            {notice ||
-              t("Host permissions · single user", "宿主机权限 · 单用户")}
-          </span>
-        </header>
-
-        {error && (
-          <div className="error" role="alert">
-            <span>{error}</span>
             <button
               type="button"
-              onClick={() => setError("")}
-              aria-label={t("Dismiss", "关闭错误提示")}
+              className={tab === "chat" ? "nav-item active" : "nav-item"}
+              aria-current={tab === "chat" ? "page" : undefined}
+              onClick={() => setTab("chat")}
             >
-              <IconClose />
+              <IconChat size={16} />
+              <span>{t("Chat", "对话")}</span>
             </button>
-          </div>
-        )}
+            <button
+              type="button"
+              className={tab === "harness" ? "nav-item active" : "nav-item"}
+              aria-current={tab === "harness" ? "page" : undefined}
+              onClick={() => setTab("harness")}
+            >
+              <IconHarness size={16} />
+              <span>Harness</span>
+            </button>
+            <button
+              type="button"
+              className={tab === "images" ? "nav-item active" : "nav-item"}
+              aria-current={tab === "images" ? "page" : undefined}
+              onClick={() => setTab("images")}
+            >
+              <IconImage size={16} />
+              <span>{t("Image studio", "图像工坊")}</span>
+            </button>
+            <button
+              type="button"
+              className={tab === "settings" ? "nav-item active" : "nav-item"}
+              aria-current={tab === "settings" ? "page" : undefined}
+              onClick={() => setTab("settings")}
+            >
+              <IconSettings size={16} />
+              <span>{t("Settings", "设置")}</span>
+            </button>
+          </nav>
 
-        {!data ? (
-          <div className="loading-state">
-            <p className="loading">
-              {t("Loading configuration…", "正在读取工作台配置…")}
-            </p>
+          <div className="session-section">
+            <span className="eyebrow">
+              {t("SESSION HISTORY", "会话历史")}
+            </span>
+            <div className="session-list">
+              {!data ? (
+                <span className="sidebar-empty">
+                  {t("Loading…", "读取中…")}
+                </span>
+              ) : data.sessions.length === 0 ? (
+                <span className="sidebar-empty">
+                  {t("No sessions yet", "暂无会话记录")}
+                </span>
+              ) : (
+                data.sessions.map((s) => {
+                  const isCurrent = s.id === selected && tab === "chat";
+                  return (
+                    <button
+                      type="button"
+                      className={
+                        s.id === selected
+                          ? "session-item active"
+                          : "session-item"
+                      }
+                      aria-current={isCurrent ? "true" : undefined}
+                      key={s.id}
+                      onClick={() => void run(() => choose(s.id))}
+                    >
+                      <span className="session-name">
+                        {s.parentId ? "↳ " : ""}
+                        {s.name}
+                      </span>
+                      <small className="session-meta">
+                        <span>
+                          {s.profile.model || t("Unassigned", "未选模型")}
+                        </span>
+                        <span aria-hidden="true">·</span>
+                        <span>{formatState(s.state, t)}</span>
+                      </small>
+                    </button>
+                  );
+                })
+              )}
+            </div>
           </div>
-        ) : (
-          <>
-            {tab === "settings" && (
-              <Settings
-                key={JSON.stringify(data.config)}
-                initial={data.config}
-                credentials={data.credentials}
-                inspection={data.inspection}
-                defaultCategory={settingsCategory}
-                onCategoryChange={setSettingsCategory}
-                zh={zh}
-                save={async (config, secrets) => {
-                  let saved = false;
-                  await run(async () => {
-                    const view = await api<
-                      Pick<Bootstrap, "config" | "credentials">
-                    >("config", { config, secrets });
-                    setData((previous) =>
-                      previous ? { ...previous, ...view } : previous,
-                    );
-                    setNotice(t("Configuration saved", "配置已保存"));
-                    saved = true;
-                  });
-                  return saved;
-                }}
-              />
+
+          <footer className="sidebar-footer">
+            <ActionButton
+              variant="secondary"
+              size="sm"
+              className="lang-btn"
+              aria-label={t(
+                "Switch interface language to Chinese",
+                "切换界面语言为英文",
+              )}
+              tooltip={t(
+                "Switch language to Simplified Chinese",
+                "切换界面语言为 English",
+              )}
+              onClick={() => setZh(!zh)}
+            >
+              <IconGlobe size={14} />
+              <span>{zh ? "English" : "简体中文"}</span>
+            </ActionButton>
+            {data && (
+              <span className="target-chip">
+                {data.config.execution.target === "ssh"
+                  ? "SSH"
+                  : t("Local", "本地")}
+              </span>
             )}
+          </footer>
+        </aside>
 
-            {tab === "chat" && (
-              <div className="conversation">
-                {selected ? (
-                  <>
+        <main id="workspace">
+          <header className="topbar">
+            <div className="topbar-left">
+              <span className="topbar-label">
+                {t("Private workspace", "私有研究工作区")}
+              </span>
+              {workspaceScope && (
+                <span className="topbar-scope" title={workspaceScope}>
+                  {workspaceScope}
+                </span>
+              )}
+            </div>
+            <span className={notice ? "status status-active" : "status"}>
+              {notice ||
+                t("Host permissions · single user", "宿主机权限 · 单用户")}
+            </span>
+          </header>
+
+          {error && (
+            <div className="error" role="alert">
+              <span>{error}</span>
+              <ActionButton
+                variant="ghost"
+                size="icon"
+                onClick={() => setError("")}
+                aria-label={t("Dismiss", "关闭错误提示")}
+                tooltip={t("Dismiss error message", "关闭错误横幅")}
+              >
+                <IconClose size={15} />
+              </ActionButton>
+            </div>
+          )}
+
+          {!data ? (
+            <div className="loading-state">
+              <p className="loading">
+                {t("Loading configuration…", "正在读取工作台配置…")}
+              </p>
+            </div>
+          ) : (
+            <>
+              {tab === "settings" && (
+                <Settings
+                  key={JSON.stringify(data.config)}
+                  initial={data.config}
+                  credentials={data.credentials}
+                  inspection={data.inspection}
+                  defaultCategory={settingsCategory}
+                  onCategoryChange={setSettingsCategory}
+                  zh={zh}
+                  save={async (config, secrets) => {
+                    let saved = false;
+                    await run(async () => {
+                      const view = await api<
+                        Pick<Bootstrap, "config" | "credentials">
+                      >("config", { config, secrets });
+                      setData((previous) =>
+                        previous ? { ...previous, ...view } : previous,
+                      );
+                      setNotice(t("Configuration saved", "配置已保存"));
+                      saved = true;
+                    });
+                    return saved;
+                  }}
+                />
+              )}
+
+              {tab === "chat" &&
+                (selected ? (
+                  <div className="conversation">
                     <header className="chat-header">
                       <div className="chat-heading">
                         <div className="chat-title-block">
@@ -1520,75 +1879,61 @@ function App() {
                         role="group"
                         aria-label={t("Session model", "会话模型与推理控制")}
                       >
-                        <label className="compact-control">
-                          <span>{t("Provider", "服务")}</span>
-                          <select
-                            value={model.provider}
-                            onChange={(e) =>
-                              setModel({
-                                ...model,
-                                provider: e.target.value,
-                                model: "",
-                              })
-                            }
-                          >
-                            <option value="">—</option>
-                            {model.provider && !providerInConfig && (
-                              <option value={model.provider}>
-                                {model.provider}
-                              </option>
-                            )}
-                            {data.config.providers.map((p) => (
-                              <option key={p.id} value={p.id}>
-                                {p.id}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
+                        <SelectField
+                          className="compact-control"
+                          label={t("Provider", "服务")}
+                          inlineLabel
+                          compact
+                          value={model.provider}
+                          options={buildProviderOptions(
+                            data.config.providers,
+                            model.provider,
+                          )}
+                          onChange={(provider) =>
+                            setModel({ ...model, provider, model: "" })
+                          }
+                        />
 
-                        <label className="compact-control">
-                          <span>{t("Model", "模型")}</span>
-                          <select
-                            value={model.model}
-                            onChange={(e) =>
-                              setModel({ ...model, model: e.target.value })
-                            }
-                          >
-                            <option value="">—</option>
-                            {model.model && !modelInProvider && (
-                              <option value={model.model}>{model.model}</option>
-                            )}
-                            {selectedProviderObj?.models.map((m) => (
-                              <option key={m.id} value={m.id}>
-                                {m.id}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
+                        <SelectField
+                          className="compact-control"
+                          label={t("Model", "模型")}
+                          inlineLabel
+                          compact
+                          value={model.model}
+                          options={buildModelOptions(
+                            data.config.providers,
+                            model.provider,
+                            model.model,
+                          )}
+                          onChange={(nextModel) =>
+                            setModel({ ...model, model: nextModel })
+                          }
+                        />
 
-                        <label className="compact-control compact-thinking">
-                          <span>{t("Thinking", "推理")}</span>
-                          <select
-                            value={model.thinking}
-                            onChange={(e) =>
-                              setModel({ ...model, thinking: e.target.value })
-                            }
-                          >
-                            {THINKING_LEVELS.map((level) => (
-                              <option key={level} value={level}>
-                                {level}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
+                        <SelectField
+                          className="compact-control compact-thinking"
+                          label={t("Thinking", "推理")}
+                          inlineLabel
+                          compact
+                          value={model.thinking}
+                          options={buildThinkingOptions(model.thinking)}
+                          onChange={(thinking) =>
+                            setModel({ ...model, thinking })
+                          }
+                        />
 
-                        <button
-                          type="button"
+                        <ActionButton
+                          variant="secondary"
+                          size="sm"
                           className={
                             modelChanged
                               ? "model-apply-btn changed"
                               : "model-apply-btn"
                           }
+                          tooltip={t(
+                            "Apply selected provider, model and thinking budget for the next turn",
+                            "在下一轮对话开始前切换为所选服务、模型与推理深度",
+                          )}
                           onClick={() =>
                             void run(() =>
                               sendCommand({ command: "set_model", ...model }),
@@ -1596,7 +1941,7 @@ function App() {
                           }
                         >
                           {t("Switch between turns", "在轮次之间切换")}
-                        </button>
+                        </ActionButton>
                       </div>
                     </header>
 
@@ -1646,7 +1991,7 @@ function App() {
                                     </pre>
                                   ) : block.type === "toolCall" ? (
                                     <div key={k} className="tool-call-badge">
-                                      <IconArrowUpRight />
+                                      <IconArrowUpRight size={13} />
                                       <span>
                                         {t("Tool call", "调用工具")}
                                       </span>
@@ -1720,606 +2065,560 @@ function App() {
                         required
                       />
                       <div className="composer-actions">
-                        <label className="mode-select-wrap">
-                          <span className="sr-only">
-                            {t("Message mode", "消息发送模式")}
-                          </span>
-                          <select
-                            aria-label={t("Message mode", "消息发送模式")}
-                            value={mode}
-                            onChange={(e) => setMode(e.target.value)}
-                          >
-                            <option value="prompt">
-                              {t("Prompt", "指令 (Prompt)")}
-                            </option>
-                            <option value="steer">
-                              {t("Steer", "转向 (Steer)")}
-                            </option>
-                            <option value="follow_up">
-                              {t("Follow-up", "追问 (Follow-up)")}
-                            </option>
-                          </select>
-                        </label>
+                        <SelectField
+                          className="mode-select-wrap"
+                          label={t("Message mode", "消息发送模式")}
+                          ariaLabel={t("Message mode", "消息发送模式")}
+                          srOnlyLabel
+                          compact
+                          value={mode}
+                          options={[
+                            {
+                              value: "prompt",
+                              label: t("Prompt", "指令 (Prompt)"),
+                            },
+                            {
+                              value: "steer",
+                              label: t("Steer", "转向 (Steer)"),
+                            },
+                            {
+                              value: "follow_up",
+                              label: t("Follow-up", "追问 (Follow-up)"),
+                            },
+                          ]}
+                          onChange={setMode}
+                        />
 
                         <div className="session-controls">
-                          <button
-                            type="button"
-                            className="ghost-btn"
+                          <ActionButton
+                            variant="ghost"
+                            size="sm"
+                            tooltip={t(
+                              "Reopen stopped session process (resume)",
+                              "重新唤醒已停止的会话进程 (resume)",
+                            )}
                             onClick={() =>
                               void run(() => sendCommand({ command: "resume" }))
                             }
                           >
-                            {t("Reopen session", "恢复对话")}
-                          </button>
-                          <button
-                            type="button"
-                            className="ghost-btn"
+                            <IconRefresh size={14} />
+                            <span>{t("Reopen session", "恢复对话")}</span>
+                          </ActionButton>
+                          <ActionButton
+                            variant="ghost"
+                            size="sm"
+                            tooltip={t(
+                              "Interrupt the current agent run (abort)",
+                              "立即中断当前正在运行的 Agent 轮次 (abort)",
+                            )}
                             onClick={() =>
                               void run(() => sendCommand({ command: "abort" }))
                             }
                           >
-                            {t("Stop agent", "停止 Agent")}
-                          </button>
+                            <IconStop size={13} />
+                            <span>{t("Stop agent", "停止 Agent")}</span>
+                          </ActionButton>
                         </div>
 
-                        <button
+                        <ActionButton
                           type="submit"
-                          className="primary send-btn"
+                          variant="primary"
+                          size="sm"
+                          className="send-btn"
                           disabled={busy || !prompt.trim()}
+                          tooltip={t(
+                            "Send message (⌘/Ctrl + Enter)",
+                            "发送消息（⌘/Ctrl + Enter）",
+                          )}
                         >
                           <span>{t("Send", "发送")}</span>
-                          <IconSend />
-                        </button>
+                          <IconSend size={14} />
+                        </ActionButton>
                       </div>
                     </form>
-                  </>
+                  </div>
                 ) : (
-                  <div className="welcome">
-                    <div className="welcome-mark" aria-hidden="true">
-                      <img src="/logo.png" alt="" />
+                  <StudioHome
+                    data={data}
+                    workspaceScope={workspaceScope}
+                    t={t}
+                    onCreateSession={createNewConversation}
+                    onChooseSession={(id) => void run(() => choose(id))}
+                    onOpenSettings={(cat) => openSettings(cat)}
+                    onOpenHarness={(preset) => {
+                      if (preset) setCommand(preset);
+                      setTab("harness");
+                    }}
+                    onOpenImages={(preset) => {
+                      if (preset) setImageKind(preset);
+                      setTab("images");
+                    }}
+                  />
+                ))}
+
+              {tab === "harness" && (
+                <div className="page">
+                  <header className="section-heading">
+                    <div>
+                      <span className="eyebrow">
+                        {t("CAMPAIGN CONTROL", "CAMPAIGN 任务控制")}
+                      </span>
+                      <h1>Harness</h1>
+                      <p className="mono-caption">
+                        {data.config.execution.target === "ssh"
+                          ? `${data.config.execution.sshHost} · ${data.config.execution.remoteWorkspace}`
+                          : data.config.paths.workspace}
+                      </p>
                     </div>
-                    <h1>
-                      {t(
-                        "A plan becomes a traceable workflow.",
-                        "让计划成为有据可查的工作流。",
-                      )}
-                    </h1>
-                    <p className="welcome-lead">
-                      {t(
-                        "Configure an agent, open a conversation, then compile and advance your task through the Harness.",
-                        "配置 Agent 并开启对话，随后通过 Harness 编译计划并有界推进任务。",
-                      )}
-                    </p>
-
-                    <div className="welcome-cta-row">
-                      <button
-                        type="button"
-                        className="primary"
-                        onClick={createNewConversation}
-                      >
-                        <IconPlus />
-                        <span>{t("New conversation", "新建对话")}</span>
-                      </button>
-                      <button
-                        type="button"
-                        className="secondary-btn"
-                        onClick={() => openSettings("models")}
-                      >
-                        <IconSettings />
-                        <span>
-                          {data.config.agents.main.provider &&
-                          data.config.agents.main.model
-                            ? `${data.config.agents.main.provider} / ${data.config.agents.main.model}`
-                            : t("Configure models", "配置模型服务")}
-                        </span>
-                      </button>
-                    </div>
-
-                    <div className="welcome-cards">
-                      <button
-                        type="button"
-                        onClick={() => setTab("settings")}
-                      >
-                        <span className="step-index">01</span>
-                        <b>{t("Connect", "连接配置")}</b>
-                        <span>
-                          {t(
-                            "Models, credentials and execution workstations",
-                            "模型服务、私有凭据与执行工作站",
-                          )}
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setTab("harness")}
-                      >
-                        <span className="step-index">02</span>
-                        <b>{t("Execute", "有界执行")}</b>
-                        <span>
-                          {t(
-                            "Compile plans, create Campaigns and run bounded steps",
-                            "编译计划、创建 Campaign 与有界步进",
-                          )}
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setTab("images")}
-                      >
-                        <span className="step-index">03</span>
-                        <b>{t("Inspect", "图像与核验")}</b>
-                        <span>
-                          {t(
-                            "Generate images, refine prompts and inspect receipts",
-                            "生成与编辑图像、增强提示并查看回执",
-                          )}
-                        </span>
-                      </button>
-                    </div>
-
-                    <p className="quiet">
-                      {t(
-                        "Agents can edit files and run host commands. Conversation plans are separate from Campaign state, which belongs to the Harness.",
-                        "Agent 可以编辑文件并执行宿主机命令。对话计划用于组织步骤；Campaign 状态由 Harness 独立管理。",
-                      )}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {tab === "harness" && (
-              <div className="page">
-                <header className="section-heading">
-                  <div>
-                    <span className="eyebrow">
-                      {t("CAMPAIGN CONTROL", "CAMPAIGN 任务控制")}
-                    </span>
-                    <h1>Harness</h1>
-                    <p className="mono-caption">
+                    <span className="pill">
                       {data.config.execution.target === "ssh"
-                        ? `${data.config.execution.sshHost} · ${data.config.execution.remoteWorkspace}`
-                        : data.config.paths.workspace}
-                    </p>
-                  </div>
-                  <span className="pill">
-                    {data.config.execution.target === "ssh"
-                      ? t("Remote OpenSSH", "远端 OpenSSH")
-                      : t("Local host", "本地主机")}
-                  </span>
-                </header>
-
-                <div className="workbench-split">
-                  <section className="card split-primary">
-                    <div className="card-head">
-                      <div>
-                        <h2>{t("Command setup", "命令配置")}</h2>
-                        <p>
-                          {t(
-                            "Select a Campaign lifecycle operation and provide explicit arguments.",
-                            "选择 Campaign 生命周期操作并填写显式执行参数。",
-                          )}
-                        </p>
-                      </div>
-                    </div>
-
-                    <form
-                      className="stack-form"
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        void run(async () => {
-                          const inputs = Object.fromEntries(
-                            commandFields[command].map((k) => [
-                              k,
-                              k === "maxActions"
-                                ? Number(values[k] || 1)
-                                : values[k] || "",
-                            ]),
-                          );
-                          const row = await api<Job>("harness", {
-                            command,
-                            values: inputs,
-                          });
-                          setJob({ ...row, output: "" });
-                          await load();
-                        });
-                      }}
-                    >
-                      <label className="field">
-                        <span className="field-label">
-                          {t("Harness command", "Harness 命令")}
-                        </span>
-                        <select
-                          value={command}
-                          onChange={(e) => setCommand(e.target.value)}
-                        >
-                          {Object.keys(commandFields).map((c) => {
-                            const meta = harnessCommandMeta(c, t);
-                            return (
-                              <option key={c} value={c}>
-                                {meta.title} ({c})
-                              </option>
-                            );
-                          })}
-                        </select>
-                      </label>
-
-                      <div className="command-brief">
-                        <div className="command-brief-head">
-                          <strong>{currentCommandMeta.title}</strong>
-                          <code>{command}</code>
-                        </div>
-                        <p>{currentCommandMeta.summary}</p>
-                      </div>
-
-                      <div className="fields fields-single">
-                        {commandFields[command].map((key) => (
-                          <Field
-                            key={key}
-                            label={harnessFieldLabel(key, t)}
-                            value={values[key] || ""}
-                            type={key === "maxActions" ? "number" : "text"}
-                            mono={key !== "goal"}
-                            set={(value) =>
-                              setValues({ ...values, [key]: value })
-                            }
-                          />
-                        ))}
-                      </div>
-
-                      {command === "resume" && (
-                        <div className="warning-callout" role="note">
-                          {t(
-                            "Campaign resume immediately calls run() and continues native work.",
-                            "Campaign resume 会立即调用 run() 并继续原生任务。",
-                          )}
-                        </div>
-                      )}
-
-                      <div className="form-submit-row">
-                        <button type="submit" className="primary">
-                          {t("Submit command", "提交命令")}
-                        </button>
-                      </div>
-                    </form>
-                  </section>
-
-                  <section className="card split-secondary">
-                    <div className="card-head">
-                      <div>
-                        <h2>{t("Jobs and receipts", "任务与回执")}</h2>
-                        <p>
-                          {t(
-                            "Inspect execution history and retained standard output streams.",
-                            "查看命令执行记录与保留的标准输出回执。",
-                          )}
-                        </p>
-                      </div>
-                    </div>
-
-                    {data.jobs.length === 0 ? (
-                      <div className="empty-box">
-                        {t(
-                          "No Harness jobs recorded yet. Submit a command to inspect its receipt and output.",
-                          "暂无 Harness 任务记录。提交命令后可在此查看回执与输出。",
-                        )}
-                      </div>
-                    ) : (
-                      <div className="job-list">
-                        {data.jobs.map((j) => {
-                          const meta = harnessCommandMeta(j.command, t);
-                          const isSelected = activeJob?.id === j.id;
-                          return (
-                            <button
-                              type="button"
-                              key={j.id}
-                              className={
-                                isSelected ? "job-item active" : "job-item"
-                              }
-                              onClick={() =>
-                                void run(async () =>
-                                  setJob(await api<Job>("jobs/" + j.id)),
-                                )
-                              }
-                            >
-                              <div className="job-item-main">
-                                <strong>{meta.title}</strong>
-                                <code>{j.command}</code>
-                              </div>
-                              <div className="job-item-meta">
-                                <span
-                                  className={`pill pill-${stateTone(j.status)}`}
-                                >
-                                  {formatState(j.status, t)}
-                                </span>
-                                <small>
-                                  {j.id.slice(0, 8)} · {j.target}
-                                </small>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {activeJob && (
-                      <div className="receipt-panel">
-                        <div className="receipt-header">
-                          <div className="receipt-title">
-                            <h3>
-                              {harnessCommandMeta(activeJob.command, t).title}{" "}
-                              <code>{activeJob.command}</code>
-                            </h3>
-                            <small>
-                              {activeJob.id} · {activeJob.target}
-                            </small>
-                          </div>
-                          <div className="receipt-actions">
-                            <span
-                              className={`pill pill-${stateTone(activeJob.status)}`}
-                            >
-                              {formatState(activeJob.status, t)}
-                            </span>
-                            <button
-                              type="button"
-                              className="secondary-btn compact-btn"
-                              onClick={() =>
-                                void run(async () =>
-                                  setJob(
-                                    await api<Job>("jobs/" + activeJob.id),
-                                  ),
-                                )
-                              }
-                            >
-                              {t("Refresh retained output", "刷新保留的输出")}
-                            </button>
-                          </div>
-                        </div>
-                        <pre className="log">{activeJob.output || "…"}</pre>
-                      </div>
-                    )}
-                  </section>
-                </div>
-              </div>
-            )}
-
-            {tab === "images" && (
-              <div className="page">
-                <header className="section-heading">
-                  <div>
-                    <span className="eyebrow">
-                      {t("IMAGE STUDIO", "图像工坊")}
+                        ? t("Remote OpenSSH", "远端 OpenSSH")
+                        : t("Local host", "本地主机")}
                     </span>
-                    <h1>
-                      {t("Generate. Refine. Inspect.", "生成、修订与查看。")}
-                    </h1>
-                    <p>
-                      {t(
-                        "Paths and output refer to the workbench host. Calls retain an intent and receipt and are never retried automatically.",
-                        "输入和产物路径均指工作台主机。调用会保留意图与回执，失败后不自动重试。",
-                      )}
-                    </p>
-                  </div>
-                </header>
+                  </header>
 
-                <div className="workbench-split">
-                  <section className="card split-primary">
-                    <div className="card-head">
-                      <div>
-                        <h2>{t("Studio request", "图像请求配置")}</h2>
-                        <p>
-                          {t(
-                            "Choose an operation route, optional host source image, and prompt.",
-                            "选择操作路由、可选的主机源图像路径与提示词。",
-                          )}
-                        </p>
-                      </div>
-                    </div>
-
-                    <form
-                      className="stack-form"
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        setBusy(true);
-                        void run(async () =>
-                          setImageResult(
-                            await api<ImageResult>("image", {
-                              kind: imageKind,
-                              prompt: imagePrompt,
-                              image: imagePath || undefined,
-                            }),
-                          ),
-                        ).finally(() => setBusy(false));
-                      }}
-                    >
-                      <label className="field">
-                        <span className="field-label">
-                          {t("Operation route", "操作路由")}
-                        </span>
-                        <select
-                          value={imageKind}
-                          onChange={(e) => setImageKind(e.target.value)}
-                        >
-                          <option value="generation">
-                            {t("Generation", "图像生成 (Generation)")}
-                          </option>
-                          <option value="edit">
-                            {t("Editing", "图像编辑 (Editing)")}
-                          </option>
-                          <option value="promptEnhancer">
+                  <div className="workbench-split">
+                    <section className="card split-primary">
+                      <div className="card-head">
+                        <div>
+                          <h2>{t("Command setup", "命令配置")}</h2>
+                          <p>
                             {t(
-                              "Prompt enhancement",
-                              "提示词增强 (Prompt enhancement)",
+                              "Select a Campaign lifecycle operation and provide explicit arguments.",
+                              "选择 Campaign 生命周期操作并填写显式执行参数。",
                             )}
-                          </option>
-                        </select>
-                      </label>
-
-                      <div className="route-summary-bar">
-                        <div className="route-summary-copy">
-                          <span className="route-summary-label">
-                            {t("Configured target", "当前路由目标")}
-                          </span>
-                          <code>
-                            {activeImageRoute?.model
-                              ? `${activeImageRoute.model}${
-                                  activeImageRoute.baseUrl
-                                    ? ` · ${activeImageRoute.baseUrl}`
-                                    : ""
-                                }`
-                              : t(
-                                  "Not configured in Settings yet",
-                                  "尚未在设置中配置该路由",
-                                )}
-                          </code>
+                          </p>
                         </div>
-                        <button
-                          type="button"
-                          className="inline-link-btn"
-                          onClick={() => openSettings("images")}
-                        >
-                          {t("Edit routes", "配置路由")}
-                        </button>
                       </div>
 
-                      <Field
-                        label={t(
-                          "Input image path on host (editing / vision PE)",
-                          "主机输入图像路径（用于编辑或视觉提示增强）",
-                        )}
-                        value={imagePath}
-                        placeholder="/path/to/source.png"
-                        mono
-                        set={setImagePath}
-                      />
-
-                      <label className="field">
-                        <span className="field-label">
-                          {t("Prompt", "提示词")}
-                        </span>
-                        <textarea
-                          value={imagePrompt}
-                          onChange={(e) => setImagePrompt(e.target.value)}
-                          placeholder={t(
-                            "Describe visual subject, composition, edit instructions or prompt enhancement goals…",
-                            "描述画面主体、构图细节、局部编辑指令或提示词增强目标…",
-                          )}
-                          required
+                      <form
+                        className="stack-form"
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          void run(async () => {
+                            const inputs = Object.fromEntries(
+                              commandFields[command].map((k) => [
+                                k,
+                                k === "maxActions"
+                                  ? Number(values[k] || 1)
+                                  : values[k] || "",
+                              ]),
+                            );
+                            const row = await api<Job>("harness", {
+                              command,
+                              values: inputs,
+                            });
+                            setJob({ ...row, output: "" });
+                            await load();
+                          });
+                        }}
+                      >
+                        <SelectField
+                          label={t("Harness command", "Harness 命令")}
+                          value={command}
+                          options={Object.keys(commandFields).map((c) => {
+                            const meta = harnessCommandMeta(c, t);
+                            return {
+                              value: c,
+                              label: `${meta.title} (${c})`,
+                            };
+                          })}
+                          onChange={setCommand}
                         />
-                      </label>
 
-                      <div className="form-submit-row">
-                        <button
-                          type="submit"
-                          className="primary"
-                          disabled={busy}
-                        >
-                          {busy
-                            ? t("Submitting…", "请求处理中…")
-                            : t("Submit", "提交")}
-                        </button>
-                      </div>
-                    </form>
-                  </section>
+                        <div className="command-brief">
+                          <div className="command-brief-head">
+                            <strong>{currentCommandMeta.title}</strong>
+                            <code>{command}</code>
+                          </div>
+                          <p>{currentCommandMeta.summary}</p>
+                        </div>
 
-                  <section className="card split-secondary">
-                    <div className="card-head">
-                      <div>
-                        <h2>{t("Output and receipt", "产物与回执")}</h2>
-                        <p>
-                          {t(
-                            "Rendered host artifact, returned text and retained receipt metadata.",
-                            "渲染的主机图像产物、返回文本与保留的校验回执。",
-                          )}
-                        </p>
-                      </div>
-                    </div>
-
-                    {!imageResult ? (
-                      <div className="studio-empty">
-                        <IconImage />
-                        <p>
-                          {t(
-                            "Submit a generation, editing, or prompt enhancement request to inspect the resulting artifact and receipt here.",
-                            "提交图像生成、编辑或提示词增强请求后，产物预览与校验回执将显示在此处。",
-                          )}
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="studio-result-stack">
-                        {imageResult.path && (
-                          <figure className="artifact-stage">
-                            <img
-                              className="artifact"
-                              src={
-                                "/api/artifact?path=" +
-                                encodeURIComponent(imageResult.path)
+                        <div className="fields fields-single">
+                          {commandFields[command].map((key) => (
+                            <TextField
+                              key={key}
+                              label={harnessFieldLabel(key, t)}
+                              value={values[key] || ""}
+                              type={key === "maxActions" ? "number" : "text"}
+                              mono={key !== "goal"}
+                              set={(value) =>
+                                setValues({ ...values, [key]: value })
                               }
-                              alt={t("Generated artifact", "生成的图像产物")}
                             />
-                          </figure>
+                          ))}
+                        </div>
+
+                        {command === "resume" && (
+                          <div className="warning-callout" role="note">
+                            {t(
+                              "Campaign resume immediately calls run() and continues native work.",
+                              "Campaign resume 会立即调用 run() 并继续原生任务。",
+                            )}
+                          </div>
                         )}
 
-                        {imageResult.text && (
-                          <div className="pe-output-card">
-                            <div className="pe-output-head">
-                              <strong>
-                                {t("Returned text", "返回文本结果")}
-                              </strong>
+                        <div className="form-submit-row">
+                          <ActionButton type="submit" variant="primary">
+                            {t("Submit command", "提交命令")}
+                          </ActionButton>
+                        </div>
+                      </form>
+                    </section>
+
+                    <section className="card split-secondary">
+                      <div className="card-head">
+                        <div>
+                          <h2>{t("Jobs and receipts", "任务与回执")}</h2>
+                          <p>
+                            {t(
+                              "Inspect execution history and retained standard output streams.",
+                              "查看命令执行记录与保留的标准输出回执。",
+                            )}
+                          </p>
+                        </div>
+                      </div>
+
+                      {data.jobs.length === 0 ? (
+                        <div className="empty-box">
+                          {t(
+                            "No Harness jobs recorded yet. Submit a command on the left to inspect its receipt and output.",
+                            "暂无 Harness 任务记录。在左侧提交命令后可在此查看回执与输出。",
+                          )}
+                        </div>
+                      ) : (
+                        <div className="job-list">
+                          {data.jobs.map((j) => {
+                            const meta = harnessCommandMeta(j.command, t);
+                            const isSelected = activeJob?.id === j.id;
+                            return (
                               <button
                                 type="button"
-                                className="inline-link-btn"
+                                key={j.id}
+                                className={
+                                  isSelected ? "job-item active" : "job-item"
+                                }
                                 onClick={() =>
-                                  setImagePrompt(imageResult.text || "")
+                                  void run(async () =>
+                                    setJob(await api<Job>("jobs/" + j.id)),
+                                  )
                                 }
                               >
-                                {t("Copy to prompt", "填入提示词")}
+                                <div className="job-item-main">
+                                  <strong>{meta.title}</strong>
+                                  <code>{j.command}</code>
+                                </div>
+                                <div className="job-item-meta">
+                                  <span
+                                    className={`pill pill-${stateTone(j.status)}`}
+                                  >
+                                    {formatState(j.status, t)}
+                                  </span>
+                                  <small>
+                                    {j.id.slice(0, 8)} · {j.target}
+                                  </small>
+                                </div>
                               </button>
-                            </div>
-                            <pre className="pe-output-body">
-                              {imageResult.text}
-                            </pre>
-                          </div>
-                        )}
+                            );
+                          })}
+                        </div>
+                      )}
 
-                        <dl className="receipt-grid">
-                          <div>
-                            <dt>{t("Receipt", "回执标识")}</dt>
-                            <dd>{imageResult.receipt}</dd>
+                      {activeJob && (
+                        <div className="receipt-panel">
+                          <div className="receipt-header">
+                            <div className="receipt-title">
+                              <h3>
+                                {harnessCommandMeta(activeJob.command, t).title}{" "}
+                                <code>{activeJob.command}</code>
+                              </h3>
+                              <small>
+                                {activeJob.id} · {activeJob.target}
+                              </small>
+                            </div>
+                            <div className="receipt-actions">
+                              <span
+                                className={`pill pill-${stateTone(activeJob.status)}`}
+                              >
+                                {formatState(activeJob.status, t)}
+                              </span>
+                              <ActionButton
+                                variant="secondary"
+                                size="sm"
+                                tooltip={t(
+                                  "Reload retained output snapshot from host",
+                                  "从主机重新拉取该任务保留的完整输出",
+                                )}
+                                onClick={() =>
+                                  void run(async () =>
+                                    setJob(
+                                      await api<Job>("jobs/" + activeJob.id),
+                                    ),
+                                  )
+                                }
+                              >
+                                <IconRefresh size={13} />
+                                <span>
+                                  {t(
+                                    "Refresh retained output",
+                                    "刷新保留的输出",
+                                  )}
+                                </span>
+                              </ActionButton>
+                            </div>
                           </div>
-                          {imageResult.path && (
-                            <div>
-                              <dt>{t("Artifact path", "产物路径")}</dt>
-                              <dd>{imageResult.path}</dd>
-                            </div>
-                          )}
-                          {imageResult.host && (
-                            <div>
-                              <dt>{t("Host", "主机")}</dt>
-                              <dd>{imageResult.host}</dd>
-                            </div>
-                          )}
-                          {imageResult.sha256 && (
-                            <div>
-                              <dt>SHA-256</dt>
-                              <dd>{imageResult.sha256}</dd>
-                            </div>
-                          )}
-                        </dl>
-
-                        <pre className="log">
-                          {JSON.stringify(imageResult, null, 2)}
-                        </pre>
-                      </div>
-                    )}
-                  </section>
+                          <pre className="log">{activeJob.output || "…"}</pre>
+                        </div>
+                      )}
+                    </section>
+                  </div>
                 </div>
-              </div>
-            )}
-          </>
-        )}
-      </main>
-    </div>
+              )}
+
+              {tab === "images" && (
+                <div className="page">
+                  <header className="section-heading">
+                    <div>
+                      <span className="eyebrow">
+                        {t("IMAGE STUDIO", "图像工坊")}
+                      </span>
+                      <h1>
+                        {t("Generate. Refine. Inspect.", "生成、修订与查看。")}
+                      </h1>
+                      <p>
+                        {t(
+                          "Paths and output refer to the workbench host. Calls retain an intent and receipt and are never retried automatically.",
+                          "输入和产物路径均指工作台主机。调用会保留意图与回执，失败后不自动重试。",
+                        )}
+                      </p>
+                    </div>
+                  </header>
+
+                  <div className="workbench-split">
+                    <section className="card split-primary">
+                      <div className="card-head">
+                        <div>
+                          <h2>{t("Studio request", "图像请求配置")}</h2>
+                          <p>
+                            {t(
+                              "Choose an operation route, optional host source image, and prompt.",
+                              "选择操作路由、可选的主机源图像路径与提示词。",
+                            )}
+                          </p>
+                        </div>
+                      </div>
+
+                      <form
+                        className="stack-form"
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          setBusy(true);
+                          void run(async () =>
+                            setImageResult(
+                              await api<ImageResult>("image", {
+                                kind: imageKind,
+                                prompt: imagePrompt,
+                                image: imagePath || undefined,
+                              }),
+                            ),
+                          ).finally(() => setBusy(false));
+                        }}
+                      >
+                        <SelectField
+                          label={t("Operation route", "操作路由")}
+                          value={imageKind}
+                          options={[
+                            {
+                              value: "generation",
+                              label: t(
+                                "Generation",
+                                "图像生成 (Generation)",
+                              ),
+                            },
+                            {
+                              value: "edit",
+                              label: t("Editing", "图像编辑 (Editing)"),
+                            },
+                            {
+                              value: "promptEnhancer",
+                              label: t(
+                                "Prompt enhancement",
+                                "提示词增强 (Prompt enhancement)",
+                              ),
+                            },
+                          ]}
+                          onChange={setImageKind}
+                        />
+
+                        <div className="route-summary-bar">
+                          <div className="route-summary-copy">
+                            <span className="route-summary-label">
+                              {t("Configured target", "当前路由目标")}
+                            </span>
+                            <code>
+                              {activeImageRoute?.model
+                                ? `${activeImageRoute.model}${
+                                    activeImageRoute.baseUrl
+                                      ? ` · ${activeImageRoute.baseUrl}`
+                                      : ""
+                                  }`
+                                : t(
+                                    "Not configured in Settings yet",
+                                    "尚未在设置中配置该路由",
+                                  )}
+                            </code>
+                          </div>
+                          <ActionButton
+                            variant="link"
+                            size="sm"
+                            onClick={() => openSettings("images")}
+                          >
+                            {t("Edit routes", "配置路由")}
+                          </ActionButton>
+                        </div>
+
+                        <TextField
+                          label={t(
+                            "Input image path on host (editing / vision PE)",
+                            "主机输入图像路径（用于编辑或视觉提示增强）",
+                          )}
+                          value={imagePath}
+                          placeholder="/path/to/source.png"
+                          mono
+                          set={setImagePath}
+                        />
+
+                        <label className="field">
+                          <span className="field-label">
+                            {t("Prompt", "提示词")}
+                          </span>
+                          <textarea
+                            value={imagePrompt}
+                            onChange={(e) => setImagePrompt(e.target.value)}
+                            placeholder={t(
+                              "Describe visual subject, composition, edit instructions or prompt enhancement goals…",
+                              "描述画面主体、构图细节、局部编辑指令或提示词增强目标…",
+                            )}
+                            required
+                          />
+                        </label>
+
+                        <div className="form-submit-row">
+                          <ActionButton
+                            type="submit"
+                            variant="primary"
+                            disabled={busy}
+                          >
+                            {busy
+                              ? t("Submitting…", "请求处理中…")
+                              : t("Submit", "提交")}
+                          </ActionButton>
+                        </div>
+                      </form>
+                    </section>
+
+                    <section className="card split-secondary">
+                      <div className="card-head">
+                        <div>
+                          <h2>{t("Output and receipt", "产物与回执")}</h2>
+                          <p>
+                            {t(
+                              "Rendered host artifact, returned text and retained receipt metadata.",
+                              "渲染的主机图像产物、返回文本与保留的校验回执。",
+                            )}
+                          </p>
+                        </div>
+                      </div>
+
+                      {!imageResult ? (
+                        <div className="studio-empty">
+                          <IconImage size={28} />
+                          <p>
+                            {t(
+                              "Submit a generation, editing, or prompt enhancement request to inspect the resulting artifact and receipt here.",
+                              "提交图像生成、编辑或提示词增强请求后，产物预览与校验回执将显示在此处。",
+                            )}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="studio-result-stack">
+                          {imageResult.path && (
+                            <figure className="artifact-stage">
+                              <img
+                                className="artifact"
+                                src={
+                                  "/api/artifact?path=" +
+                                  encodeURIComponent(imageResult.path)
+                                }
+                                alt={t(
+                                  "Generated artifact",
+                                  "生成的图像产物",
+                                )}
+                              />
+                            </figure>
+                          )}
+
+                          {imageResult.text && (
+                            <div className="pe-output-card">
+                              <div className="pe-output-head">
+                                <strong>
+                                  {t("Returned text", "返回文本结果")}
+                                </strong>
+                                <ActionButton
+                                  variant="link"
+                                  size="sm"
+                                  onClick={() =>
+                                    setImagePrompt(imageResult.text || "")
+                                  }
+                                >
+                                  {t("Copy to prompt", "填入左侧提示词")}
+                                </ActionButton>
+                              </div>
+                              <pre className="pe-output-body">
+                                {imageResult.text}
+                              </pre>
+                            </div>
+                          )}
+
+                          <dl className="receipt-grid">
+                            <div>
+                              <dt>{t("Receipt", "回执标识")}</dt>
+                              <dd>{imageResult.receipt}</dd>
+                            </div>
+                            {imageResult.path && (
+                              <div>
+                                <dt>{t("Artifact path", "产物路径")}</dt>
+                                <dd>{imageResult.path}</dd>
+                              </div>
+                            )}
+                            {imageResult.host && (
+                              <div>
+                                <dt>{t("Host", "主机")}</dt>
+                                <dd>{imageResult.host}</dd>
+                              </div>
+                            )}
+                            {imageResult.sha256 && (
+                              <div>
+                                <dt>SHA-256</dt>
+                                <dd>{imageResult.sha256}</dd>
+                              </div>
+                            )}
+                          </dl>
+
+                          <pre className="log">
+                            {JSON.stringify(imageResult, null, 2)}
+                          </pre>
+                        </div>
+                      )}
+                    </section>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </main>
+      </div>
+    </TooltipProvider>
   );
 }
 

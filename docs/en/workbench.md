@@ -40,6 +40,20 @@ HttpOnly, SameSite cookie. API requests check Host and Origin. The application
 uses the operating-system permissions of its host account. Use it as a private,
 single-user application. Agent tools can edit files and run host commands.
 
+## Interface components
+
+The home screen provides entry points for conversations, Harness campaigns and
+image work. Settings use six categories with a shared configuration draft and
+one save action.
+
+Interactive controls use [Base UI](https://base-ui.com/) and named
+[Lucide](https://lucide.dev/) icons. Local component wrappers and their styles
+live under `apps/workbench/frontend/`; backend request types remain in
+`frontend/types.ts`. The home composition draws on
+[Canvas UI](https://github.com/DavidHDev/canvas-ui), while keeping DataEvolver's
+own colors and layout. Canvas UI source, shaders and artwork are not bundled.
+See the [third-party notices](../../apps/workbench/THIRD_PARTY_NOTICES.md).
+
 ## Configure agents and models
 
 Settings groups the configuration into Models and agents, Images, Tools and

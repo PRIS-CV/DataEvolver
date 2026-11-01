@@ -35,6 +35,18 @@ SoL-Pi 使用 Pi 的公开扩展接口，Pi 源码保持原样。升级运行时
 和 Origin。应用使用宿主机账号的操作系统权限，Agent 可以编辑文件并执行主机命令。
 工作台不提供操作系统沙箱，也不适合作为公开多用户服务。
 
+## 界面组件
+
+首页提供对话、Harness Campaign 和图像工作的入口。设置分为六个类别，
+共用一份配置草稿，通过一次保存提交。
+
+交互控件采用 [Base UI](https://base-ui.com/)，图标采用
+[Lucide](https://lucide.dev/)。本地组件封装和样式位于
+`apps/workbench/frontend/`，后端请求类型保留在 `frontend/types.ts`。
+首页构图参考 [Canvas UI](https://github.com/DavidHDev/canvas-ui)，
+并采用 DataEvolver 自身的配色和布局。项目未打包 Canvas UI 的源码、着色器或图片。
+来源见[第三方声明](../../apps/workbench/THIRD_PARTY_NOTICES.md)。
+
 ## 配置 Agent 与模型
 
 设置页包含模型与 Agent、图像服务、工具与路径、执行主机与 SSH、Agent 运行时和
