@@ -11,15 +11,23 @@ from ..artifact_operator import ArtifactWorkloadOperator
 from ..state_store import atomic_write_json
 
 
+def worker_environment(keys):
+    if not isinstance(keys, list):
+        raise ValueError("allowed_env_keys must be a list of environment names")
+    for key in keys:
+        identifier(key, "environment key")
+    return {key: os.environ[key] for key in keys if key in os.environ}
+
+
 class NativeSceneOperator(ArtifactWorkloadOperator):
     """Host configuration selects code; a planner can only request its bound task."""
 
     def __init__(self, *, output_root, configuration):
         required = {"schema_version", "stage", "argv", "files", "inputs", "outputs",
-                    "timeout_seconds", "allowed_env_keys"}
+                    "timeout_seconds", "allowed_env_keys", "environment_sha256"}
         if (set(configuration) != required or
-                configuration["schema_version"] != "dataevolver.native_scene.v1"):
-            raise ValueError("expected a frozen native worker configuration")
+                configuration["schema_version"] != "dataevolver.native_scene.v2"):
+            raise ValueError("expected an environment-bound native worker configuration; recompile the worker profile")
         identifier(configuration["stage"], "worker stage")
         argv = configuration["argv"]
         if (not isinstance(argv, list) or not argv or
@@ -31,8 +39,10 @@ class NativeSceneOperator(ArtifactWorkloadOperator):
             raise ValueError("scene executable must belong to the frozen file inventory")
         if type(configuration["timeout_seconds"]) is not int or not 1 <= configuration["timeout_seconds"] <= 86400:
             raise ValueError("scene worker timeout must be 1..86400 seconds")
-        for key in configuration["allowed_env_keys"]:
-            identifier(key, "environment key")
+        worker_environment(configuration["allowed_env_keys"])
+        digest = configuration["environment_sha256"]
+        if not isinstance(digest, str) or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+            raise ValueError("worker environment identity must be a SHA-256 digest")
         if not configuration["outputs"]:
             raise ValueError("scene worker must declare its output artifacts")
         if len(set(configuration["outputs"].values())) != len(configuration["outputs"]):
@@ -98,11 +108,13 @@ class NativeSceneOperator(ArtifactWorkloadOperator):
             return report
         if intent.exists() or any(directory.iterdir()):
             raise RuntimeError("scene attempt has no verified completion; reconcile retained native files before retrying")
+        environment = worker_environment(self.configuration["allowed_env_keys"])
+        if payload_sha256(environment) != self.configuration["environment_sha256"]:
+            raise ValueError("worker environment changed; compile a new goal before execution")
         request_path = directory / "request.json"
         atomic_write_json(request_path, request)
         argv = [str(request_path) if x == "{request}" else str(directory) if x == "{output}" else x
                 for x in self.configuration["argv"]]
-        environment = {key: os.environ[key] for key in self.configuration["allowed_env_keys"] if key in os.environ}
         atomic_write_json(intent, {"request_sha256": request_hash, "argv": argv, "status": "STARTED"})
         with (directory / "worker.log").open("w") as log:
             process = subprocess.Popen(argv, cwd=directory, env=environment, stdout=log,

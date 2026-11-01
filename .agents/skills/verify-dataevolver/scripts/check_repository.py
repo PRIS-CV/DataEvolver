@@ -18,13 +18,15 @@ def check(root):
     else:
         public_files = [p for p in root.rglob("*") if p.is_file()]
     private_data = re.compile(
-        r"/(?:Users|home)/[^/\s\"'<>]+|/data\d+/|"
+        r"/(?:Users|home)/[^/\s\"'<>]+|/(?:data\d+|datassd\d*|mnt|workspace|root)/|"
         r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|"
         r"\b(?:sk-proj-|sk-ant-|ghp_|github_pat_)[A-Za-z0-9_-]{18,}"
     )
     for path in public_files:
         if not path.is_file():
             continue
+        if path.suffix.lower() in {".safetensors", ".ckpt", ".gguf", ".pt", ".pth", ".onnx", ".pem", ".key"}:
+            errors.append(f"{path.relative_to(root)}: model weights or private-key files do not belong in public source")
         try:
             contents = path.read_text()
         except UnicodeDecodeError:

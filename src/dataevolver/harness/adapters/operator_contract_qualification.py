@@ -48,7 +48,7 @@ class CandidateContractQualificationOperator(CandidateChecksOperator):
         if (set(p) != base | extras or p["schema_version"] != "dataevolver.candidate_contract_qualification.v1"
                 or p["qualification_scope"] != "synthetic_authority_contract_engineering"):
             raise ValueError("unsupported explicit qualification protocol")
-        # V1 execution/budget semantics are reused without changing its contract.
+        # Reuse the existing Controller's execution and budget contract.
         self.protocol = {**{k:p[k] for k in base}, "schema_version":"dataevolver.candidate_behavior_checks.v1"}
         try: super()._check_protocol()
         finally: self.protocol = p

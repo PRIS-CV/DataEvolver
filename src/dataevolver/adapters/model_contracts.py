@@ -66,7 +66,7 @@ class ModelPolicy(Contract):
         elif self.usage_mode != "accounting" or self.max_calls is not None:
             raise ValueError("accounting mode requires an explicit null call ceiling")
         if self.external_api_enabled is not False:
-            raise ValueError("external API is disabled in P1")
+            raise ValueError("external_api backend is disabled")
         for value in self.allowed_local_origins:
             if origin(value) != value:
                 raise ValueError("allowed origins must be canonical scheme://host:port values")
@@ -102,7 +102,7 @@ class ModelRequest(Contract):
                     message["role"] not in {"system", "user", "assistant"} or not isinstance(message["content"], str)):
                 raise ValueError("messages require a supported role and text content")
         if not isinstance(self.response_schema, dict) or self.response_schema.get("type") != "object":
-            raise ValueError("P1 requires a JSON object response schema")
+            raise ValueError("structured responses require a JSON object schema")
         if any(not isinstance(x, ArtifactRef) for x in self.artifacts):
             raise ValueError("model media must use ArtifactRef, not arbitrary URLs")
         for name in ("max_tokens", "timeout_seconds", "max_attempts"):

@@ -383,6 +383,8 @@ origin in `allowed_local_origins`. The `local_endpoint` transport uses the
 configured service's `/models` and `/chat/completions` interfaces. Inspect a
 completed configuration with `dataevolver models --config <your-config.json>`;
 `--check-endpoint` adds a health request without inference.
+`model_env` overrides a served model ID. Native checkpoint directories use the
+selected adapter's path bindings.
 
 For a different native model implementation, supply a registered provider factory
 through `ModelGateway`, with compatible outputs and independent effect lookup.
@@ -391,6 +393,8 @@ The reserved `external_api` backend is disabled; its flag does not enable cloud
 requests. The optional authenticated Codex transport has its own explicit setup.
 See [model contracts](src/dataevolver/adapters/model_contracts.py) and
 [gateway providers](src/dataevolver/adapters/model_gateway.py).
+The [gateway guide](docs/MODEL_GATEWAY.md) also describes optional provider-owned
+native accounting. Its journal format and extra measurements stay in the adapter.
 
 Optional image generation/editing, prompt enhancement, review and segmentation
 implementations are described in [visual adapters](docs/LOCAL_VISUAL_MODELS.md).
@@ -576,6 +580,11 @@ The previous VLM render/review dual loop is preserved on
 The old production and standalone multimodal CLIs, shell batch runners and
 bootstrap script are retired. Use the unified Harness CLI. See
 [migration notes](docs/MAINLINE_MIGRATION.md).
+
+Public schema and operator versions identify compatibility; model release names
+identify optional implementations. Native worker contracts now bind allowed
+environment values by hash. Recompile earlier worker profiles into a new campaign;
+see the [worker contract](docs/NATIVE_SCENE_WORKFLOW.md).
 
 The [source-contract CI](.github/workflows/source-contracts.yml) checks source,
 configuration and undefined Python names without running workloads. Its local

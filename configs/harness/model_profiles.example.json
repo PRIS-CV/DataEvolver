@@ -13,16 +13,6 @@
       "capabilities": [
         "json"
       ]
-    },
-    {
-      "schema_version": "dataevolver.model_profile.v1",
-      "profile_id": "future-api",
-      "backend": "external_api",
-      "model": "choose-later",
-      "revision": "unconfigured",
-      "capabilities": [
-        "json"
-      ]
     }
   ],
   "policy": {

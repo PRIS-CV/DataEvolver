@@ -6,13 +6,10 @@ at `952dfcb71203563ca3b2c0f99a56bf28a15316ea`.
 
 ## Source and scope
 
-The Harness was imported from source commit
-`2d8581bb66ac3f7c7b3cd00219a08485da4e85a4`. It supplies the Controller, typed model
-gateway, operator lifecycle, graph compiler and contract tests. The scene backend
-comes from `WMBench-Synthesis-Harness`; `SCENE_BACKEND_SOURCES.json` records exact
-source/integration hashes. An independently recovered source snapshot was compared
-with that import: its 111 Harness files match. Later benchmark audit and probe
-changes remain outside this update.
+The base supplies the Controller, typed model gateway, operator lifecycle, graph
+compiler and contract fixtures. The optional scene backend comes from
+`WMBench-Synthesis-Harness`; `SCENE_BACKEND_SOURCES.json` records its source and
+integration hashes. Benchmark audit and probe changes remain outside this update.
 
 The public commit contains the reviewed source tree. Local deployment history,
 cloud archives, credentials, generated goals and native execution journals stay
@@ -59,6 +56,22 @@ binding and retains planner-only limits, native journals and recovery checks.
 Existing frozen runs keep their original code, configuration and evidence hashes.
 Changing a worker, model or code binding requires a new goal and campaign. Restore
 the matching source and deployment when reading or resuming an older frozen run.
+
+Native worker configuration uses the public `dataevolver.native_scene.v2` schema
+to include the allowed environment's value hash. Recompile a previous worker
+profile for new execution. Worker request/result messages keep their existing
+ABI. Environment value changes require a new compiled goal; changing the files
+behind a path also requires updating the declared file inventory.
+
+The model gateway's generic ledger is independent of native model formats.
+Optional providers supply native accounting through `audit_native_usage`.
+SAM-specific fields remain available with that provider; other providers no
+longer receive placeholder SAM zero totals. The gateway rejects accounting
+extensions that overwrite ledger fields or return invalid counter values.
+
+Public schema/operator versions and released checkpoint identities are retained.
+Old development-stage guide names have been replaced by `MODEL_GATEWAY.md`,
+`IMAGE_CURATION.md` and `IMAGE_RECIPE_SEARCH.md`.
 
 ## Review and verification
 

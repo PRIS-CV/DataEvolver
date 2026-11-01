@@ -1,6 +1,6 @@
-# P2: bounded image curation
+# Bounded image curation
 
-The `data.image_curation` Operator executes a mixed data/model graph under the existing `EvolutionController`. P1 v1 contracts and the `visual.contract_mock` route retain their existing behavior.
+The `data.image_curation` Operator executes a mixed data/model graph under the existing `EvolutionController`. Versioned model and dataset contracts and the `visual.contract_mock` route retain their existing behavior.
 
 ## Contracts and authority
 
@@ -11,7 +11,7 @@ The `data.image_curation` Operator executes a mixed data/model graph under the e
 - `DataRunBudget` v2 reserves child Operator attempts, audited input units and dataset output bytes in a durable journal. One wall-time deadline survives resume. Failed attempts consume their reservations.
 - `ModelGateway` keeps one shared model-attempt journal for the graph. Model failure and recovery never create a fresh call budget.
 
-The P2 CLI route permits one graph per campaign, one round, zero experiments and no interventions. Controller `max_operator_calls=1` counts this composite call. The graph's `max_operator_calls` counts child steps and retries; its model limit counts actual provider attempts. These are distinct units. Resume completes the same pending call.
+The image-curation CLI route permits one graph per campaign, one round, zero experiments and no interventions. Controller `max_operator_calls=1` counts this composite call. The graph's `max_operator_calls` counts child steps and retries; its model limit counts actual provider attempts. These are distinct units. Resume completes the same pending call.
 
 Controller owns campaign states, permissions, the frozen Bundle, evaluation and terminal decisions. Steps implement the existing `execute/recover/verify_effect` protocol. They cannot adopt recipes or change campaign state.
 
@@ -39,11 +39,11 @@ Operators accept only their declared parameters. Arbitrary code, shell and exter
 - `image_column`, `label_column`, `family_column`;
 - optional `format` (`parquet` or `zip_indexed`) and an `index` reference.
 
-Parquet input requires embedded image bytes. An optional `dataevolver.source_index.v1` lists unique row offsets. Archive input requires that index with `archive_path`, `label` and `family` rows. Members are read without extracting archive paths to the filesystem. Only upstream training data enters this P2 route.
+Parquet input requires embedded image bytes. An optional `dataevolver.source_index.v1` lists unique row offsets. Archive input requires that index with `archive_path`, `label` and `family` rows. Members are read without extracting archive paths to the filesystem. Only upstream training data enters this image-curation route.
 
 The supplied source index is a frozen intake scope, not a new evaluation set. All reported input counts refer to audited image units in that scope. Original dataset sizes and coverage limitations belong in the experiment's source report.
 
-Duplicate grouping combines exact decoded pixels, dHash distance and available source families. Semantic duplicate detection is not implemented. Unknown physical subjects cannot be inferred from a perceptual hash; record this limitation for sources without family metadata. P2 partitions are engineering slices, not sealed benchmarks.
+Duplicate grouping combines exact decoded pixels, dHash distance and available source families. Semantic duplicate detection is not implemented. Unknown physical subjects cannot be inferred from a perceptual hash; record this limitation for sources without family metadata. These partitions are engineering slices, not sealed benchmarks.
 
 ## Offline local model
 
@@ -53,7 +53,7 @@ Heavy model imports and loading occur only in a child process after gateway cach
 
 Native request receipts support recovery after inference completes but before the gateway receipt commits. An unknown timeout remains `AMBIGUOUS_EFFECT` and is not automatically reissued. A complete graph cache hit performs zero worker launches or model loads.
 
-The P2 route is offline CPU execution. Existing endpoint and external API interfaces remain in ModelGateway; external API dispatch stays disabled. It does not start a GPU service.
+The image-curation route is offline CPU execution. Existing endpoint and external API interfaces remain in ModelGateway; external API dispatch stays disabled. It does not start a GPU service.
 
 ## Configuration and execution
 
@@ -82,4 +82,4 @@ Budget exhaustion, invalid data effects and typed model failures produce failed 
 
 The standalone loader validates the exported members, image hashes, counts, source/license identity, unique families and lineage/split bindings. It reads no experiment directory, source archive, model cache or live service. Export metadata itself remains hash-bound by the Harness artifact reference.
 
-Exports have governance `technical_candidate_pending_independent_review`. Deterministic integrity/provenance/license/duplicate/leakage evidence and uncalibrated model scores are retained separately. Unknown privacy/safety stays unknown. P2 completion establishes processing and loading reliability; independent quality calibration, dataset promotion, RSI, training and downstream benefit require their corresponding later evidence.
+Exports have governance `technical_candidate_pending_independent_review`. Deterministic integrity/provenance/license/duplicate/leakage evidence and uncalibrated model scores are retained separately. Unknown privacy/safety stays unknown. Route completion establishes processing and loading reliability; independent quality calibration, dataset promotion, RSI, training and downstream benefit require their corresponding later evidence.

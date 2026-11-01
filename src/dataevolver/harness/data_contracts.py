@@ -1,4 +1,4 @@
-"""Versioned mixed data/model node contracts; P1 contracts remain readable."""
+"""Versioned mixed data/model node contracts; Harness contracts remain readable."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field

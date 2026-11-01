@@ -1,19 +1,19 @@
 {
   "schema_version": "dataevolver.harness.goal.v1",
-  "campaign_id": "agentic-3d-rsi-real-canary-v1",
+  "campaign_id": "agentic-3d-real-canary",
   "objective": {
     "kind": "agentic_3d_rsi",
     "real_canary": true,
-    "asset_ids": ["mug_phase3d_001"],
+    "asset_ids": ["mug_3d-canary_001"],
     "accepted_asset_quota": 1,
     "initial_trial_key": {
-      "input_artifact_hash": "phase3d-fixed-red-mug-request-v1",
+      "input_artifact_hash": "3d-canary-fixed-red-mug-request-v1",
       "parent_artifact_hash": "none",
       "seed": 17,
       "operator_id": "dataevolver.3d_asset_evolution",
       "operator_version": "1",
       "model_config_hash": "resolved-by-frozen-operator-contract",
-      "preprocessing_hash": "phase3d-real-canary-preprocess-v1",
+      "preprocessing_hash": "3d-canary-real-canary-preprocess-v1",
       "evaluator_hash": "c0300b15840476e0fb3d674ff68337da0d70f2da541e33d5d461fa139d1c8d92",
       "environment_contract_hash": "resolved-at-campaign-creation"
     },

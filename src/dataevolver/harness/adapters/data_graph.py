@@ -249,7 +249,7 @@ class DataGraphOperator:
                     raise ValueError("graph input is outside the DatasetIntent source scope")
         for profile in self.profiles:
             if not generic and profile.backend not in {"mock", "local_python"}:
-                raise ValueError("P2 image route requires offline mock or local CPU workers")
+                raise ValueError("Image curation route requires offline mock or local CPU workers")
             if profile.backend == "local_python" and profile.profile_id not in self.providers:
                 worker = self.workers.get(profile.profile_id, {})
                 from dataevolver.adapters.visual_models import SCHEMA, validate_visual_worker

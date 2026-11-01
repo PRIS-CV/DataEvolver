@@ -1,7 +1,7 @@
 """Local-first model routing with cache-before-load and explicit effect recovery.
 
 The gateway is a bounded service used under the Harness, not a planner or a
-second campaign controller. External API invocation is intentionally absent.
+second campaign controller. The reserved external_api backend has no transport.
 """
 from __future__ import annotations
 
@@ -40,7 +40,7 @@ def validate_response_schema(schema, output=None):
                     raise ModelError("INVALID_SCHEMA", "remote JSON schema references are not allowed")
                 if key in {"$ref", "$dynamicRef"} and item != "#":
                     if not item.startswith("#/"):
-                        raise ModelError("INVALID_SCHEMA", "P1 schema references must use local JSON pointers")
+                        raise ModelError("INVALID_SCHEMA", "schema references must use local JSON pointers")
                     target = schema
                     try:
                         for part in item[2:].split("/"):
@@ -104,16 +104,16 @@ class MockModelProvider:
 
 
 class ExternalAPIProvider:
-    """Reserved interface. Enabling a flag cannot make P1 send cloud requests."""
+    """Reserved backend with no request transport."""
 
     def health(self):
         return {"status": "DISABLED"}
 
     def invoke(self, request, request_hash):
-        raise ModelError("EXTERNAL_API_DISABLED", "external API is disabled in P1")
+        raise ModelError("EXTERNAL_API_DISABLED", "external_api backend is disabled")
 
     def lookup(self, request, request_hash):
-        raise ModelError("EXTERNAL_API_DISABLED", "external API is disabled in P1")
+        raise ModelError("EXTERNAL_API_DISABLED", "external_api backend is disabled")
 
 
 class LocalPythonProvider:
@@ -239,7 +239,7 @@ class ModelGateway:
             raise ModelError("ROLE_NOT_ALLOWED", "model role is not registered")
         profile = self.profiles[self.policy.bindings[role]]
         if profile.backend == "external_api":
-            raise ModelError("EXTERNAL_API_DISABLED", "external API is disabled in P1")
+            raise ModelError("EXTERNAL_API_DISABLED", "external_api backend is disabled")
         model = os.environ.get(profile.model_env, "") if profile.model_env else profile.model
         endpoint = os.environ.get(profile.endpoint_env, "") if profile.endpoint_env else ""
         if not model:
@@ -435,7 +435,7 @@ class ModelGateway:
         A reservation is not evidence of a successful effect. Unknown monetary
         cost/duration stays unknown; cache recovery does not reserve another call.
         """
-        rows = []
+        rows, native_totals = [], {}
         for path in sorted(self.root.glob("*.intent.json")):
             record = json.loads(path.read_text())
             if record["contract_hash"] != self.contract_hash():
@@ -448,56 +448,34 @@ class ModelGateway:
                 if wrapper["sha256"] != payload_sha256(wrapper["receipt"]):
                     raise ModelError("INVALID_RECEIPT", "usage receipt hash changed")
                 usage, state = wrapper["receipt"]["usage"], "COMPLETED"
-            subject_usage = None
+            row = {"request_id": request_id, "request_hash": record["request_hash"],
+                   "role": record.get("role"), "attempts": record["attempts"], "state": state,
+                   "native_units_reserved": record['attempts'] * record.get('native_units_per_attempt', 1),
+                   "error_code": record.get("error_code"),
+                   "wall_seconds": usage.get("wall_seconds", record.get("wall_seconds")),
+                   "monetary_cost": usage.get("cost"), "usage": usage}
             rule = self.attempt_limits.unit_rules.get(record.get('role')) if self.attempt_limits is not None else None
             if rule in {'image_subject', 'video_frame_subject'}:
-                from .training_media_worker import TrainingMediaProvider
                 provider = self._provider(*self._binding(record['role'])[:3])
-                if isinstance(provider, TrainingMediaProvider):
-                    native = provider.root / (request_id + '.native.sam-usage.json')
-                    if native.exists():
-                        value = json.loads(native.read_text())
-                        count = value.get('forward_attempts') if rule == 'image_subject' else value.get('frame_subject_units_attempted')
-                        valid = (value.get('binding') == provider.binding(record['request_hash'])
-                            and value.get('gateway_requests') == 1
-                            and type(count) is int and 0 <= count <= record['native_units_per_attempt'])
-                        if rule == 'image_subject':
-                            valid = valid and value.get('input_images') == 1
-                        else:
-                            frames, subjects, forwards = (value.get(k) for k in ('decoded_frames','subjects','frame_forward_attempts'))
-                            valid = (valid and value.get('input_videos') == 1
-                                and all(type(n) is int for n in (frames,subjects,forwards))
-                                and 1 <= frames <= 256 and 1 <= subjects <= 16 and 0 <= forwards <= frames
-                                and frames*subjects == record['native_units_per_attempt'] and count == forwards*subjects)
-                        if not valid:
-                            raise ModelError('INVALID_RECEIPT', 'SAM native subject accounting changed')
-                        subject_usage = {**value, 'journal_sha256': __import__('hashlib').sha256(native.read_bytes()).hexdigest()}
-                        if self.store is not None:
-                            for key, root in self.store.roots.items():
-                                if native.resolve().is_relative_to(root):
-                                    subject_usage['journal'] = ArtifactRef(key, native.resolve().relative_to(root).as_posix(),
-                                        subject_usage['journal_sha256']).to_dict()
-                                    break
-            rows.append({"request_id": request_id, "request_hash": record["request_hash"],
-                         "role": record.get("role"), "attempts": record["attempts"], "state": state,
-                         "native_units_reserved": record['attempts'] * record.get('native_units_per_attempt', 1),
-                         "error_code": record.get("error_code"),
-                         "wall_seconds": usage.get("wall_seconds", record.get("wall_seconds")),
-                         "monetary_cost": usage.get("cost"), "usage": usage,
-                         **({'sam_native_usage': subject_usage, 'sam_unit_rule': rule}
-                            if rule in {'image_subject', 'video_frame_subject'} else {})})
-        return {"model_calls": sum(r["attempts"] for r in rows),
+                auditor = getattr(provider, 'audit_native_usage', None)
+                if auditor is not None:
+                    details, totals = auditor(request_id, record, rule, self.store)
+                    if row.keys() & details.keys():
+                        raise ModelError('INVALID_RECEIPT', 'native accounting cannot replace ledger fields')
+                    row.update(details)
+                    for key, count in totals.items():
+                        if type(count) is not int or count < 0:
+                            raise ModelError('INVALID_RECEIPT', 'native accounting totals must be nonnegative integers')
+                        native_totals[key] = native_totals.get(key, 0) + count
+            rows.append(row)
+        summary = {"model_calls": sum(r["attempts"] for r in rows),
                 "native_units_reserved": sum(r['native_units_reserved'] for r in rows), "attempts": rows,
                 "observed_wall_seconds": sum(r["wall_seconds"] or 0 for r in rows),
                 "unknown_duration_attempts": sum(r["wall_seconds"] is None for r in rows),
-                "monetary_cost": None if any(r["monetary_cost"] is None for r in rows) else sum(r["monetary_cost"] for r in rows),
-                'sam_image_subject_forwards_observed': sum((r.get('sam_native_usage') or {}).get('forward_attempts', 0)
-                    for r in rows if r.get('sam_unit_rule') == 'image_subject'),
-                'sam_video_frame_forwards_observed': sum((r.get('sam_native_usage') or {}).get('frame_forward_attempts', 0)
-                    for r in rows if r.get('sam_unit_rule') == 'video_frame_subject'),
-                'sam_video_frame_subject_units_observed': sum((r.get('sam_native_usage') or {}).get('frame_subject_units_attempted', 0)
-                    for r in rows if r.get('sam_unit_rule') == 'video_frame_subject'),
-                'sam_requests_without_native_accounting': sum('sam_native_usage' in r and r['sam_native_usage'] is None for r in rows)}
+                "monetary_cost": None if any(r["monetary_cost"] is None for r in rows) else sum(r["monetary_cost"] for r in rows)}
+        if summary.keys() & native_totals.keys():
+            raise ModelError('INVALID_RECEIPT', 'native accounting cannot replace ledger totals')
+        return {**summary, **native_totals}
 
 
 class RoutedModelGateway:

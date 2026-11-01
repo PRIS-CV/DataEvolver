@@ -83,7 +83,7 @@ def audit(ctx):
             raise ValueError("source identity/fields must be explicit and unique")
         seen.add(source["source_id"])
         if source["source_split"] != "train":
-            raise ValueError("P2 curation intake accepts upstream training data only")
+            raise ValueError("Image curation curation intake accepts upstream training data only")
         if source["license"] not in allowed or not source["license_evidence"]:
             raise ValueError("source license is unapproved or lacks bound evidence")
         file_ref = ArtifactRef.from_dict(source["file"])

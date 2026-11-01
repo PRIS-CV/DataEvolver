@@ -39,7 +39,6 @@ dataevolver_multimodal_delivery_*/
 multimodal_image_dataset_package_*/
 DiffSynth-Studio/
 feishu-claude-code/
-agent_loop_v72_upload/
 objects/
 plan-list/
 notion-weekly/
@@ -52,26 +51,25 @@ notion-weekly/
 *.ckpt
 *.bin
 *.pt
+*.pth
+*.gguf
+*.onnx
+*.pem
+*.key
 *.png
 *.jpg
 *.jpeg
 *.mp4
 
 # Internal docs, intermediate results, and deliverables
-docs/
-!docs/
-!docs/BLENDER_MCP_REMOTE.md
 deliverables/
-v6_staging/
 mcp-servers/
 /pipeline/
 /scripts/
-/tests/
 /tools/
 obsidian-skills
 vlm_render_evolution_summary.md
 analyze_evolution.py
-verify_v3.py
 task.md
 task.txt
 
@@ -85,12 +83,6 @@ configs/seed_concepts/
 configs/scene_pool.json
 configs/scene_template_outdoor*.json
 configs/scene_template_smoke_256_eevee.json
-configs/dataset_profiles/rotation_v[123].json
-configs/dataset_profiles/scene_v71*.json
-configs/dataset_profiles/scene_v7_full20_loop.json
-configs/dataset_profiles/scene_v7_full50_loop.json
-
-# Old root code directories are intentionally replaced by src/dataevolver/.
 
 # Claude Code / AI agent configs (user-specific, do not commit)
 .claude/
@@ -98,9 +90,6 @@ configs/dataset_profiles/scene_v7_full50_loop.json
 CLAUDE.md
 AGENTS.md
 CODEX_RULES.md
-CONTRIBUTING.md
-CONTRIBUTING_CN.md
-README_CN.md
 memory/
 skills/
 
@@ -123,7 +112,7 @@ external/
 !/apps/project-page/frontend/images/paper/datarsi-occlusion-repair.png
 !/apps/project-page/frontend/images/paper/datarsi-qualitative.png
 
-# Public framework documentation and CPU contract tests.
+# Public framework documentation and contract fixtures.
 !/docs/
 !/docs/**
 !/tests/

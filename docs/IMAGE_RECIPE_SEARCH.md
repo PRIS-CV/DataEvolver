@@ -1,6 +1,6 @@
 # Frozen image pools and bounded recipe search
 
-The P2.1 data steps and P3 `data.image_recipe` route use the existing
+The pool operations and `data.image_recipe` route use the existing
 `EvolutionController`, `CandidateGate`, event store and capability store.
 Experiment configuration and runtime evidence remain outside framework source.
 External model APIs remain disabled.
@@ -129,7 +129,7 @@ python -m dataevolver.harness.cli resume \
 ```
 
 This real route requires `objective.real_data_execution=true`; `--dry-run` is
-rejected. The P1 mock route and existing 3D/T2I defaults retain their interfaces.
+rejected. The mock and optional 3D/T2I routes retain their separate contracts.
 
 Relevant checks are `tests/test_image_recipe.py`, `tests/test_chat_worker_math.py`,
 `tests/test_data_curation.py`, `tests/test_clip_worker.py` and existing Harness

@@ -32,6 +32,30 @@ def req():
        {"type":"object","properties":{"artifact":{"type":"object"}},"required":["artifact"],"additionalProperties":False})
 
 
+@pytest.mark.parametrize('unit_rule', ['image_subject', 'video_frame_subject'])
+def test_native_usage_keeps_sam_statistics_and_rejects_changed_binding(provider, unit_rule):
+    record = {'request_hash': 'e'*64, 'native_units_per_attempt': 2 if unit_rule == 'image_subject' else 6}
+    provider.root.mkdir()
+    details, totals = provider.audit_native_usage('audit', record, unit_rule, None)
+    assert details['sam_native_usage'] is None and totals['sam_requests_without_native_accounting'] == 1
+    value = {'binding': provider.binding(record['request_hash']), 'gateway_requests': 1}
+    value.update({'input_images': 1, 'forward_attempts': 2} if unit_rule == 'image_subject' else
+                 {'input_videos': 1, 'decoded_frames': 3, 'subjects': 2,
+                  'frame_forward_attempts': 2, 'frame_subject_units_attempted': 4})
+    native = provider.root/'audit.native.sam-usage.json'
+    native.write_text(json.dumps(value))
+    details, totals = provider.audit_native_usage('audit', record, unit_rule, None)
+    assert details['sam_native_usage']['journal_sha256'] == file_sha256(native)
+    assert totals == {'sam_image_subject_forwards_observed': 2 if unit_rule == 'image_subject' else 0,
+        'sam_video_frame_forwards_observed': 2 if unit_rule == 'video_frame_subject' else 0,
+        'sam_video_frame_subject_units_observed': 4 if unit_rule == 'video_frame_subject' else 0,
+        'sam_requests_without_native_accounting': 0}
+    value['binding'] = 'changed'
+    native.write_text(json.dumps(value))
+    with pytest.raises(ModelError, match='accounting changed'):
+        provider.audit_native_usage('audit', record, unit_rule, None)
+
+
 def test_committed_cache_never_checks_gpu_or_submits(provider,monkeypatch):
     digest="a"*64;request=req()
     ref=write_image(provider.store,"data","fixture.png",Image.new("RGB",(4,4),"white"))

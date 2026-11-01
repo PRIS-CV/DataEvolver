@@ -168,6 +168,44 @@ class TrainingMediaProvider:
     def binding(self, digest):
         return payload_sha256([digest, self.profile.to_dict(), self.config, self.dataset_store])
 
+    def audit_native_usage(self, request_id: str, record: dict, unit_rule: str,
+                          artifact_store: ArtifactStore | None) -> tuple[dict, dict[str, int]]:
+        """Read SAM accounting without launching a worker or loading a model."""
+        native = self.root / (request_id + '.native.sam-usage.json')
+        subject_usage = None
+        if native.exists():
+            value = json.loads(native.read_text())
+            count = value.get('forward_attempts') if unit_rule == 'image_subject' else value.get('frame_subject_units_attempted')
+            valid = (value.get('binding') == self.binding(record['request_hash'])
+                and value.get('gateway_requests') == 1
+                and type(count) is int and 0 <= count <= record['native_units_per_attempt'])
+            if unit_rule == 'image_subject':
+                valid = valid and value.get('input_images') == 1
+            else:
+                frames, subjects, forwards = (value.get(k) for k in ('decoded_frames', 'subjects', 'frame_forward_attempts'))
+                valid = (valid and value.get('input_videos') == 1
+                    and all(type(n) is int for n in (frames, subjects, forwards))
+                    and 1 <= frames <= 256 and 1 <= subjects <= 16 and 0 <= forwards <= frames
+                    and frames * subjects == record['native_units_per_attempt'] and count == forwards * subjects)
+            if not valid:
+                raise ModelError('INVALID_RECEIPT', 'SAM native subject accounting changed')
+            subject_usage = {**value, 'journal_sha256': file_sha256(native)}
+            if artifact_store is not None:
+                for key, root in artifact_store.roots.items():
+                    if native.resolve().is_relative_to(root):
+                        subject_usage['journal'] = ArtifactRef(key, native.resolve().relative_to(root).as_posix(),
+                            subject_usage['journal_sha256']).to_dict()
+                        break
+        observed = subject_usage or {}
+        details = {'sam_native_usage': subject_usage, 'sam_unit_rule': unit_rule}
+        totals = {
+            'sam_image_subject_forwards_observed': observed.get('forward_attempts', 0) if unit_rule == 'image_subject' else 0,
+            'sam_video_frame_forwards_observed': observed.get('frame_forward_attempts', 0) if unit_rule == 'video_frame_subject' else 0,
+            'sam_video_frame_subject_units_observed': observed.get('frame_subject_units_attempted', 0) if unit_rule == 'video_frame_subject' else 0,
+            'sam_requests_without_native_accounting': int(subject_usage is None),
+        }
+        return details, totals
+
     def lookup(self, request, request_hash):
         path = self.path(request)
         if not path.exists():

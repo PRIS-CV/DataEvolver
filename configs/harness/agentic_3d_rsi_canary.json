@@ -1,6 +1,6 @@
 {
   "schema_version": "dataevolver.harness.goal.v1",
-  "campaign_id": "agentic-3d-rsi-canary-v1",
+  "campaign_id": "agentic-3d-canary",
   "objective": {
     "kind": "agentic_3d_rsi",
     "asset_ids": ["mug_canary_001"],

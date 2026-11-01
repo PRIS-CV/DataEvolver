@@ -106,7 +106,7 @@ source generation. The interface contains the requested public declaration and
 fixed retry/timeout authority, and has no implementation hash. After generation,
 the builder computes the actual source hash, creates an inert OperatorSpec and
 binds the OperatorContract to that exact spec. V2 inspection checks both the
-frozen interface and the generated implementation. V1 hashes and parsing keep
+frozen interface and the generated implementation. Existing hashes and parsing keep
 their original meaning.
 
 The registered `evolution.build_operator_candidate:1` takes a v2 plan and a

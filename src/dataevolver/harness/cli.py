@@ -29,7 +29,7 @@ def _campaign_args(parser: argparse.ArgumentParser) -> None:
 
 
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description="DataEvolver Autonomous Harness V1")
+    parser = argparse.ArgumentParser(description="DataEvolver Harness")
     commands = parser.add_subparsers(dest="command", required=True)
     from .framework_cli import add_commands
     add_commands(commands)
@@ -116,7 +116,7 @@ def _validate_creation_mode(goal: GoalSpec, *, dry_run: bool) -> None:
             raise ValueError("Real T2I canary must not use --dry-run")
         return
     if not dry_run:
-        raise ValueError("Phase 0-3A mock Operators require --dry-run")
+        raise ValueError("Mock operators require --dry-run")
 
 
 def _production_preflight(goal: GoalSpec, *, urlopen=urllib.request.urlopen, run=subprocess.run) -> dict:
@@ -128,21 +128,21 @@ def _production_preflight(goal: GoalSpec, *, urlopen=urllib.request.urlopen, run
         "SCENE_REFINE",
     }
     if goal.objective.get("real_canary") is not True or goal.planner.get("kind") != "agentic_rsi":
-        raise ValueError("Phase 3D requires an explicit real_canary Agentic Goal")
+        raise ValueError("3D canary requires an explicit real_canary Agentic Goal")
     if asset_ids != list(dict.fromkeys(asset_ids)) or len(asset_ids) != 1:
-        raise ValueError("Phase 3D requires exactly one unique asset")
+        raise ValueError("3D canary requires exactly one unique asset")
     if set(goal.initial_operator_parameters) != {"initial_prompt", "t2i_seed", "reconstruction_seed"}:
-        raise ValueError("Phase 3D initial Operator parameters do not match the fixed canary contract")
+        raise ValueError("3D canary initial Operator parameters do not match the fixed canary contract")
     if not isinstance(goal.initial_operator_parameters.get("initial_prompt"), str) or not goal.initial_operator_parameters["initial_prompt"].strip():
-        raise ValueError("Phase 3D requires one fixed non-empty initial prompt")
+        raise ValueError("3D canary requires one fixed non-empty initial prompt")
     if set(goal.objective.get("allowed_experiment_kinds", [])) != allowed_kinds:
-        raise ValueError("Phase 3D experiment kinds do not match the frozen allowlist")
+        raise ValueError("3D canary experiment kinds do not match the frozen allowlist")
     if goal.objective.get("representative_views") != [[0, 0], [90, 0], [180, 0], [270, 0]]:
-        raise ValueError("Phase 3D requires the frozen four-view contract")
+        raise ValueError("3D canary requires the frozen four-view contract")
     if goal.budgets.max_experiments > 3 or goal.budgets.max_operator_calls > 4:
-        raise ValueError("Phase 3D candidate/operator budget exceeds the bounded canary contract")
+        raise ValueError("3D canary candidate/operator budget exceeds the bounded canary contract")
     if goal.budgets.max_planner_calls <= 0 or goal.budgets.max_planner_calls > 4:
-        raise ValueError("Phase 3D planner-call budget must be between 1 and 4")
+        raise ValueError("3D canary planner-call budget must be between 1 and 4")
 
     base_url = os.environ["DATAEVOLVER_AGENT_BASE_URL"].rstrip("/")
     api_key = os.environ["DATAEVOLVER_AGENT_API_KEY"]
@@ -316,9 +316,9 @@ def _registry(goal: GoalSpec, campaign_root: Path) -> OperatorRegistry:
     if goal.initial_operator_id == "data.image_curation":
         from .adapters.data_graph import DataGraphOperator
         if goal.interventions or goal.resource_policy.get("allow_gpu") is not False or goal.resource_policy.get("allow_network") is not False:
-            raise ValueError("P2 image curation requires offline CPU execution without interventions")
+            raise ValueError("Image curation requires offline CPU execution without interventions")
         if goal.budgets.max_operator_calls != 1 or goal.budgets.max_rounds != 1 or goal.budgets.max_experiments != 0:
-            raise ValueError("P2 image curation binds one graph execution per campaign")
+            raise ValueError("Image curation binds one graph execution per campaign")
         registry.register(DataGraphOperator(allowed_write_root=campaign_root / goal.campaign_id,
                                             contract=goal.initial_operator_parameters))
         return registry
@@ -375,10 +375,10 @@ def _registry(goal: GoalSpec, campaign_root: Path) -> OperatorRegistry:
         )
         return registry
     if goal.initial_operator_id != "fake.baseline":
-        raise ValueError(f"Operator is not registered by the V1 CLI: {goal.initial_operator_id}")
+        raise ValueError(f"Operator is not registered by the CLI: {goal.initial_operator_id}")
     fixture = goal.objective.get("dry_run_fixture")
     if not isinstance(fixture, dict):
-        raise ValueError("V1 has no real Operator adapters; use a GoalSpec with dry_run_fixture")
+        raise ValueError("fake.baseline requires a GoalSpec with dry_run_fixture")
     source = Path(__file__).with_name("operators.py").resolve()
     model_hash = str((goal.objective.get("initial_trial_key") or {}).get("model_config_hash") or "")
 
@@ -403,7 +403,7 @@ def _registry(goal: GoalSpec, campaign_root: Path) -> OperatorRegistry:
     registry.register(build(goal.initial_operator_id, fixture["baseline"]))
     candidate_ids = {item["operator_id"] for item in goal.interventions}
     if len(candidate_ids) != 1:
-        raise ValueError("V1 dry-run fixture requires exactly one candidate operator")
+        raise ValueError("Dry-run fixture requires exactly one candidate operator")
     registry.register(build(next(iter(candidate_ids)), fixture["candidate"]))
     return registry
 

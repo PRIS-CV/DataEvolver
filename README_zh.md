@@ -336,11 +336,14 @@ Campaign 目录保留 `goal.json`、`frozen_contract.json`、`events.jsonl`、`s
 `allowed_local_origins` 中授权端点来源。`local_endpoint` 使用所配置服务的 `/models` 和
 `/chat/completions` 接口。填写配置后，可用 `dataevolver models --config <your-config.json>`
 查看绑定；加上 `--check-endpoint` 会请求健康状态，不做推理。
+`model_env` 覆盖的是服务端模型 ID。原生检查点目录使用所选适配器的路径绑定。
 
 替换原生模型实现时，需要通过 `ModelGateway` 注册 Provider 工厂，提供兼容的输出和独立的副作用查询。
 修改模型名称不会适配其架构、权重或执行 API。预留的 `external_api` 后端处于禁用状态，
 修改标志不会启用云端请求。可选的已认证 Codex 接口有单独的显式配置。
 实现见[模型契约](src/dataevolver/adapters/model_contracts.py)和[网关 Provider](src/dataevolver/adapters/model_gateway.py)。
+[网关指南](docs/MODEL_GATEWAY.md)也说明了可选的原生用量审计接口。
+原生日志格式及附加统计由对应适配器负责。
 
 可选的图像生成/编辑、提示增强、审查和分割实现见[视觉适配器](docs/LOCAL_VISUAL_MODELS.md)。
 选用后仍需满足该实现的模型、权重和运行时检查。底层多模态路由接收显式参数或
@@ -506,6 +509,10 @@ Claude Code 可选作外层 Agent，编写计划和代码，并调用与 Codex �
 [`codex/legacy-vlm-dual-loop`](https://github.com/PRIS-CV/DataEvolver/tree/codex/legacy-vlm-dual-loop)。
 旧 production CLI、独立多模态 CLI、Shell 批处理和 bootstrap 脚本已退役。
 统一使用 Harness CLI，迁移说明见[迁移文档](docs/MAINLINE_MIGRATION.md)。
+
+公共 schema 和 Operator 版本用于兼容性检查；模型发行名标识可选实现。
+原生 Worker 现已用摘要绑定允许传入的环境值。旧 Worker 配置应重新编译为新 Campaign，
+详见 [Worker 契约](docs/NATIVE_SCENE_WORKFLOW.md)。
 
 [源码契约 CI](.github/workflows/source-contracts.yml)检查源码、配置和未定义的 Python 名称，
 不执行工作负载。本地源码检查器为：

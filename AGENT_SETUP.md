@@ -22,7 +22,28 @@ Keep private paths, credentials and deployment profiles in ignored
 Use `configs/worker.example.json` as the neutral native-process template. Replace
 its executable and input paths in a private profile. The worker implements the
 request/result ABI in `docs/NATIVE_SCENE_WORKFLOW.md`; arbitrary executables do not
-implement that ABI automatically. The compiler freezes binary, code and input hashes.
+implement that ABI automatically. The compiler freezes binary, code, input and
+allowed-environment hashes. Compile and execute with the same environment bindings.
+
+## Extension boundaries
+
+For a protocol-compatible served model, edit the model profile and policy in
+`configs/harness/model_profiles.example.json`. `model_env` overrides the served
+model ID; it does not select a checkpoint directory. Native worker adapters have
+their own explicit checkpoint-path environment bindings. The configured endpoint
+origin must be authorized in the policy. The `local_endpoint` name describes the
+transport; it does not enforce host network isolation.
+
+For a different native architecture, register a lazy `ModelProvider` factory in
+the host's `ModelGateway` assembly, or expose the model through a compatible
+endpoint. A new external tool can use `worker-compile` and the worker ABI. Graph
+steps use `declare_step` and explicit compiler/runtime registration. The built-in
+CLI catalog lists its installed graph steps; it is not the list of every composite
+operator or runtime. See `docs/MODEL_GATEWAY.md` and `docs/OPERATOR_DEVELOPMENT.md`.
+
+Public `schema_version`, operator versions and checkpoint release identifiers
+identify compatibility and provenance. Preserve them when extending the base.
+Internal development stages do not belong in public interfaces or deployment examples.
 
 The repository supplies optional model and scene adapters. Their architecture,
 runtime, GPU and artifact checks apply when explicitly selected. A CLI reasoning

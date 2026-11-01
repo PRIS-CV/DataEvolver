@@ -1,6 +1,6 @@
 {
   "schema_version": "dataevolver.harness.goal.v1",
-  "campaign_id": "autonomous-harness-v1-demo",
+  "campaign_id": "harness-demo",
   "objective": {
     "kind": "fake_quality",
     "initial_trial_key": {

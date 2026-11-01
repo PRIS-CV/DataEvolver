@@ -1,8 +1,8 @@
-# DataEvolver Autonomous Harness V1
+# DataEvolver Harness
 
 ## Status
 
-Phase 0–3A established the durable single-controller Harness, and Phase 3B verified one bounded real T2I side effect. Phase 3C adds a strategy-layer Agentic 3D loop and a recoverable composite 3D Operator. The multi-round Agentic path is `agentic_3d_mock_verified`; no real 3D Agentic canary has run because the required Agent endpoint is not configured.
+The Harness uses one durable Controller for planning, execution and recovery. Optional agentic 3D and T2I operators bind their own model, tool and evidence contracts. Deployment readiness and execution results belong to each configured campaign.
 
 The Harness remains opt-in and never writes the legacy `.dataevolver/runtime` tree. It does not modify code, evaluator thresholds, budgets, the Operator registry, training, papers, or sealed evaluation.
 
@@ -20,7 +20,7 @@ INIT → PLAN → EXECUTE → OBSERVE → DIAGNOSE → PROPOSE
 
 `PAUSED` and `PAUSED_CONTRACT_DRIFT` are non-terminal states. `controller.tick(max_actions=1)` advances at most one bounded controller action; `evolve` and `resume` repeatedly call `tick()`.
 
-V1 uses JSONL append-only events, an atomic JSON state snapshot, one campaign-wide lease, and no database or external orchestration dependency.
+The state store uses JSONL append-only events, an atomic JSON state snapshot, one campaign-wide lease, and no database or external orchestration dependency.
 
 ## Safety and recovery contract
 
@@ -50,7 +50,7 @@ All required hard, target, and protected evidence must be `VERIFIED` before cand
 
 A failed observation is reused as the canary baseline only when its input, parent, seed, Operator version, model/config, preprocessing, evaluator, and environment hashes match the requested `MatchedTrialKey`. Otherwise the baseline is rematerialized. Candidate evidence records the single declared intervention delta.
 
-`ADOPT_CANDIDATE` changes only the active strategy inside the current campaign. V1 creates a campaign-local `CapabilityCandidate`; it does not promote a global Capability.
+`ADOPT_CANDIDATE` changes only the active strategy inside the current campaign. The Controller creates a campaign-local `CapabilityCandidate`; it does not promote a global Capability.
 
 For Agentic goals, candidate adoption and final goal completion are separate gates. An intermediate candidate may become the incumbent when its declared target metrics improve and hard/protected metrics do not regress, even if another target still needs work. `COMPLETE` still requires every frozen final threshold and the accepted-asset quota.
 
@@ -109,7 +109,7 @@ After installing the package entry points, run:
 python -m dataevolver.harness.cli evolve \
   --goal configs/harness/fake_vertical_slice.json \
   --campaign-root .dataevolver/campaigns \
-  --idempotency-key autonomous-harness-v1-demo \
+  --idempotency-key harness-demo \
   --dry-run
 ```
 
@@ -117,7 +117,7 @@ Run one bounded step for an existing campaign:
 
 ```bash
 python -m dataevolver.harness.cli step \
-  --campaign autonomous-harness-v1-demo \
+  --campaign harness-demo \
   --campaign-root .dataevolver/campaigns \
   --max-actions 1 \
   --format json
@@ -136,7 +136,7 @@ Each campaign contains `goal.json`, `frozen_contract.json`, `events.jsonl`, `sta
 
 The present code and Fake-stage evidence do not establish real 3D self-evolution or a high-quality 3D dataset.
 
-## Phase 3D bounded real canary contract
+## Bounded 3D canary contract
 
 `configs/harness/agentic_3d_rsi_real_canary.json` freezes one asset, one initial prompt, four views, at most three candidate experiments, and at most four planner calls. The CLI performs a read-only production preflight before creating a campaign: it verifies the OpenAI-compatible Agent model, Python dependencies, Blender/scene contract, model paths, action space, and an idle explicitly selected GPU.
 
@@ -150,4 +150,4 @@ COMPLETE | BUDGET_EXHAUSTED | ABSTAINED | NO_VALID_EXPERIMENT | FAILED
 
 The label `agentic_3d_canary_verified` is emitted only for a completed real-canary Goal with all of the following persisted: a valid real OpenAI-compatible planner response, a verified real 3D candidate effect, a matched adopt/rollback decision, a post-decision planner call, and a campaign-local Capability. Otherwise the label remains `agentic_3d_mock_verified`.
 
-At the time of this implementation, the remote model and Blender resources were present but the required `DATAEVOLVER_AGENT_BASE_URL`, `DATAEVOLVER_AGENT_API_KEY`, and `DATAEVOLVER_AGENT_MODEL` variables were not configured. Therefore no Phase 3D real campaign had been created or run.
+Configure the selected endpoint, model and host resources before creating a real campaign. Repository source and mock fixtures do not establish that a deployment is ready or that a real canary has passed.

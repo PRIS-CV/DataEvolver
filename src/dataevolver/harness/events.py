@@ -60,7 +60,7 @@ class EventLog:
     def find_idempotency_key(self, key: str) -> HarnessEvent | None:
         if not key:
             return None
-        # ponytail: V1 logs are small; add an index only when linear replay is measured as a bottleneck.
+        # shortcut: replay scans the event log; add an index when replay cost is measured as a bottleneck.
         return next((event for event in self.read() if event.idempotency_key == key), None)
 
     def next_sequence(self) -> int:

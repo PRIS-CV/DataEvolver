@@ -70,8 +70,20 @@ leave workload execution, accounting and recovery with the Controller.
 
 The profile declares `stage`, fixed `argv`, `files`, `inputs`, named relative
 `outputs`, `timeout_seconds`, `allowed_env_keys`, `allow_gpu` and `allow_network`.
-Compilation adds file hashes and the `dataevolver.native_scene.v1` version.
+Compilation adds file hashes and the `dataevolver.native_scene.v2` contract.
+It also hashes the actual allowed environment, distinguishing an unset value
+from an empty value. Execution checks that digest before starting the process
+and passes the checked snapshot. Raw environment values are not written into
+the goal. List every model manifest, checkpoint or tool dependency that affects
+results in `files` or `inputs`; hashing an environment value does not hash the
+files to which it points.
 Input and code files must remain outside the writable campaign directory.
+
+Recompile earlier worker profiles and create a new campaign to use this contract.
+The request/result ABI remains unchanged. Older frozen campaigns require their
+matching source revision and evidence; the compiler does not migrate their receipts.
+Verified completed effects still belong to their original frozen environment
+and can be read back without launching a process under the current environment.
 
 The worker receives a JSON request and its native output directory. Request
 inputs contain absolute paths and SHA-256 values. The worker writes its declared

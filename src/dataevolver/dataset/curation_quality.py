@@ -1,4 +1,4 @@
-"""Registered P2.1 pure-data operations using the existing node context."""
+"""Registered pure-data operations using the existing node context."""
 from __future__ import annotations
 
 import io

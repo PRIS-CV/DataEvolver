@@ -91,7 +91,7 @@ def test_budget_and_campaign_state_preserve_optional_planner_call_limit():
             "max_planner_calls": 4,
         }
     )
-    state = CampaignState(campaign_id="phase3d", planner_calls=2)
+    state = CampaignState(campaign_id="canary", planner_calls=2)
 
     assert budget.max_planner_calls == 4
     assert CampaignState.from_dict(state.to_dict()).planner_calls == 2

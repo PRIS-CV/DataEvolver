@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 
 from dataevolver.dataset.contracts import file_sha256, identifier, payload_sha256
-from dataevolver.harness.adapters.native_scene import NativeSceneOperator
+from dataevolver.harness.adapters.native_scene import NativeSceneOperator, worker_environment
 from dataevolver.harness.state_store import atomic_write_json
 from dataevolver.paths import CONFIGS_ROOT
 
@@ -39,7 +39,9 @@ def prepare(profile_path, output, campaign, campaign_root):
     bound_paths = set(files) | {record["path"] for record in inputs.values()}
     argv = [str(binary)] + [str(local(x)) if str(local(x)) in bound_paths else x for x in profile["argv"][1:]]
     config = {key: profile[key] for key in ("stage", "outputs", "timeout_seconds", "allowed_env_keys")}
-    config.update(schema_version="dataevolver.native_scene.v1", argv=argv, files=files, inputs=inputs)
+    environment = worker_environment(profile["allowed_env_keys"])
+    config.update(schema_version="dataevolver.native_scene.v2", argv=argv, files=files, inputs=inputs,
+                  environment_sha256=payload_sha256(environment))
     campaign_root = Path(campaign_root).resolve()
     if profile["stage"] == "ue5":
         from .ue5.render_batch import package_contract, validate_manifest
@@ -52,7 +54,7 @@ def prepare(profile_path, output, campaign, campaign_root):
     key = {"input_artifact_hash": payload_sha256(inputs), "parent_artifact_hash": payload_sha256(config),
            "seed": 0, "operator_id": operator.spec.operator_id, "operator_version": operator.spec.version,
            "model_config_hash": "no-implicit-model", "preprocessing_hash": payload_sha256(files),
-           "evaluator_hash": file_sha256(evaluator), "environment_contract_hash": payload_sha256(profile["allowed_env_keys"])}
+           "evaluator_hash": file_sha256(evaluator), "environment_contract_hash": config["environment_sha256"]}
     goal = {"schema_version": "dataevolver.harness.goal.v1", "campaign_id": campaign,
         "objective": {"host_workload": {"kind": "native_scene", "configuration": {
             "output_root": str(campaign_root / campaign), "configuration": config}},

@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from dataevolver.dataset.contracts import file_sha256
+from dataevolver.dataset.contracts import file_sha256, payload_sha256
 from dataevolver.harness.adapters.native_scene import NativeSceneOperator
 from dataevolver.harness.models import EvidenceStatus, OperatorCall
 
@@ -25,16 +25,56 @@ counter=root/'calls.txt';counter.write_text(str(int(counter.read_text())+1 if co
 digest=hashlib.sha256(json.dumps(request,ensure_ascii=False,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
 (root/'result.json').write_text(json.dumps({'status':'completed','request_sha256':digest}))
 '''))
-    config = {"schema_version": "dataevolver.native_scene.v1", "stage": "custom_worker",
+    config = {"schema_version": "dataevolver.native_scene.v2", "stage": "custom_worker",
         "argv": [str(Path(sys.executable).resolve()), str(worker), "{request}", "{output}"],
         "files": {str(Path(sys.executable).resolve()): file_sha256(Path(sys.executable)), str(worker): file_sha256(worker)},
         "inputs": {"scene_spec": {"path": str(source), "sha256": file_sha256(source)}},
         "outputs": {"summary": "summary.json"}, "timeout_seconds": 1 if delay else 10,
-        "allowed_env_keys": []}
+        "allowed_env_keys": [], "environment_sha256": payload_sha256({})}
     operator = NativeSceneOperator(output_root=tmp_path / "campaigns/scene", configuration=config)
     call = OperatorCall("scene", "one", "one", operator.spec.operator_id, "1", 0,
                         str(operator.output_root / "calls/one"))
     return operator, call, source, worker
+
+
+@pytest.mark.parametrize("value", ["other-model", None, ""])
+def test_worker_environment_drift_blocks_dispatch(tmp_path, monkeypatch, value):
+    operator, call, _, _ = fixture_scene(tmp_path)
+    key = "DATAEVOLVER_FIXTURE_MODEL"
+    config = {**operator.configuration, "allowed_env_keys": [key],
+              "environment_sha256": payload_sha256({key: "selected-model"})}
+    operator = NativeSceneOperator(output_root=operator.output_root, configuration=config)
+    if value is None:
+        monkeypatch.delenv(key, raising=False)
+    else:
+        monkeypatch.setenv(key, value)
+    monkeypatch.setattr(subprocess, "Popen", lambda *a, **k: pytest.fail("changed environment dispatched a worker"))
+    with pytest.raises(ValueError, match="environment changed"):
+        operator.execute(call)
+    assert not (Path(call.work_dir) / "native/intent.json").exists()
+
+
+def test_worker_compiler_binds_environment_values_without_storing_them(tmp_path, monkeypatch):
+    from dataevolver.workflows.scene.prepare import prepare
+    operator, _, source, worker = fixture_scene(tmp_path)
+    key = "DATAEVOLVER_FIXTURE_MODEL"
+    profile = tmp_path / "profile.json"
+    profile.write_text(json.dumps({"stage": "custom_worker", "argv": operator.configuration["argv"],
+        "files": [str(worker)], "inputs": {"source": str(source)}, "outputs": {"summary": "summary.json"},
+        "timeout_seconds": 10, "allowed_env_keys": [key], "allow_gpu": False, "allow_network": False}))
+    hashes = []
+    for value, directory in (("selected-model", "first"), ("other-model", "second")):
+        monkeypatch.setenv(key, value)
+        prepare(profile, tmp_path / directory, "scene", tmp_path / "campaigns")
+        text = (tmp_path / directory / "goal.json").read_text()
+        goal = json.loads(text)
+        config = goal["objective"]["host_workload"]["configuration"]["configuration"]
+        assert config["schema_version"] == "dataevolver.native_scene.v2"
+        assert config["environment_sha256"] == payload_sha256({key: value})
+        assert goal["objective"]["initial_trial_key"]["environment_contract_hash"] == config["environment_sha256"]
+        assert value not in text
+        hashes.append(config["environment_sha256"])
+    assert hashes[0] != hashes[1]
 
 
 def test_scene_completion_recovery_and_native_receipt_reuse(tmp_path):

@@ -3,7 +3,7 @@ import json
 import pytest
 
 from dataevolver.adapters.model_contracts import ModelPolicy, ModelProfile, ModelRequest
-from dataevolver.adapters.model_gateway import ModelGateway, ModelError
+from dataevolver.adapters.model_gateway import ModelGateway, ModelError, MockModelProvider
 from dataevolver.dataset.contracts import ArtifactRef, ArtifactStore, canonical_json, file_sha256
 from dataevolver.dataset.supervision import export_dataset, validate_record
 from dataevolver.dataset.t2i_supervision import from_visual_receipts, export_imagefolder, audit_imagefolder
@@ -16,6 +16,41 @@ def image(tmp_path):
     store.roots['data'].mkdir()
     Image.new('RGB', (16, 16), 'red').save(store.roots['data']/'image.png')
     return store, ArtifactRef('data', 'image.png', file_sha256(store.roots['data']/'image.png'), 'image/png')
+
+
+@pytest.mark.parametrize("bad_extension", [None, "row", "total", "count"])
+def test_native_accounting_is_provider_owned_and_cannot_replace_ledger(tmp_path, bad_extension):
+    store, ref = image(tmp_path)
+    profile = ModelProfile('custom', 'mock', 'chosen-model', '1', capabilities=('json', 'vision'), mock_output={})
+    class AuditedProvider(MockModelProvider):
+        def audit_native_usage(self, request_id, record, unit_rule, artifact_store):
+            assert request_id == 'custom-request' and unit_rule == 'image_subject'
+            assert artifact_store is store and record['native_units_per_attempt'] == 2
+            details = {'custom_native_accounting': True}
+            totals = {'custom_subject_units_observed': 2}
+            if bad_extension == 'row':
+                details['request_id'] = 'replacement'
+            elif bad_extension == 'total':
+                totals['model_calls'] = 0
+            elif bad_extension == 'count':
+                totals['custom_subject_units_observed'] = True
+            return details, totals
+    limits = ModelAttemptLimits({'subjects': 2}, {'segment': 'subjects'}, unit_rules={'segment': 'image_subject'})
+    gateway = ModelGateway(profiles=(profile,), policy=ModelPolicy({'segment': 'custom'}, 1),
+        receipt_root=tmp_path/'receipts', artifact_store=store, attempt_limits=limits,
+        providers={'custom': lambda: AuditedProvider(profile, tmp_path/'native')})
+    request = ModelRequest('custom-request', 'segment', ({'role': 'user', 'content': canonical_json({
+        'subjects': [{'subject_id': 'a'}, {'subject_id': 'b'}]})},), {'type': 'object'}, (ref,))
+    gateway.invoke(request)
+    if bad_extension:
+        with pytest.raises(ModelError, match='native accounting'):
+            gateway.audit_usage()
+    else:
+        usage = gateway.audit_usage()
+        assert usage['model_calls'] == 1 and usage['native_units_reserved'] == 2
+        assert usage['custom_subject_units_observed'] == 2
+        assert usage['attempts'][0]['custom_native_accounting'] is True
+        assert not any(key.startswith('sam_') for key in usage)
 
 
 def test_subject_units_enforced_before_second_effect_and_resume_is_free(tmp_path):
