@@ -151,7 +151,6 @@ def _probe_gif(path: Path) -> Dict[str, object]:
         "num_frames": len(frames),
     }
     if frames:
-        first = frames[0]
         result.update({"first_frame": validate_image(path, expected_width=width, expected_height=height)})
         if len(frames) > 1:
             result["has_multiple_frames"] = True

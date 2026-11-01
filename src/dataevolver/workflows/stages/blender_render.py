@@ -13,7 +13,7 @@ Outputs: renders/{obj_id}/az{N:03d}_el{M:+d}.png + renders/{obj_id}/metadata.jso
 """
 
 import bpy
-import bmesh
+import bmesh  # Retain native initialization until its Blender dependency role is verified.
 import math
 import json
 import os

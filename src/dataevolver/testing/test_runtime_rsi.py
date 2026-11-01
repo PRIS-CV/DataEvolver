@@ -7,7 +7,7 @@ from dataevolver.harness.controller import EvolutionController
 from dataevolver.harness.models import (BudgetSpec, CapabilityStatus, ControllerState,
                                         Intervention, InterventionLevel, OperatorSpec, StageStatus)
 from dataevolver.harness.operators import FakeOperator, InjectedOperatorCrash
-from dataevolver.harness.runtime_rsi import RuntimeRSIPlanner, validate_decision
+from dataevolver.harness.runtime_rsi import RuntimeRSIPlanner
 from dataevolver.testing.test_harness_controller import build_controller
 
 

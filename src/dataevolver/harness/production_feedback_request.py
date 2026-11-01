@@ -101,7 +101,7 @@ def _validate_review_terminal(state, decision, require_capability):
 
 def _read_request(config, profile_path, python, require_capability=True):
     import sys
-    from dataevolver.dataset.contracts import ArtifactStore, file_sha256, payload_sha256
+    from dataevolver.dataset.contracts import ArtifactStore, file_sha256
     from dataevolver.harness.training_candidate_feedback import FrozenTrainingCandidateFeedbackAuthority, ProductionFeedbackReviewDomain
     from dataevolver.harness.adapters.training_candidate_feedback import TrainingCandidateFeedbackOperator
     from dataevolver.harness.runtime_rsi import RuntimeRSIPlanner, validate_decision

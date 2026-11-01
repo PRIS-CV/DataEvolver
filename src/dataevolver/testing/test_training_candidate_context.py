@@ -5,7 +5,6 @@ import json
 import os
 import platform
 from dataclasses import replace
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -16,7 +15,7 @@ from dataevolver.dataset.surface_composition import validate_coverage_observatio
 from dataevolver.dataset.surface_effects import UnsupportedSurfaceRepair
 from dataevolver.harness.authority_qualification import authenticated
 from dataevolver.harness.candidate_sandbox import ProductionContextRunner,TrustedContextRunner,SandboxLimits,ProductionSandboxLimits
-from dataevolver.harness.candidate_trust import CandidateTrustContext,canonical_digest
+from dataevolver.harness.candidate_trust import CandidateTrustContext
 from dataevolver.harness.training_candidate_context import compile_training_evidence,sign_production_context,verify_requested_observation
 from dataevolver.harness.state_store import atomic_write_json
 

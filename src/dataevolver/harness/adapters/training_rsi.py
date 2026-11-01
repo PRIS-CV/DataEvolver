@@ -14,8 +14,11 @@ from pathlib import Path
 from dataevolver.adapters.model_contracts import ModelRequest
 from dataevolver.dataset.contracts import ArtifactRef, ArtifactStore, file_sha256, payload_sha256
 from dataevolver.dataset.supervision import refs
-from dataevolver.dataset.training_pipeline import (REVIEW_SCHEMA, SHADOW_SCHEMA, QUALITY_CHECKS,
-                                                   normalize_shadow_observation)
+from dataevolver.dataset.training_pipeline import (
+    REVIEW_SCHEMA,
+    SHADOW_SCHEMA,
+    QUALITY_CHECKS,
+)
 from ..models import (OperatorSpec, ExpectedOutputSpec, OperatorReceipt, StageStatus,
                       EvidenceStatus, EffectVerification, RecoveryResult, RecoveryStatus,
                       Intervention, InterventionLevel)

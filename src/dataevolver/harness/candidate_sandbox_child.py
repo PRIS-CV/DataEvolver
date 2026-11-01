@@ -4,6 +4,7 @@ This file must remain runnable with Python -I -S; no project imports. The host
 pins its bytes, interpreter and libseccomp. Namespace privilege is unnecessary;
 chroot privilege is required and failure is terminal before candidate execution.
 """
+# Preload candidate dependencies before chroot/seccomp forbids file access.
 import base64
 import binascii
 import ctypes

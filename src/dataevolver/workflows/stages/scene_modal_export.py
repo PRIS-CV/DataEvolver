@@ -322,9 +322,8 @@ def render_modal(asset_path: str, obj_id: str, output_dir: str, output_stem: str
             if object_scale_mode == "scene_relative":
                 bounds_min, bounds_max = s4.get_scene_bounds_all(ignore_names=imported_names)
                 s4.auto_adjust_object_size_scene_relative(root, mesh_objects, bounds_min, bounds_max)
-                auto_scale = 1.0
             else:
-                _, auto_scale = s4.fit_object_height(
+                _height, _scale = s4.fit_object_height(
                     root, mesh_objects, template.get("target_bbox_height_range", [0.3, 1.5])
                 )
 
@@ -405,7 +404,7 @@ def render_modal(asset_path: str, obj_id: str, output_dir: str, output_stem: str
             }
         else:
             support = s4.create_hidden_support_plane(float(template.get("fallback_support_plane_size", 10.0)))
-            auto_scale = s4.align_object_to_support(
+            s4.align_object_to_support(
                 root, mesh_objects, support, control_object,
                 template.get("target_bbox_height_range", [0.3, 1.5])
             )
@@ -416,7 +415,7 @@ def render_modal(asset_path: str, obj_id: str, output_dir: str, output_stem: str
             }
     else:
         support = s4.ensure_support_plane(template, ignore_names=imported_names)
-        auto_scale = s4.align_object_to_support(
+        s4.align_object_to_support(
             root, mesh_objects, support, control_object,
             template.get("target_bbox_height_range", [0.3, 1.5])
         )
@@ -521,7 +520,7 @@ def render_modal(asset_path: str, obj_id: str, output_dir: str, output_stem: str
 
     intr = compute_camera_intrinsics(scene, cam)
     cam_to_world = cam.matrix_world.copy()
-    world_to_cam = cam.matrix_world.inverted()
+    cam.matrix_world.inverted()  # Preserve singular-matrix validation.
     cam_rot = cam.matrix_world.to_quaternion()
     camera_forward = cam_rot @ Vector((0.0, 0.0, -1.0))
     camera_up = cam_rot @ Vector((0.0, 1.0, 0.0))

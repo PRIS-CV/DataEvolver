@@ -15,8 +15,17 @@ from dataevolver.dataset.contracts import file_sha256, payload_sha256
 from .adapters.training_rsi import (TRIAL_ID, OBSERVE_ID, TrainingRSIDomain,
     TrainingRSITrialOperator, TrainingRSIObservationOperator, _RuntimeEffect, _json, _write_immutable)
 from .capabilities import CapabilityStore
-from .models import (Capability, CapabilityStatus, ControllerState, ExpectedOutputSpec,
-    FailureSignature, Intervention, InterventionLevel, OperatorSpec, RecoveryStatus)
+from .models import (
+    Capability,
+    CapabilityStatus,
+    ControllerState as ControllerState,
+    ExpectedOutputSpec,
+    FailureSignature,
+    Intervention,
+    InterventionLevel,
+    OperatorSpec,
+    RecoveryStatus,
+)
 from .state_store import atomic_write_json
 from .training_workflow_delivery import (assemble_collection, verify_trial_bundle,
                                          require_visual_acceptance, capture_execution_audit)

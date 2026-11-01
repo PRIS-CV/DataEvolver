@@ -9,7 +9,6 @@ memory and never appears in a payload, context, manifest or candidate process.
 import base64
 import copy
 import hashlib
-import json
 from pathlib import Path
 
 from cryptography.hazmat.primitives import hashes

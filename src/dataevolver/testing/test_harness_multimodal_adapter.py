@@ -21,8 +21,6 @@ from dataevolver.harness.operators import OperatorRegistry
 from dataevolver.harness.planner import DeterministicPlanner
 from dataevolver.workflows.multimodal.router import build_request
 from dataevolver.workflows.multimodal.run_multimodal_dataset import run as run_multimodal
-from dataevolver.workflows.multimodal.router import build_request
-from dataevolver.workflows.multimodal.run_multimodal_dataset import run as run_multimodal
 
 
 def make_call(tmp_path, *, call_id="t2i-call", work_dir=None, parameters=None):

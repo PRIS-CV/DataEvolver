@@ -9,7 +9,6 @@ import json
 import os
 import sys
 import time
-from pathlib import Path
 
 from dataevolver.paths import runtime_path
 

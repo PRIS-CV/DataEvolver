@@ -1,6 +1,4 @@
 """Fixture replay of verified pre-submission failures; no real model claims."""
-import json
-from pathlib import Path
 
 import pytest
 

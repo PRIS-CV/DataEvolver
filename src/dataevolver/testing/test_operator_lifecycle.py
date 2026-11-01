@@ -134,7 +134,6 @@ def mutation_fixture(tmp_path, monkeypatch):
 
 def test_adoption_needs_controller_commit_and_finished_effect_is_never_rewritten(tmp_path, monkeypatch):
     from dataevolver.harness.models import OperatorCall, EvidenceStatus, RecoveryStatus
-    from dataevolver.harness.operator_lifecycle import CommittedOperatorAdoptionAuthority
     op, _ = mutation_fixture(tmp_path, monkeypatch)
     call = OperatorCall("test-adoption", "adopt-1", "adopt-1", op.spec.operator_id, "1", 0, str(op.output_root / "call"))
     receipt = op.execute(call)

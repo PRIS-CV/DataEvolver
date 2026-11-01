@@ -10,7 +10,7 @@ import os
 import subprocess
 from pathlib import Path, PurePosixPath
 
-from dataevolver.dataset.contracts import canonical_json, file_sha256, identifier, payload_sha256, positive_int
+from dataevolver.dataset.contracts import file_sha256, identifier, payload_sha256, positive_int
 from dataevolver.harness.state_store import atomic_write_json
 from .model_gateway import ModelError
 

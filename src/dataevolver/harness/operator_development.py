@@ -15,7 +15,11 @@ from pathlib import Path
 from typing import ClassVar
 
 from dataevolver.dataset.contracts import (
-    ArtifactRef, ArtifactStore, Contract, file_sha256, identifier, payload_sha256,
+    ArtifactRef,
+    ArtifactStore as ArtifactStore,
+    Contract,
+    file_sha256,
+    identifier,
     positive_int,
 )
 from .capability_requests import validate_capability_request

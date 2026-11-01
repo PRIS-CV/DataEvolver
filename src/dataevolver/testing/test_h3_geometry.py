@@ -1,14 +1,19 @@
 """Pinned Turbo8 geometry is rejected before any model/backend construction."""
 import builtins
-import copy
 from pathlib import Path
 
 import pytest
 
 from dataevolver.adapters import local_visual_worker,visual_models,training_media_worker
 from dataevolver.adapters.model_contracts import ModelProfile,ModelRequest
-from dataevolver.adapters.visual_models import (H3_LORA,H3_LORA_SHA256,LocalVisualProvider,
-    SCHEMA,validate_h3_parameters,validate_visual_request,validate_visual_worker)
+from dataevolver.adapters.visual_models import (
+    H3_LORA,
+    H3_LORA_SHA256,
+    LocalVisualProvider,
+    SCHEMA,
+    validate_h3_parameters,
+    validate_visual_worker,
+)
 from dataevolver.dataset.contracts import ArtifactRef,ArtifactStore,canonical_json,file_sha256,payload_sha256
 
 PARAMETERS={'prompt':'A fixed development scene','width':768,'height':768,'num_frames':22,'steps':8,'fps':24}

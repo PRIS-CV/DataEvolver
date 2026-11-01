@@ -2326,7 +2326,7 @@ def render_mask(scene, out_path: str, imported_mesh_names):
     orig_color_mode = scene.render.image_settings.color_mode
     orig_film_transparent = scene.render.film_transparent
 
-    world = scene.world
+    scene.world  # Preserve the native property access.
     # --- Hide all non-imported mesh objects ---
     hidden_objs = []
     for obj in bpy.data.objects:

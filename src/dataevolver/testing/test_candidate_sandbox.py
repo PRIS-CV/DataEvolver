@@ -1,5 +1,4 @@
 """Actual Linux kernel/resource negatives, not mocked containment claims."""
-import json
 import os
 import platform
 import signal

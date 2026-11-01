@@ -13,6 +13,20 @@ sources. `build_controller(..., create=True)` creates a campaign;
 GoalSpec. Existing private CLI helper imports remain compatibility aliases.
 New integrations should import the factories from `composition` directly.
 
+Existing contract-type imports remain available as explicit compatibility exports.
+New code should import each type from its defining module:
+
+| Type | Existing modules that retain the export | Defining module |
+|---|---|---|
+| `ArtifactRef` | `adapters.codex_planner_recovery`, `adapters.model_gateway`, `dataset.context_reconstruction`, `harness.adapters.visual_g2`, `harness.candidate_revision`, `harness.runtime_recovery` | `dataevolver.dataset.contracts` |
+| `ArtifactStore` | `harness.operator_development` | `dataevolver.dataset.contracts` |
+| `DataNodeGraph` | `harness.adapters.data_graph` | `dataevolver.harness.data_contracts` |
+| `OperatorCall` | `harness.adapters.visual_mock` | `dataevolver.harness.models` |
+| `ControllerState` | `harness.training_workflow` | `dataevolver.harness.models` |
+
+The existing-module paths in this table have the `dataevolver.` prefix. Each
+export remains the same class or enum; no forwarding implementation is involved.
+
 `EvolutionController` owns execution order, pending calls, effect recovery,
 budgets, state commits and final-report writes. `harness/final_report.py` projects
 the existing evidence into the versioned payload. The recipe adapter interprets

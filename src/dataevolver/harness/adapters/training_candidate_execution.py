@@ -86,7 +86,9 @@ class TrainingCandidateExecutionOperator(CandidateChecksOperator):
                 if file_sha256(Path(name))!=digest:raise ValueError('registered original evidence changed')
         evidence,manifest,projection=self.compiled
         request=json.loads(self.store.resolve(ArtifactRef.from_dict(self.plan.capability_request)).read_text())
-        registered=self.origins['observation'];trial=self.origins['trial']['trial']
+        registered = self.origins['observation']
+        # Keep the required nested origin lookup before verification.
+        self.origins['trial']['trial']
         verify_requested_observation(request,self.origins['trial'],registered)
         if self._read_host(p['projection'])!=projection:raise ValueError('authority projection changed')
         case=p['cases'][0];context,payload=self._case_data(case)

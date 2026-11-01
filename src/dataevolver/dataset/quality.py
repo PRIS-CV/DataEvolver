@@ -10,7 +10,7 @@ from collections import defaultdict
 
 from PIL import Image, ImageFilter, ImageOps, ImageStat
 
-from .contracts import canonical_json, identifier, payload_sha256
+from .contracts import identifier, payload_sha256
 
 
 RANKINGS = frozenset({"hash", "clarity", "review", "hybrid"})

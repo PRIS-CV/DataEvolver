@@ -5,7 +5,6 @@ come from a frozen fixture declaration. Signature verification uses the separate
 cryptography implementation, rather than the generated source's RSA code.
 """
 import base64
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar

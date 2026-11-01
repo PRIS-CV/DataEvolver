@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 
-from dataevolver.dataset.contracts import file_sha256, payload_sha256
+from dataevolver.dataset.contracts import file_sha256
 
 
 def summarize_boundary_probe(value):
@@ -80,7 +80,7 @@ class FrozenBoundaryFeedbackAuthority:
 
 
 def _read_completed_probe(config, descriptor, python):
-    import json,time
+    import json
     from pathlib import Path
     from dataevolver.dataset.contracts import ArtifactRef,ArtifactStore,file_sha256,payload_sha256
     from dataevolver.harness.boundary_recovery import FrozenBoundaryFailureAuthority,BoundaryProbeRecoveryDomain
@@ -98,7 +98,7 @@ def _read_completed_probe(config, descriptor, python):
     from dataevolver.harness.evaluator import EvaluatorContract
     from dataevolver.harness.operators import OperatorRegistry
     descriptor=dict(descriptor)
-    cfg=Path(config);protected=cfg/'protected';output=cfg/'output';started=time.monotonic()
+    cfg=Path(config);protected=cfg/'protected';output=cfg/'output'
     assert (Path(descriptor['run'])/'exit_code').read_text().strip()=='0'
     def tree(root):return {str(f):file_sha256(f) for f in root.rglob('*') if f.is_file() and '__pycache__' not in f.parts}
     before=tree(cfg)

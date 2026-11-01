@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass, field
 from typing import ClassVar
 
-from dataevolver.dataset.contracts import ArtifactRef, Contract, payload_sha256
+from dataevolver.dataset.contracts import ArtifactRef, Contract
 from .data_contracts import DataInput, DataNodeGraphV3, DataNodeSpecV3, read_data_graph
 from .domains import DomainBinding
 

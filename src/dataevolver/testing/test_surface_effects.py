@@ -1,5 +1,4 @@
 """Synthetic invariants, not real media quality or method improvement evidence."""
-import copy
 import json
 from pathlib import Path
 
@@ -9,8 +8,12 @@ from PIL import Image
 
 from dataevolver.dataset.contracts import ArtifactStore,canonical_json,file_sha256,payload_sha256
 from dataevolver.dataset.supervision import write_image,artifact_closure,complete_background_composite
-from dataevolver.dataset.surface_effects import (rasterize_surface_support,compile_surface_artifacts,
-    audit_surface_composition,validate_surface_observation,UnsupportedSurfaceRepair)
+from dataevolver.dataset.surface_effects import (
+    rasterize_surface_support,
+    compile_surface_artifacts,
+    audit_surface_composition,
+    UnsupportedSurfaceRepair,
+)
 from dataevolver.testing.test_training_rsi_domain import fixture_domain,observe,proposal
 from dataevolver.harness.state_store import atomic_write_json
 

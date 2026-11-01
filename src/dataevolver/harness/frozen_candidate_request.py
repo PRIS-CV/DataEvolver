@@ -41,7 +41,9 @@ class FrozenCandidateReadinessRequestAuthority:
         identity=self.identity()
         if plan.request_campaign_id!=identity['campaign_id'] or plan.request_frozen_sha256!=identity['frozen_sha256']:
             raise ValueError('qualification request binding changed')
-        cfg=Path(self.locations['readiness_config']);checks=Path(self.locations['checks_config'])
+        # Preserve readiness-path lookup and conversion before source checks.
+        Path(self.locations['readiness_config'])
+        checks = Path(self.locations['checks_config'])
         env={**os.environ,'PYTHONPATH':str(checks/'source/src'),'PYTHONDONTWRITEBYTECODE':'1',
              'GIT_OPTIONAL_LOCKS':'0','CUDA_VISIBLE_DEVICES':''}
         completed=subprocess.run([str(self.python),str(Path(__file__).resolve()),'--read-historical',

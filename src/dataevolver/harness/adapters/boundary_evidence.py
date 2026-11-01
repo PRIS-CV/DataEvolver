@@ -4,7 +4,6 @@ Masks are proposals. They cannot rewrite immutable masks, become edit support,
 or reactivate a candidate. Controller/Gateway own dispatch and no-resend recovery.
 """
 import json
-from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 

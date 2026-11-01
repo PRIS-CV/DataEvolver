@@ -2,11 +2,10 @@
 import json
 import os
 import platform
-from dataclasses import replace
 
 import pytest
 
-from dataevolver.dataset.contracts import ArtifactRef, payload_sha256
+from dataevolver.dataset.contracts import payload_sha256
 from dataevolver.harness.authority_qualification import AuthorityFixtureExpectation, authenticated
 from dataevolver.harness.candidate_sandbox import TrustedContextRunner, SandboxLimits
 from dataevolver.harness.candidate_trust import CandidateTrustContext

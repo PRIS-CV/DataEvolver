@@ -10,7 +10,7 @@ import argparse
 import json
 from pathlib import Path
 
-from dataevolver.dataset.contracts import ArtifactRef, file_sha256, payload_sha256
+from dataevolver.dataset.contracts import ArtifactRef as ArtifactRef, file_sha256, payload_sha256
 from dataevolver.adapters.model_contracts import ModelRequest
 from dataevolver.harness.models import ControllerState, canonical_json
 from dataevolver.harness.runtime_rsi import SYSTEM_PROMPT, ACTION_SCHEMA, validate_decision

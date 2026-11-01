@@ -15,7 +15,7 @@ from pathlib import Path
 from .adapters.training_rsi import TRIAL_ID
 
 from dataevolver.paths import REPO_ROOT
-from dataevolver.dataset.contracts import payload_sha256,file_sha256
+from dataevolver.dataset.contracts import file_sha256
 from dataevolver.dataset.supervision import load_dataset
 from .models import GoalSpec,CampaignState
 from .state_store import atomic_write_json
