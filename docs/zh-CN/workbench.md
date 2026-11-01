@@ -37,6 +37,9 @@ SoL-Pi 使用 Pi 的公开扩展接口，Pi 源码保持原样。升级运行时
 
 ## 配置 Agent 与模型
 
+设置页包含模型与 Agent、图像服务、工具与路径、执行主机与 SSH、Agent 运行时和
+私有凭据六个分类。切换分类会保留表单中的修改。点击“保存配置”可统一保存各分类。
+
 Provider 定义 Pi 协议、服务地址、密钥环境变量名及模型列表。协议可选择 OpenAI Chat
 Completions、OpenAI Responses、Anthropic Messages 和 Google Generative AI。
 模型 ID、上下文长度、输出上限、推理能力及图像输入均由部署配置指定。

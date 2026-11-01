@@ -42,6 +42,10 @@ single-user application. Agent tools can edit files and run host commands.
 
 ## Configure agents and models
 
+Settings groups the configuration into Models and agents, Images, Tools and
+paths, Execution and SSH, Agent runtime, and Credentials. Changes remain in the
+form when switching categories. Use Save configuration to apply all categories.
+
 Providers select a Pi protocol, endpoint, credential environment name, and model
 definitions. Supported protocol choices are OpenAI Chat Completions, OpenAI
 Responses, Anthropic Messages and Google Generative AI. Model IDs, context limits,
