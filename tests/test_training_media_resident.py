@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from test_training_media_worker import provider,req
+from test_training_media_worker import provider as provider, req
 from dataevolver.adapters import training_media_worker as worker
 from dataevolver.adapters import training_media_resident as resident
 from dataevolver.adapters.model_gateway import ModelError

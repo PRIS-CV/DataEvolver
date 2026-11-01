@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from test_training_pipeline import pipeline
+from test_training_pipeline import pipeline as pipeline
 from dataevolver.dataset.contracts import file_sha256
 from dataevolver.harness.training_workflow_delivery import verify_trial_bundle,assemble_collection
 

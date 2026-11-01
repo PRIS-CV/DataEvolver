@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from test_training_pipeline import pipeline
+from test_training_pipeline import pipeline as pipeline
 from dataevolver.adapters.model_contracts import ModelProfile,ModelPolicy,ModelRequest
 from dataevolver.adapters.model_gateway import ModelGateway,ModelError
 from dataevolver.adapters import training_prompt_enhancement as pe

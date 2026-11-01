@@ -415,7 +415,8 @@ def test_qualified_repair_uses_cli_graph_binding_and_revocation(tmp_path,monkeyp
     # The sandbox evidence belongs to the registered dataset store, not source code.
     effects=list(original.store.roots['data'].rglob('candidate-repair-execution.json'))
     assert effects and json.loads(effects[0].read_text())['execution']['isolation_verified'] is True
-    operator=consumer.registry.get('data.graph');before={p:p.read_bytes() for p in original.store.roots['data'].rglob('*.intent.json')}
+    consumer.registry.get('data.graph')
+    before={p:p.read_bytes() for p in original.store.roots['data'].rglob('*.intent.json')}
     cli._existing_controller(tmp_path/'campaigns',goal.campaign_id).resume()
     assert before=={p:p.read_bytes() for p in original.store.roots['data'].rglob('*.intent.json')}
     owner=refs.adoption(reference(adopted));usage=owner.usage()
