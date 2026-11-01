@@ -41,7 +41,6 @@ def supervision_record(ctx):
 
 def verified_supervision_record(ctx):
     from .visual_steps import confirmed, segmentation_subjects
-    from .contracts import canonical_json
     row = supervision_value(ctx)
     gateway = ctx.graph.gateway(ctx.parent)
     media, observation, masks = ctx.read('media'), ctx.read('observation'), ctx.read('masks')

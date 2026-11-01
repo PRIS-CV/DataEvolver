@@ -1,8 +1,7 @@
 """Native probe feedback preserves uncertainty and never upgrades authority."""
-import copy,json
-from pathlib import Path
+import copy
 import pytest
-from dataevolver.dataset.contracts import file_sha256,payload_sha256
+from dataevolver.dataset.contracts import file_sha256
 from dataevolver.harness.boundary_feedback import FrozenBoundaryFeedbackAuthority,summarize_boundary_probe
 from dataevolver.harness.adapters.boundary_feedback import BoundaryProbeFeedbackOperator
 from dataevolver.harness.training_candidate_feedback import ProductionFeedbackReviewDomain

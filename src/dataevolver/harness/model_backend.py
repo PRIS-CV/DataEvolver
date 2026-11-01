@@ -11,6 +11,8 @@ from dataevolver.dataset.contracts import canonical_json, payload_sha256
 
 
 class GatewayPlannerBackend:
+    """Invoke a configurable model role; request identity belongs to this bridge."""
+
     backend_id = "model-gateway-v1"
 
     def __init__(self, gateway: ModelGateway, *, role="planner", max_tokens=1024, timeout_seconds=30):

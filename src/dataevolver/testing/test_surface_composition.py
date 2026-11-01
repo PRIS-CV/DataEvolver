@@ -10,7 +10,7 @@ from PIL import Image
 from dataevolver.dataset.surface_composition import (
     OBSERVATION_VERSION, coverage_surface_support, harmonize_arrays, harmonize_surface_edit)
 from dataevolver.dataset.surface_preflight import UnsupportedReconstruction
-from dataevolver.dataset.contracts import ArtifactStore, payload_sha256, canonical_json
+from dataevolver.dataset.contracts import ArtifactStore, canonical_json
 from dataevolver.dataset.supervision import write_image, write_artifact, artifact_closure
 from dataevolver.dataset.context_reconstruction import prepare_context_condition, project_context_output
 

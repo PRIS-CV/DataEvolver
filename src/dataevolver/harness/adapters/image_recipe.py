@@ -13,6 +13,7 @@ import time
 import math
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
 
 from dataevolver.adapters.model_contracts import ModelPolicy, ModelProfile, ModelRequest
 from dataevolver.adapters.model_gateway import ModelError, ModelGateway
@@ -21,10 +22,26 @@ from dataevolver.dataset.curation_loader import load_export
 from dataevolver.dataset.quality import RANKINGS, counts, select_balanced, validate_quotas
 from ..data_budget import DataBudgetJournal, DataBudgetExceeded
 from ..data_contracts import DataRunBudget
-from ..models import (EffectVerification, EvidenceStatus, ExpectedOutputSpec, FailureSignature,
-                      Intervention, InterventionLevel, OperatorReceipt, OperatorSpec,
-                      RecoveryResult, RecoveryStatus, StageStatus)
-from ..operators import _load_receipt, _receipt_path, _write_receipt
+from ..evaluator import EvaluatorContract
+from ..models import (
+    CampaignState,
+    Capability,
+    CapabilityStatus,
+    EffectVerification,
+    EvidenceStatus,
+    ExpectedOutputSpec,
+    FailureSignature,
+    Intervention,
+    InterventionLevel,
+    OperatorCall,
+    OperatorReceipt,
+    OperatorSpec,
+    RecoveryResult,
+    RecoveryStatus,
+    StageResult,
+    StageStatus,
+)
+from ..operators import OperatorRegistry, _load_receipt, _receipt_path, _write_receipt
 from ..state_store import atomic_write_json
 
 
@@ -416,6 +433,59 @@ class ImageRecipeOperator:
         if result.status is EvidenceStatus.UNOBSERVED:
             return RecoveryResult(RecoveryStatus.RETRY_SAFE, reason="resume deterministic writes and native model receipts")
         return RecoveryResult(RecoveryStatus.AMBIGUOUS, reason=result.reason)
+
+
+def recipe_reuse_outcome(
+    state: CampaignState,
+    result: StageResult,
+    call: OperatorCall,
+    *,
+    evaluator_contract: EvaluatorContract,
+    registry: OperatorRegistry,
+    operator_id: str,
+    compatibility_hash: Callable[[], str],
+) -> tuple[dict, Capability | None]:
+    """Interpret recipe evidence; Controller owns execution and persistence.
+
+    Read compatibility only when an improved recipe produces a capability.
+    """
+    history = state.data.get("recipe_history", [])
+    adopted = any(h["decision"] == "ADOPT_CANDIDATE" for h in history)
+    improvement = adopted and result.metrics.get("reuse_delta", 0) >= float(
+        evaluator_contract.payload["target_metrics"]["clarity_proxy"][
+            "minimum_improvement"
+        ]
+    )
+    operator = registry.get(operator_id)
+    local = (
+        bool(operator.profiles)
+        and all(p.backend == "local_python" for p in operator.profiles)
+        and state.planner_calls > 0
+    )
+    data = {
+        **state.data,
+        "recipe_reuse": result.to_dict(),
+        "recipe_improvement_verified": improvement,
+        "local_recipe_models_verified": local,
+        "recipe_search_complete": True,
+    }
+    capability = None
+    if improvement:
+        intervention = Intervention.from_dict(state.data["adopted_intervention"])
+        capability = Capability(
+            capability_id=f"{state.campaign_id}:{intervention.intervention_id}",
+            version="1",
+            status=CapabilityStatus.CANDIDATE,
+            failure_signature=FailureSignature.from_dict(
+                state.data["failure_signature"]
+            ),
+            intervention=intervention,
+            validation_evidence=(str(Path(call.work_dir) / "effect.json"),),
+            compatibility_hash=compatibility_hash(),
+            novelty_key=intervention.sha256(),
+            metric_delta={"reuse_clarity_proxy": float(result.metrics["reuse_delta"])},
+        )
+    return data, capability
 
 
 class RecipePlanner:

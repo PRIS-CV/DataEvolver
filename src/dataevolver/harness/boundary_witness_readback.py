@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 
-from dataevolver.dataset.contracts import file_sha256, payload_sha256
+from dataevolver.dataset.contracts import file_sha256
 
 
 def verify_frozen_boundary_witness(config, *, python):

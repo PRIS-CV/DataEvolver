@@ -10,7 +10,7 @@ import argparse
 import json
 from pathlib import Path
 
-from dataevolver.dataset.contracts import ArtifactRef, file_sha256, payload_sha256
+from dataevolver.dataset.contracts import ArtifactRef as ArtifactRef, file_sha256, payload_sha256
 from dataevolver.adapters.model_contracts import ModelRequest
 from dataevolver.harness.models import ControllerState, canonical_json
 from dataevolver.harness.runtime_rsi import SYSTEM_PROMPT, ACTION_SCHEMA, validate_decision
@@ -83,9 +83,9 @@ if __name__ == '__main__':
     parser.add_argument('--config-dir', required=True)
     args = parser.parse_args()
     from dataevolver.paths import REPO_ROOT
-    from dataevolver.harness.cli import _existing_controller
+    from dataevolver.harness.composition import open_controller
     directory = Path(args.config_dir).resolve()
     if REPO_ROOT != directory / 'source':
         raise ValueError('use the campaign frozen source on PYTHONPATH for recovery')
     goal = json.loads((directory / 'goal.json').read_text())
-    print(json.dumps(recover_planner(_existing_controller(directory / 'campaigns', goal['campaign_id'])), ensure_ascii=False))
+    print(json.dumps(recover_planner(open_controller(directory / 'campaigns', goal['campaign_id'])), ensure_ascii=False))

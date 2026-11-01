@@ -1,6 +1,5 @@
 """Explicit media fixtures test contracts; no real-model quality evidence."""
 import copy
-import json
 from pathlib import Path
 
 import numpy as np

@@ -7,14 +7,14 @@ from pathlib import Path
 
 import pytest
 
-from dataevolver.dataset.contracts import ArtifactRef, ArtifactStore, file_sha256, payload_sha256
+from dataevolver.dataset.contracts import ArtifactStore, file_sha256, payload_sha256
 from dataevolver.harness.adapters.production_qualification import ProductionQualificationOperator
 from dataevolver.harness.controller import EvolutionController
 from dataevolver.harness.models import (ControllerState, EvidenceStatus, OperatorCall, OperatorReceipt, OperatorSpec,
                                        RecoveryStatus, StageStatus)
 from dataevolver.harness.evaluator import EvaluatorContract
 from dataevolver.harness.state_store import atomic_write_json
-from dataevolver.harness.operators import FakeOperator, OperatorRegistry, InjectedOperatorCrash, _receipt_path
+from dataevolver.harness.operators import FakeOperator, OperatorRegistry, InjectedOperatorCrash
 from dataevolver.harness.production_qualification import (EVIDENCE_ROLES,
     ControllerProductionQualificationAuthority)
 from dataevolver.testing.test_harness_controller import build_controller

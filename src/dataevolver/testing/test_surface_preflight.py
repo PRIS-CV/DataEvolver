@@ -1,5 +1,4 @@
 """Matched CPU contracts over independent synthetic geometries; no quality claims."""
-from copy import deepcopy
 import json
 import numpy as np
 import pytest
@@ -7,7 +6,7 @@ from PIL import Image
 from dataevolver.dataset.surface_preflight import (
     OBSERVATION_VERSION,typed_surface_support,UnsupportedReconstruction)
 from dataevolver.dataset.contracts import payload_sha256
-from dataevolver.testing.test_surface_effects import observed, masks
+from dataevolver.testing.test_surface_effects import observed
 
 
 def case(offset=0):

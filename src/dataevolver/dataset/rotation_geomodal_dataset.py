@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Iterable, List
 
 try:
     from torch.utils.data import Dataset as _TorchDatasetBase

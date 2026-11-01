@@ -1,5 +1,4 @@
 """Typed insufficiency and declared-set conflicts preserve all authority gates."""
-import copy
 
 import pytest
 

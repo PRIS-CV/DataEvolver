@@ -15,7 +15,7 @@ from dataclasses import replace
 from pathlib import Path
 from typing import Any, Callable, Protocol
 
-from dataevolver.dataset.contracts import ArtifactRef, ArtifactStore, canonical_json, payload_sha256
+from dataevolver.dataset.contracts import ArtifactRef as ArtifactRef, ArtifactStore, canonical_json, payload_sha256
 from dataevolver.harness.state_store import CampaignLease, atomic_write_json
 from .model_contracts import ModelPolicy, ModelProfile, ModelReceipt, ModelRequest, origin
 
@@ -177,7 +177,7 @@ class LocalEndpointProvider:
             raise ModelError(code, f"model endpoint returned HTTP {exc.code}", retry_safe=exc.code in {400, 401, 403, 404, 429}) from None
         except ModelError:
             raise
-        except (OSError, ValueError) as exc:
+        except (OSError, ValueError):
             raise ModelError("AMBIGUOUS_EFFECT" if payload is not None else "UNAVAILABLE", "model endpoint did not return a valid complete response") from None
 
     def health(self):

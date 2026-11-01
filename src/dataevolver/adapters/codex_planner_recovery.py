@@ -7,7 +7,7 @@ from pathlib import Path
 
 from dataevolver.adapters.model_contracts import ModelProfile, ModelRequest
 from dataevolver.adapters.model_gateway import validate_response_schema
-from dataevolver.dataset.contracts import ArtifactRef, ArtifactStore, file_sha256, payload_sha256
+from dataevolver.dataset.contracts import ArtifactRef as ArtifactRef, ArtifactStore, file_sha256, payload_sha256
 from dataevolver.harness.state_store import atomic_write_json
 
 

@@ -15,7 +15,7 @@ _reading = ContextVar('runtime_evidence_campaigns', default=())
 
 
 def workload(reference):
-    from .cli import _controller
+    from .composition import build_controller
     from .models import GoalSpec
     from .state_store import CampaignLayout, StateStore
     if set(reference) != {'campaign_root', 'campaign_id'}:
@@ -36,7 +36,7 @@ def workload(reference):
         goal = GoalSpec.from_dict(json.loads(path.read_text()))
         if goal.campaign_id != reference['campaign_id']:
             raise ValueError('evidence campaign identity changed')
-        controller = _controller(goal, root, create=False)
+        controller = build_controller(goal, root, create=False)
         return controller, controller.registry.get(goal.initial_operator_id)
     finally:
         _reading.reset(token)

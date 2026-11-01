@@ -8,7 +8,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from dataevolver.dataset.contracts import ArtifactRef, ArtifactStore, file_sha256, payload_sha256
+from dataevolver.dataset.contracts import ArtifactRef as ArtifactRef, ArtifactStore, file_sha256, payload_sha256
 from dataevolver.harness.models import CampaignState, EvidenceStatus, OperatorCall, OperatorReceipt
 
 

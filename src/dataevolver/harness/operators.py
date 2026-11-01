@@ -9,6 +9,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Protocol, runtime_checkable
 
+from dataevolver.dataset.contracts import file_sha256 as _sha256_file
+
 from .models import (
     EffectVerification,
     EvidenceStatus,
@@ -35,14 +37,6 @@ class Operator(Protocol):
     def recover(self, call: OperatorCall) -> RecoveryResult: ...
 
     def verify_effect(self, call: OperatorCall, receipt: OperatorReceipt | None) -> EffectVerification: ...
-
-
-def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 def _receipt_path(call: OperatorCall) -> Path:

@@ -1,10 +1,9 @@
 """Native look development on isolated scene copies; lengths are centimetres."""
 import hashlib
 import os
-import math
 from pathlib import Path
 import unreal
-from kitchen_realism import material, LIB, node, scalar, link
+from kitchen_realism import material, LIB
 
 DEST = '/Game/PhotoProduction01'
 ASSETS = unreal.AssetToolsHelpers.get_asset_tools()

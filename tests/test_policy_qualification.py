@@ -127,7 +127,6 @@ class PolicyFixture:
         from dataevolver.harness.operators import OperatorRegistry
         from dataevolver.harness.runtime_rsi import RuntimeRSIPlanner
         from dataevolver.testing.test_runtime_rsi import action
-        fixture=self
         class Backend:
             backend_id='fixture-policy-backend'
             def __init__(self):self.model_id=model_id;self.contexts=[]

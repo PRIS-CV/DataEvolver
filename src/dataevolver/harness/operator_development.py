@@ -15,7 +15,11 @@ from pathlib import Path
 from typing import ClassVar
 
 from dataevolver.dataset.contracts import (
-    ArtifactRef, ArtifactStore, Contract, file_sha256, identifier, payload_sha256,
+    ArtifactRef,
+    ArtifactStore as ArtifactStore,
+    Contract,
+    file_sha256,
+    identifier,
     positive_int,
 )
 from .capability_requests import validate_capability_request
@@ -319,9 +323,9 @@ class FrozenSourceRequestAuthority:
             raise ValueError("historical request plan identity changed")
         script = '''import importlib.util,json,sys
 from pathlib import Path
-from dataevolver.harness.cli import _existing_controller
+from dataevolver.harness.composition import open_controller
 cfg,src=map(Path,sys.argv[1:3])
-c=_existing_controller(cfg/'campaigns',json.loads((cfg/'goal.json').read_text())['campaign_id'])
+c=open_controller(cfg/'campaigns',json.loads((cfg/'goal.json').read_text())['campaign_id'])
 for name in ('operator_contracts','operator_development'):
  key='dataevolver.harness.'+name
  spec=importlib.util.spec_from_file_location(key,src/'dataevolver/harness'/ (name+'.py'))

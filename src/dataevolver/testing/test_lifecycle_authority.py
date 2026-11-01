@@ -1,7 +1,5 @@
 """Historical construction must neither mutate nor pretend to resolve revocation."""
-import copy
 import json
-from pathlib import Path
 
 import pytest
 

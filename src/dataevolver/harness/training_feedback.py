@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar, Protocol
 
-from dataevolver.dataset.contracts import ArtifactRef, Contract, canonical_json, identifier, payload_sha256
+from dataevolver.dataset.contracts import ArtifactRef, Contract, canonical_json, identifier
 from .feedback import FeedbackSignal
 from .state_store import atomic_write_json
 

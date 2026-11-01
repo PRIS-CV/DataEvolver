@@ -7,7 +7,7 @@ Quality remains the responsibility of the unchanged frozen evaluators.
 from __future__ import annotations
 
 import math
-from .contracts import ArtifactRef,canonical_json
+from .contracts import ArtifactRef as ArtifactRef, canonical_json
 from .supervision import write_image,write_artifact
 from .surface_effects import UnsupportedSurfaceRepair
 

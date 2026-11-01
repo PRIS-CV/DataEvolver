@@ -18,12 +18,10 @@ Usage:
 """
 
 import os
-import sys
 import json
 import copy
 import argparse
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Optional
 
 from dataevolver.paths import CONFIGS_ROOT

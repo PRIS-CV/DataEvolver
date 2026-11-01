@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 
-from dataevolver.dataset.contracts import file_sha256, payload_sha256
+from dataevolver.dataset.contracts import file_sha256
 
 
 def summarize_boundary_probe(value):
@@ -80,7 +80,7 @@ class FrozenBoundaryFeedbackAuthority:
 
 
 def _read_completed_probe(config, descriptor, python):
-    import json,time
+    import json
     from pathlib import Path
     from dataevolver.dataset.contracts import ArtifactRef,ArtifactStore,file_sha256,payload_sha256
     from dataevolver.harness.boundary_recovery import FrozenBoundaryFailureAuthority,BoundaryProbeRecoveryDomain
@@ -90,7 +90,7 @@ def _read_completed_probe(config, descriptor, python):
     from dataevolver.harness.adapters.training_supervision import TrainingSupervisionOperator
     from dataevolver.adapters.model_contracts import ModelProfile,ModelPolicy
     from dataevolver.adapters.model_gateway import ModelGateway
-    from dataevolver.adapters.codex_planner import GatewayPlannerBackend
+    from dataevolver.adapters.codex_planner import RecoveringPlannerBackend
     from dataevolver.adapters.cli_planner_service import CLIPlannerEndpointProvider
     from dataevolver.adapters.training_media_worker import TrainingMediaProvider
     from dataevolver.harness.models import GoalSpec,OperatorCall,OperatorReceipt,EvidenceStatus
@@ -98,7 +98,7 @@ def _read_completed_probe(config, descriptor, python):
     from dataevolver.harness.evaluator import EvaluatorContract
     from dataevolver.harness.operators import OperatorRegistry
     descriptor=dict(descriptor)
-    cfg=Path(config);protected=cfg/'protected';output=cfg/'output';started=time.monotonic()
+    cfg=Path(config);protected=cfg/'protected';output=cfg/'output'
     assert (Path(descriptor['run'])/'exit_code').read_text().strip()=='0'
     def tree(root):return {str(f):file_sha256(f) for f in root.rglob('*') if f.is_file() and '__pycache__' not in f.parts}
     before=tree(cfg)
@@ -112,7 +112,7 @@ def _read_completed_probe(config, descriptor, python):
     profile=ModelProfile.from_dict(json.loads(Path(descriptor['profile_path']).read_text()));worker=json.loads(Path(descriptor['worker_path']).read_text())
     pg=ModelGateway(profiles=(profile,),policy=ModelPolicy({'agent.runtime_rsi':profile.profile_id},2),receipt_root=output/'planner_model_receipts',artifact_store=store)
     pg.factories[profile.profile_id]=lambda:CLIPlannerEndpointProvider(profile,worker,store,output/'native')
-    backend=GatewayPlannerBackend(pg,model_id=profile.model,timeout_seconds=900)
+    backend=RecoveringPlannerBackend(pg,model_id=profile.model,timeout_seconds=900)
     sam=next(ModelProfile.from_dict(x) for x in contract['models']['profiles'] if x['profile_id']=='segmentation')
     sg=ModelGateway(profiles=(sam,),policy=ModelPolicy({'training.segment':'segmentation'},1),receipt_root=output/'segment_model_receipts',artifact_store=store)
     sg.factories['segmentation']=lambda:TrainingMediaProvider(sam,contract['models']['workers']['segmentation'],store,'boundary_probe',output/'native-sam')

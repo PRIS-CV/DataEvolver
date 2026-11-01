@@ -12,7 +12,17 @@ from pathlib import Path
 from dataevolver.adapters.model_contracts import ModelPolicy, ModelProfile, ModelReceipt, ModelRequest
 from dataevolver.adapters.model_gateway import ModelGateway, validate_response_schema
 from dataevolver.dataset.contracts import ArtifactRef, ArtifactStore, canonical_json, file_sha256, payload_sha256
-from ..models import EffectVerification, EvidenceStatus, ExpectedOutputSpec, OperatorCall, OperatorReceipt, OperatorSpec, RecoveryResult, RecoveryStatus, StageStatus
+from ..models import (
+    EffectVerification,
+    EvidenceStatus,
+    ExpectedOutputSpec,
+    OperatorCall as OperatorCall,
+    OperatorReceipt,
+    OperatorSpec,
+    RecoveryResult,
+    RecoveryStatus,
+    StageStatus,
+)
 from ..operators import _load_receipt, _receipt_path, _write_receipt
 from ..state_store import atomic_write_json
 from ..task_contracts import DatasetIntent, NodeRun, NodeSpecGraph, QualityPolicy

@@ -5,8 +5,8 @@ from dataclasses import replace
 import pytest
 
 from dataevolver.adapters.model_contracts import ModelPolicy, ModelProfile
-from dataevolver.adapters.model_gateway import ModelGateway, ModelError, MockModelProvider
-from dataevolver.dataset.contracts import ArtifactRef, file_sha256, payload_sha256
+from dataevolver.adapters.model_gateway import ModelGateway, ModelError
+from dataevolver.dataset.contracts import file_sha256
 from dataevolver.harness.adapters.operator_candidate_build import CandidateBuildOperator
 from dataevolver.harness.operator_development import (CandidatePackage, ControllerRequestAuthority,
     DevelopmentBudget, OperatorDevelopmentPlanV2, OperatorInterface, inspect_candidate, read_development_plan)

@@ -17,7 +17,6 @@ import time
 from pathlib import Path
 from typing import Any
 
-from dataevolver.paths import REPO_ROOT
 
 try:
     from opentelemetry import metrics, trace

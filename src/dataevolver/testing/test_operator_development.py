@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from dataevolver.dataset.contracts import ArtifactRef, ArtifactStore, file_sha256, payload_sha256
+from dataevolver.dataset.contracts import ArtifactRef, ArtifactStore, file_sha256
 from dataevolver.harness.operator_development import (
     USAGE_KEYS, CandidatePackage, ControllerQualificationAuthority, ControllerRequestAuthority,
     DevelopmentBudget, OperatorDevelopmentPlan, QualificationProtocol, assess_candidate, inspect_candidate,

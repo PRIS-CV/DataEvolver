@@ -1,6 +1,5 @@
 """Fixture engineering checks only; no real model quality or RSI benefit claims."""
 import copy
-import json
 from pathlib import Path
 from types import SimpleNamespace
 

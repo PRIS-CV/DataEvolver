@@ -155,8 +155,8 @@ class CodexCLIPlannerProvider:
             raise
 
 
-class GatewayPlannerBackend:
-    """PlannerBackend protocol using the same cache/effect ledger as other models."""
+class RecoveringPlannerBackend:
+    """Recover a bound RSI request before invoking the configured gateway."""
     backend_id = 'model-gateway-authenticated-cli'
 
     def __init__(self, gateway, *, model_id, artifacts=(), timeout_seconds=900):
@@ -182,3 +182,7 @@ class GatewayPlannerBackend:
         self._last_trace = {'request': request.to_dict(), 'receipt': receipt.to_dict(),
                             'receipt_hash': receipt.without_reuse_hash()}
         return json.dumps(receipt.output, ensure_ascii=False)
+
+
+# Compatibility for callers of the original authenticated planner backend.
+GatewayPlannerBackend = RecoveringPlannerBackend

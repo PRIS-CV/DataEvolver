@@ -9,7 +9,14 @@ from pathlib import Path
 from dataevolver.adapters.model_contracts import ModelPolicy, ModelProfile, ModelRequest
 from dataevolver.adapters.model_gateway import ModelGateway, ModelError
 from dataevolver.adapters.visual_worker import VisualLocalProvider, validate_visual_worker
-from dataevolver.dataset.contracts import ArtifactRef, ArtifactStore, canonical_json, file_sha256, identifier, payload_sha256
+from dataevolver.dataset.contracts import (
+    ArtifactRef as ArtifactRef,
+    ArtifactStore,
+    canonical_json,
+    file_sha256,
+    identifier,
+    payload_sha256,
+)
 from dataevolver.dataset.g2_contracts import validate_g2_config
 from dataevolver.dataset.g2_pipeline import VisualOperations, classify_pair, load_pair_manifest
 from ..data_budget import DataBudgetJournal

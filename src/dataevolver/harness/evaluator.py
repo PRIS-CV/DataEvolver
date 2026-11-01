@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
+from dataevolver.dataset.contracts import file_sha256
+
 from .models import (
     EvaluationReport,
     EvidenceStatus,
@@ -19,11 +21,7 @@ from .operators import OperatorRegistry
 
 
 def sha256_file(path: str | Path) -> str:
-    digest = hashlib.sha256()
-    with Path(path).open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+    return file_sha256(Path(path))
 
 
 def sha256_json(payload: Any) -> str:

@@ -4,7 +4,7 @@ import json
 import math
 from pathlib import Path
 
-from dataevolver.dataset.contracts import ArtifactRef, file_sha256, payload_sha256
+from dataevolver.dataset.contracts import ArtifactRef, file_sha256
 
 
 QUERY_SCHEMA = {'type': 'object', 'additionalProperties': False,

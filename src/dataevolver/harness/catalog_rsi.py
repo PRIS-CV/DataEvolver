@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 from dataevolver.adapters.model_contracts import ModelRequest
-from dataevolver.dataset.contracts import ArtifactRef, ArtifactStore, payload_sha256, file_sha256
+from dataevolver.dataset.contracts import ArtifactRef, ArtifactStore, payload_sha256
 from dataevolver.dataset.quality import counts
 from .artifact_operator import ArtifactWorkloadOperator
 from .models import Intervention, InterventionLevel

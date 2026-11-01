@@ -7,10 +7,10 @@ from dataclasses import replace
 
 import pytest
 
-from dataevolver.dataset.contracts import ArtifactRef, file_sha256, payload_sha256
+from dataevolver.dataset.contracts import ArtifactRef, payload_sha256
 from dataevolver.harness.authority_qualification import AuthorityFixtureExpectation, authenticated, check_authority_output
 from dataevolver.harness.candidate_sandbox import LinuxPureDataRunner, TrustedContextRunner, SandboxLimits
-from dataevolver.harness.candidate_trust import CandidateTrustContext, CapabilityRequestBinding, canonical_digest
+from dataevolver.harness.candidate_trust import CandidateTrustContext, CapabilityRequestBinding
 from dataevolver.harness.adapters.operator_contract_qualification import CandidateContractQualificationOperator
 from dataevolver.harness.operator_development import CandidatePackage, ControllerRequestAuthority, DevelopmentBudget
 from dataevolver.harness.models import EvidenceStatus, OperatorCall, RecoveryStatus

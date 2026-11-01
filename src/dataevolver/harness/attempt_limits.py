@@ -3,7 +3,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 import json
 
-from dataevolver.dataset.contracts import canonical_json
 
 
 @dataclass(frozen=True)

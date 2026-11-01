@@ -306,9 +306,9 @@ def detect_floor(mesh: trimesh.Trimesh) -> Tuple[List[FloorCandidate], dict]:
         # Approximated as footprint / (median_xy_side ** 2)
         overhang_ratio = comp_fp_area / (median_xy_side ** 2 + 1e-8)
 
-        # RANSAC on face centroids (fast approximation)
-        face_centers = face_z_centers[face_list]
-        comp_normals = face_normals[face_list]
+        # RANSAC uses vertices; retain the existing array-indexing checks.
+        face_z_centers[face_list]
+        face_normals[face_list]
         _, ransac_inlier = ransac_plane_fit(
             vertices[faces[face_list].flatten()]
         )
@@ -442,7 +442,6 @@ def process_object(obj_id: str,
     """
     raw_path = os.path.join(MESHES_RAW_DIR, f"{obj_id}.glb")
     out_path = os.path.join(MESHES_OUT_DIR, f"{obj_id}.glb")
-    qc_path  = os.path.join(QC_DIR, f"{obj_id}.json")
 
     report = QCReport(
         obj_id=obj_id,

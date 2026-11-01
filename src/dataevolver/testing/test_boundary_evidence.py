@@ -8,9 +8,9 @@ from PIL import Image
 from jsonschema.exceptions import ValidationError
 
 from dataevolver.dataset.contracts import ArtifactStore, ArtifactRef, file_sha256, payload_sha256
-from dataevolver.harness.boundary_evidence import compile_boundary_query, boundary_mask_diagnostics, BoundaryProbeDomain
+from dataevolver.harness.boundary_evidence import compile_boundary_query, boundary_mask_diagnostics
 from dataevolver.harness.adapters.boundary_evidence import BoundaryEvidenceProbeOperator
-from dataevolver.harness.models import OperatorSpec, OperatorCall, EvidenceStatus, RecoveryStatus
+from dataevolver.harness.models import OperatorSpec, OperatorCall, RecoveryStatus
 from dataevolver.harness.state_store import atomic_write_json
 
 

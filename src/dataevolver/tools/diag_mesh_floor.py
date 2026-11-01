@@ -16,7 +16,6 @@ Usage:
 
 import argparse
 import json
-import math
 import os
 import sys
 
@@ -113,7 +112,6 @@ def component_analysis(mesh, band_frac, normal_dot):
 
     seed_mask    = (face_z_centers <= bottom_z_thr) & (up_dot >= normal_dot)
     seed_ids     = np.where(seed_mask)[0]
-    n_seed_faces = int(seed_ids.sum())
 
     if len(seed_ids) == 0:
         return []

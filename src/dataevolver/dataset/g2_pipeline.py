@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 from dataevolver.adapters.model_contracts import ModelRequest
-from dataevolver.dataset.contracts import ArtifactRef, canonical_json, file_sha256, payload_sha256
+from dataevolver.dataset.contracts import ArtifactRef, canonical_json
 from dataevolver.dataset.g2_contracts import CONSTRAINTS, G2Task, compile_prompt
 from dataevolver.harness.state_store import atomic_write_json
 

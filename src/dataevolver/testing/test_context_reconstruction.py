@@ -5,10 +5,10 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from dataevolver.dataset.contracts import ArtifactStore,ArtifactRef
+from dataevolver.dataset.contracts import ArtifactStore
 from dataevolver.dataset.supervision import write_image,artifact_closure,complete_background_composite
 from dataevolver.dataset.context_reconstruction import context_crop_box,prepare_context_condition,project_context_output
-from dataevolver.dataset.surface_effects import UnsupportedSurfaceRepair,audit_surface_composition
+from dataevolver.dataset.surface_effects import UnsupportedSurfaceRepair
 
 
 def test_context_transform_inverse_preserves_canvas_and_closed_artifact_provenance(tmp_path):

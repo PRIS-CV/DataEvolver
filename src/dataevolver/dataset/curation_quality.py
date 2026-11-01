@@ -6,8 +6,15 @@ import io
 from PIL import Image, ImageFilter
 
 from .contracts import ArtifactRef, payload_sha256
-from .quality import (ROLES, RANKINGS, clarity_features, counts, fit_blur_calibration,
-                      map_rows, select_balanced, validate_mapping, validate_quotas)
+from .quality import (
+    ROLES,
+    RANKINGS,
+    clarity_features,
+    fit_blur_calibration,
+    map_rows,
+    select_balanced,
+    validate_quotas,
+)
 
 
 def labels(ctx):
