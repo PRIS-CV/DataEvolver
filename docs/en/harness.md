@@ -2,6 +2,8 @@
 
 [Home](../../README.md) · [Documentation index](../../README.md#documentation) · [简体中文](../zh-CN/harness.md)
 
+Use the [private Workbench](workbench.md) to configure and drive these interfaces in a browser.
+
 Choose a compile entry point, create a campaign, and advance or inspect it through the common Controller interfaces.
 
 Run command examples from the repository root unless a step changes directory.

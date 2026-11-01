@@ -2,6 +2,8 @@
 
 [Home](../../README.md) · [Documentation index](../../README.md#documentation) · [简体中文](../zh-CN/quick-start.md)
 
+Use the [private Workbench](workbench.md) to configure and drive these interfaces in a browser.
+
 Install the source checkout and inspect its interfaces, then prepare a workflow with the linked guides.
 
 Run command examples from the repository root unless a step changes directory.

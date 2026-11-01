@@ -2,6 +2,8 @@
 
 [Home](../../README.md) · [Documentation index](../../README.md#documentation) · [简体中文](../zh-CN/deployment.md)
 
+Use the [private Workbench](workbench.md) to configure and drive these interfaces in a browser.
+
 Keep deployment choices in private profiles. Select compatible implementations before compiling a goal.
 
 Run command examples from the repository root unless a step changes directory.

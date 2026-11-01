@@ -128,6 +128,7 @@ dataset. Its version, splits and loading example are documented in the
 
 | I want to… | Guide | Contents |
 |---|---|---|
+| Configure agents and chat in a browser | [Private Workbench](docs/en/workbench.md) | Launcher, Pi/SoL-Pi, image APIs, native tools and OpenSSH. |
 | Set up the source checkout | [Quick start](docs/en/quick-start.md) | Prerequisites, installation and CLI inspection. |
 | Configure a deployment | [Models, tools and deployment](docs/en/deployment.md) | Profiles, providers, native workers, local settings and website setup. |
 | Plan, execute or recover a task | [Harness lifecycle](docs/en/harness.md) | Compile, create, step, inspect, pause, resume and receipts. |

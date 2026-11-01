@@ -2,6 +2,8 @@
 
 [首页](../../README_zh.md) · [文档目录](../../README_zh.md#文档导航) · [English](../en/agents.md)
 
+可通过[私有工作台](workbench.md)在浏览器配置并调用这些接口。
+
 外层 Agent 准备计划与代码，并调用公共 Harness 接口。内部规划 Provider 只返回提案。
 
 除明确要求切换目录的步骤外，命令示例均从仓库根目录执行。
