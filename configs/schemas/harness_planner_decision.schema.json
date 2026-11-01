@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dataevolver.local/schemas/harness_planner_decision.schema.json",
+  "title": "DataEvolver Harness PlannerDecision V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision_id", "decision", "asset_id", "failure_code", "experiment_kind", "hypothesis", "strategy_patch", "expected_effect", "required_evidence", "confidence", "rationale_summary"],
+  "properties": {
+    "decision_id": {"type": "string", "minLength": 1},
+    "decision": {"enum": ["RUN_EXPERIMENT", "ACCEPT_ASSET", "ABANDON_ASSET", "STOP_CAMPAIGN", "ABSTAIN"]},
+    "asset_id": {"type": "string", "minLength": 1},
+    "failure_code": {"type": "string", "minLength": 1},
+    "experiment_kind": {"type": ["string", "null"], "enum": ["PROMPT_REGENERATE", "RESEGMENT_RECONSTRUCT", "RECONSTRUCT_RETRY", "SCENE_REFINE", null]},
+    "hypothesis": {"type": "string", "maxLength": 1024},
+    "strategy_patch": {"oneOf": [{"$ref": "harness_strategy_patch.schema.json"}, {"type": "null"}]},
+    "expected_effect": {"type": "object", "additionalProperties": {"enum": ["improve", "preserve", "observe"]}},
+    "required_evidence": {"type": "array", "maxItems": 16, "items": {"type": "string"}},
+    "confidence": {"enum": ["low", "medium", "high"]},
+    "rationale_summary": {"type": "string", "maxLength": 512}
+  }
+}

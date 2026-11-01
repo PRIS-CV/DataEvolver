@@ -190,8 +190,8 @@ class DryRunGenerator(GeneratorAdapter):
         marker.write_text(
             "{\n"
             '  "status": "dryrun_stub",\n'
-            '  "intended_route": "existing Blender pipeline",\n'
-            '  "real_entrypoints": ["src/dataevolver/cli/run_all.sh"]\n'
+            '  "intended_route": "native scene Harness",\n'
+            '  "real_entrypoints": ["python -m dataevolver scene-compile"]\n'
             "}\n",
             encoding="utf-8",
         )

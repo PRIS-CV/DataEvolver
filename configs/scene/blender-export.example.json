@@ -1,0 +1,41 @@
+{
+  "stage": "blender",
+  "argv": [
+    "blender",
+    "--background",
+    "--python-use-system-env",
+    "--python-exit-code",
+    "1",
+    "/path/to/frozen-render.blend",
+    "--python",
+    "../../src/dataevolver/workflows/scene/ue5/export_frozen_scene.py",
+    "--",
+    "--request",
+    "{request}",
+    "--output",
+    "{output}"
+  ],
+  "files": [
+    "../../src/dataevolver/workflows/scene/ue5/export_frozen_scene.py"
+  ],
+  "inputs": {
+    "scene": "/path/to/frozen-render.blend",
+    "trace": "/path/to/trace.json",
+    "simulation": "/path/to/simulation.json",
+    "scene_spec": "/path/to/simulation-spec.json"
+  },
+  "outputs": {
+    "package_manifest": "package/manifest.json",
+    "mesh": "package/scene.glb",
+    "trace": "package/trace.json",
+    "simulation": "package/simulation.json"
+  },
+  "timeout_seconds": 600,
+  "allowed_env_keys": [
+    "PATH",
+    "PYTHONPATH",
+    "LD_LIBRARY_PATH"
+  ],
+  "allow_gpu": false,
+  "allow_network": false
+}

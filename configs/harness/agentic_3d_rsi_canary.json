@@ -1,0 +1,76 @@
+{
+  "schema_version": "dataevolver.harness.goal.v1",
+  "campaign_id": "agentic-3d-rsi-canary-v1",
+  "objective": {
+    "kind": "agentic_3d_rsi",
+    "asset_ids": ["mug_canary_001"],
+    "accepted_asset_quota": 1,
+    "initial_trial_key": {
+      "input_artifact_hash": "agentic-3d-mug-request-v1",
+      "parent_artifact_hash": "none",
+      "seed": 17,
+      "operator_id": "dataevolver.3d_asset_evolution",
+      "operator_version": "1",
+      "model_config_hash": "resolved-by-frozen-operator-contract",
+      "preprocessing_hash": "agentic-3d-preprocess-v1",
+      "evaluator_hash": "c0300b15840476e0fb3d674ff68337da0d70f2da541e33d5d461fa139d1c8d92",
+      "environment_contract_hash": "resolved-at-campaign-creation"
+    },
+    "allowed_experiment_kinds": [
+      "PROMPT_REGENERATE",
+      "RESEGMENT_RECONSTRUCT",
+      "RECONSTRUCT_RETRY",
+      "SCENE_REFINE"
+    ],
+    "allowed_scene_actions": [
+      "L_KEY_UP",
+      "L_KEY_DOWN",
+      "L_KEY_YAW_POS_15",
+      "L_KEY_YAW_NEG_15",
+      "ENV_ROTATE_30",
+      "ENV_ROTATE_NEG_30",
+      "ENV_STRENGTH_UP",
+      "ENV_STRENGTH_DOWN",
+      "S_CONTACT_SHADOW_UP",
+      "O_LIFT_SMALL",
+      "O_LOWER_SMALL",
+      "O_SCALE_UP_10",
+      "O_SCALE_DOWN_10",
+      "M_SATURATION_DOWN",
+      "M_VALUE_UP",
+      "M_VALUE_DOWN",
+      "M_ROUGHNESS_UP",
+      "M_ROUGHNESS_DOWN"
+    ],
+    "render_resolution": 512,
+    "representative_views": [[0, 0], [90, 0], [180, 0], [270, 0]]
+  },
+  "initial_operator_id": "dataevolver.3d_asset_evolution",
+  "initial_operator_parameters": {
+    "initial_prompt": "A single red ceramic mug on a neutral background, complete silhouette, centered composition.",
+    "t2i_seed": 17,
+    "reconstruction_seed": 42
+  },
+  "route_candidates": ["agentic_3d"],
+  "budgets": {
+    "max_rounds": 4,
+    "max_operator_calls": 5,
+    "max_experiments": 4,
+    "max_retries": 1,
+    "max_wall_seconds": 14400
+  },
+  "resource_policy": {
+    "allow_gpu": true,
+    "allowed_operators": ["dataevolver.3d_asset_evolution"]
+  },
+  "frozen_evaluator": {
+    "path": "configs/harness/agentic_3d_rsi_evaluator.json",
+    "sha256": "c0300b15840476e0fb3d674ff68337da0d70f2da541e33d5d461fa139d1c8d92"
+  },
+  "planner": {
+    "kind": "agentic_rsi",
+    "config_path": "configs/harness/agentic_planner.json"
+  },
+  "interventions": [],
+  "lease_seconds": 300
+}

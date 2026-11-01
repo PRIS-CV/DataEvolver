@@ -5,17 +5,10 @@ import time
 from pathlib import Path
 from typing import List
 
-from dataevolver.paths import DATAEVOLVER_ROOT
-
 from ..prompt_writer import build_prompts
 from ..schemas import DatasetRequest, DatasetSample, relpath
 from .base import GeneratorAdapter
 from .dryrun import iter_images
-
-
-LOCAL_ROOT = Path(os.environ.get("DATAEVOLVER_LOCAL_ROOT", os.fspath(DATAEVOLVER_ROOT / "local")))
-LOCAL_MODEL_ROOT = Path(os.environ.get("DATAEVOLVER_MODEL_ROOT", os.fspath(LOCAL_ROOT / "model_hub")))
-DEFAULT_QWEN_IMAGE_EDIT_PATH = os.fspath(LOCAL_MODEL_ROOT / "Qwen-Image-Edit-2511")
 
 
 class QwenImageEditGenerator(GeneratorAdapter):
@@ -26,6 +19,9 @@ class QwenImageEditGenerator(GeneratorAdapter):
             raise RuntimeError("Qwen image edit inference requires --allow-model-inference and non-dry-run mode")
         if request.route != "edit":
             raise ValueError("QwenImageEditGenerator only supports route=edit")
+        model_path = request.model_path or os.environ.get("QWEN_IMAGE_EDIT_MODEL_PATH", "")
+        if not model_path:
+            raise ValueError("Provide a model path before using this optional adapter")
 
         input_dir = Path(request.input_image_dir or "")
         image_paths = list(iter_images(input_dir))[: request.num_samples]
@@ -54,10 +50,9 @@ class QwenImageEditGenerator(GeneratorAdapter):
                         status="skipped_existing",
                         metadata={
                             "dry_run": False,
-                            "backend": "diffusers.QwenImageEditPlusPipeline",
+                            "backend": "diffusers.QwenImage21Pipeline",
                             "model_name": request.model_name,
-                            "model_path": request.model_path
-                            or os.environ.get("QWEN_IMAGE_EDIT_MODEL_PATH", DEFAULT_QWEN_IMAGE_EDIT_PATH),
+                            "model_path": model_path,
                             "device": request.device,
                             "height": request.height,
                             "width": request.width,
@@ -85,10 +80,9 @@ class QwenImageEditGenerator(GeneratorAdapter):
 
         import torch
         from PIL import Image
-        from diffusers import QwenImageEditPlusPipeline
+        from diffusers import QwenImage21Pipeline
 
-        model_path = request.model_path or os.environ.get("QWEN_IMAGE_EDIT_MODEL_PATH", DEFAULT_QWEN_IMAGE_EDIT_PATH)
-        pipe = QwenImageEditPlusPipeline.from_pretrained(
+        pipe = QwenImage21Pipeline.from_pretrained(
             model_path,
             torch_dtype=torch.bfloat16,
             local_files_only=True,
@@ -111,7 +105,6 @@ class QwenImageEditGenerator(GeneratorAdapter):
                         true_cfg_scale=request.true_cfg_scale,
                         negative_prompt=" ",
                         num_inference_steps=request.steps,
-                        guidance_scale=request.guidance_scale,
                         height=request.height,
                         width=request.width,
                         num_images_per_prompt=1,
@@ -129,7 +122,7 @@ class QwenImageEditGenerator(GeneratorAdapter):
                     status="skipped_existing" if existed and request.skip_existing else "generated",
                     metadata={
                         "dry_run": False,
-                        "backend": "diffusers.QwenImageEditPlusPipeline",
+                        "backend": "diffusers.QwenImage21Pipeline",
                         "model_name": request.model_name,
                         "model_path": model_path,
                         "device": request.device,

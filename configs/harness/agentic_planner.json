@@ -1,0 +1,8 @@
+{
+  "backend": "openai_compatible",
+  "base_url_env": "DATAEVOLVER_AGENT_BASE_URL",
+  "api_key_env": "DATAEVOLVER_AGENT_API_KEY",
+  "model_env": "DATAEVOLVER_AGENT_MODEL",
+  "timeout_seconds": 120,
+  "max_repair_attempts": 1
+}

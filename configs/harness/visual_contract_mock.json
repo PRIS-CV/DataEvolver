@@ -1,0 +1,172 @@
+{
+  "schema_version": "dataevolver.harness.goal.v1",
+  "campaign_id": "visual-contract-mock-demo",
+  "objective": {
+    "kind": "visual_contract_mock",
+    "initial_trial_key": {
+      "input_artifact_hash": "e4bbe6d7abea1cb5b05b58e9896b0575a9ad2de58716f31586a8ee24d53c883d",
+      "parent_artifact_hash": "none",
+      "seed": 0,
+      "operator_id": "visual.contract_mock",
+      "operator_version": "1",
+      "model_config_hash": "e4bbe6d7abea1cb5b05b58e9896b0575a9ad2de58716f31586a8ee24d53c883d",
+      "preprocessing_hash": "visual-contract-compile-v1",
+      "evaluator_hash": "f9f619a395b1eb11742717a146ee336c5fc784692766c07bbbea595587c1c3b4",
+      "environment_contract_hash": "cpu-mock-v1"
+    },
+    "canary_trial_key": {
+      "input_artifact_hash": "e4bbe6d7abea1cb5b05b58e9896b0575a9ad2de58716f31586a8ee24d53c883d",
+      "parent_artifact_hash": "none",
+      "seed": 0,
+      "operator_id": "visual.contract_mock",
+      "operator_version": "1",
+      "model_config_hash": "e4bbe6d7abea1cb5b05b58e9896b0575a9ad2de58716f31586a8ee24d53c883d",
+      "preprocessing_hash": "visual-contract-compile-v1",
+      "evaluator_hash": "f9f619a395b1eb11742717a146ee336c5fc784692766c07bbbea595587c1c3b4",
+      "environment_contract_hash": "cpu-mock-v1"
+    }
+  },
+  "initial_operator_id": "visual.contract_mock",
+  "initial_operator_parameters": {
+    "intent": {
+      "schema_version": "dataevolver.dataset_intent.v1",
+      "intent_id": "visual-contract-demo",
+      "mode": "generate",
+      "task": "visual_mock",
+      "output_schema": "visual.mock_record.v1",
+      "description": "Verify typed visual task contracts and recovery without image generation or model inference."
+    },
+    "quality_policy": {
+      "schema_version": "dataevolver.quality_policy.v1",
+      "policy_id": "mock-quality",
+      "required_gates": [
+        "duplicates",
+        "integrity",
+        "leakage",
+        "license",
+        "privacy",
+        "provenance",
+        "safety"
+      ],
+      "allowed_operations": [
+        "model.invoke"
+      ],
+      "max_model_calls": 2
+    },
+    "graph": {
+      "schema_version": "dataevolver.node_graph.v1",
+      "nodes": [
+        {
+          "schema_version": "dataevolver.node_spec.v1",
+          "node_id": "plan",
+          "operator": "model.invoke",
+          "operator_version": "1",
+          "role": "planner",
+          "parameters": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Return the bounded fixture plan."
+              }
+            ],
+            "response_schema": {
+              "type": "object",
+              "properties": {
+                "plan": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "plan"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        {
+          "schema_version": "dataevolver.node_spec.v1",
+          "node_id": "review",
+          "operator": "model.invoke",
+          "operator_version": "1",
+          "role": "reviewer",
+          "dependencies": [
+            "plan"
+          ],
+          "parameters": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Return a mock review for contract verification only."
+              }
+            ],
+            "response_schema": {
+              "type": "object",
+              "properties": {
+                "verdict": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "verdict"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      ]
+    },
+    "model_profiles": [
+      {
+        "schema_version": "dataevolver.model_profile.v1",
+        "profile_id": "mock-planner",
+        "backend": "mock",
+        "model": "fixture-planner",
+        "revision": "1",
+        "mock_output": {
+          "plan": "bounded mock plan"
+        }
+      },
+      {
+        "schema_version": "dataevolver.model_profile.v1",
+        "profile_id": "mock-reviewer",
+        "backend": "mock",
+        "model": "fixture-reviewer",
+        "revision": "1",
+        "mock_output": {
+          "verdict": "review-only fixture"
+        }
+      }
+    ],
+    "model_policy": {
+      "schema_version": "dataevolver.model_policy.v1",
+      "bindings": {
+        "planner": "mock-planner",
+        "reviewer": "mock-reviewer"
+      },
+      "max_calls": 2,
+      "external_api_enabled": false
+    }
+  },
+  "route_candidates": [
+    "visual_mock"
+  ],
+  "budgets": {
+    "max_rounds": 1,
+    "max_operator_calls": 1,
+    "max_experiments": 0,
+    "max_retries": 0,
+    "max_wall_seconds": 120
+  },
+  "resource_policy": {
+    "allow_gpu": false,
+    "allow_network": false,
+    "allowed_operators": [
+      "visual.contract_mock"
+    ]
+  },
+  "frozen_evaluator": {
+    "path": "configs/harness/visual_mock_evaluator.json",
+    "sha256": "f9f619a395b1eb11742717a146ee336c5fc784692766c07bbbea595587c1c3b4"
+  },
+  "interventions": []
+}

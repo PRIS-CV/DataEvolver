@@ -41,18 +41,14 @@ import traceback
 from pathlib import Path
 import torch
 
-from dataevolver.paths import DATAEVOLVER_ROOT, runtime_path
+from dataevolver.paths import runtime_path
 
-LOCAL_ROOT = Path(os.environ.get("DATAEVOLVER_LOCAL_ROOT", os.fspath(DATAEVOLVER_ROOT / "local")))
-LOCAL_VENDOR_ROOT = Path(os.environ.get("DATAEVOLVER_VENDOR_ROOT", os.fspath(LOCAL_ROOT / "vendor")))
-LOCAL_MODEL_ROOT = Path(os.environ.get("DATAEVOLVER_MODEL_ROOT", os.fspath(LOCAL_ROOT / "model_hub")))
-
-HUNYUAN3D_REPO = os.environ.get("HUNYUAN3D_REPO", os.fspath(LOCAL_VENDOR_ROOT / "Hunyuan3D-2.1-src"))
-MODEL_HUB = os.environ.get("MODEL_HUB", os.fspath(LOCAL_MODEL_ROOT / "Hunyuan3D-2.1"))
+HUNYUAN3D_REPO = os.environ.get("HUNYUAN3D_REPO", "")
+MODEL_HUB = os.environ.get("MODEL_HUB", "")
 # Paint model: hunyuan3d-paintpbr-v2-1 lives under the model hub root
 # multiview_utils expects parent dir; it appends "hunyuan3d-paintpbr-v2-1" itself
 PAINT_MODEL_HUB = os.environ.get("PAINT_MODEL_HUB", MODEL_HUB)
-DINO_MODEL_PATH = os.environ.get("DINO_MODEL_PATH", os.fspath(LOCAL_MODEL_ROOT / "dinov2-giant"))
+DINO_MODEL_PATH = os.environ.get("DINO_MODEL_PATH", "")
 REALESRGAN_CKPT = os.environ.get(
     "REALESRGAN_CKPT",
     os.path.join(HUNYUAN3D_REPO, "hy3dpaint", "ckpt", "RealESRGAN_x4plus.pth"),
@@ -156,6 +152,8 @@ def resolve_rgb_images_dir(images_dir=None, rgb_images_dir=None):
 
 def check_model_ready():
     """Check if Hunyuan3D-2.1 weights are fully downloaded (no .aria2 files)."""
+    if not MODEL_HUB or not Path(MODEL_HUB).is_dir():
+        raise ValueError("Set MODEL_HUB to an existing checkpoint directory for this optional adapter")
     aria2_files = []
     for root, _, files in os.walk(MODEL_HUB):
         for f in files:
@@ -172,6 +170,8 @@ def check_model_ready():
 
 def setup_paths():
     """Add Hunyuan3D-2.1 sub-packages to Python path."""
+    if not HUNYUAN3D_REPO or not Path(HUNYUAN3D_REPO).is_dir():
+        raise ValueError("Set HUNYUAN3D_REPO to this optional adapter's source checkout")
     for subdir in ["hy3dshape", "hy3dpaint", "."]:
         path = os.path.join(HUNYUAN3D_REPO, subdir)
         _prepend_sys_path(path)
@@ -211,6 +211,8 @@ def build_paint_pipeline(device):
       - dino_ckpt_path -> .dataevolver/local/model_hub/dinov2-giant
       - realesrgan_ckpt_path → hy3dpaint/ckpt/RealESRGAN_x4plus.pth
     """
+    if not PAINT_MODEL_HUB or not DINO_MODEL_PATH:
+        raise ValueError("Set PAINT_MODEL_HUB and DINO_MODEL_PATH explicitly before painting")
     preload_torch_shared_libs()
     relax_transformers_local_load_guard()
     from textureGenPipeline import Hunyuan3DPaintPipeline, Hunyuan3DPaintConfig
@@ -663,7 +665,8 @@ def verify_outputs(obj_ids, output_dir=None):
 
 
 def generate_meshes(obj_ids, device="cuda:0", skip_existing=True, shape_only=False,
-                    images_dir=None, rgb_images_dir=None, output_dir=None, seed_base=42):
+                    images_dir=None, rgb_images_dir=None, output_dir=None, seed_base=42,
+                    allow_shape_only_fallback=True):
     """Generate textured 3D meshes from images using Hunyuan3D-2.1."""
     output_dir = output_dir or MESHES_DIR
     os.makedirs(output_dir, exist_ok=True)
@@ -727,6 +730,8 @@ def generate_meshes(obj_ids, device="cuda:0", skip_existing=True, shape_only=Fal
             paint_pipe = build_paint_pipeline(device)
         except Exception as e:
             print(f"[WARN] Failed to load paint pipeline: {e}")
+            if not allow_shape_only_fallback:
+                raise RuntimeError("paint pipeline unavailable and shape-only fallback is disabled") from e
             print("[WARN] Falling back to shape-only mode (no UV texture).")
             import traceback
             traceback.print_exc()
@@ -810,6 +815,11 @@ def generate_meshes(obj_ids, device="cuda:0", skip_existing=True, shape_only=Fal
             record["shape_success"] = True
 
             if paint_pipe is None:
+                if not allow_shape_only_fallback:
+                    record["status"] = "paint_pipeline_unavailable_no_fallback"
+                    record["error"] = "shape-only fallback is disabled"
+                    records.append(record)
+                    continue
                 mesh.export(out_path)
                 size_kb = os.path.getsize(out_path) / 1024
                 print(f"    [shape-only] Saved -> {out_path} ({size_kb:.1f} KB)")
@@ -857,12 +867,17 @@ def generate_meshes(obj_ids, device="cuda:0", skip_existing=True, shape_only=Fal
                         traceback.print_exc()
 
                 if not textured_success:
-                    print("[WARN] Falling back to shape-only GLB for this object.")
-                    mesh.export(out_path)
-                    size_kb = os.path.getsize(out_path) / 1024
-                    print(f"    [shape-only fallback] Saved -> {out_path} ({size_kb:.1f} KB)")
-                    record["used_shape_only_fallback"] = True
-                    record["status"] = "paint_failed_shape_only_fallback"
+                    if allow_shape_only_fallback:
+                        print("[WARN] Falling back to shape-only GLB for this object.")
+                        mesh.export(out_path)
+                        size_kb = os.path.getsize(out_path) / 1024
+                        print(f"    [shape-only fallback] Saved -> {out_path} ({size_kb:.1f} KB)")
+                        record["used_shape_only_fallback"] = True
+                        record["status"] = "paint_failed_shape_only_fallback"
+                    else:
+                        _safe_unlink(out_path)
+                        record["status"] = "paint_failed_no_fallback"
+                        record["error"] = "shape-only fallback is disabled"
 
                 record["final_output_inspection"] = inspect_glb_output(out_path)
                 if record["textured_success"] and not record["final_output_inspection"].get("has_image_texture"):
@@ -954,6 +969,8 @@ def main():
                         help="Base seed for deterministic regeneration runs")
     parser.add_argument("--prompts-path", default=PROMPTS_PATH,
                         help="Prompt file used to enumerate valid object IDs")
+    parser.add_argument("--no-shape-only-fallback", action="store_true",
+                        help="Fail textured generation instead of saving an untextured fallback GLB")
     args = parser.parse_args()
 
     with open(args.prompts_path, "r", encoding="utf-8") as f:
@@ -982,6 +999,7 @@ def main():
         rgb_images_dir=args.rgb_images_dir,
         output_dir=args.output_dir,
         seed_base=args.seed_base,
+        allow_shape_only_fallback=not args.no_shape_only_fallback,
     )
     verification = verify_outputs(
         obj_ids,

@@ -1049,6 +1049,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="DataEvolver Stage0 websearch framework")
     sub = parser.add_subparsers(dest="command", required=True)
 
+    from dataevolver.workflows.training_goal.planner import register_parser
+    register_parser(sub)
+
     init_cmd = sub.add_parser("init", help="create a Stage0 research session")
     init_cmd.add_argument("--query", required=True)
     init_cmd.add_argument("--output-dir", required=True)

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dataevolver.local/schemas/harness_evaluation.schema.json",
+  "title": "DataEvolver Harness EvaluationReport V1",
+  "type": "object",
+  "required": ["evaluator_id", "evaluator_revision", "evaluator_hash", "hard_constraints", "target_metrics", "protected_metrics", "failure_slices"],
+  "properties": {
+    "evaluator_id": {"type": "string"},
+    "evaluator_revision": {"type": "string"},
+    "evaluator_hash": {"type": "string"},
+    "hard_constraints": {"type": "object", "additionalProperties": {"$ref": "#/$defs/EvidenceValue"}},
+    "target_metrics": {"type": "object", "additionalProperties": {"$ref": "#/$defs/EvidenceValue"}},
+    "protected_metrics": {"type": "object", "additionalProperties": {"$ref": "#/$defs/EvidenceValue"}},
+    "failure_slices": {"type": "array", "items": {"type": "object"}},
+    "matched_trial_key": {"type": ["object", "null"]},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "EvidenceValue": {
+      "type": "object",
+      "required": ["metric", "status", "value", "required", "reason", "evidence_refs"],
+      "properties": {
+        "metric": {"type": "string"},
+        "status": {"enum": ["UNOBSERVED", "OBSERVED", "VERIFIED", "CONTRADICTED", "STALE"]},
+        "value": {"type": ["number", "boolean", "null"]},
+        "required": {"type": "boolean"},
+        "reason": {"type": "string"},
+        "evidence_refs": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

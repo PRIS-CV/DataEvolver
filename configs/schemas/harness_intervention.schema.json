@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dataevolver.local/schemas/harness_intervention.schema.json",
+  "title": "DataEvolver Harness Intervention V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["intervention_id", "failure_code", "operator_id", "level", "parameters", "candidate_delta", "rollback_plan"],
+  "properties": {
+    "intervention_id": {"type": "string", "minLength": 1},
+    "failure_code": {"type": "string", "minLength": 1},
+    "operator_id": {"type": "string", "minLength": 1},
+    "level": {"enum": ["L0", "L1", "L2"]},
+    "parameters": {"type": "object"},
+    "candidate_delta": {"type": "object", "minProperties": 1},
+    "expected_effect": {"type": "object"},
+    "rollback_plan": {"type": "object", "minProperties": 1},
+    "preconditions": {"type": "array", "items": {"type": "string"}},
+    "required_budget": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}}
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "stage": "blender",
+  "argv": [
+    "blender",
+    "--background",
+    "--python-use-system-env",
+    "--python-exit-code",
+    "1",
+    "--factory-startup",
+    "--python",
+    "../../src/dataevolver/workflows/scene/blender/model_scene.py",
+    "--",
+    "--request",
+    "{request}",
+    "--output",
+    "{output}"
+  ],
+  "files": [
+    "../../src/dataevolver/workflows/scene/blender/model_scene.py"
+  ],
+  "inputs": {
+    "scene_spec": "component-scene.json"
+  },
+  "outputs": {
+    "scene": "scene.blend",
+    "mesh": "scene.glb"
+  },
+  "timeout_seconds": 600,
+  "allowed_env_keys": [
+    "PATH",
+    "PYTHONPATH",
+    "LD_LIBRARY_PATH"
+  ],
+  "allow_gpu": false,
+  "allow_network": false
+}

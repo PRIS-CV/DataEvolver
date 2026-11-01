@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dataevolver.local/schemas/harness_capability.schema.json",
+  "title": "DataEvolver Harness CapabilityCandidate V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["capability_id", "version", "status", "failure_signature", "intervention", "validation_evidence", "known_failures"],
+  "properties": {
+    "capability_id": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "status": {"const": "CANDIDATE"},
+    "failure_signature": {"type": "object"},
+    "intervention": {"$ref": "harness_intervention.schema.json"},
+    "validation_evidence": {"type": "array", "items": {"type": "string"}},
+    "known_failures": {"type": "array", "items": {"type": "string"}},
+    "context_signature": {"type": "string"},
+    "strategy_patch": {"oneOf": [{"$ref": "harness_strategy_patch.schema.json"}, {"type": "null"}]},
+    "experiment_kind": {"type": ["string", "null"], "enum": ["PROMPT_REGENERATE", "RESEGMENT_RECONSTRUCT", "RECONSTRUCT_RETRY", "SCENE_REFINE", null]},
+    "metric_delta": {"type": "object", "additionalProperties": {"type": "number"}},
+    "protected_metric_delta": {"type": "object", "additionalProperties": {"type": "number"}},
+    "compatibility_hash": {"type": "string"},
+    "source_asset_id": {"type": "string"},
+    "novelty_key": {"type": "string"}
+  }
+}

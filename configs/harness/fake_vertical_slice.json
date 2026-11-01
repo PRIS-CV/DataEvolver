@@ -1,0 +1,74 @@
+{
+  "schema_version": "dataevolver.harness.goal.v1",
+  "campaign_id": "autonomous-harness-v1-demo",
+  "objective": {
+    "kind": "fake_quality",
+    "initial_trial_key": {
+      "input_artifact_hash": "demo-input-v1",
+      "parent_artifact_hash": "demo-parent-v1",
+      "seed": 17,
+      "operator_id": "fake.baseline",
+      "operator_version": "1",
+      "model_config_hash": "fake-model-v1",
+      "preprocessing_hash": "fake-preprocess-v1",
+      "evaluator_hash": "1917d86021599ca8a31b3f641e51583e5bfd577ce7518e3f99da407bc39963d5",
+      "environment_contract_hash": "cpu-dryrun-v1"
+    },
+    "canary_trial_key": {
+      "input_artifact_hash": "demo-input-v1",
+      "parent_artifact_hash": "demo-parent-v1",
+      "seed": 17,
+      "operator_id": "fake.baseline",
+      "operator_version": "1",
+      "model_config_hash": "fake-model-v1",
+      "preprocessing_hash": "fake-preprocess-v1",
+      "evaluator_hash": "1917d86021599ca8a31b3f641e51583e5bfd577ce7518e3f99da407bc39963d5",
+      "environment_contract_hash": "cpu-dryrun-v1"
+    },
+    "dry_run_fixture": {
+      "baseline": {
+        "status": "FAILED",
+        "metrics": {"quality": 0.4, "safety": 1.0},
+        "hard_constraints": {"artifact_valid": true},
+        "failure_code": "LOW_QUALITY"
+      },
+      "candidate": {
+        "status": "SUCCESS",
+        "metrics": {"quality": 0.9, "safety": 1.0},
+        "hard_constraints": {"artifact_valid": true}
+      }
+    }
+  },
+  "initial_operator_id": "fake.baseline",
+  "route_candidates": ["fake"],
+  "budgets": {
+    "max_rounds": 2,
+    "max_operator_calls": 3,
+    "max_experiments": 1,
+    "max_retries": 0,
+    "max_wall_seconds": 300
+  },
+  "resource_policy": {
+    "allow_gpu": false,
+    "allowed_operators": ["fake.baseline", "fake.candidate"]
+  },
+  "frozen_evaluator": {
+    "path": "configs/harness/fake_evaluator.json",
+    "sha256": "1917d86021599ca8a31b3f641e51583e5bfd577ce7518e3f99da407bc39963d5"
+  },
+  "interventions": [
+    {
+      "intervention_id": "fix-low-quality",
+      "failure_code": "LOW_QUALITY",
+      "operator_id": "fake.candidate",
+      "level": "L0",
+      "parameters": {"quality_patch": "improve"},
+      "candidate_delta": {"quality_patch": "improve"},
+      "expected_effect": {"quality": "increase"},
+      "rollback_plan": {"kind": "retain_baseline"},
+      "preconditions": [],
+      "required_budget": {"operator_calls": 1}
+    }
+  ],
+  "lease_seconds": 300
+}

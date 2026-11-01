@@ -5,12 +5,17 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dataevolver"
 version = "0.0.0"
-description = "Source package boundary for DataEvolver."
+description = "Goal-driven data synthesis with a durable execution Harness."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
 
 [project.optional-dependencies]
+harness = ["jsonschema>=4", "pillow>=10"]
+curation = ["jsonschema>=4", "pillow>=10", "pyarrow>=14"]
+surface = ["jsonschema>=4", "numpy>=1.24", "pillow>=10", "scipy>=1.14"]
+vision = ["transformers>=5.17,<6", "safetensors>=0.4", "pillow>=10"]
+image = ["torch>=2.4", "transformers>=5.17,<6", "accelerate", "safetensors>=0.4", "pillow>=10", "diffusers @ git+https://github.com/huggingface/diffusers.git"]
 # Pip-managed runtime packages only. HYWorld vendor source checkouts, weights,
 # Blender, and CUDA/native extensions remain target-host setup steps.
 hyworld = [
@@ -48,13 +53,15 @@ hyworld = [
     "trimesh",
 ]
 test = [
+    "jsonschema>=4",
     "pytest",
     "numpy<2",
+    "pillow>=10",
 ]
 
 [project.scripts]
-dataevolver-production = "dataevolver.cli.production:main"
-dataevolver-multimodal = "dataevolver.workflows.multimodal.run_multimodal_dataset:main"
+dataevolver = "dataevolver.harness.cli:main"
+dataevolver-harness = "dataevolver.harness.cli:main"
 dataevolver-stage0-web-research = "dataevolver.tools.stage0_web_research:main"
 dataevolver-hyworld-pano = "dataevolver.workflows.hyworld.scene_pano:main"
 dataevolver-hyworld-full-worldgen = "dataevolver.workflows.hyworld.full_worldgen:main"
@@ -63,8 +70,5 @@ dataevolver-hyworld-finalize-report = "dataevolver.workflows.hyworld.finalize_ob
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.setuptools.package-data]
-dataevolver = ["cli/*.sh"]
-
 [tool.pytest.ini_options]
-testpaths = ["src/dataevolver/testing"]
+testpaths = ["tests", "src/dataevolver/testing"]

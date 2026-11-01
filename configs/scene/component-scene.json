@@ -1,0 +1,68 @@
+{
+  "objects": [
+    {
+      "name": "Base",
+      "shape": "cube",
+      "location": [
+        0,
+        0,
+        0.1
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.1
+      ],
+      "color": [
+        0.18,
+        0.22,
+        0.28,
+        1
+      ],
+      "roughness": 0.6
+    },
+    {
+      "name": "Stem",
+      "shape": "cylinder",
+      "location": [
+        0,
+        0,
+        0.65
+      ],
+      "scale": [
+        0.08,
+        0.08,
+        0.5
+      ],
+      "color": [
+        0.4,
+        0.4,
+        0.42,
+        1
+      ],
+      "metallic": 0.7,
+      "roughness": 0.3
+    },
+    {
+      "name": "Top",
+      "shape": "sphere",
+      "location": [
+        0,
+        0,
+        1.25
+      ],
+      "scale": [
+        0.25,
+        0.25,
+        0.25
+      ],
+      "color": [
+        0.7,
+        0.15,
+        0.1,
+        1
+      ],
+      "roughness": 0.4
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": "dataevolver.harness.evaluator.v1",
+  "evaluator_id": "multimodal-t2i-dryrun-v1",
+  "revision": "1",
+  "hard_constraints": {
+    "artifact_valid": {
+      "required": true
+    }
+  },
+  "target_metrics": {
+    "completion_ratio": {
+      "required": true,
+      "minimum": 1.0,
+      "minimum_improvement": 0.0
+    }
+  },
+  "protected_metrics": {
+    "resource_policy_respected": {
+      "required": true,
+      "max_regression": 0.0
+    }
+  }
+}

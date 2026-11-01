@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dataevolver.local/schemas/harness_strategy_patch.schema.json",
+  "title": "DataEvolver Harness StrategyPatch V1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "prompt_text": {"type": ["string", "null"], "minLength": 1, "maxLength": 2048},
+    "negative_prompt_append": {"type": "array", "maxItems": 8, "items": {"type": "string", "minLength": 1, "maxLength": 256}},
+    "t2i_seed": {"type": ["integer", "null"]},
+    "reconstruction_seed": {"type": ["integer", "null"]},
+    "force_resegment": {"type": "boolean"},
+    "scene_actions": {"type": "array", "maxItems": 2, "items": {"type": "string", "minLength": 1}},
+    "restart_stage": {"enum": ["t2i", "segment", "reconstruct", "sanitize", "render"]}
+  }
+}

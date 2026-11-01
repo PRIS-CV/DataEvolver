@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dataevolver.local/schemas/harness_goal.schema.json",
+  "title": "DataEvolver Harness GoalSpec V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "campaign_id", "objective", "initial_operator_id", "route_candidates", "budgets", "resource_policy", "frozen_evaluator", "interventions"],
+  "properties": {
+    "schema_version": {"const": "dataevolver.harness.goal.v1"},
+    "campaign_id": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"},
+    "objective": {"type": "object"},
+    "initial_operator_id": {"type": "string", "minLength": 1},
+    "initial_operator_parameters": {"type": "object"},
+    "route_candidates": {"type": "array", "items": {"type": "string"}},
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_rounds", "max_operator_calls", "max_experiments", "max_retries", "max_wall_seconds"],
+      "properties": {
+        "max_rounds": {"type": "integer", "minimum": 0},
+        "max_operator_calls": {"type": "integer", "minimum": 0},
+        "max_experiments": {"type": "integer", "minimum": 0},
+        "max_retries": {"type": "integer", "minimum": 0},
+        "max_wall_seconds": {"type": "integer", "minimum": 0},
+        "max_planner_calls": {"type": "integer", "minimum": 0}
+      }
+    },
+    "resource_policy": {"type": "object"},
+    "frozen_evaluator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "planner": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"enum": ["deterministic", "agentic_rsi"]},
+        "config_path": {"type": "string", "minLength": 1}
+      }
+    },
+    "interventions": {"type": "array", "items": {"$ref": "harness_intervention.schema.json"}},
+    "lease_seconds": {"type": "integer", "minimum": 1}
+  }
+}

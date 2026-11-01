@@ -1,27 +1,23 @@
 """
-Stage 2: Text-to-Image — Generate images using Qwen-Image-2512.
+Stage 2: Text-to-Image — Generate images using Qwen-Image-2.1.
 Reads .dataevolver/runtime/prompts.json, outputs .dataevolver/runtime/images/{id}.png
 """
 
 import argparse
-import glob
 import hashlib
 import json
 import os
 import sys
 import time
 from pathlib import Path
-import torch
 
-from dataevolver.paths import DATAEVOLVER_ROOT, runtime_path
+from dataevolver.paths import runtime_path
 
-LOCAL_ROOT = Path(os.environ.get("DATAEVOLVER_LOCAL_ROOT", os.fspath(DATAEVOLVER_ROOT / "local")))
-LOCAL_MODEL_ROOT = Path(os.environ.get("DATAEVOLVER_MODEL_ROOT", os.fspath(LOCAL_ROOT / "model_hub")))
-
-MODEL_PATH = os.environ.get("QWEN_IMAGE_MODEL_PATH", os.fspath(LOCAL_MODEL_ROOT / "Qwen-Image-2512"))
+MODEL_PATH = os.environ.get("QWEN_IMAGE_MODEL_PATH", "")
 DATA_DIR = os.fspath(runtime_path())
 PROMPTS_PATH = os.path.join(DATA_DIR, "prompts.json")
 IMAGES_DIR = os.path.join(DATA_DIR, "images")
+DEFAULT_NEGATIVE_PROMPT = "blurry, low quality, distorted, multiple objects, background clutter"
 
 
 def load_prompts(path=PROMPTS_PATH, ids=None):
@@ -40,8 +36,8 @@ def _make_obj_seed(obj_id: str, run_salt: int) -> int:
 
 def generate_images(prompts, device="cuda:0", height=1024, width=1024,
                     num_steps=30, skip_existing=True, output_dir=IMAGES_DIR,
-                    seed_base=None):
-    """Load Qwen-Image-2512 and generate images for all prompts."""
+                    seed_base=None, negative_prompt=DEFAULT_NEGATIVE_PROMPT, true_cfg_scale=4.0):
+    """Load Qwen-Image-2.1 and generate images for all prompts."""
     if seed_base is None:
         seed_base = int(time.time() * 1000) % (2**31)
         print(f"[Stage 2] Auto seed_base={seed_base}  (pass --seed-base to reproduce)")
@@ -61,37 +57,15 @@ def generate_images(prompts, device="cuda:0", height=1024, width=1024,
         print("[Stage 2] All images already exist, skipping model load")
         return
 
-    print(f"[Stage 2] Loading Qwen-Image-2512 from {MODEL_PATH} ...")
-    print(f"[Stage 2] This model is ~56GB; ensure {device} has enough VRAM (80GB A800)")
+    if not MODEL_PATH:
+        raise ValueError("Set QWEN_IMAGE_MODEL_PATH explicitly before using this optional adapter")
+    import torch
+    from diffusers import QwenImage21Pipeline
 
-    try:
-        from diffsynth.pipelines.qwen_image import QwenImagePipeline, ModelConfig
-    except ImportError:
-        print("[ERROR] QwenImagePipeline not available from diffsynth.")
-        sys.exit(1)
-
-    transformer_files = sorted(
-        glob.glob(os.path.join(MODEL_PATH, "transformer", "diffusion_pytorch_model*.safetensors"))
-    )
-    text_encoder_files = sorted(
-        glob.glob(os.path.join(MODEL_PATH, "text_encoder", "model*.safetensors"))
-    )
-    vae_file = os.path.join(MODEL_PATH, "vae", "diffusion_pytorch_model.safetensors")
-    if not transformer_files or not text_encoder_files or not os.path.exists(vae_file):
-        print("[Stage 2] ERROR: Qwen-Image-2512 model files incomplete.")
-        sys.exit(1)
-
-    pipe = QwenImagePipeline.from_pretrained(
-        torch_dtype=torch.bfloat16,
-        device=device,
-        model_configs=[
-            ModelConfig(path=transformer_files),
-            ModelConfig(path=text_encoder_files),
-            ModelConfig(path=vae_file),
-        ],
-        tokenizer_config=ModelConfig(path=os.path.join(MODEL_PATH, "tokenizer")),
-        vram_limit=torch.cuda.mem_get_info(device)[1] / (1024 ** 3) - 0.5,
-    )
+    print(f"[Stage 2] Loading Qwen-Image-2.1 from {MODEL_PATH} ...")
+    pipe = QwenImage21Pipeline.from_pretrained(
+        MODEL_PATH, torch_dtype=torch.bfloat16, local_files_only=True,
+    ).to(device)
 
     print(f"[Stage 2] Model loaded. Generating {len(prompts)} images ...")
 
@@ -104,39 +78,46 @@ def generate_images(prompts, device="cuda:0", height=1024, width=1024,
             with torch.no_grad():
                 result = pipe(
                     prompt=obj["prompt"],
-                    negative_prompt="blurry, low quality, distorted, multiple objects, background clutter",
+                    negative_prompt=negative_prompt,
                     height=height,
                     width=width,
                     num_inference_steps=num_steps,
-                    cfg_scale=7.5,
-                    seed=obj_seed,
+                    true_cfg_scale=true_cfg_scale,
+                    generator=torch.Generator(device=device).manual_seed(obj_seed),
                 )
-            if isinstance(result, list):
-                result = result[0]
-            result.save(out_path)
+            result.images[0].save(out_path)
             print(f"    Saved → {out_path}")
         except Exception as e:
             print(f"[WARN] Failed to generate {obj['id']}: {e}")
 
     # Free GPU memory after all generation
     del pipe
-    torch.cuda.empty_cache()
+    if device.startswith("cuda") and torch.cuda.is_available():
+        torch.cuda.empty_cache()
     print("[Stage 2] GPU memory released.")
 
 
 def verify_outputs(prompts, output_dir=IMAGES_DIR):
-    """Check all expected images exist and are non-empty."""
-    missing = []
+    """Check all expected images exist and can be decoded."""
+    from PIL import Image
+
+    invalid = []
     for obj in prompts:
         path = os.path.join(output_dir, f"{obj['id']}.png")
-        if not os.path.exists(path) or os.path.getsize(path) < 1024:
-            missing.append(obj['id'])
+        if not os.path.isfile(path):
+            invalid.append(obj['id'])
+            continue
+        try:
+            with Image.open(path) as image:
+                image.verify()
+        except Exception:
+            invalid.append(obj['id'])
 
-    if missing:
-        print(f"[Stage 2] WARN: Missing/empty images: {missing}")
+    if invalid:
+        print(f"[Stage 2] WARN: Missing/invalid images: {invalid}")
     else:
         print(f"[Stage 2] ✓ All {len(prompts)} images generated successfully")
-    return len(missing) == 0
+    return len(invalid) == 0
 
 
 def main():
@@ -147,6 +128,9 @@ def main():
     parser.add_argument("--steps", type=int, default=30)
     parser.add_argument("--seed-base", type=int, default=None,
                         help="Base seed for reproducibility (default: auto-randomize)")
+    parser.add_argument("--negative-prompt", default=DEFAULT_NEGATIVE_PROMPT,
+                        help="Negative prompt used for every selected object")
+    parser.add_argument("--true-cfg-scale", type=float, default=4.0)
     parser.add_argument("--no-skip", action="store_true", help="Re-generate even if file exists")
     parser.add_argument("--prompts-path", default=PROMPTS_PATH, help="Path to prompts.json")
     parser.add_argument("--output-dir", default=IMAGES_DIR, help="Where to write generated RGB images")
@@ -166,6 +150,8 @@ def main():
         skip_existing=not args.no_skip,
         output_dir=args.output_dir,
         seed_base=args.seed_base,
+        negative_prompt=args.negative_prompt,
+        true_cfg_scale=args.true_cfg_scale,
     )
     if not verify_outputs(prompts, output_dir=args.output_dir):
         sys.exit(1)

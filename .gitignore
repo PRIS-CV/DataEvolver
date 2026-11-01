@@ -110,12 +110,21 @@ skills/
 .agents/skills/*
 !.agents/skills/dataevolver-onboarding/
 !.agents/skills/dataevolver-onboarding/**
+!.agents/skills/verify-dataevolver/
+!.agents/skills/verify-dataevolver/**
 
 # Local onboarding outputs and external tool checkouts
 .dataevolver/local/
+.dataevolver/
 external/
 
 # Paper figures published with the project page
 !/apps/project-page/frontend/images/paper/datarsi-method.jpg
 !/apps/project-page/frontend/images/paper/datarsi-occlusion-repair.png
 !/apps/project-page/frontend/images/paper/datarsi-qualitative.png
+
+# Public framework documentation and CPU contract tests.
+!/docs/
+!/docs/**
+!/tests/
+!/tests/**

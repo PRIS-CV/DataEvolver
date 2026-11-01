@@ -1,0 +1,35 @@
+{
+  "schema": "dataevolver.hyworld_environment.v1",
+  "workspace_root": "$DATAEVOLVER_WORKSPACE_ROOT",
+  "runtime": {
+    "hyworld_python": "$DATAEVOLVER_WORKSPACE_ROOT/.venv-hyworld/bin/python"
+  },
+  "paths": {
+    "sam3_source": "$SAM3_DIR",
+    "hunyuan3d_source": "$HUNYUAN3D_REPO",
+    "hyworld_source": "$HYWORLD_SRC",
+    "hyworld_weights": "$HYWORLD_WEIGHTS",
+    "hyworld_moge_model": "$HYWORLD_MOGE_MODEL_PATH",
+    "hyworld_zim_model": "$HYWORLD_ZIM_MODEL_PATH",
+    "hyworld_grounding_dino_model": "$HYWORLD_GROUNDING_DINO_MODEL_PATH",
+    "hyworld_sam3_model": "$HYWORLD_SAM3_MODEL_PATH",
+    "hyworld_worldstereo_weights": "$HYWORLD_WORLDSTEREO_PATH",
+    "hyworld_wan_base_model": "$HYWORLD_WAN_BASE_MODEL"
+  },
+  "environment": {
+    "HYWORLD_SRC": "$HYWORLD_SRC",
+    "HYWORLD_WEIGHTS": "$HYWORLD_WEIGHTS",
+    "HYWORLD_MOGE_MODEL_PATH": "$HYWORLD_MOGE_MODEL_PATH",
+    "HYWORLD_ZIM_MODEL_PATH": "$HYWORLD_ZIM_MODEL_PATH",
+    "HYWORLD_GROUNDING_DINO_MODEL_PATH": "$HYWORLD_GROUNDING_DINO_MODEL_PATH",
+    "HYWORLD_SAM3_MODEL_PATH": "$HYWORLD_SAM3_MODEL_PATH",
+    "HYWORLD_WORLDSTEREO_PATH": "$HYWORLD_WORLDSTEREO_PATH",
+    "HYWORLD_WAN_BASE_MODEL": "$HYWORLD_WAN_BASE_MODEL",
+    "WORLDSTEREO_BASE_MODEL_PATH": "$HYWORLD_WAN_BASE_MODEL"
+  },
+  "offline": {
+    "no_model_downloads": true,
+    "hf_hub_offline": true,
+    "skip_hyworld_depth_models": false
+  }
+}

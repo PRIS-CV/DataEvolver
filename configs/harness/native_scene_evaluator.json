@@ -1,0 +1,8 @@
+{
+  "schema_version": "dataevolver.harness.evaluator.v1",
+  "evaluator_id": "native-scene-integrity-v1",
+  "revision": "1",
+  "hard_constraints": {"artifact_valid": {"required": true}},
+  "target_metrics": {"completion_ratio": {"required": true, "minimum": 1.0}},
+  "protected_metrics": {}
+}

@@ -1,0 +1,59 @@
+{
+  "task_hint": "multi_subject_insertion",
+  "request": "用户已经提供一张背景图和三个主体参考，希望构造这些给定主体进入不同真实场景的训练数据。请保留提供的素材，重新设计目标图构造、身份检查与监督关系；参考图不能再由生成目标图裁出来代替。不同场景需要什么背景来源，请说明依据和假设。本案例仅检查规划变化，不执行生产。素材清单是声明式测试设定，当前没有检查图片内容。",
+  "materials": [
+    {
+      "id": "background_B",
+      "kind": "background",
+      "reference": "placeholder:user_background_B",
+      "origin": "user_declared",
+      "content_inspected": false
+    },
+    {
+      "id": "subject_S1",
+      "kind": "subject_reference",
+      "reference": "placeholder:user_subject_S1",
+      "origin": "user_declared",
+      "content_inspected": false
+    },
+    {
+      "id": "subject_S2",
+      "kind": "subject_reference",
+      "reference": "placeholder:user_subject_S2",
+      "origin": "user_declared",
+      "content_inspected": false
+    },
+    {
+      "id": "subject_S3",
+      "kind": "subject_reference",
+      "reference": "placeholder:user_subject_S3",
+      "origin": "user_declared",
+      "content_inspected": false
+    }
+  ],
+  "constraints": [
+    {
+      "id": "retain_materials",
+      "text": "保留用户声明的背景与三个主体参考，不覆盖原素材。"
+    },
+    {
+      "id": "independent_refs",
+      "text": "使用给定主体参考构造目标图，不得通过裁剪新生成目标图来替代这些参考。"
+    },
+    {
+      "id": "no_pixels_claim",
+      "text": "素材只是声明式清单，不能声称已读取图片或验证身份。"
+    }
+  ],
+  "task_config": {
+    "models": {
+      "image": "Qwen/Qwen-Image-2.1",
+      "review": "Qwen/Qwen3.8-27B",
+      "segmentation": "SAM3"
+    },
+    "subject_count": 3,
+    "construction_mode": "independent_reference_composition",
+    "planning_only": true,
+    "background_extension_policy": "retain_supplied_background_as_one_input; explicitly justify any additional scene backgrounds"
+  }
+}

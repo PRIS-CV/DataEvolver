@@ -1,0 +1,39 @@
+{
+  "backend": "model_gateway",
+  "profiles": [
+    {
+      "schema_version": "dataevolver.model_profile.v1",
+      "profile_id": "server-planner",
+      "backend": "local_endpoint",
+      "model": "choose-served-model",
+      "model_env": "DATAEVOLVER_AGENT_MODEL",
+      "revision": "record-deployment-revision",
+      "endpoint_env": "DATAEVOLVER_AGENT_BASE_URL",
+      "api_key_env": "",
+      "capabilities": [
+        "json"
+      ]
+    },
+    {
+      "schema_version": "dataevolver.model_profile.v1",
+      "profile_id": "future-api",
+      "backend": "external_api",
+      "model": "choose-later",
+      "revision": "unconfigured",
+      "capabilities": [
+        "json"
+      ]
+    }
+  ],
+  "policy": {
+    "schema_version": "dataevolver.model_policy.v1",
+    "bindings": {
+      "planner": "server-planner"
+    },
+    "max_calls": 4,
+    "allowed_local_origins": [
+      "http://127.0.0.1:8000"
+    ],
+    "external_api_enabled": false
+  }
+}

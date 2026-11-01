@@ -22,6 +22,9 @@ class QwenImageGenerator(GeneratorAdapter):
             raise RuntimeError("Qwen image inference requires --allow-model-inference and non-dry-run mode")
         if request.route != "t2i":
             raise ValueError("QwenImageGenerator only supports route=t2i")
+        model_path = request.model_path or os.environ.get("QWEN_IMAGE_MODEL_PATH", "")
+        if not model_path:
+            raise ValueError("Provide a model path before using this optional adapter")
 
         prompt_rows = build_prompts(request, request.num_samples)
         prompt_path = output_root / "model_inputs" / "t2i_prompts.json"
@@ -62,7 +65,7 @@ class QwenImageGenerator(GeneratorAdapter):
                 str(request.width),
                 "--steps",
                 str(request.steps),
-                "--cfg-scale",
+                "--true-cfg-scale",
                 str(request.true_cfg_scale),
                 "--seed-base",
                 str(request.seed),
@@ -73,8 +76,7 @@ class QwenImageGenerator(GeneratorAdapter):
             env["PYTHONPATH"] = os.pathsep.join(
                 [str(SRC_ROOT), env["PYTHONPATH"]] if env.get("PYTHONPATH") else [str(SRC_ROOT)]
             )
-            if request.model_path:
-                env["QWEN_IMAGE_MODEL_PATH"] = request.model_path
+            env["QWEN_IMAGE_MODEL_PATH"] = model_path
             result = subprocess.run(cmd, cwd=REPO_ROOT, text=True, capture_output=True, env=env, timeout=3600)
             (log_dir / "qwen_image_stage2.stdout.log").write_text(result.stdout or "", encoding="utf-8")
             (log_dir / "qwen_image_stage2.stderr.log").write_text(result.stderr or "", encoding="utf-8")
@@ -104,7 +106,7 @@ class QwenImageGenerator(GeneratorAdapter):
                         "dry_run": False,
                         "backend": "dataevolver.workflows.stages.t2i_generate",
                         "model_name": request.model_name,
-                        "model_path": request.model_path,
+                        "model_path": model_path,
                         "device": request.device,
                         "height": request.height,
                         "width": request.width,

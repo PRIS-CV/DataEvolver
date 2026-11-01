@@ -24,14 +24,10 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from dataevolver.paths import DATAEVOLVER_ROOT, runtime_path
+from dataevolver.paths import runtime_path
 
-LOCAL_ROOT = Path(os.environ.get("DATAEVOLVER_LOCAL_ROOT", os.fspath(DATAEVOLVER_ROOT / "local")))
-LOCAL_VENDOR_ROOT = Path(os.environ.get("DATAEVOLVER_VENDOR_ROOT", os.fspath(LOCAL_ROOT / "vendor")))
-LOCAL_MODEL_ROOT = Path(os.environ.get("DATAEVOLVER_MODEL_ROOT", os.fspath(LOCAL_ROOT / "model_hub")))
-
-SAM3_CKPT = os.environ.get("SAM3_CKPT", os.fspath(LOCAL_MODEL_ROOT / "sam3" / "sam3.pt"))
-SAM3_DIR = os.environ.get("SAM3_DIR", os.fspath(LOCAL_VENDOR_ROOT / "sam3-src"))
+SAM3_CKPT = os.environ.get("SAM3_CKPT", "")
+SAM3_DIR = os.environ.get("SAM3_DIR", "")
 TEXT_PROMPT = "the main object"
 
 DATA_DIR = os.fspath(runtime_path())
@@ -67,6 +63,8 @@ def prepare_runtime_device(device: str) -> tuple[str, str | None]:
 
 def build_model(device):
     """Load SAM3 image model and return a Sam3Processor."""
+    if not SAM3_CKPT or not SAM3_DIR:
+        raise ValueError("Set SAM3_CKPT and SAM3_DIR explicitly before using this optional adapter")
     if SAM3_DIR not in sys.path:
         sys.path.insert(0, SAM3_DIR)
 
@@ -179,7 +177,7 @@ def edge_flood_fill_reference(image_np):
     return bg_like != 128
 
 
-def segment_image_sam3(processor, image_np):
+def segment_image_sam3(processor, image_np, allow_fallback=True):
     """Segment foreground using SAM3 text prompt 'the main object'.
 
     Steps:
@@ -215,6 +213,8 @@ def segment_image_sam3(processor, image_np):
     scores = output.get("scores", None)
 
     if masks is None or (hasattr(masks, '__len__') and len(masks) == 0):
+        if not allow_fallback:
+            raise RuntimeError("SAM3 returned no masks and fallback is disabled")
         print("(SAM3 no masks, fallback)", end=" ")
         return color_fallback(image_np)
 
@@ -238,7 +238,14 @@ def segment_image_sam3(processor, image_np):
     return mask_u8 > 127
 
 
-def segment_all(obj_ids, device, skip_existing, images_dir=IMAGES_DIR, rgba_dir=IMAGES_RGBA_DIR):
+def segment_all(
+    obj_ids,
+    device,
+    skip_existing,
+    images_dir=IMAGES_DIR,
+    rgba_dir=IMAGES_RGBA_DIR,
+    allow_fallback=True,
+):
     """Run SAM3 text-prompted segmentation for all given object IDs."""
     os.makedirs(rgba_dir, exist_ok=True)
 
@@ -271,7 +278,7 @@ def segment_all(obj_ids, device, skip_existing, images_dir=IMAGES_DIR, rgba_dir=
         try:
             rgb_img = Image.open(src_path).convert("RGB")
             image_np = np.array(rgb_img)
-            mask = segment_image_sam3(processor, image_np)
+            mask = segment_image_sam3(processor, image_np, allow_fallback=allow_fallback)
 
             # QC: check foreground ratio
             fg_ratio = mask.sum() / mask.size
@@ -316,6 +323,8 @@ def main():
                         help="Alias of --rgba-dir for replacement runner compatibility")
     parser.add_argument("--prompts-path", default=PROMPTS_PATH,
                         help="Prompt file used to enumerate valid object IDs")
+    parser.add_argument("--no-fallback", action="store_true",
+                        help="Fail instead of using color segmentation when SAM3 returns no mask")
     args = parser.parse_args()
 
     if args.input_dir:
@@ -346,6 +355,7 @@ def main():
         skip_existing=not args.no_skip,
         images_dir=args.images_dir,
         rgba_dir=args.rgba_dir,
+        allow_fallback=not args.no_fallback,
     )
     if result["error"] > 0:
         raise SystemExit(1)

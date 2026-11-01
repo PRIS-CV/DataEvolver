@@ -1,0 +1,11 @@
+{
+  "stage": "custom_worker",
+  "argv": ["worker-executable", "--request", "{request}", "--output", "{output}"],
+  "files": [],
+  "inputs": {"source": "input.json"},
+  "outputs": {"artifact": "artifact.json"},
+  "timeout_seconds": 300,
+  "allowed_env_keys": ["PATH"],
+  "allow_gpu": false,
+  "allow_network": false
+}

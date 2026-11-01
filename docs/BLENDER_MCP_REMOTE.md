@@ -6,21 +6,10 @@ default Stage 4 pipeline or any model execution path.
 
 ## Local Install
 
-Start with the dry-run onboarding profile:
-
-```bash
-bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
-  --profile blender_mcp \
-  --dry-run \
-  --write-local-config
-```
-
-This writes:
-
-- `.dataevolver/local/env.config.json`
-- `.dataevolver/local/ENVIRONMENT.md`
-- `.dataevolver/local/env.sh.example`
-- `.dataevolver/local/blender_mcp.codex.toml`
+Native workers use `scene-compile` and the shared Controller. Configure Blender
+and its Python environment as described in [NATIVE_SCENE_WORKFLOW.md](NATIVE_SCENE_WORKFLOW.md).
+For interactive MCP work, prepare the existing remote addon and stdio connection
+as a separate optional tool. The retired bootstrap no longer writes MCP profiles.
 
 The upstream repository is kept as a local checkout:
 
@@ -93,7 +82,7 @@ tool_timeout_sec = 240
 
 Restart Codex after editing the config so it reloads MCP servers.
 
-Do not let the bootstrap script edit global Codex config directly. Review and copy the generated snippet into the user's own Codex config.
+Review the explicit MCP snippet before adding it to the user's Codex configuration.
 
 ## Notes
 

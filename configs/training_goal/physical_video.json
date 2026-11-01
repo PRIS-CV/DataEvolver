@@ -1,0 +1,35 @@
+{
+  "task_hint": "action_conditioned_physical_video_generation",
+  "request": "我要为视频生成或世界模型训练构造物理事件视频数据。模型输入初始帧和可见推动动作条件，目标是后续视频。先采用固定相机的真实桌面球体与障碍物交互，检查推动、移动、接触及接触后运动变化。请设计监督、生产路线和验证证据。",
+  "materials": [],
+  "constraints": [
+    {
+      "id": "conditional",
+      "text": "初始帧和动作条件必须进入训练输入。"
+    },
+    {
+      "id": "observations",
+      "text": "预期事件与实际视频观测分开保存，不确定的关键事件不能当作已确认标签。"
+    }
+  ],
+  "task_config": {
+    "models": {
+      "image": "Qwen/Qwen-Image-2.1",
+      "review": "Qwen/Qwen3.8-27B",
+      "segmentation": "SAM3",
+      "video": "MiniMaxAI/MiniMax-H3"
+    },
+    "video_branch": "FL2VA",
+    "duration_seconds": 6,
+    "fps": 24,
+    "short_side": 768,
+    "accepted_records": 12,
+    "split_counts": {
+      "train": 6,
+      "validation": 3,
+      "test": 3
+    },
+    "counterfactual_pairs": false,
+    "physical_labels": "observable_event_evidence_only"
+  }
+}

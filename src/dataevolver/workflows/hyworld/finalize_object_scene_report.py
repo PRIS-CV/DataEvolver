@@ -342,7 +342,7 @@ def main() -> int:
         "scene_dir": str(scene_dir),
         "template_dir": str(template_dir),
         "models": {
-            "qwen_image_2512": args.qwen_image_model_path,
+            "qwen_image": args.qwen_image_model_path,
             "qwen_image_edit_2511": args.qwen_image_edit_model_path,
             "hyworld": args.hyworld_model_path,
             "worldmirror": args.worldmirror_model_path,

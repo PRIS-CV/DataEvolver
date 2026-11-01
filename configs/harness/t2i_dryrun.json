@@ -1,0 +1,58 @@
+{
+  "schema_version": "dataevolver.harness.goal.v1",
+  "campaign_id": "multimodal-t2i-dryrun-demo",
+  "objective": {
+    "kind": "t2i_dryrun",
+    "initial_trial_key": {
+      "input_artifact_hash": "t2i-dryrun-request-v1",
+      "parent_artifact_hash": "none",
+      "seed": 17,
+      "operator_id": "multimodal.t2i_dryrun",
+      "operator_version": "1",
+      "model_config_hash": "multimodal-t2i-dryrun-v1",
+      "preprocessing_hash": "dryrun-v1",
+      "evaluator_hash": "43ad6852b89866dc1265fd2f056293b5512aced4dd0fa5870ee123c18bd92a30",
+      "environment_contract_hash": "cpu-only-v1"
+    },
+    "canary_trial_key": {
+      "input_artifact_hash": "t2i-dryrun-request-v1",
+      "parent_artifact_hash": "none",
+      "seed": 17,
+      "operator_id": "multimodal.t2i_dryrun",
+      "operator_version": "1",
+      "model_config_hash": "multimodal-t2i-dryrun-v1",
+      "preprocessing_hash": "dryrun-v1",
+      "evaluator_hash": "43ad6852b89866dc1265fd2f056293b5512aced4dd0fa5870ee123c18bd92a30",
+      "environment_contract_hash": "cpu-only-v1"
+    }
+  },
+  "initial_operator_id": "multimodal.t2i_dryrun",
+  "initial_operator_parameters": {
+    "user_request": "generate two photorealistic desk objects",
+    "num_samples": 2,
+    "height": 240,
+    "width": 320,
+    "seed": 17,
+    "sample_prefix": "desk",
+    "skip_existing": true,
+    "validate_outputs": true
+  },
+  "route_candidates": ["t2i"],
+  "budgets": {
+    "max_rounds": 1,
+    "max_operator_calls": 1,
+    "max_experiments": 0,
+    "max_retries": 0,
+    "max_wall_seconds": 300
+  },
+  "resource_policy": {
+    "allow_gpu": false,
+    "allowed_operators": ["multimodal.t2i_dryrun"]
+  },
+  "frozen_evaluator": {
+    "path": "configs/harness/t2i_dryrun_evaluator.json",
+    "sha256": "43ad6852b89866dc1265fd2f056293b5512aced4dd0fa5870ee123c18bd92a30"
+  },
+  "interventions": [],
+  "lease_seconds": 300
+}

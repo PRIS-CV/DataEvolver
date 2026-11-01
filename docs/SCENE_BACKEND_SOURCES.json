@@ -1,0 +1,155 @@
+{
+  "files": [
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_path": "backends/ue5/export_frozen_scene.py",
+      "path": "src/dataevolver/workflows/scene/ue5/export_frozen_scene.py",
+      "source_sha256": "a7f7e157dd3ef0f40fd11448f94ba34455172d2371bf7b287b4321f5b33b96a3",
+      "integrated_sha256": "d0a57b6022930dec8b86c57fff894d0e682805ee45f1507e767ed9660c0fd682"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_path": "backends/ue5/kitchen_realism.py",
+      "path": "src/dataevolver/workflows/scene/ue5/kitchen_realism.py",
+      "source_sha256": "7aafd5dc2767e4e176041ee80ad76142e19971cdf15add4f944b670adad6c435",
+      "integrated_sha256": "7aafd5dc2767e4e176041ee80ad76142e19971cdf15add4f944b670adad6c435"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_path": "backends/ue5/measure_hdri.py",
+      "path": "src/dataevolver/workflows/scene/ue5/measure_hdri.py",
+      "source_sha256": "4e5dcee1217731ed97492afb3c18c799284fe866a65d4f7ee78b6b1693157fe4",
+      "integrated_sha256": "4e5dcee1217731ed97492afb3c18c799284fe866a65d4f7ee78b6b1693157fe4"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_path": "backends/ue5/photo_lookdev.py",
+      "path": "src/dataevolver/workflows/scene/ue5/photo_lookdev.py",
+      "source_sha256": "e3b4ea3ccfe11b88c159c53569dd1d89aedd67375042418cbb45953e9ccecccf",
+      "integrated_sha256": "ab816d4c99fa52ab685e78eac692aa0ba5d756ff47363279e5337891f12a7a4c"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_path": "backends/ue5/render_batch.py",
+      "path": "src/dataevolver/workflows/scene/ue5/render_batch.py",
+      "source_sha256": "d22c260a55b1d73f75b63c6827160a217e443768da3776711ccc1efc9af9b366",
+      "integrated_sha256": "3990f125cdd797a048a8db275b3145b1eb757f6c0391ad4da69f27da970d00b0"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_path": "backends/ue5/render_frozen_scene.py",
+      "path": "src/dataevolver/workflows/scene/ue5/render_frozen_scene.py",
+      "source_sha256": "73c035d404e05972ea92881dc83173422ebcddaedaaf5dc8ac0aee2dc9259f27",
+      "integrated_sha256": "54433e82d54392a5139e98eece0207742a3a02a617eb402352d1dae003322641"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_path": "backends/ue5/render_pose_qa.py",
+      "path": "src/dataevolver/workflows/scene/ue5/render_pose_qa.py",
+      "source_sha256": "b845017d2381707a202bc62f9a62ab21f6220ef03b4bcd476610fa8a0707e5af",
+      "integrated_sha256": "f79d27253c58b03691e3986b6ba178ad5341adb58ee9f175bb0e056e735bc2a9"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_path": "backends/ue5/trajectory.py",
+      "path": "src/dataevolver/workflows/scene/ue5/trajectory.py",
+      "source_sha256": "538e761a6279fab3b67bf4e37d92c23eae978268e02e59b17553b36b7c03afbc",
+      "integrated_sha256": "538e761a6279fab3b67bf4e37d92c23eae978268e02e59b17553b36b7c03afbc"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_path": "backends/ue5/ue_cli_executor.py",
+      "path": "src/dataevolver/workflows/scene/ue5/ue_cli_executor.py",
+      "source_sha256": "6076f2878936b981681900d4a4b24b378d2eb7fd82ce0f26e9fd8f85e549f6b6",
+      "integrated_sha256": "8b991274b1009d0d0355648ef2edb91c44916acdb62881a92e0fd8a87aab2c50"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_path": "backends/ue5/ue_lifecycle.py",
+      "path": "src/dataevolver/workflows/scene/ue5/ue_lifecycle.py",
+      "source_sha256": "9e9b56ee765835e3d7cb7fb8b504ea6309b06776e73bd864a15bacaf5de5eeb9",
+      "integrated_sha256": "9e9b56ee765835e3d7cb7fb8b504ea6309b06776e73bd864a15bacaf5de5eeb9"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_path": "scripts/blender_simulate.py",
+      "path": "src/dataevolver/workflows/scene/blender/simulate.py",
+      "source_sha256": "667dfdf1a4df3b201481b8f078d37ff96f4567188eb8f92629f08363d7a1bf08",
+      "integrated_sha256": "b700b099697c478c6f38facf7022382235ed8638693f07abc40975fa3e0c99ef"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_path": "backends/blender/studio_video_blender.py",
+      "path": "src/dataevolver/workflows/scene/blender/studio_video_blender.py",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_sha256": "d9b80ce02446970511bd6fa60402d945e5593289e28a8111a3857e86882bc853",
+      "integrated_sha256": "06a44094b8921e356c1c214c1f723f6811b77ac07b835d142f58444029a8168b"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_path": "backends/blender/render_quality.py",
+      "path": "src/dataevolver/workflows/scene/blender/render_quality.py",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_sha256": "79fe6986595f69a25213b2fd5241cd3229d5d539f03241f9dd1a68eba1f629b0",
+      "integrated_sha256": "79fe6986595f69a25213b2fd5241cd3229d5d539f03241f9dd1a68eba1f629b0"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_path": "src/wmbench_synth/contract.py",
+      "path": "src/dataevolver/workflows/scene/blender/rigid_contract.py",
+      "symbols": [
+        "number",
+        "mass_properties"
+      ],
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_sha256": "3728e3c90483812e24d45f2132bd512c05a93f61bbd76a9b2cf2499c8d13f30b",
+      "integrated_sha256": "bc0218827228fdd0f43b8783b6b375d5bca88c8d440d66d87606a355cf6ab9b4"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_path": "backends/blender/launch_headless_mcp.py",
+      "path": "src/dataevolver/workflows/scene/gpu_lease.py",
+      "symbols": [
+        "reserved_gpu_uuids",
+        "sharing_policy",
+        "lease_gpu"
+      ],
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_sha256": "90ab397c94985ccaaf526e8f2004efd5a28cad96ac843fa5c8e9b82a16db82b5",
+      "integrated_sha256": "bd3b2135f74a9c07241a7d437aa81c6ad46f9e41f120ca65a2a247f2019ecaf5"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_path": "tests/test_ue5_batch.py",
+      "path": "tests/test_native_ue5_batch.py",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_sha256": "d6d1bc6a357ef0645cf4f0f201424585c01a4542a2704a86edf0774eb0707ce5",
+      "integrated_sha256": "0049c6845a9028bf8a7e863517f9d63f2016699572c0363f51e67c47d9396c29"
+    },
+    {
+      "source": "WMBench-Synthesis-Harness",
+      "source_path": "tests/test_ue5_trajectory.py",
+      "path": "tests/test_native_ue5_trajectory.py",
+      "source_commit": "64c6f103a2b44855b1e893e429cc35496f9e3104",
+      "source_sha256": "88b1e09e7948494fd42f5da897af2583a0524af918e31f4c8d443135cf12cf73",
+      "integrated_sha256": "1abb3031dc540b0b94e521c330cf9c17c501200e6c32d91995d58c9ca28bdcd0"
+    }
+  ],
+  "scope": "Native backend code only; no benchmark discovery, experiment data or independent control loop.",
+  "notes": [
+    "Native backends and fixtures only; no independent synthesis runner or admission controller.",
+    "Integration changes package imports, native request/result binding, DATAEVOLVER environment names and explicit look-development assets.",
+    "Mass policy and GPU lease retain only the named source functions."
+  ]
+}

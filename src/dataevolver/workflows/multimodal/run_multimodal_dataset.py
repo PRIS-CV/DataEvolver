@@ -1,60 +1,18 @@
-#!/usr/bin/env python3
+"""Multimodal workload library used by registered Harness operators."""
 from __future__ import annotations
 
-import argparse
 import json
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import List
 
-if __package__ in {None, ""}:
-    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from dataevolver.workflows.multimodal.generators.dryrun import DryRunGenerator
-from dataevolver.workflows.multimodal.router import ROUTE_DESCRIPTIONS, build_request
 from dataevolver.workflows.multimodal.schemas import DatasetRequest, DatasetSample
 from dataevolver.workflows.multimodal.validation import validate_image, validate_video
 from dataevolver.workflows.multimodal.vlm_review import run_vlm_reviews
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run a multimodal DataEvolver dataset route")
-    parser.add_argument("--route", required=True, choices=sorted(ROUTE_DESCRIPTIONS))
-    parser.add_argument("--user-request", required=True)
-    parser.add_argument("--output-root", required=True)
-    parser.add_argument("--dry-run", action="store_true", help="Use local mock generation; no model inference")
-    parser.add_argument("--allow-model-inference", action="store_true", help="Required for any real model adapter")
-    parser.add_argument("--num-samples", type=int, default=4)
-    parser.add_argument("--input-image-dir", default=None)
-    parser.add_argument("--prompt-file", default=None, help="Optional .txt/.json/.jsonl prompt or instruction list")
-    parser.add_argument("--generator", default="dryrun", help="Generator adapter name. Only dryrun is local-safe now")
-    parser.add_argument("--model-name", default=None, help="Registered or custom model name to record in metadata")
-    parser.add_argument("--model-path", default=None, help="Cloud/local model path to record for later real adapters")
-    parser.add_argument("--device", default="cuda:0")
-    parser.add_argument("--height", type=int, default=512)
-    parser.add_argument("--width", type=int, default=512)
-    parser.add_argument("--num-frames", type=int, default=49)
-    parser.add_argument("--fps", type=int, default=16)
-    parser.add_argument("--steps", type=int, default=30)
-    parser.add_argument("--true-cfg-scale", type=float, default=4.0)
-    parser.add_argument("--guidance-scale", type=float, default=1.0)
-    parser.add_argument("--negative-prompt", default="")
-    parser.add_argument("--seed", type=int, default=11)
-    parser.add_argument("--sample-prefix", default="sample")
-    parser.add_argument("--skip-existing", dest="skip_existing", action="store_true", default=True)
-    parser.add_argument("--no-skip-existing", dest="skip_existing", action="store_false")
-    parser.add_argument("--validate-outputs", dest="validate_outputs", action="store_true", default=True)
-    parser.add_argument("--no-validate-outputs", dest="validate_outputs", action="store_false")
-    parser.add_argument("--vlm-eval", action="store_true", help="Run the existing DataEvolver VLM review on generated images")
-    parser.add_argument("--vlm-device", default="cuda:0")
-    parser.add_argument("--vlm-model-path", default=None)
-    parser.add_argument("--vlm-max-samples", type=int, default=None)
-    parser.add_argument("--vlm-max-retries", type=int, default=1)
-    parser.add_argument("--vlm-review-mode", default="studio")
-    parser.add_argument("--vlm-use-freeform-first", action="store_true")
-    parser.add_argument("--vlm-enable-thinking", action="store_true")
-    return parser.parse_args()
 
 
 def write_json(path: Path, payload: object) -> None:
@@ -147,52 +105,5 @@ def run(request: DatasetRequest) -> List[DatasetSample]:
     return samples
 
 
-def main() -> None:
-    args = parse_args()
-    try:
-        request = build_request(
-            route=args.route,
-            user_request=args.user_request,
-            output_root=args.output_root,
-            dry_run=args.dry_run,
-            allow_model_inference=args.allow_model_inference,
-            num_samples=args.num_samples,
-            input_image_dir=args.input_image_dir,
-            prompt_file=args.prompt_file,
-            generator=args.generator,
-            model_name=args.model_name,
-            model_path=args.model_path,
-            device=args.device,
-            height=args.height,
-            width=args.width,
-            num_frames=args.num_frames,
-            fps=args.fps,
-            steps=args.steps,
-            true_cfg_scale=args.true_cfg_scale,
-            guidance_scale=args.guidance_scale,
-            negative_prompt=args.negative_prompt,
-            seed=args.seed,
-            sample_prefix=args.sample_prefix,
-            skip_existing=args.skip_existing,
-            validate_outputs=args.validate_outputs,
-            vlm_eval=args.vlm_eval,
-            vlm_device=args.vlm_device,
-            vlm_model_path=args.vlm_model_path,
-            vlm_max_samples=args.vlm_max_samples,
-            vlm_max_retries=args.vlm_max_retries,
-            vlm_review_mode=args.vlm_review_mode,
-            vlm_use_freeform_first=args.vlm_use_freeform_first,
-            vlm_enable_thinking=args.vlm_enable_thinking,
-        )
-        samples = run(request)
-    except Exception as exc:
-        raise SystemExit(f"[multimodal] ERROR: {exc}") from exc
-
-    print(
-        f"[multimodal] route={request.route} dry_run={request.dry_run} "
-        f"samples={len(samples)} output_root={request.output_root}"
-    )
-
-
 if __name__ == "__main__":
-    main()
+    raise SystemExit("Use python -m dataevolver; the standalone multimodal CLI is retired.")

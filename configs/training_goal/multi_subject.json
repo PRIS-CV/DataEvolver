@@ -1,0 +1,45 @@
+{
+  "task_hint": "multi_subject_insertion",
+  "request": "我要训练真实场景中的多主体注入模型。输入一张背景图、多个主体参考图和插入指令，输出包含这些主体且身份保持、环境自然的图像。目前没有现成素材，需要构造配对监督数据。请根据研究设计完整数据方案。",
+  "materials": [],
+  "constraints": [
+    {
+      "id": "natural_scene",
+      "text": "使用真实场景风格，不能用孤立物体纯色画布替代自然场景。"
+    },
+    {
+      "id": "supervision",
+      "text": "明确背景、多主体参考、插入要求和目标图之间的监督对应关系。"
+    }
+  ],
+  "task_config": {
+    "models": {
+      "image": "Qwen/Qwen-Image-2.1",
+      "review": "Qwen/Qwen3.8-27B",
+      "segmentation": "SAM3"
+    },
+    "subject_count": [
+      2,
+      3,
+      4
+    ],
+    "subjects": "日常物品",
+    "accepted_records": 30,
+    "split_counts": {
+      "train": 18,
+      "validation": 6,
+      "test": 6
+    },
+    "construction_mode": "scene_decomposition",
+    "selection_modes": [
+      "all",
+      "selected"
+    ],
+    "scene_domains": [
+      "家居",
+      "餐厅",
+      "办公",
+      "街头"
+    ]
+  }
+}

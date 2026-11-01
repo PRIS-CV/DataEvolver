@@ -1,733 +1,105 @@
-<p align="center">
-  <img src="assets/showcase.png" alt="DataEvolver Showcase" width="800"/>
-</p>
+# DataEvolver
 
-<h1 align="center">DataEvolver</h1>
+[中文](README_zh.md) · [Agent setup](AGENT_SETUP.md) · [Architecture](docs/FRAMEWORK_INTEGRATION.md)
 
-<p align="center">
-  <strong>An engineering project for synthetic data construction</strong><br/>
-  From the first DataEvolver technical report to <a href="https://github.com/PRIS-CV/DataRSI">DataRSI</a>, submitted to ICASSP 2027.
-</p>
+DataEvolver is a development base for goal-driven data workflows. An agent proposes
+plans and candidates. One `EvolutionController` owns execution, artifact checks,
+budgets, event logs and recovery. `ModelGateway` binds model roles to explicit
+profiles; registered operators bind execution to host-owned implementations.
 
-<p align="center">
-  <strong>Autonomous Synthetic Data Construction via VLM-Guided Iterative Rendering</strong><br/>
-  Build photorealistic, scene-aware training data with a closed loop of 3D rendering, VLM review, and targeted parameter repair.
-</p>
+The public base selects no default checkpoint or agent tool. Paths, model IDs,
+endpoints, executables and resource permissions belong to deployment configuration.
+Keep private profiles and credentials in ignored `.dataevolver/local/` files.
+The previous VLM render/review dual loop is preserved on `codex/legacy-vlm-dual-loop`.
 
-<p align="center">
-  <strong>Qisong Zhang, Wenzhuo Wu, Zhuangzhuang Jia, Yunhao Yang, Shuo Zhang</strong><br/>
-  School of Artificial Intelligence, Beijing University of Posts and Telecommunications (BUPT)
-</p>
+## Architecture
 
-<p align="center">
-  <a href="https://github.com/PRIS-CV/DataRSI"><img src="https://img.shields.io/badge/DataRSI-Research%20Repository-0057b8?logo=github&logoColor=white" alt="DataRSI research repository"/></a>
-  <a href="https://arxiv.org/abs/2605.01789"><img src="https://img.shields.io/badge/arXiv-First%20Technical%20Report-b31b1b?logo=arxiv&logoColor=white" alt="DataEvolver: first technical report on arXiv"/></a>
-  <a href="https://github.com/PRIS-CV/DataRSI"><img src="https://img.shields.io/badge/ICASSP%202027-Submitted-cc785c" alt="DataRSI submitted to ICASSP 2027"/></a>
-  <a href="https://pris-cv.github.io/DataEvolver/"><img src="https://img.shields.io/badge/Website-Project%20Page-1f6feb?logo=githubpages&logoColor=white" alt="Project website"/></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-green" alt="License: Apache-2.0"/></a>
-  <img src="https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white" alt="Python 3.10+"/>
-  <img src="https://img.shields.io/badge/Blender-4.2%2B-f5792a?logo=blender&logoColor=white" alt="Blender 4.2+"/>
-</p>
-
-<p align="center">
-  <a href="README_zh.md">🇨🇳 中文</a> •
-  <a href="#dataevolver-and-datarsi">Project &amp; Papers</a> •
-  <a href="https://pris-cv.github.io/DataEvolver/">🌐 Website</a> •
-  <a href="https://arxiv.org/abs/2605.01789">📄 First Technical Report</a> •
-  <a href="https://pris-cv.github.io/DataEvolver/traces/?lang=en">🔎 Repair Traces</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#honors--recognition">🏆 Recognition</a> •
-  <a href="#dataevolver-rotate">🧩 Dataset: DataEvolver-Rotate</a>
-</p>
-
-<p align="center">
-  <strong>🧠 VLM free-form feedback</strong> •
-  <strong>🎬 3D render-review-fix loop</strong> •
-  <strong>📦 Training-ready multimodal data</strong>
-</p>
-
----
-
-## DataEvolver and DataRSI
-
-**DataEvolver is our engineering project.** Its first technical report is on arXiv. Further project iterations led to **DataRSI: A 3D Data Harness for Failure-to-Data Evolution**, submitted to **ICASSP 2027**.
-
-| Project / publication | Role | Start here |
-|---|---|---|
-| **DataEvolver** (this repository) | Engineering infrastructure for asset generation, 3D reconstruction, scene rendering, VLM review/repair, and multimodal data export. | [Quick Start](#quick-start) |
-| **DataEvolver on arXiv** | Our first technical report, *Let Your Data Build and Improve Itself via Goal-Driven Loop Agents*. | [arXiv 2605.01789](https://arxiv.org/abs/2605.01789) · [Citation](#citation) |
-| **DataRSI** | The subsequent research paper on failure-driven data revision under a fixed budget and admission rules. Submitted to ICASSP 2027. | [Research update](#datarsi-research-update) · [Research repository](https://github.com/PRIS-CV/DataRSI) |
-
-DataRSI connects a **Data Self-Evolution Loop** and a **Model Admission Loop** through a **Failure-to-Data Feedback** interface. Its registered protocol freezes the revision budget and admission rules; candidate model updates are promoted or rolled back based on target utility and protected-region regression checks.
-
-The DataRSI public repository currently announces that its implementation and reproduction materials are being prepared for release. The method figure and manuscript results below describe the submitted work; they do not imply that a complete public reproduction package is available. See [the project and publication guide](docs/DATARSI_RELATION.md) for scope and release status.
-
-## Why DataEvolver?
-
-DataEvolver turns synthetic data construction into a **goal-driven optimization loop**: a VLM reviews rendered scenes in natural language, an agent diagnoses concrete rendering issues, and the scene is re-rendered with targeted parameter updates until the result is worth keeping.
-
-- **Perceive beyond rigid scores** — free-form VLM feedback catches scene context, object placement, lighting, and material issues that fixed rules miss.
-- **Repair with structured actions** — 24 bounded atomic actions adjust lighting, object pose, scene environment, and material appearance without uncontrolled drift.
-- **Export training-ready data** — RGB, masks, depth, normals, geometry metadata, and object-disjoint splits are produced for downstream model training.
-
-## Project Page trace showcase
-
-The [project website](https://pris-cv.github.io/DataEvolver/) presents the engineering routes, paper figures, research results and rendering gallery. The [Trace subpage](https://pris-cv.github.io/DataEvolver/traces/?lang=en) includes a Qwen / FLUX configuration comparison and two historical repair traces: ground contact and bottle count. Original frames, recorded changes, regressions and unresolved outcomes remain visible. The comparison uses different generators; it is separate from the two repair traces and does not establish a continuous single-model improvement chain or trained-model gains.
-
-The website is an independent app in [`apps/project-page/`](apps/project-page/README.md). Local development requires **Node.js 22+ and npm**. The site and its read-only archive API work without the Harness, model weights or a GPU:
-
-```sh
-cd apps/project-page
-npm ci
-npm run dev
+```mermaid
+flowchart LR
+    A[Agent or application] --> B[Plan compiler / worker-compile]
+    B --> C[EvolutionController]
+    C --> D[Registered operators]
+    D --> M[ModelGateway + configured providers]
+    D --> W[Configured native workers]
+    M --> F[Artifacts and execution receipts]
+    W --> F
+    F --> C
 ```
 
-Open `http://127.0.0.1:4173/` or `http://127.0.0.1:4173/traces/?lang=en`. Run `npm run build` to produce `apps/project-page/dist/`, then `npm run preview` to serve that static build on port 8787.
+- `harness/`: state machine, contracts, event log, operator SDK and recovery.
+- `dataset/`: artifact references, graph execution and validation.
+- `adapters/`: typed model interfaces, provider transports and native journals.
+- `workflows/`: optional implementations selected by an explicit deployment.
 
-Pull requests that change the app run tests and produce a preview artifact. Merging app changes into `main` automatically publishes the site through GitHub Pages. Pages serves the bundled public archive by default; the optional read-only backend is hosted separately. See the [deployment guide](apps/project-page/deploy/README.md) for API, Docker, systemd and HTTPS setup.
+A completed workload proves execution and artifact integrity. Visual quality,
+physical calibration and training benefit require separate evidence. Benchmark
+probes and benchmark flaw discovery are outside this update.
 
-## DataRSI research update
+## Develop the base
 
-**Submitted to ICASSP 2027.** DataRSI connects a data revision loop with a model admission loop. VLM inspection supplies defect evidence, a registered policy applies bounded repairs, and deterministic sample contracts admit training pairs. Candidate model updates face target-utility and protected-region regression checks.
-
-![DataRSI method: data revision, failure-to-data feedback and model admission](apps/project-page/frontend/images/paper/datarsi-method.jpg)
-
-The manuscript compares Uniform-72 and Targeted-72 with **72 requests per arm**, the same candidate pool and training setup, and seeds **42, 43 and 44**. Evaluation uses **288 development pairs at 1024 × 1024**. Weak-4 denotes the four diagnosed camera-control cells. Values below are mean ± standard deviation across the three seeds.
-
-| Metric | Uniform-72 | Targeted-72 |
-|---|---|---|
-| Weak-4 rotation error (°) ↓ | 50.45 ± 2.15 | 35.50 ± 3.23 |
-| Weak-4 PSNR (dB) ↑ | 13.88 ± 0.07 | 14.43 ± 0.09 |
-| Overall LPIPS ↓ | 0.2058 ± 0.0028 | 0.2014 ± 0.0030 |
-
-Relative to Uniform, non-Weak-4 rotation error increases by **2.370 ± 0.046°**, and overall rotation error by **0.205 ± 0.125°**. Camera admission replay returns `Promote` for three targeted candidates against the frozen champion. The object-relocation case returns `Rollback` because protected spatial cells regress, despite all 18 samples being admitted and target utility passing.
-
-These results cover **one bounded revision**, not repeated recursive improvement. The separate historical DataRSI-Bench comparison uses 384 pairs at 512 × 512; the original DataEvolver-Rotate dataset below contains 350 training pairs. These evaluations have different scopes. See the [website results section](https://pris-cv.github.io/DataEvolver/#results) for the repair and checkpoint figures. The numbers here are manuscript-reported results, not a new experiment run.
-
-## Current Capabilities
-
-DataEvolver is organized around two connected dataset-construction tracks:
-
-- **Agent-orchestrated multimodal generation and 3D reconstruction** - from a user request, the agent can choose among text-to-image, image edit, text-to-video, and image-to-3D reconstruction interfaces. These interfaces can be composed in parallel, in series, or as hybrid serial-plus-parallel strategies. The 3D route uses a serial object-image -> textured 3D asset -> Blender insertion -> VLM review/repair loop; optional HYWorld / WorldMirror scene generation strengthens this route by building contract-backed scene context before object insertion.
-- **WebSearch-guided reproducible research pipelines** - for one paper or a family of related papers, Stage0 WebSearch records paper evidence, extracts dataset construction methods, maps official open datasets and evaluation criteria as ground-truth references, and produces a reproducible handoff for building stable, high-quality dataset pipelines.
-
-## Key Features
-
-- **Goal-Driven Loop Agents** — VLM reviewer provides semantic feedback ("flat lighting", "floating object") &rarr; AI agent selects targeted actions &rarr; re-render &rarr; repeat until quality goals are met
-- **24 Atomic Actions** — Four active groups cover lighting, object placement, scene environment and material properties; a fifth camera group is reserved — with anti-oscillation control and step-scale scheduling
-- **Scene-Aware Rendering** — Objects placed in real Blender scenes with HDRI environments, raycast ground detection, and preserved scene lighting
-- **Multi-Modal Output** — RGB, mask, depth, normal maps, and geometry metadata
-- **Pipeline Automation** — Compose generation, rendering, review and export under configured budgets and quality checks
-
----
-
-## Pipeline Overview
-
-This is a representative DataEvolver engineering route. The DataRSI figure above adds the research protocol for sample and model admission.
-
-![Pipeline Overview](assets/pipeline_show.svg)
-
-| Stage | What it does | Model / Tool |
-|-------|-------------|-------------|
-| **1. Text Expansion** | LLM expands seed concept into detailed T2I prompt | Claude API (Anthropic) |
-| **2. T2I Generation** | Generate 1024&times;1024 object image | Qwen-Image-2512 |
-| **2.5. Segmentation** | Extract RGBA foreground, remove background | SAM3 |
-| **3. 3D Reconstruction** | Reconstruct textured mesh from single image | Hunyuan3D-2.1 |
-| **4. Scene Rendering** | Scene-aware Blender insertion with configurable EEVEE/Cycles rendering | Blender 4.2+ |
-| **5. VLM Review Loop** | Free-form review &rarr; agent action &rarr; re-render until *keep* | Qwen3.5-35B-A3B |
-
-### The VLM Review Loop (Stage 5)
-
-The core innovation: a **goal-driven loop agent** that iteratively improves rendering quality.
-
-![VLM Review Loop](assets/stage5.svg)
-
-**Anti-oscillation control** prevents parameter thrashing:
-- Sign-flip tracking: freeze a parameter after 3 direction reversals
-- Step-scale scheduling: Round 0 → 100%, Round 1 → 70%, Round 2 → 50%, Round 3+ → 40%
-- Score-adaptive boost: &times;1.2 when hybrid_score < 0.65
-
----
-
-## Prerequisites
-
-- **OS**: Linux (tested on Ubuntu 20.04+)
-- **GPU**: NVIDIA GPU with &ge;24 GB VRAM for rendering; &ge;80 GB for VLM inference
-- **Python**: 3.10+
-- **Blender**: 4.2+
-- **CUDA**: Compatible with your PyTorch version
-
-### Required Models
-
-| Model | Purpose | Approx. Size |
-|-------|---------|-------------|
-| [Qwen-Image-2512](https://huggingface.co/Qwen/Qwen-Image-2512) | T2I generation | ~56 GB |
-| [SAM3](https://github.com/facebookresearch/sam3) | Foreground segmentation | ~2 GB |
-| [Hunyuan3D-2.1](https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1) | Image-to-3D reconstruction | ~20 GB |
-| [Qwen3.5-35B-A3B](https://huggingface.co/Qwen/Qwen3.5-35B-A3B) | VLM quality reviewer | ~35 GB |
-| [Blender 4.2+](https://www.blender.org/download/) | 3D rendering engine | ~300 MB |
-
----
-
-## Quick Start
-
-### Option A: Let your AI agent set it up (recommended)
-
-If you already have **Claude Code** or **Codex** installed, clone this repo,
-open it with your agent, and say:
-
-> 请阅读 AGENT_SETUP.md 并帮我完成所有配置
->
-> *"Read AGENT_SETUP.md and complete the setup for me."*
-
-The agent will probe your GPUs and disk, show you the model download bill
-(~120 GB for the default set), and — only after your confirmation — set up
-the Python environment, model weights, and Blender, then verify everything
-with a single-object smoke run. Model downloads default to the
-hf-mirror.com mirror with the resumable `hfd` downloader. You only need
-**Linux, an NVIDIA GPU (24 GB+ VRAM), git, and Python 3.10+** pre-installed.
-
-### Option B: Manual setup
-
-Follow the steps below yourself. Start with the lightweight onboarding
-dry-run — it checks the shape of your environment, prints the setup, model
-download, and GPU policy plan, and writes local non-sensitive config files.
-It does **not** install dependencies, download model weights, write tokens,
-kill services, or launch GPU jobs. [AGENT_SETUP.md](AGENT_SETUP.md) doubles
-as the reference for the full execution order
-(probe → plan → confirm → execute → verify).
-
-### 1. Clone the repository
+Use an editable source checkout with Python 3.12; the CLI reads repository
+`configs/` alongside `src/`.
 
 ```bash
-git clone https://github.com/PRIS-CV/DataEvolver.git
-cd DataEvolver
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -e '.[harness]'
+python -m dataevolver --help
+python -m dataevolver operator-sdk catalog
+python .agents/skills/verify-dataevolver/scripts/check_repository.py
 ```
 
-### 2. Install the package entry points
-
-```bash
-python -m pip install -e .
-```
-
-Use optional extras only for routes you actually plan to run, for example
-`python -m pip install -e ".[hyworld]"` for HYWorld / WorldMirror setup.
-The `hyworld` extra covers pip-managed runtime packages only; model weights,
-source checkouts, Blender, and CUDA/native extension builds remain explicit
-setup steps after target-host preflight.
-
-### 3. Run the safe onboarding dry-run
-
-For the fastest first pass, use the `quick` profile:
-
-```bash
-bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
-  --profile quick \
-  --dry-run \
-  --write-local-config
-```
-
-For the default DataEvolver pipeline plan, choose a model root and run:
-
-```bash
-bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
-  --profile default \
-  --model-root /path/to/dataevolver-models \
-  --workspace-root "$PWD" \
-  --python-backend auto \
-  --dry-run \
-  --write-local-config
-```
-
-For HYWorld / WorldMirror or paper-validation runs, add an explicit GPU policy
-so the first dry-run records how future agents should inspect or reserve GPUs:
-
-```bash
-bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
-  --profile world_model \
-  --model-root /path/to/dataevolver-models \
-  --workspace-root "$PWD" \
-  --gpu-policy inspect_only \
-  --include-gpus all \
-  --paper-validation \
-  --dry-run \
-  --write-local-config
-```
-
-After inspecting the target host, rerun with a user-chosen policy such as
-`--gpu-policy dynamic_backfill` or `--gpu-policy fixed_range`. If a GPU is
-already serving vLLM, VLM review, or another service, add
-`--reserve-gpus <user-reserved-gpu-spec>` for that host. Do not commit concrete
-host-specific GPU ranges or policy choices to the public repository; they belong
-in ignored `.dataevolver/local/` profiles.
-
-The script prints five sections:
-
-| Section | What it tells you |
-|---------|-------------------|
-| `preflight` | Linux, GPU, Python, `uv`/`conda`, Blender, and Hugging Face CLI availability |
-| `gpu plan` | Inspect-only, dynamic backfill, or fixed-range GPU planning for future shards |
-| `env plan` | The preferred `uv` environment plan and `conda` fallback |
-| `model plan` | Hugging Face repos, target paths, gated-access notes, and printed download commands |
-| `config plan` | Non-sensitive environment variables that the pipeline can read |
-
-Available profiles:
-
-| Profile | Use it when |
-|---------|-------------|
-| `quick` | You only want environment discovery and a dry-run route |
-| `default` | You want the current core pipeline plan: Qwen-Image-2512, SAM3, Hunyuan3D-2.1, DINOv2 Giant, Qwen3.5-35B-A3B, and Blender |
-| `full` | You also want the default Edit/T2V plan: Qwen-Image-Edit-2511 and Wan2.1-T2V |
-| `world_model` | You want the optional HYWorld / WorldMirror scene reconstruction plan |
-| `blender_mcp` | You want optional Codex-controlled remote Blender debugging through Blender MCP |
-| `custom` | You already have replacement models and want them recorded for later compatibility review |
-
-When `--write-local-config` is used, the generated local files are:
-
-- `.dataevolver/local/ENVIRONMENT.md` — human-readable setup summary
-- `.dataevolver/local/env.config.json` — structured config for agents and scripts
-- `.dataevolver/local/env.sh.example` — sourceable non-sensitive path variables
-
-`.dataevolver/local/` is ignored by Git. Do not put Hugging Face, Anthropic,
-OpenAI, SSH, cookie, or API tokens in these files.
-
-If you are working with an agent environment that supports skills, ask it to use
-the `dataevolver-onboarding` skill. It should interview you for five setup
-areas: target route, runtime location, install policy, model strategy, and
-workspace/output paths. For HYWorld or paper-validation routes, it should also
-record the GPU policy (`inspect_only`, `dynamic_backfill`, or `fixed_range`),
-included GPUs, and reserved GPUs before running the dry-run script above.
-
-### 4. Production Setup
-
-Create the runtime environment. On shared GPU servers, prefer
-`--system-site-packages` so an already validated NVIDIA PyTorch build can be
-reused. Install the CUDA wheel only if `import torch` fails inside the venv or
-reports no usable CUDA.
-
-```bash
-uv venv .venv --python 3.10 --system-site-packages
-source .venv/bin/activate
-
-python - <<'PY'
-import torch
-print(torch.__version__, torch.cuda.is_available())
-PY
-
-# Fallback only when the torch check above fails.
-uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
-
-uv pip install \
-  "numpy<2" "tokenizers==0.22.1" \
-  diffsynth transformers accelerate diffusers safetensors \
-  pillow opencv-python scipy scikit-image imageio trimesh \
-  rembg[gpu] anthropic qwen-vl-utils lpips basicsr realesrgan \
-  iopath timm ftfy moviepy==1.0.3 nerfview rtree \
-  opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http
-```
-
-Review `.dataevolver/local/env.sh.example`, copy it to a machine-local file,
-then source it before every real run:
-
-```bash
-cp .dataevolver/local/env.sh.example .dataevolver/local/env.remote.sh
-# Edit paths only. Do not put tokens in this file.
-source .dataevolver/local/env.remote.sh
-source .venv/bin/activate
-```
-
-Production deployments should use environment variables instead of editing
-pipeline scripts:
-
-| Variable | Points to |
-|----------|-----------|
-| `DATAEVOLVER_WORKSPACE_ROOT` | DataEvolver checkout |
-| `QWEN_IMAGE_MODEL_PATH` | Qwen-Image-2512 weights |
-| `QWEN_IMAGE_EDIT_MODEL_PATH` | Qwen-Image-Edit-2511 weights, optional for edit routes |
-| `SAM3_CKPT` | `sam3.pt` checkpoint |
-| `SAM3_DIR` | SAM3 source checkout or importable package path |
-| `HUNYUAN3D_REPO` | Tencent-Hunyuan/Hunyuan3D-2.1 source checkout |
-| `MODEL_HUB` | Hunyuan3D-2.1 weights |
-| `PAINT_MODEL_HUB` | Hunyuan3D paint weights, usually the same as `MODEL_HUB` |
-| `DINO_MODEL_PATH` | DINOv2 Giant checkpoint directory |
-| `REALESRGAN_CKPT` | `RealESRGAN_x4plus.pth` used by Hunyuan paint |
-| `VLM_MODEL_PATH` | Qwen3.5-35B-A3B, or a verified compatible Qwen3.x replacement |
-| `BLENDER_BIN` | Blender executable |
-
-Keep source checkouts and model weights separate. `SAM3_CKPT` is the checkpoint
-file, while `SAM3_DIR` is the SAM3 code path. `HUNYUAN3D_REPO` is the
-Hunyuan3D source checkout, while `MODEL_HUB` and `PAINT_MODEL_HUB` are weight
-directories.
-
-#### Optional HYWorld / WorldMirror Scene Reconstruction
-
-Use `--profile world_model` only when the target route is HYWorld / WorldMirror scene reconstruction. This keeps world-model setup out of the default core pipeline:
-
-```bash
-bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
-  --profile world_model \
-  --model-root /path/to/dataevolver-models \
-  --workspace-root "$PWD" \
-  --python-backend auto \
-  --dry-run \
-  --write-local-config
-```
-
-The world-model profile adds these local environment variables:
-
-| Variable | Points to |
-|----------|-----------|
-| `HYWORLD_SRC` | HY-World-2.0 source checkout |
-| `HYWORLD_WEIGHTS` | HY-World-2.0 weights, including `HY-WorldMirror-2.0` |
-| `HYWORLD_PYTHON` | Python environment used for HYWorld dependencies |
-| `HYWORLD_MOGE_MODEL_PATH` | Local MoGe model used for real panorama depth |
-| `HYWORLD_ZIM_MODEL_PATH` | Local ZIM model used for sky masking |
-| `HYWORLD_GROUNDING_DINO_MODEL_PATH` | Local GroundingDINO model used by HYWorld navigation |
-| `HYWORLD_SAM3_MODEL_PATH` | Local SAM3 model/source path used by HYWorld |
-| `HYWORLD_WORLDSTEREO_PATH` | Local WorldStereo weights root |
-| `HYWORLD_WAN_BASE_MODEL` | Local Wan I2V base Diffusers model used by WorldStereo/video generation |
-
-HYWorld production scene generation requires local MoGe, ZIM, GroundingDINO, SAM3, WorldStereo, Wan I2V base, and HY-WorldMirror weights. Offline mode forbids downloads but must still load these local models; do not set `HYWORLD_NO_MODEL_DOWNLOADS=1` for real 3D scene generation because that skips metric depth and can produce a fixed-radius panorama shell.
-
-`python -m dataevolver.workflows.hyworld.scene_pano` and `python -m dataevolver.workflows.hyworld.full_worldgen` preserve changed stage artifacts under `<scene-dir>/intermediates/<run-id>/` by default. The HY-Pano stage snapshots the 360-degree equirectangular panorama, and full worldgen snapshots the input again under `00_source_panorama/` before retaining trajectory, depth/sky-mask, WorldStereo, GS, and WorldMirror outputs.
-
-##### Automated Scene Construction
-
-The world-model route can build a reviewable scene package automatically from scene prompts or an input scene image. The pipeline first generates a 360-degree HY-Pano context, runs HYWorld / WorldMirror reconstruction, converts metric geometry into a Blender scene contract, renders pure-scene multi-view evidence, and then inserts objects with fixed scene-camera alignment. The final report records contract checks, per-view scene renders, object rotation views, masks, depth, normals, metadata gates, and lineage hashes.
-
-![HYWorld automated scene construction pipeline](assets/3D-build.png)
-
-```bash
-python -m dataevolver.cli.production doctor \
-  --profile .dataevolver/local/production_profile.json \
-  --no-imports
-
-python -m dataevolver.workflows.hyworld.scene_pano \
-  --scene-prompts-path <scene-prompts.json> \
-  --output-root <hyworld-scene-root>
-
-python -m dataevolver.workflows.hyworld.full_worldgen \
-  --profile .dataevolver/local/production_profile.json \
-  --scene-dir <hyworld-scene-root>/<scene-id> \
-  --intermediate-root <intermediate-root>/<scene-id>
-
-python -m dataevolver.workflows.hyworld.finalize_object_scene_report \
-  --dataset-base <dataset-base> \
-  --strict-scene-views
-```
-
-HYWorld / WorldMirror follows the staged world-generation route HY-Pano -> WorldNav -> WorldStereo -> WorldMirror/3DGS. Do not treat a VLM pass as authoritative for world-model completion; use contract-backed geometry, multi-view pure-scene renders, and final manifest/lineage evidence.
-
-After CUDA and `nvcc` are confirmed, build Hunyuan3D's native extensions:
-
-```bash
-uv pip install --no-build-isolation -e "$HUNYUAN3D_REPO/hy3dpaint/custom_rasterizer"
-cd "$HUNYUAN3D_REPO/hy3dpaint/DifferentiableRenderer"
-bash compile_mesh_painter.sh
-```
-
-Install HYWorld vendor CUDA/source-build packages such as `cupy-cuda12x`,
-`flash-attn`, `pytorch3d`, and `fused_ssim` only in the target HYWorld Python
-environment after CUDA, `nvcc`, compiler, and PyTorch ABI preflight pass.
-
-### 5. Production Smoke Tests
-
-Run preflight and import checks first:
-
-```bash
-python3 --version
-uv --version
-nvidia-smi
-df -h .
-"$BLENDER_BIN" --version
-
-python - <<'PY'
-import torch
-print("cuda:", torch.cuda.is_available(), "bf16:", torch.cuda.is_bf16_supported())
-from transformers import AutoProcessor
-from opentelemetry import trace
-PY
-```
-
-Then validate one object through the runtime stages:
-
-```bash
-SMOKE_ROOT=.dataevolver/local/smoke
-
-python -m dataevolver.workflows.stages.t2i_generate --ids obj_001 --steps 1 --height 512 --width 512 --device cuda:0
-python -m dataevolver.workflows.stages.sam_segment --ids obj_001 --device cuda:0
-python -m dataevolver.workflows.stages.image_to_3d --ids obj_001 --shape-only --device cuda:0 --output-dir "$SMOKE_ROOT/meshes_shape_only"
-
-python -m dataevolver.workflows.stages.image_to_3d \
-  --no-skip \
-  --ids obj_001 \
-  --device cuda:0 \
-  --output-dir "$SMOKE_ROOT/meshes_textured" \
-  --paint-max-faces 5000 \
-  --paint-remesh-modes false \
-  --paint-attempt-timeout-sec 300
-```
-
-`--shape-only` is a fallback for missing DINO, RealESRGAN, or paint extensions;
-it is not a complete textured production-readiness check. Also run the Stage
-5.5 VLM loader smoke before starting a full review loop.
-
-After the deployment evidence has been recorded, remove generated smoke
-artifacts so the working directory stays clean:
-
-```bash
-rm -rf .dataevolver/local/smoke
-```
-
-Only after these checks pass should you prepare scene assets and run
-`bash src/dataevolver/cli/run_all.sh`. Scene-aware review and action application
-use `python -m dataevolver.annotation.vlm_review_stage` and
-`python -m dataevolver.agents.feedback_apply` after model paths, `BLENDER_BIN`,
-and `configs/scene_template.json` are configured.
-
----
-
-## Reproducible Research Prior Workflow
-
-The public repository keeps the lightweight WebSearch prior entry point and the
-universal 3D layout schema, but does not publish the old local Blender batch
-scripts, private scene pools, generated meshes, `.blend` scene files, model
-weights, API keys, or paper source.
-
-Stage0 is an agent-run research harness: the active agent performs WebSearch and
-paper reading, while DataEvolver records evidence, trace events, handoff
-documents, and `research_prior.json`. The prior is soft guidance for downstream
-generation; missing or invalid priors should warn and continue rather than block
-the pipeline.
-
-Core entry points:
-
-- Stage0 WebSearch prior: `python -m dataevolver.tools.stage0_web_research` ([source](src/dataevolver/tools/stage0_web_research.py))
-- Universal dataset schema: [`configs/schemas/universal_3d_layout_dataset_schema.json`](configs/schemas/universal_3d_layout_dataset_schema.json)
-
-### Single-paper reproduction mode
-
-Use `--dataset-mode single-paper` when the user provides one paper and wants a
-reproducible dataset-construction handoff. For example, a SeeThrough3D session
-should separate official resources from self-generated proxies, capture the
-paper's dataset construction method, and record evaluation signals before any
-large run.
-
-```bash
-python -m dataevolver.tools.stage0_web_research init \
-  --query "SeeThrough3D: Occlusion Aware 3D Control in Text-to-Image Generation" \
-  --output-dir .dataevolver/runtime/research_priors/demo_seethrough3d \
-  --dataset-mode single-paper \
-  --tag seethrough3d-reproduction
-```
-
-### Multi-paper universal mode
-
-Use `--dataset-mode universal` when the user provides a topic or idea. The
-agent should narrow the search to 3-5 highly related papers, extract their
-dataset construction methods, quality gates, and failure modes, then synthesize
-the reusable requirements into the universal 3D layout contract.
-
-```bash
-python -m dataevolver.tools.stage0_web_research init \
-  --query "occlusion-aware 3D control datasets for text-to-image generation" \
-  --output-dir .dataevolver/runtime/research_priors/demo_universal \
-  --dataset-mode universal \
-  --tag universal-3d-layout
-```
-
-Optional Blender MCP operator setup for Codex-controlled remote Blender debugging:
-
-```bash
-bash src/dataevolver/cli/bootstrap_dataevolver_default.sh \
-  --profile blender_mcp \
-  --dry-run \
-  --write-local-config
-```
-
-This writes `.dataevolver/local/blender_mcp.codex.toml` and remote Blender preflight/start instructions. Blender MCP is for interactive scene diagnosis, viewport screenshots, temporary Blender Python execution, and lighting/camera/material experiments; production dataset generation still uses DataEvolver pipeline scripts and reviewed `BLENDER_BIN` configuration. See [`docs/BLENDER_MCP_REMOTE.md`](docs/BLENDER_MCP_REMOTE.md).
-
----
-
-## Project Structure
-
-```
-DataEvolver/
-├── src/dataevolver/
-│   ├── agents/                              # Feedback/action application
-│   ├── annotation/                          # VLM and constraint review
-│   ├── cli/                                 # Public onboarding and runtime entry points
-│   ├── dataset/                             # Dataset loaders and metadata exporters
-│   ├── runtime/                             # Runtime profiles, asset lifecycle, HYWorld contracts
-│   ├── testing/                             # Public smoke and contract tests
-│   ├── tools/                               # Research prior and diagnostics helpers
-│   └── workflows/
-│       ├── hyworld/                         # Optional HYWorld bridge modules
-│       ├── multimodal/                      # T2I/Edit/T2V dataset workflow
-│       └── stages/                          # Core stage modules
-├── configs/
-│   ├── action_space.json                    # Core action-space contract
-│   ├── scene_action_space.json              # 24 atomic actions definition
-│   ├── scene_template.json                  # Blender scene template config
-│   ├── production_profile.example.json      # Example production profile
-│   ├── vlm_review_schema.json               # VLM review output schema
-│   └── dataset_profiles/                    # Public example profiles
-├── .agents/                                 # Agent skills and setup guidance
-├── .github/                                 # GitHub workflows and repo metadata
-├── assets/
-│   ├── hdri/                                # Placeholder for locally supplied HDRI maps
-│   └── scene/                               # Scene references; supply runtime .blend assets
-└── apps/project-page/                       # Isolated website + read-only API (GitHub Pages)
-```
-
----
-
-## Action Space
-
-The AI agent selects from **24 structured atomic actions** in four active groups. A fifth camera group is reserved:
-
-| Group | Actions | Parameters |
-|-------|---------|-----------|
-| **Lighting** (4) | Key light intensity &uarr;&darr;, key light yaw &plusmn;15&deg; | Multiplicative &times;1.2/&times;0.8 or additive, bounded |
-| **Object** (6) | Elevation &plusmn;0.02, yaw &plusmn;15&deg;, scale &times;1.1/&times;0.9 | Bounded within safe ranges |
-| **Scene** (5) | Env rotation &plusmn;30&deg;, env intensity &uarr;&darr;, contact shadow | HDRI and environment controls |
-| **Material** (9) | Saturation, value/brightness, hue offset, roughness, specular/sheen | Fine-grained material tuning |
-| **Camera** (0) | Reserved for future use | — |
-
-Full action definitions: [`configs/scene_action_space.json`](configs/scene_action_space.json)
-
----
-
-## DataEvolver-Rotate
-
-The first benchmark dataset produced by DataEvolver — for rotation-conditioned image editing.
-
-| Metric | Value |
-|--------|-------|
-| Unique Objects | 50 |
-| Rotation Angles | 8 (0&deg;, 45&deg;, 90&deg;, 135&deg;, 180&deg;, 225&deg;, 270&deg;, 315&deg;) |
-| Training Pairs | 350 (front &rarr; 7 target views) |
-| Train / Val / Test | 245 / 49 / 56 pairs (object-disjoint, seed=42) |
-| Modalities | RGB, mask, depth, normal |
-
-### Methodology
-
-Each object uses a single **canonical yaw-0&deg; best state** as the base. The object is then rotated while the scene, camera, lighting, and material remain fixed — ensuring cross-angle consistency.
-
-### Loading the Dataset
-
-```python
-import json
-from pathlib import Path
-from PIL import Image
-
-root = Path("path/to/dataset_split")
-rows = []
-with (root / "pairs" / "train_pairs.jsonl").open("r") as f:
-    for line in f:
-        rows.append(json.loads(line))
-
-row = rows[0]
-source = Image.open(root / row["source_image"]).convert("RGB")
-target = Image.open(root / row["target_image"]).convert("RGB")
-instruction = row["instruction"]  # e.g., "Rotate the object 45 degrees clockwise"
-```
-
----
-
-## Using with Claude Code
-
-DataEvolver is designed to work with [Claude Code](https://docs.anthropic.com/en/docs/claude-code) as an AI-powered development and operations assistant. Claude Code reads a project-level `CLAUDE.md` file to understand your environment, then helps you run pipelines, analyze results, and build datasets through natural language.
-
-### Step 1: Install Claude Code
-
-```bash
-npm install -g @anthropic-ai/claude-code
-```
-
-### Step 2: Create your `CLAUDE.md`
-
-Create a `CLAUDE.md` in the project root (it's gitignored — each user maintains their own). This file tells Claude Code about your specific environment:
-
-```markdown
-# CLAUDE.md
-
-## Remote Server
-- SSH alias: `my-server`
-- GPU: 3x A800 80GB (or your setup)
-- Python: `/path/to/python3` (3.10+, with PyTorch)
-- Blender: `/path/to/blender` (4.2+)
-- Code directory: `/path/to/DataEvolver`
-
-## Model Paths
-- Qwen-Image-2512: `/path/to/Qwen-Image-2512`
-- SAM3 checkpoint: `/path/to/sam3/sam3.pt`
-- Hunyuan3D-2.1 repo: `/path/to/Hunyuan3D-2.1`
-- Hunyuan3D-2.1 weights: `/path/to/model_hub/Hunyuan3D-2.1`
-- Qwen3.5-35B-A3B: `/path/to/Qwen3.5-35B-A3B`
-
-## Scene Config
-- Blender scene file: `/path/to/scene.blend`
-- HDRI directory: `/path/to/hdri/`
-- Render engine: CYCLES, 512 samples, 1024x1024
-
-## Key Configs
-- Action space: `configs/scene_action_space.json` (24 atomic actions)
-- Scene template: `configs/scene_template.json`
-- Dataset profiles: `configs/dataset_profiles/`
-
-## Pipeline
-Stage 1 (Text Expansion) → Stage 2 (T2I) → Stage 2.5 (SAM3)
-→ Stage 3 (3D Reconstruction) → Stage 4 (Blender Render) → Stage 5 (VLM Loop)
-
-## Working Rules
-- Always test on the remote server, not locally
-- Use tmux for long-running tasks (screen not available on all servers)
-- Read trace.json free-form text for VLM results — not just agg.json scores
-- Only stop VLM loop when reviewer explicitly says "keep"
-- Check GPU usage before launching new jobs
-```
-
-### Step 3: Create Claude Code Skills (Optional)
-
-You can create reusable skills in a `skills/` directory for common workflows:
-
-```bash
-mkdir -p skills/scene-agent-loop
-```
-
-```markdown
-# skills/scene-agent-loop/SKILL.md
----
-name: scene-agent-loop
-description: Manage the VLM review loop for scene rendering
----
-# Scene Agent Loop
-Monitor and continue the VLM review → render → agent decision loop.
-Read trace.json to understand current state, then decide next action.
-```
-
-### Step 4: Launch Claude Code
-
-```bash
-cd DataEvolver
-claude
-```
-
-Claude Code will read your `CLAUDE.md` and understand the full project context. Example commands:
-
-```
-> Check GPU usage on the server
-> Run the full pipeline for 10 new furniture objects
-> Export rotation8 dataset from the latest best states
-> Build train-ready dataset with object-disjoint split
-```
-
----
+`dataevolver`, `dataevolver-harness` and `python -m dataevolver` share one CLI.
+The base setup requires no checkpoint, model service or native rendering engine.
+The source checker reads source/configuration files without importing application
+code or executing workloads. See [Agent setup](AGENT_SETUP.md) for deployment.
+
+## Configure models and workers
+
+Bind a model with `ModelProfile`, `ModelPolicy` and `ModelGateway`. Select its model
+ID, revision, transport, endpoint environment variable, allowed roles and budgets.
+The HTTP model transport accepts the host's served model ID. Native providers use
+explicitly registered implementations. See
+[the profile template](configs/harness/model_profiles.example.json).
+
+For dataset plans, use `compile-plan` with registered operator and domain bindings.
+For a native process, fill [the worker template](configs/worker.example.json) with
+its executable, code, inputs, outputs, environment allowlist and resource limits.
+Paths in `files` and `inputs` resolve relative to the profile file.
+`worker-compile` freezes these resources into a goal; `create`, `step`, `status`
+and `replay` use the same Controller. `scene-compile` remains a compatible alias.
+A worker must implement the request/result contract documented in
+[the native workflow guide](docs/NATIVE_SCENE_WORKFLOW.md).
+
+The repository includes optional image, prompt-enhancement, review, segmentation,
+Blender and UE5 adapters. Each adapter has its own dependencies and identity checks.
+They are enabled by explicit profiles; choosing one does not make it a framework
+default. See [optional visual adapters](docs/LOCAL_VISUAL_MODELS.md) and
+[optional scene adapters](docs/NATIVE_SCENE_WORKFLOW.md). A different model
+implementation must provide its own registered adapter when its API differs.
+
+Low-level multimodal requests take explicit model values or
+`DATAEVOLVER_<ROUTE>_MODEL` / `DATAEVOLVER_<ROUTE>_MODEL_PATH` environment bindings.
+An unset binding stays unset; it never selects a checkpoint directory.
+
+## Migration and verification
+
+The old production and standalone multimodal CLIs, shell batch runners and
+bootstrap script are retired. Use the unified Harness CLI. Existing frozen runs
+retain their original hashes; changed code or bindings require a new campaign.
+See [migration notes](docs/MAINLINE_MIGRATION.md).
+
+Install `.[test]` and run the contract suite only with authorization on the intended
+test host. The current integration received static source/configuration checks;
+its tests, model inference and rendering have not been executed.
+
+[Project website](https://pris-cv.github.io/DataEvolver/) ·
+[First technical report](https://arxiv.org/abs/2605.01789) ·
+[DataRSI research repository](https://github.com/PRIS-CV/DataRSI)
 
 ## Citation
 
-This entry cites the **first DataEvolver technical report on arXiv**. DataRSI is a subsequent submission; consult its [research repository](https://github.com/PRIS-CV/DataRSI) for release and citation updates.
+The first technical report describes an earlier system revision.
 
 ```bibtex
 @misc{zhang2026dataevolverletdatabuild,
@@ -740,42 +112,3 @@ This entry cites the **first DataEvolver technical report on arXiv**. DataRSI is
   url={https://arxiv.org/abs/2605.01789},
 }
 ```
-
-## Honors & Recognition
-
-- 🏆 **[AIDataSci 2026, KDD 2026 Workshop](https://usail-hkust.github.io/aidatasci/)** — DataEvolver was accepted as an **Oral Presentation**. [View on OpenReview](https://openreview.net/forum?id=8ppusILCIH).
-- 🎖️ **2026 BAAI Conference Agent for Science Competition** — DataEvolver received a **Certificate of Poster Presentation** and was selected for on-site poster presentation.
-
-<p align="center">
-  <img src="assets/baai_agent4s_poster_certificate.jpg" alt="DataEvolver BAAI Agent for Science poster presentation certificate" width="720"/>
-</p>
-
-## Roadmap
-
-### Completed
-
-- [x] **WebSearch-integrated AI Agent** — Stage0 WebSearch supports both single-paper reproduction and multi-paper universal dataset modes. It records paper evidence, exports handoff documents, and has been validated on the remote rendering environment.
-- [x] **Multi-paper universal 3D dataset synthesis** — the workflow starts from an anchor paper, expands to related 3D-control papers, and extracts shared dataset requirements for target images, masks, OSCR/structure views, camera metadata, object layout, occlusion relations, scene graphs, and validation traces.
-- [x] **Universal 3D layout dataset contract** — DataEvolver now tracks a reusable schema for Blender-backed target renders, per-object masks, structure views, depth-order proxies, orientation proxies, camera pose/intrinsics/viewpoint tokens, mesh metadata, 3D boxes, scene graphs, spatial relations, and promotion decisions.
-- [x] **Blender-backed dual-object scenes** — the current universal 3D workflow can generate real-scene, dual-object records with DataEvolver scene and mesh assets. General N-object compositional scenes remain a separate extension.
-- [x] **VLM/CV self-evolution loop** — selected universal 3D records can be reviewed with calibrated hybrid VLM and CV geometry scores, bounded repair actions, and explicit accept/reject promotion traces.
-- [x] **Paper-specific and universal export modes** — the WebSearch and universal layout scripts support both single-paper dataset reproduction and multi-paper universal schema export.
-
-### In Progress
-
-- [ ] **Structured VLM knowledge base** — current scoring already uses structured VLM/CV criteria, mask coverage checks, depth-order proxy checks, geometry-review metadata, and a VGGT-Omega proxy hook. A persistent prior-knowledge store for reusable VLM assessment criteria is still under development.
-- [ ] **Real-world dataset ingestion** — WebSearch can discover public datasets and paper resources, and public artifacts such as SeeThrough3D are used as references. A full crawl-clean-process-ingest pipeline for arbitrary real-world datasets is still pending.
-- [ ] **Automated evaluation-set generation** — next focus is converting validation logs, hybrid VLM/CV scores, promotion traces, and research priors into reusable evaluation datasets with task specs, answer keys, object/scene splits, provenance checks, and regression gates.
-- [ ] **Faster 3D reconstruction loop** — reduce image-to-3D and mesh-to-scene iteration time with profile-aware dry-runs, caching, batched renders, and lightweight review passes before expensive VLM checks.
-- [ ] **LoRA tuning for 3D reconstruction models** — experiment with parameter-efficient fine-tuning on accepted reconstruction traces and failure cases to improve shape fidelity, texture consistency, and Blender insertion quality.
-
-### Pending
-
-- [ ] **Video object datasets** — extend image-level rendering to temporally consistent object removal, translation, rotation, insertion, and attribute editing across frames.
-- [ ] **Temporal review and filtering** — add sequence-level checks for flicker, trajectory smoothness, mask stability, depth continuity, and action consistency.
-- [ ] **General N-object compositional scenes** — beyond the current dual-object workflow, this requires relation-aware sampling, collision handling, occlusion planning, and stronger multi-object VLM/CV review.
-- [ ] **Large-scale public dataset ingestion** — scale WebSearch-discovered dataset ingestion into repeatable crawling, cleaning, licensing, provenance, and structured export workflows.
-
-## License
-
-[Apache-2.0](LICENSE)

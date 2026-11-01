@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "VLMRenderReview",
-  "description": "Schema version vlm_review_v1 \u2014 output of Qwen3.5-35B-A3B render quality review",
+  "description": "Schema version vlm_review_v1 \u2014 output of Qwen3.8-27B render quality review",
   "type": "object",
   "required": [
     "schema_version",

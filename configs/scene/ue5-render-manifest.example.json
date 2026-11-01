@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "recipe": "frozen-scene-v1",
+  "root": "/path/to/render-root",
+  "project": "/path/to/render-root/runtime/ue-project/Scene.uproject",
+  "engine": "/path/to/engine/Engine/Binaries/Linux/UnrealEditor",
+  "renderer": "/path/to/render-root/code/src/dataevolver/workflows/scene/ue5/render_frozen_scene.py",
+  "gpu_launcher": "/path/to/render-root/code/src/dataevolver/workflows/scene/gpu_lease.py",
+  "scene_config": "/path/to/render-root/datasets/frozen-scene/render-config.json",
+  "dependencies": [
+    "/path/to/render-root/datasets/frozen-scene/manifest.json",
+    "/path/to/render-root/datasets/frozen-scene/scene.glb",
+    "/path/to/render-root/datasets/frozen-scene/trace.json",
+    "/path/to/render-root/code/src/dataevolver/workflows/scene/ue5/trajectory.py",
+    "/path/to/render-root/code/src/dataevolver/workflows/scene/ue5/measure_hdri.py",
+    "/path/to/render-root/code/src/dataevolver/workflows/scene/ue5/ue_lifecycle.py"
+  ],
+  "container": "configured-ue-runtime",
+  "user": "10001:10001",
+  "expected_host": "configured-render-host",
+  "gpu_uuid": "GPU-CONFIGURE-THIS-HOST",
+  "min_free_mib": 24000,
+  "max_utilization": 5,
+  "timeout_s": 900,
+  "engine_version": "CONFIGURE-ACTUAL-UE-VERSION",
+  "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "trace_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "tasks": [
+    {
+      "id": "main",
+      "camera": "Main",
+      "file_prefix": "scene_Main",
+      "frames": 48,
+      "fps": 24,
+      "samples": 8,
+      "resolution": [
+        1920,
+        1080
+      ]
+    }
+  ]
+}

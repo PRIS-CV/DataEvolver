@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dataevolver.local/schemas/harness_event.schema.json",
+  "title": "DataEvolver Harness Event V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "sequence", "event_id", "campaign_id", "event_type", "timestamp", "payload", "idempotency_key"],
+  "properties": {
+    "schema_version": {"const": "dataevolver.harness.event.v1"},
+    "sequence": {"type": "integer", "minimum": 1},
+    "event_id": {"type": "string", "minLength": 1},
+    "campaign_id": {"type": "string", "minLength": 1},
+    "event_type": {"type": "string", "minLength": 1},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "payload": {"type": "object"},
+    "idempotency_key": {"type": "string"}
+  },
+  "$defs": {
+    "OperatorCall": {
+      "type": "object",
+      "required": ["campaign_id", "call_id", "idempotency_key", "operator_id", "operator_version", "round_index", "work_dir", "parameters"]
+    },
+    "OperatorReceipt": {
+      "type": "object",
+      "required": ["call_id", "operator_id", "operator_version", "status", "started_at", "finished_at", "reused"]
+    },
+    "StepReceipt": {
+      "type": "object",
+      "required": ["campaign_id", "previous_state", "new_state", "action_count", "effect", "status", "next_safe_action", "budget_remaining", "receipt_hash"]
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "schema_version": "dataevolver.harness.goal.v1",
+  "campaign_id": "real-t2i-canary",
+  "objective": {
+    "kind": "real_t2i_canary",
+    "initial_trial_key": {
+      "input_artifact_hash": "f809ee9df552a4d9478823584fcc9d4da328613615ff936ed606782749e3e946",
+      "parent_artifact_hash": "none",
+      "seed": 17,
+      "operator_id": "multimodal.t2i_canary",
+      "operator_version": "1",
+      "model_config_hash": "qwen-image-2.1-canary-v1",
+      "preprocessing_hash": "fixed-prompt-file-v1",
+      "evaluator_hash": "9c5f8c6e3d5b8931acda779284597ca3c2e301fad58489d0b49295e422352e63",
+      "environment_contract_hash": "single-h100-cuda-visible-device-v1"
+    },
+    "canary_trial_key": {
+      "input_artifact_hash": "f809ee9df552a4d9478823584fcc9d4da328613615ff936ed606782749e3e946",
+      "parent_artifact_hash": "none",
+      "seed": 17,
+      "operator_id": "multimodal.t2i_canary",
+      "operator_version": "1",
+      "model_config_hash": "qwen-image-2.1-canary-v1",
+      "preprocessing_hash": "fixed-prompt-file-v1",
+      "evaluator_hash": "9c5f8c6e3d5b8931acda779284597ca3c2e301fad58489d0b49295e422352e63",
+      "environment_contract_hash": "single-h100-cuda-visible-device-v1"
+    }
+  },
+  "initial_operator_id": "multimodal.t2i_canary",
+  "initial_operator_parameters": {
+    "prompt": "A red ceramic mug on a plain wooden table, studio lighting, centered composition.",
+    "seed": 17,
+    "height": 512,
+    "width": 512,
+    "steps": 1
+  },
+  "route_candidates": ["t2i"],
+  "budgets": {
+    "max_rounds": 1,
+    "max_operator_calls": 1,
+    "max_experiments": 0,
+    "max_retries": 0,
+    "max_wall_seconds": 3600
+  },
+  "resource_policy": {
+    "allow_gpu": true,
+    "physical_gpu": 1,
+    "logical_device": "cuda:0",
+    "allowed_operators": ["multimodal.t2i_canary"]
+  },
+  "frozen_evaluator": {
+    "path": "configs/harness/t2i_canary_evaluator.json",
+    "sha256": "9c5f8c6e3d5b8931acda779284597ca3c2e301fad58489d0b49295e422352e63"
+  },
+  "interventions": [],
+  "lease_seconds": 3600
+}

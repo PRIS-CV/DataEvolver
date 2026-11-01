@@ -1,0 +1,23 @@
+{
+  "schema_version": "dataevolver.harness.evaluator.v1",
+  "evaluator_id": "fake-quality-v1",
+  "revision": "1",
+  "hard_constraints": {
+    "artifact_valid": {
+      "required": true
+    }
+  },
+  "target_metrics": {
+    "quality": {
+      "required": true,
+      "minimum": 0.8,
+      "minimum_improvement": 0.2
+    }
+  },
+  "protected_metrics": {
+    "safety": {
+      "required": true,
+      "max_regression": 0.05
+    }
+  }
+}

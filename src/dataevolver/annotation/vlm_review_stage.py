@@ -1,7 +1,7 @@
 """
 Stage 5.5: VLM-based render review + CV metrics.
 
-Reviews rendered images for one object using Qwen3.5-35B-A3B and
+Reviews rendered images for one object using Qwen3.8-27B and
 traditional CV metrics. Outputs a JSON review with hybrid quality score.
 
 v6: Added structure_consistency, color_consistency, physics_consistency
@@ -34,7 +34,7 @@ from typing import List, Optional
 
 import numpy as np
 from PIL import Image
-from dataevolver.paths import CONFIGS_ROOT, DATAEVOLVER_ROOT, REPO_ROOT
+from dataevolver.paths import CONFIGS_ROOT, REPO_ROOT
 from dataevolver.runtime.asset_lifecycle import (
     ABANDON_CONFIDENCE_VALUES,
     ASSET_VIABILITY_VALUES,
@@ -45,11 +45,8 @@ from dataevolver.runtime.asset_lifecycle import (
 # Constants
 # ─────────────────────────────────────────────────────────────────────────────
 
-LOCAL_MODEL_ROOT = Path(
-    os.environ.get("DATAEVOLVER_MODEL_ROOT", os.fspath(DATAEVOLVER_ROOT / "local" / "model_hub"))
-)
-VLM_MODEL_PATH = os.environ.get("VLM_MODEL_PATH", os.fspath(LOCAL_MODEL_ROOT / "Qwen3.5-35B-A3B"))
-VLM_MODEL_NAME = "Qwen3.5-35B-A3B"
+VLM_MODEL_PATH = os.environ.get("VLM_MODEL_PATH", "")
+VLM_MODEL_NAME = Path(VLM_MODEL_PATH).name if VLM_MODEL_PATH else "unconfigured"
 DATA_BUILD_ROOT = os.fspath(REPO_ROOT)
 ACTION_SPACE_PATH = os.fspath(CONFIGS_ROOT / "action_space.json")
 SCENE_ACTION_SPACE_PATH = os.fspath(CONFIGS_ROOT / "scene_action_space.json")
@@ -480,10 +477,10 @@ def load_vlm(device: str = "cuda:0"):
     global _vlm_model, _vlm_processor
     if _vlm_model is not None:
         return _vlm_model, _vlm_processor
-
+    if not VLM_MODEL_PATH:
+        raise ValueError("Set VLM_MODEL_PATH explicitly before using this optional adapter")
     print(f"[VLM] Loading {VLM_MODEL_NAME} from {VLM_MODEL_PATH} -> {device}")
-    from transformers import AutoProcessor, Qwen3_5MoeForConditionalGeneration
-    import transformers.modeling_utils as _mu
+    from transformers import AutoProcessor, Qwen3_5ForConditionalGeneration
     import torch
     import gc
 
@@ -491,17 +488,13 @@ def load_vlm(device: str = "cuda:0"):
     gc.collect()
     torch.cuda.empty_cache()
 
-    # Disable caching_allocator_warmup: it estimates pre-allocation by total
-    # param count (~65GB for 35B MoE) instead of active params (~7GB), causing OOM.
-    _mu.caching_allocator_warmup = lambda *a, **kw: None
-
-    _vlm_processor = AutoProcessor.from_pretrained(VLM_MODEL_PATH, trust_remote_code=True)
+    _vlm_processor = AutoProcessor.from_pretrained(VLM_MODEL_PATH, local_files_only=True)
     load_kwargs = _resolve_vlm_load_kwargs(device)
     print(f"[VLM] load kwargs: {load_kwargs}")
-    _vlm_model = Qwen3_5MoeForConditionalGeneration.from_pretrained(
+    _vlm_model = Qwen3_5ForConditionalGeneration.from_pretrained(
         VLM_MODEL_PATH,
         torch_dtype=torch.bfloat16,
-        trust_remote_code=True,
+        local_files_only=True,
         **load_kwargs,
     )
     _vlm_model.eval()

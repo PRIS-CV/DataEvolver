@@ -1,0 +1,30 @@
+{
+  "stage": "ue5",
+  "argv": [
+    "python3",
+    "-m",
+    "dataevolver.workflows.scene.ue5_worker",
+    "--request",
+    "{request}",
+    "--output",
+    "{output}"
+  ],
+  "files": [
+    "../../src/dataevolver/workflows/scene/ue5_worker.py"
+  ],
+  "inputs": {
+    "render_manifest": "ue5-render-manifest.example.json"
+  },
+  "outputs": {
+    "render_index": "render-index.json"
+  },
+  "timeout_seconds": 3600,
+  "allowed_env_keys": [
+    "PATH",
+    "PYTHONPATH",
+    "CUDA_VISIBLE_DEVICES",
+    "LD_LIBRARY_PATH"
+  ],
+  "allow_gpu": true,
+  "allow_network": false
+}

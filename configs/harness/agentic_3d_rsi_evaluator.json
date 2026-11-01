@@ -1,0 +1,31 @@
+{
+  "schema_version": "dataevolver.harness.evaluator.v1",
+  "evaluator_id": "agentic-3d-rsi-vector-v1",
+  "revision": "1",
+  "hard_constraints": {
+    "rgb_readable": {"required": true},
+    "rgba_usable": {"required": true},
+    "glb_readable": {"required": true},
+    "mesh_nonempty": {"required": true},
+    "texture_present_if_required": {"required": true},
+    "representative_views_complete": {"required": true},
+    "review_complete": {"required": true},
+    "structure_not_major_mismatch": {"required": true},
+    "physics_not_major_issue": {"required": true},
+    "asset_not_abandon": {"required": true},
+    "artifact_lineage_verified": {"required": true}
+  },
+  "target_metrics": {
+    "hybrid_quality": {"required": true, "goal_minimum": 0.8, "minimum_improvement": 0.03, "max_regression": 0.05},
+    "object_integrity": {"required": true, "goal_minimum": 0.8, "minimum_improvement": 0.05, "max_regression": 0.05},
+    "geometry_structure_consistency": {"required": true, "goal_minimum": 0.8, "minimum_improvement": 0.1, "max_regression": 0.05},
+    "composition_multiview_usability": {"required": true, "goal_minimum": 0.8, "minimum_improvement": 0.05, "max_regression": 0.05},
+    "render_quality": {"required": true, "goal_minimum": 0.8, "minimum_improvement": 0.05, "max_regression": 0.05}
+  },
+  "protected_metrics": {
+    "prompt_identity_alignment": {"required": true, "max_regression": 0.05},
+    "geometry_validity": {"required": true, "max_regression": 0.0},
+    "texture_presence": {"required": true, "max_regression": 0.0},
+    "critical_physics_consistency": {"required": true, "max_regression": 0.0}
+  }
+}

@@ -118,7 +118,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--contract-output", default=None)
     parser.add_argument("--llm-addr", default=os.environ.get("LLM_ADDR", "localhost"))
     parser.add_argument("--llm-port", type=int, default=int(os.environ.get("LLM_PORT", "8000")))
-    parser.add_argument("--llm-name", default=os.environ.get("LLM_NAME", "Qwen/Qwen3-VL-8B-Instruct"))
+    parser.add_argument("--llm-name", default=os.environ.get("LLM_NAME"), required=not os.environ.get("LLM_NAME"))
     parser.add_argument("--gpus", default=os.environ.get("CUDA_VISIBLE_DEVICES", "0"))
     parser.add_argument("--nproc", type=int, default=None, help="torchrun process count; defaults to number of --gpus")
     parser.add_argument("--worldstereo-model-type", default="worldstereo-memory-dmd")
@@ -147,14 +147,14 @@ def load_runtime(args: argparse.Namespace) -> tuple[dict[str, str], Path | None,
     profile = None
     if args.profile:
         try:
-            from dataevolver.runtime.production_runtime import (
+            from dataevolver.runtime.hyworld_environment import (
                 build_runtime_environment,
                 load_profile,
                 resolve_profile_path,
             )
         except ModuleNotFoundError as exc:
             raise RuntimeError(
-                "--profile requires src/dataevolver/production_runtime.py or an installed production runtime module"
+                "--profile requires the dataevolver.runtime.hyworld_environment module"
             ) from exc
         profile_path, profile = load_profile(args.profile)
         env.update(build_runtime_environment(profile_path, profile))

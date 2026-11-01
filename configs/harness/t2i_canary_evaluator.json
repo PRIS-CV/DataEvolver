@@ -1,0 +1,12 @@
+{
+  "schema_version": "dataevolver.harness.evaluator.v1",
+  "evaluator_id": "real-t2i-file-contract-v1",
+  "revision": "1",
+  "hard_constraints": {
+    "artifact_valid": {
+      "required": true
+    }
+  },
+  "target_metrics": {},
+  "protected_metrics": {}
+}
