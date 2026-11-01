@@ -468,12 +468,18 @@ DataEvolver/
 ```
 
 Local deployment files and generated campaigns live under ignored `.dataevolver/`.
+Keep model bindings, native executable paths and credentials in that local area.
+The files under `configs/` are public templates; select the implementations your
+workflow needs before compiling a goal.
 
 ## Extension boundaries
 
 | Owner | Extend here |
 |---|---|
-| [CLI and Controller](src/dataevolver/harness/) | Campaign transitions, dispatch, budgets and pause/recovery. |
+| [CLI](src/dataevolver/harness/cli.py) | Parse commands and print results. Both public commands keep this entry point. |
+| [Composition factories](src/dataevolver/harness/composition.py) | Bind the goal's operator, planner, evaluator and frozen sources; create or reopen a Controller. |
+| [Controller](src/dataevolver/harness/controller.py) | Campaign transitions, dispatch, budgets, effect recovery and commits. |
+| [Final report](src/dataevolver/harness/final_report.py) / [domain adapters](src/dataevolver/harness/adapters/) | Project evidence into reports and apply route-specific interpretation. |
 | [Plan compiler](src/dataevolver/harness/plan_compiler.py) / [operator SDK](src/dataevolver/harness/operator_sdk.py) | Domain/step declarations and validated bindings. |
 | [Dataset contracts](src/dataevolver/dataset/contracts.py) / [artifact operator](src/dataevolver/harness/artifact_operator.py) | Artifact identity, receipts and effect verification. |
 | [Model adapters](src/dataevolver/adapters/) / [scene workers](src/dataevolver/workflows/scene/) | Provider transports and tool-specific behavior. |
@@ -483,6 +489,21 @@ from accepted execution, and keep budget/state changes in the Controller. Declar
 versions, ports and side effects so the compiler can reject invalid composition.
 Implement recovery alongside execution. Reuse the artifact and receipt contracts
 instead of inventing another status format or retry loop.
+
+For a new graph step, use `declare_step` and `OperatorRegistry.register_step` as
+the existing [dataset steps](src/dataevolver/dataset/catalog_steps.py) do. For a
+whole task, implement `execute`, `verify_effect` and `recover`, then register its
+`OperatorSpec` and optional [OperatorContract](docs/OPERATOR_CONTRACTS.md).
+Bind a custom workflow through [DomainBinding](src/dataevolver/harness/domains.py)
+and the existing [plan compiler](src/dataevolver/harness/plan_compiler.py); keep its
+evaluation policy in its declared evaluator and goal. The
+[native-worker example](#native-worker-a-script-model-tool-or-rendering-process)
+is the path for tools that already run as a process.
+
+[Framework integration](docs/FRAMEWORK_INTEGRATION.md#source-boundaries) maps
+these entry points, model backends and serialization contracts. Source changes
+produce contract drift for existing campaigns; reopen those campaigns with their
+original frozen source rather than rewriting their receipts.
 
 ## Action Space
 

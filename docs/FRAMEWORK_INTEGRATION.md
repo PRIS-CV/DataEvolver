@@ -4,6 +4,55 @@ This release shares operator discovery, graph compilation, artifact validation,
 effect recovery and feedback across image and structured-catalog workflows.
 EvolutionController remains the owner of campaign transitions and budgets.
 
+## Source boundaries
+
+`harness/cli.py` parses commands and prints results. The ordinary factories in
+`harness/composition.py` bind the selected route, planner, evaluator and frozen
+sources. `build_controller(..., create=True)` creates a campaign;
+`open_controller(campaign_root, campaign_id)` reconstructs it from its stored
+GoalSpec. Existing private CLI helper imports remain compatibility aliases.
+New integrations should import the factories from `composition` directly.
+
+`EvolutionController` owns execution order, pending calls, effect recovery,
+budgets, state commits and final-report writes. `harness/final_report.py` projects
+the existing evidence into the versioned payload. The recipe adapter interprets
+reuse evidence and prepares an optional capability; the Controller still decides
+when to execute, persist and complete. The legacy 3D adapter owns its resource
+checks and production preflight. Optional implementations keep their own rules.
+
+`DomainRuntime` declares frozen configuration, context and compilation methods.
+`RSIDomain` extends that protocol with concrete RSI observation/intervention
+return types. `DomainBinding` remains the workflow entry point;
+`TransitionProposal` remains the existing mechanism for validated domain state
+updates. An adapter does not gain permission to commit Controller state.
+
+The two gateway bridges serve distinct contracts:
+
+- `harness.model_backend.GatewayPlannerBackend` invokes a configured role and
+  preserves its `planner-` request identity and configurable limits.
+- `adapters.codex_planner.RecoveringPlannerBackend` recovers an RSI request before
+  invoking the gateway. It preserves its `rsi-` identity, role and attempt limits.
+  The old `GatewayPlannerBackend` import in that module aliases the same class.
+
+Both obtain model execution from the gateway; the configured provider supplies
+the transport. Renaming a bridge does not alter its backend ID or receipts.
+
+Serialization helpers retain separate contracts. `harness.models.canonical_json`
+normalizes Harness model values and preserves its legacy number handling.
+`dataset.contracts.canonical_json` accepts plain JSON and rejects non-finite
+numbers. Candidate signatures use escaped ASCII, while candidate recovery binds
+strict UTF-8 dataset JSON. Interchanging these encoders changes request or receipt
+identity. Streaming file SHA-256 is shared through `dataset.contracts.file_sha256`;
+the evaluator retains its string-to-Path adapter and operators retain their old
+helper alias. Campaign composition includes that shared source in every route's
+frozen execution files.
+
+Keep local profiles under ignored `.dataevolver/`. Bind model roles, tool commands,
+evaluation policies and host paths explicitly in the selected profile and goal.
+Use the existing native-worker or graph examples below to add a workflow. A
+source refactor changes frozen source hashes: existing campaigns need their
+original source revision. Receipts and snapshots are not migrated by this refactor.
+
 ## Compile and execute
 
 `compile_plan(plan, CompileContext(...))` returns `CompiledRun` or
