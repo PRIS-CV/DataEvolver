@@ -1,0 +1,438 @@
+{
+  "lang": "en",
+  "pageTitle": "DataEvolver Harness architecture",
+  "title": "{cy:DataEvolver} {dim:/} Harness architecture",
+  "width": 1080,
+  "subtitle": "Explicit plans. Replaceable execution. Evidence-based recovery.",
+  "layers": [
+    {
+      "id": "caller",
+      "label": "Caller",
+      "color": "text"
+    },
+    {
+      "id": "contract",
+      "label": "Plan & bindings",
+      "color": "blue"
+    },
+    {
+      "id": "control",
+      "label": "Controller",
+      "color": "cyan"
+    },
+    {
+      "id": "extension",
+      "label": "Replaceable adapters",
+      "color": "green"
+    },
+    {
+      "id": "record",
+      "label": "Evidence",
+      "color": "amber"
+    }
+  ],
+  "flows": [
+    {
+      "id": "call",
+      "label": "Plan / dispatch",
+      "color": "blue"
+    },
+    {
+      "id": "write",
+      "label": "Result / record",
+      "color": "green"
+    },
+    {
+      "id": "recover",
+      "label": "Recovery / inspection",
+      "color": "amber",
+      "dash": true
+    }
+  ],
+  "groups": [
+    {
+      "id": "prepare",
+      "label": "01 / PREPARE",
+      "x": 27.9,
+      "y": 280,
+      "w": 1024.1,
+      "h": 180,
+      "color": "dim",
+      "solid": true
+    },
+    {
+      "id": "runtime",
+      "label": "02 / CONTROL",
+      "x": 27.9,
+      "y": 500,
+      "w": 1024.1,
+      "h": 205,
+      "color": "dim",
+      "solid": true
+    },
+    {
+      "id": "execution",
+      "label": "03 / EXECUTE",
+      "x": 27.9,
+      "y": 760,
+      "w": 1024.1,
+      "h": 205,
+      "color": "dim",
+      "solid": true
+    },
+    {
+      "id": "evidence",
+      "label": "04 / RECORD & RECOVER",
+      "x": 27.9,
+      "y": 1040,
+      "w": 1024.1,
+      "h": 200,
+      "color": "dim",
+      "solid": true,
+      "labelRight": true
+    }
+  ],
+  "nodes": [
+    {
+      "id": "agent",
+      "layer": "caller",
+      "x": 350,
+      "y": 140,
+      "w": 380,
+      "h": 85,
+      "title": "Agent / caller",
+      "sub": "Codex · another agent · application",
+      "lines": [
+        "Plans, worker code and host configuration"
+      ]
+    },
+    {
+      "id": "plan",
+      "layer": "contract",
+      "x": 60.5,
+      "y": 325,
+      "w": 270.0,
+      "h": 125,
+      "title": "compile-plan",
+      "sub": "Structured plan",
+      "lines": [
+        "Bound graph or compilation gaps"
+      ]
+    },
+    {
+      "id": "goal",
+      "layer": "contract",
+      "x": 405.0,
+      "y": 325,
+      "w": 270.0,
+      "h": 125,
+      "title": "GoalSpec",
+      "sub": "Objective · budgets · permissions",
+      "lines": [
+        "Evaluator and operator bindings"
+      ]
+    },
+    {
+      "id": "worker",
+      "layer": "contract",
+      "x": 749.5,
+      "y": 325,
+      "w": 270.0,
+      "h": 125,
+      "title": "worker-compile",
+      "sub": "Native worker profile",
+      "lines": [
+        "Executable · inputs · environment"
+      ]
+    },
+    {
+      "id": "planner",
+      "layer": "extension",
+      "x": 60.5,
+      "y": 550,
+      "w": 270.0,
+      "h": 115,
+      "title": "Planner backend",
+      "sub": "Schema-conforming proposals",
+      "lines": [
+        "Optional model-backed planning"
+      ]
+    },
+    {
+      "id": "controller",
+      "layer": "control",
+      "x": 405.0,
+      "y": 550,
+      "w": 270.0,
+      "h": 115,
+      "title": "EvolutionController",
+      "sub": "create · step · evolve · resume",
+      "lines": [
+        "State · budgets · dispatch · admission"
+      ]
+    },
+    {
+      "id": "operator",
+      "layer": "extension",
+      "x": 749.5,
+      "y": 550,
+      "w": 270.0,
+      "h": 115,
+      "title": "Registered Operator",
+      "sub": "execute · recover",
+      "lines": [
+        "verify_effect"
+      ]
+    },
+    {
+      "id": "gateway",
+      "layer": "extension",
+      "x": 60.5,
+      "y": 810,
+      "w": 270.0,
+      "h": 130,
+      "title": "ModelGateway",
+      "sub": "Role → profile → provider",
+      "lines": [
+        "Configured model implementation"
+      ]
+    },
+    {
+      "id": "native",
+      "layer": "extension",
+      "x": 749.5,
+      "y": 810,
+      "w": 270.0,
+      "h": 130,
+      "title": "Native worker",
+      "sub": "Approved argv · request / result",
+      "lines": [
+        "Configured host tool and dependencies"
+      ]
+    },
+    {
+      "id": "artifacts",
+      "layer": "record",
+      "x": 60.5,
+      "y": 1090,
+      "w": 270.0,
+      "h": 110,
+      "title": "Artifacts & receipts",
+      "sub": "ArtifactStore · output hashes",
+      "lines": [
+        "Model and operator execution evidence"
+      ]
+    },
+    {
+      "id": "state",
+      "layer": "record",
+      "x": 405.0,
+      "y": 1090,
+      "w": 270.0,
+      "h": 110,
+      "title": "StateStore",
+      "sub": "Snapshot · event log",
+      "lines": [
+        "Frozen contract · campaign lease"
+      ]
+    },
+    {
+      "id": "inspect",
+      "layer": "record",
+      "x": 749.5,
+      "y": 1090,
+      "w": 270.0,
+      "h": 110,
+      "title": "Inspection CLI",
+      "sub": "status · explain · replay",
+      "lines": [
+        "Read campaign state and evidence"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "agent.b@0.2",
+      "to": "plan.t",
+      "flow": "call",
+      "label": "plan",
+      "mid": 250
+    },
+    {
+      "from": "agent.b@0.8",
+      "to": "worker.t",
+      "flow": "call",
+      "label": "profile",
+      "mid": 250
+    },
+    {
+      "from": "plan.r",
+      "to": "goal.l",
+      "flow": "call",
+      "label": "bind"
+    },
+    {
+      "from": "worker.l",
+      "to": "goal.r",
+      "flow": "call",
+      "label": "bind"
+    },
+    {
+      "from": "goal.b",
+      "to": "controller.t",
+      "flow": "call",
+      "label": "public CLI",
+      "labelPos": [
+        591.2,
+        472
+      ]
+    },
+    {
+      "from": "controller.l@0.3",
+      "to": "planner.r@0.3",
+      "flow": "call",
+      "label": "request"
+    },
+    {
+      "from": "planner.r@0.75",
+      "to": "controller.l@0.75",
+      "flow": "write",
+      "label": "proposal"
+    },
+    {
+      "from": "controller.r@0.3",
+      "to": "operator.l@0.3",
+      "flow": "call",
+      "label": "dispatch"
+    },
+    {
+      "from": "operator.l@0.75",
+      "to": "controller.r@0.75",
+      "flow": "write",
+      "label": "result"
+    },
+    {
+      "from": "planner.b@0.75",
+      "to": "gateway.t@0.75",
+      "flow": "call",
+      "label": "planner role",
+      "labelPos": [
+        321.2,
+        745
+      ]
+    },
+    {
+      "from": "operator.b@0.2",
+      "to": "gateway.t@0.95",
+      "flow": "call",
+      "label": "model step",
+      "mid": 720,
+      "labelPos": [
+        707.6,
+        711
+      ]
+    },
+    {
+      "from": "operator.b@0.75",
+      "to": "native.t@0.75",
+      "flow": "call",
+      "label": "tool step",
+      "labelPos": [
+        965,
+        745
+      ]
+    },
+    {
+      "from": "gateway.b",
+      "to": "artifacts.t",
+      "flow": "write",
+      "label": "model receipt",
+      "labelPos": [
+        122.9,
+        1005
+      ]
+    },
+    {
+      "from": "native.b",
+      "to": "artifacts.t@0.85",
+      "flow": "write",
+      "label": "worker outputs",
+      "mid": 1000,
+      "labelPos": [
+        679.7,
+        991
+      ]
+    },
+    {
+      "from": "controller.b@0.35",
+      "to": "state.t@0.35",
+      "flow": "write",
+      "label": "commit state",
+      "labelPos": [
+        470.2,
+        935
+      ]
+    },
+    {
+      "from": "state.t@0.75",
+      "to": "controller.b@0.75",
+      "flow": "recover",
+      "label": "resume",
+      "labelPos": [
+        655.4,
+        935
+      ]
+    },
+    {
+      "from": "artifacts.r",
+      "to": "state.l",
+      "flow": "write",
+      "label": "refs"
+    },
+    {
+      "from": "artifacts.l@0.8",
+      "to": "operator.r@0.7",
+      "flow": "recover",
+      "label": "recover / verify_effect",
+      "rail": "x:1066.0",
+      "labelPos": [
+        925.4,
+        1270
+      ],
+      "via": [
+        [
+          41.9,
+          1180
+        ],
+        [
+          41.9,
+          1285
+        ],
+        [
+          1066.0,
+          1285
+        ],
+        [
+          1066.0,
+          630
+        ]
+      ]
+    },
+    {
+      "from": "state.r",
+      "to": "inspect.l",
+      "flow": "recover",
+      "label": "read"
+    }
+  ],
+  "notes": [
+    {
+      "id": "scope",
+      "x": 37.2,
+      "y": 1325,
+      "w": 1005.5,
+      "text": "Architecture illustration · implementations are selected by configuration.",
+      "dim": true
+    }
+  ]
+}

@@ -33,6 +33,10 @@ the Harness manages the resulting runs. Models, executables, paths and resource
 permissions are explicit deployment choices. Keep private configuration and
 credentials under ignored `.dataevolver/local/` files or in the host environment.
 
+![Historical DataEvolver project poster](apps/project-page/frontend/images/showcase-poster.png)
+
+*The original project poster illustrates the earlier render/review design.*
+
 ## DataEvolver and DataRSI
 
 **DataEvolver is the engineering project; DataRSI is the subsequent research work.**
@@ -122,23 +126,14 @@ operators, budgets and evaluator. One `EvolutionController` owns its transitions
 dispatch and recovery. Operators return artifacts and receipts; the evaluator
 checks the declared constraints before the Controller accepts a result.
 
-```mermaid
-flowchart TD
-    A[Codex or another caller] --> B[Structured plan or worker profile]
-    B --> C[compile-plan or worker-compile]
-    C --> G[GoalSpec]
-    G --> D[CLI: create / step / evolve]
-    D --> E[EvolutionController]
-    E --> O[Registered operators]
-    O --> M[ModelGateway: role to profile to provider]
-    O --> W[Native workers: fixed command and request/result contract]
-    M --> R[Artifacts and execution receipts]
-    W --> R
-    R --> E
-    E --> S[State snapshot and event log]
-    S --> I[status / explain / replay]
-    I --> A
-```
+[![DataEvolver Harness: animated architecture](apps/project-page/frontend/architecture/preview-en.gif)](https://pris-cv.github.io/DataEvolver/architecture/)
+
+[Open interactive HTML](https://pris-cv.github.io/DataEvolver/architecture/) · [Editable diagram source](apps/project-page/frontend/architecture/en.spec.json)
+
+Solid arrows show plans, calls and recorded results. Dashed arrows show recovery
+and inspection. Model and native-tool implementations come from configuration.
+
+Rendered with the default [arch-diagram](https://github.com/bassnova42/arch-diagram-skill) design. Click the animation to open the full page.
 
 **Codex has two distinct integration roles.** An outer execution-capable agent can
 write a plan, author a worker or modeling recipe, compile a goal, and call the
@@ -609,17 +604,13 @@ revision; [DataRSI](https://github.com/PRIS-CV/DataRSI) is the subsequent resear
 repository. See the [project/publication guide](docs/DATARSI_RELATION.md).
 
 **Historical showcase — the earlier VLM render/review workflow.** This original
-README illustration documents the project's origins. Section 1 describes the
-current Harness architecture.
+README illustration documents the project's origins. The
+[Pipeline Overview](#pipeline-overview) describes the current Harness architecture.
 
 ![Earlier DataEvolver workflow: object generation, reconstruction, rendering and VLM review](apps/project-page/frontend/images/readme/showcase.png)
 
 <details>
-<summary>Project poster and earlier object-in-scene route</summary>
-
-The original poster summarizes the earlier render/review design.
-
-![Historical DataEvolver project poster](apps/project-page/frontend/images/showcase-poster.png)
+<summary>Earlier object-in-scene route</summary>
 
 The object-in-scene illustration shows an earlier HYWorld / Hunyuan3D route and
 its intended dataset outputs. Refer to the native workflow guide for the current

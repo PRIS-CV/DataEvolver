@@ -31,6 +31,10 @@
 Codex 或其他应用提供计划与候选代码，Harness 管理运行过程。模型、可执行文件、路径和资源权限
 由部署配置明确指定。私有配置及凭证放在已忽略的 `.dataevolver/local/` 中，或通过宿主环境提供。
 
+![DataEvolver 历史项目海报](apps/project-page/frontend/images/showcase-poster.png)
+
+*原版项目海报展示早期渲染与审查设计。*
+
 ## DataEvolver 与 DataRSI
 
 **DataEvolver 是工程项目，DataRSI 是后续研究工作。**
@@ -110,23 +114,13 @@ Pages 与可选归档 API 的配置见[部署指南](apps/project-page/deploy/RE
 `EvolutionController` 统一管理状态转换、执行调度和恢复。算子返回产物与执行回执，
 评测器检查已声明的约束，Controller 再决定是否接受结果。
 
-```mermaid
-flowchart TD
-    A[Codex 或其他调用方] --> B[结构化计划或 Worker 配置]
-    B --> C[compile-plan 或 worker-compile]
-    C --> G[GoalSpec]
-    G --> D[CLI: create / step / evolve]
-    D --> E[EvolutionController]
-    E --> O[注册算子]
-    O --> M[ModelGateway: 角色到配置到 Provider]
-    O --> W[原生 Worker: 固定命令与请求/结果契约]
-    M --> R[产物与执行回执]
-    W --> R
-    R --> E
-    E --> S[状态快照与事件日志]
-    S --> I[status / explain / replay]
-    I --> A
-```
+[![DataEvolver Harness 动态架构图](apps/project-page/frontend/architecture/preview-zh.gif)](https://pris-cv.github.io/DataEvolver/architecture/zh.html)
+
+[打开完整交互 HTML](https://pris-cv.github.io/DataEvolver/architecture/zh.html) · [可编辑图规格](apps/project-page/frontend/architecture/zh.spec.json)
+
+实线表示计划、调用与结果记录，虚线表示恢复与查看。模型和原生工具的具体实现由配置选择。
+
+采用 [arch-diagram](https://github.com/bassnova42/arch-diagram-skill) 的默认设计。点击动画可打开完整页面。
 
 **Codex 有两种接入角色。** 外层具备执行能力的 Agent 可以在授权范围内编写计划、Worker 或建模配方，
 编译目标，再调用公共 CLI。它读取 JSON 状态和回执，决定是否请求下一步。
@@ -532,16 +526,12 @@ python .agents/skills/verify-dataevolver/scripts/check_repository.py
 [DataRSI](https://github.com/PRIS-CV/DataRSI) 是后续研究仓库，关系说明见[项目与论文指南](docs/DATARSI_RELATION.md)。
 
 **历史展示：早期 VLM 渲染/审查流程。** 保留旧 README 插图，用于介绍项目来源。
-当前 Harness 架构见第 1 节。
+当前 Harness 架构见[流水线概览](#流水线概览)。
 
 ![早期 DataEvolver 工作流：物体生成、重建、渲染和 VLM 审查](apps/project-page/frontend/images/readme/showcase.png)
 
 <details>
-<summary>项目海报与早期物体入场景路线</summary>
-
-原版海报概述了早期渲染/审查设计。
-
-![DataEvolver 历史项目海报](apps/project-page/frontend/images/showcase-poster.png)
+<summary>早期物体入场景路线</summary>
 
 下面的物体入场景示意图展示早期 HYWorld / Hunyuan3D 路线及其预期数据输出。
 当前 Blender/UE5 接口以原生工作流指南为准。

@@ -1,0 +1,438 @@
+{
+  "lang": "zh-CN",
+  "pageTitle": "DataEvolver Harness 架构图",
+  "title": "{cy:DataEvolver} {dim:/} Harness 架构",
+  "width": 1080,
+  "subtitle": "显式计划 · 可替换执行接口 · 基于证据恢复",
+  "layers": [
+    {
+      "id": "caller",
+      "label": "调用方",
+      "color": "text"
+    },
+    {
+      "id": "contract",
+      "label": "计划与绑定",
+      "color": "blue"
+    },
+    {
+      "id": "control",
+      "label": "控制器",
+      "color": "cyan"
+    },
+    {
+      "id": "extension",
+      "label": "可替换适配器",
+      "color": "green"
+    },
+    {
+      "id": "record",
+      "label": "持久化证据",
+      "color": "amber"
+    }
+  ],
+  "flows": [
+    {
+      "id": "call",
+      "label": "计划与调度",
+      "color": "blue"
+    },
+    {
+      "id": "write",
+      "label": "结果与记录",
+      "color": "green"
+    },
+    {
+      "id": "recover",
+      "label": "恢复与查看",
+      "color": "amber",
+      "dash": true
+    }
+  ],
+  "groups": [
+    {
+      "id": "prepare",
+      "label": "01 / 准备",
+      "x": 27.9,
+      "y": 280,
+      "w": 1024.1,
+      "h": 180,
+      "color": "dim",
+      "solid": true
+    },
+    {
+      "id": "runtime",
+      "label": "02 / 控制",
+      "x": 27.9,
+      "y": 500,
+      "w": 1024.1,
+      "h": 205,
+      "color": "dim",
+      "solid": true
+    },
+    {
+      "id": "execution",
+      "label": "03 / 执行",
+      "x": 27.9,
+      "y": 760,
+      "w": 1024.1,
+      "h": 205,
+      "color": "dim",
+      "solid": true
+    },
+    {
+      "id": "evidence",
+      "label": "04 / 记录与恢复",
+      "x": 27.9,
+      "y": 1040,
+      "w": 1024.1,
+      "h": 200,
+      "color": "dim",
+      "solid": true,
+      "labelRight": true
+    }
+  ],
+  "nodes": [
+    {
+      "id": "agent",
+      "layer": "caller",
+      "x": 350,
+      "y": 140,
+      "w": 380,
+      "h": 85,
+      "title": "Agent / 调用方",
+      "sub": "Codex · 其他 Agent · 应用程序",
+      "lines": [
+        "计划、Worker 代码和主机配置"
+      ]
+    },
+    {
+      "id": "plan",
+      "layer": "contract",
+      "x": 60.5,
+      "y": 325,
+      "w": 270.0,
+      "h": 125,
+      "title": "compile-plan",
+      "sub": "结构化计划",
+      "lines": [
+        "返回已绑定的图或编译缺口"
+      ]
+    },
+    {
+      "id": "goal",
+      "layer": "contract",
+      "x": 405.0,
+      "y": 325,
+      "w": 270.0,
+      "h": 125,
+      "title": "GoalSpec",
+      "sub": "目标 · 预算 · 权限",
+      "lines": [
+        "评测规则和算子绑定"
+      ]
+    },
+    {
+      "id": "worker",
+      "layer": "contract",
+      "x": 749.5,
+      "y": 325,
+      "w": 270.0,
+      "h": 125,
+      "title": "worker-compile",
+      "sub": "原生 Worker 配置",
+      "lines": [
+        "可执行程序 · 输入 · 环境"
+      ]
+    },
+    {
+      "id": "planner",
+      "layer": "extension",
+      "x": 60.5,
+      "y": 550,
+      "w": 270.0,
+      "h": 115,
+      "title": "Planner backend",
+      "sub": "返回符合 schema 的提案",
+      "lines": [
+        "可选用模型生成提案"
+      ]
+    },
+    {
+      "id": "controller",
+      "layer": "control",
+      "x": 405.0,
+      "y": 550,
+      "w": 270.0,
+      "h": 115,
+      "title": "EvolutionController",
+      "sub": "create · step · evolve · resume",
+      "lines": [
+        "状态 · 预算 · 调度 · 结果准入"
+      ]
+    },
+    {
+      "id": "operator",
+      "layer": "extension",
+      "x": 749.5,
+      "y": 550,
+      "w": 270.0,
+      "h": 115,
+      "title": "注册算子",
+      "sub": "execute · recover",
+      "lines": [
+        "verify_effect"
+      ]
+    },
+    {
+      "id": "gateway",
+      "layer": "extension",
+      "x": 60.5,
+      "y": 810,
+      "w": 270.0,
+      "h": 130,
+      "title": "ModelGateway",
+      "sub": "角色 → 配置 → Provider",
+      "lines": [
+        "配置具体模型实现"
+      ]
+    },
+    {
+      "id": "native",
+      "layer": "extension",
+      "x": 749.5,
+      "y": 810,
+      "w": 270.0,
+      "h": 130,
+      "title": "原生 Worker",
+      "sub": "已批准的 argv · 请求 / 结果",
+      "lines": [
+        "配置主机工具和依赖"
+      ]
+    },
+    {
+      "id": "artifacts",
+      "layer": "record",
+      "x": 60.5,
+      "y": 1090,
+      "w": 270.0,
+      "h": 110,
+      "title": "产物与执行回执",
+      "sub": "ArtifactStore · 输出哈希",
+      "lines": [
+        "模型及算子的执行证据"
+      ]
+    },
+    {
+      "id": "state",
+      "layer": "record",
+      "x": 405.0,
+      "y": 1090,
+      "w": 270.0,
+      "h": 110,
+      "title": "StateStore",
+      "sub": "状态快照 · 事件日志",
+      "lines": [
+        "冻结契约 · Campaign 租约"
+      ]
+    },
+    {
+      "id": "inspect",
+      "layer": "record",
+      "x": 749.5,
+      "y": 1090,
+      "w": 270.0,
+      "h": 110,
+      "title": "查看接口",
+      "sub": "status · explain · replay",
+      "lines": [
+        "读取 Campaign 状态与证据"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "agent.b@0.2",
+      "to": "plan.t",
+      "flow": "call",
+      "label": "计划",
+      "mid": 250
+    },
+    {
+      "from": "agent.b@0.8",
+      "to": "worker.t",
+      "flow": "call",
+      "label": "配置",
+      "mid": 250
+    },
+    {
+      "from": "plan.r",
+      "to": "goal.l",
+      "flow": "call",
+      "label": "绑定"
+    },
+    {
+      "from": "worker.l",
+      "to": "goal.r",
+      "flow": "call",
+      "label": "绑定"
+    },
+    {
+      "from": "goal.b",
+      "to": "controller.t",
+      "flow": "call",
+      "label": "公共 CLI",
+      "labelPos": [
+        591.2,
+        472
+      ]
+    },
+    {
+      "from": "controller.l@0.3",
+      "to": "planner.r@0.3",
+      "flow": "call",
+      "label": "请求"
+    },
+    {
+      "from": "planner.r@0.75",
+      "to": "controller.l@0.75",
+      "flow": "write",
+      "label": "提案"
+    },
+    {
+      "from": "controller.r@0.3",
+      "to": "operator.l@0.3",
+      "flow": "call",
+      "label": "调度"
+    },
+    {
+      "from": "operator.l@0.75",
+      "to": "controller.r@0.75",
+      "flow": "write",
+      "label": "结果"
+    },
+    {
+      "from": "planner.b@0.75",
+      "to": "gateway.t@0.75",
+      "flow": "call",
+      "label": "规划角色",
+      "labelPos": [
+        321.2,
+        745
+      ]
+    },
+    {
+      "from": "operator.b@0.2",
+      "to": "gateway.t@0.95",
+      "flow": "call",
+      "label": "模型步骤",
+      "mid": 720,
+      "labelPos": [
+        707.6,
+        711
+      ]
+    },
+    {
+      "from": "operator.b@0.75",
+      "to": "native.t@0.75",
+      "flow": "call",
+      "label": "工具步骤",
+      "labelPos": [
+        965,
+        745
+      ]
+    },
+    {
+      "from": "gateway.b",
+      "to": "artifacts.t",
+      "flow": "write",
+      "label": "模型回执",
+      "labelPos": [
+        122.9,
+        1005
+      ]
+    },
+    {
+      "from": "native.b",
+      "to": "artifacts.t@0.85",
+      "flow": "write",
+      "label": "Worker 输出",
+      "mid": 1000,
+      "labelPos": [
+        679.7,
+        991
+      ]
+    },
+    {
+      "from": "controller.b@0.35",
+      "to": "state.t@0.35",
+      "flow": "write",
+      "label": "提交状态",
+      "labelPos": [
+        470.2,
+        935
+      ]
+    },
+    {
+      "from": "state.t@0.75",
+      "to": "controller.b@0.75",
+      "flow": "recover",
+      "label": "resume",
+      "labelPos": [
+        655.4,
+        935
+      ]
+    },
+    {
+      "from": "artifacts.r",
+      "to": "state.l",
+      "flow": "write",
+      "label": "引用"
+    },
+    {
+      "from": "artifacts.l@0.8",
+      "to": "operator.r@0.7",
+      "flow": "recover",
+      "label": "recover / verify_effect",
+      "rail": "x:1066.0",
+      "labelPos": [
+        925.4,
+        1270
+      ],
+      "via": [
+        [
+          41.9,
+          1180
+        ],
+        [
+          41.9,
+          1285
+        ],
+        [
+          1066.0,
+          1285
+        ],
+        [
+          1066.0,
+          630
+        ]
+      ]
+    },
+    {
+      "from": "state.r",
+      "to": "inspect.l",
+      "flow": "recover",
+      "label": "读取"
+    }
+  ],
+  "notes": [
+    {
+      "id": "scope",
+      "x": 37.2,
+      "y": 1325,
+      "w": 1005.5,
+      "text": "架构示意 · 模型与工具的具体实现由配置选择。",
+      "dim": true
+    }
+  ]
+}
