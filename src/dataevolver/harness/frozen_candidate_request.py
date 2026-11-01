@@ -76,7 +76,7 @@ def _historical(locations,python,value):
     from dataevolver.harness.runtime_rsi import RuntimeRSIPlanner
     from dataevolver.adapters.model_contracts import ModelProfile,ModelPolicy,ModelRequest
     from dataevolver.adapters.model_gateway import ModelGateway
-    from dataevolver.adapters.codex_planner import GatewayPlannerBackend
+    from dataevolver.adapters.codex_planner import RecoveringPlannerBackend
     cfg,checks,build,recovery,origin=(Path(locations[k]) for k in
         ('readiness_config','checks_config','build_config','recovery_config','request_origin'))
     parent_plan=read_development_plan(json.loads((checks/'protected/original-recovery-plan.json').read_text()))
@@ -102,7 +102,7 @@ def _historical(locations,python,value):
     profile=ModelProfile.from_dict(json.loads((build/'protected/original-model-profile.json').read_text()))
     gateway=ModelGateway(profiles=(profile,),policy=ModelPolicy({'agent.runtime_rsi':profile.profile_id},1),
         receipt_root=cfg/'output/model_receipts',artifact_store=store)
-    backend=GatewayPlannerBackend(gateway,model_id=profile.model,timeout_seconds=900)
+    backend=RecoveringPlannerBackend(gateway,model_id=profile.model,timeout_seconds=900)
     goal=GoalSpec.from_dict(json.loads((cfg/'protected/goal.json').read_text()))
     planner=RuntimeRSIPlanner(backend=backend,domain=domain,trace_root=cfg/'output/campaigns'/goal.campaign_id/'planner')
     inspection=CandidateInspectionOperator(plan=parent_plan,package=package,store=store,

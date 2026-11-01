@@ -52,7 +52,7 @@ def _read_observation(config,call_id):
     # helper is host code loaded by file, not from any candidate-owned root.
     import importlib.util
     from dataevolver.dataset.contracts import file_sha256,payload_sha256
-    from dataevolver.harness.cli import _existing_controller
+    from dataevolver.harness.composition import open_controller
     from dataevolver.harness.controller import EvolutionController
     from dataevolver.harness.adapters.training_rsi import TrainingRSIObservationOperator
     from dataevolver.harness.models import OperatorCall,OperatorReceipt,EvidenceStatus
@@ -75,7 +75,7 @@ def _read_observation(config,call_id):
         raise ValueError('registered observation frozen source changed')
     for name,digest in frozen['source_hashes'].items():
         if file_sha256(cfg/'source'/name)!=digest:raise ValueError('original observation source changed')
-    c=_existing_controller(cfg/'campaigns',json.loads((cfg/'goal.json').read_text())['campaign_id'])
+    c=open_controller(cfg/'campaigns',json.loads((cfg/'goal.json').read_text())['campaign_id'])
     if (c.status().state.value not in {'ABSTAIN','COMPLETE'} or not c._frozen()[0]
             or c.replay().to_dict()!=c.status().to_dict()):
         raise ValueError('registered observation Controller is not terminal and replayable')

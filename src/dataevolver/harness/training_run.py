@@ -100,10 +100,10 @@ def read_frozen(directory, *, require_snapshot=True):
 
 
 def validate_campaign(directory):
-    from .cli import _existing_controller
+    from .composition import open_controller
     contract,goal = read_frozen(directory)
     campaign = Path(directory)/"campaigns"/goal.campaign_id
-    controller = _existing_controller(campaign.parent, campaign.name)
+    controller = open_controller(campaign.parent, campaign.name)
     planned = [e for e in controller.store.events.read() if e.event_type == "ACTION_PLANNED"]
     if len(planned) != 1:
         raise ValueError("production did not preserve its one owning Harness action")

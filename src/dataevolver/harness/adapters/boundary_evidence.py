@@ -34,11 +34,11 @@ class BoundaryEvidenceProbeOperator:
         self.authority = authority; self.origin = authority.identity(); self.inputs = authority.probe_inputs()
         self.segment_gateway, self.backend, self.resource_operator = segment_gateway, review_backend, resource_operator
         from dataevolver.adapters.training_media_worker import TrainingMediaProvider
-        from dataevolver.adapters.codex_planner import GatewayPlannerBackend
+        from dataevolver.adapters.codex_planner import RecoveringPlannerBackend
         provider = segment_gateway.factories['segmentation']()
         if (type(provider) is not TrainingMediaProvider
                 or provider.config != resource_operator.contract['models']['workers']['segmentation']
-                or type(review_backend) is not GatewayPlannerBackend
+                or type(review_backend) is not RecoveringPlannerBackend
                 or review_backend.gateway.identity('agent.runtime_rsi')['model'] != 'gpt-6.1-sol'):
             raise ValueError('boundary probe providers differ from the registered resident/Planner models')
         self.segment_contract_hash = segment_gateway.contract_hash()

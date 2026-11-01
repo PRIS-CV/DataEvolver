@@ -90,7 +90,7 @@ def _read_completed_probe(config, descriptor, python):
     from dataevolver.harness.adapters.training_supervision import TrainingSupervisionOperator
     from dataevolver.adapters.model_contracts import ModelProfile,ModelPolicy
     from dataevolver.adapters.model_gateway import ModelGateway
-    from dataevolver.adapters.codex_planner import GatewayPlannerBackend
+    from dataevolver.adapters.codex_planner import RecoveringPlannerBackend
     from dataevolver.adapters.cli_planner_service import CLIPlannerEndpointProvider
     from dataevolver.adapters.training_media_worker import TrainingMediaProvider
     from dataevolver.harness.models import GoalSpec,OperatorCall,OperatorReceipt,EvidenceStatus
@@ -112,7 +112,7 @@ def _read_completed_probe(config, descriptor, python):
     profile=ModelProfile.from_dict(json.loads(Path(descriptor['profile_path']).read_text()));worker=json.loads(Path(descriptor['worker_path']).read_text())
     pg=ModelGateway(profiles=(profile,),policy=ModelPolicy({'agent.runtime_rsi':profile.profile_id},2),receipt_root=output/'planner_model_receipts',artifact_store=store)
     pg.factories[profile.profile_id]=lambda:CLIPlannerEndpointProvider(profile,worker,store,output/'native')
-    backend=GatewayPlannerBackend(pg,model_id=profile.model,timeout_seconds=900)
+    backend=RecoveringPlannerBackend(pg,model_id=profile.model,timeout_seconds=900)
     sam=next(ModelProfile.from_dict(x) for x in contract['models']['profiles'] if x['profile_id']=='segmentation')
     sg=ModelGateway(profiles=(sam,),policy=ModelPolicy({'training.segment':'segmentation'},1),receipt_root=output/'segment_model_receipts',artifact_store=store)
     sg.factories['segmentation']=lambda:TrainingMediaProvider(sam,contract['models']['workers']['segmentation'],store,'boundary_probe',output/'native-sam')

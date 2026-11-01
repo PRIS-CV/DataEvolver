@@ -17,7 +17,7 @@ from pathlib import Path
 from dataevolver.paths import REPO_ROOT
 from dataevolver.adapters.model_contracts import ModelProfile, ModelPolicy
 from dataevolver.adapters.model_gateway import ModelGateway
-from dataevolver.adapters.codex_planner import GatewayPlannerBackend
+from dataevolver.adapters.codex_planner import RecoveringPlannerBackend
 from dataevolver.adapters.cli_planner_service import CLIPlannerEndpointProvider
 from dataevolver.dataset.contracts import ArtifactStore, file_sha256, payload_sha256
 from .models import GoalSpec
@@ -59,7 +59,7 @@ def build_runtime(goal, campaign_root):
         artifact_store=ArtifactStore(config['domain']['roots']))
     gateway.factories[profile.profile_id] = lambda: CLIPlannerEndpointProvider(
         profile, config['planner_worker'], gateway.store, campaign / 'planner' / 'native')
-    backend = GatewayPlannerBackend(gateway, model_id=profile.model,
+    backend = RecoveringPlannerBackend(gateway, model_id=profile.model,
                                      timeout_seconds=config.get('planner_timeout_seconds', 900))
     registry = OperatorRegistry()
     if workflow:
@@ -408,7 +408,7 @@ def freeze(seed_directory, out, campaign_id, slot, *, planner_config, max_experi
 
 
 def validate(directory):
-    from .cli import _existing_controller
+    from .composition import open_controller
     directory = Path(directory).resolve()
     frozen = json.loads((directory / 'frozen.json').read_text())
     if file_sha256(directory / 'goal.json') != frozen['goal_sha256']:
@@ -417,7 +417,7 @@ def validate(directory):
         if file_sha256(directory / 'source' / path) != digest:
             raise ValueError('runtime source changed')
     goal = GoalSpec.from_json((directory / 'goal.json').read_text())
-    controller = _existing_controller(directory / 'campaigns', goal.campaign_id)
+    controller = open_controller(directory / 'campaigns', goal.campaign_id)
     state = controller.status()
     stable, drift = controller._frozen()
     replay = controller.replay().to_dict() == state.to_dict()

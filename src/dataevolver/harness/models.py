@@ -21,6 +21,7 @@ def _json_value(value: Any) -> Any:
 
 
 def canonical_json(value: Any) -> str:
+    """Normalize Harness models; retain legacy JSON number handling for hashes."""
     return json.dumps(_json_value(value), ensure_ascii=False, separators=(",", ":"), sort_keys=True)
 
 

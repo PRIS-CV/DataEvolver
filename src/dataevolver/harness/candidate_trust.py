@@ -12,6 +12,7 @@ from dataevolver.dataset.contracts import ArtifactRef, Contract, identifier
 
 
 def canonical_bytes(value):
+    """Keep escaped ASCII bytes stable for candidate signatures."""
     return json.dumps(value, sort_keys=True, separators=(",", ":"),
                       ensure_ascii=True, allow_nan=False).encode("ascii")
 

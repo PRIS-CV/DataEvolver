@@ -9,8 +9,9 @@ import json
 from pathlib import Path
 from typing import Protocol
 
+from .domains import DomainRuntime
 from .models import (Capability, CapabilityStatus, ControllerState, EvaluationReport,
-                     FailureSignature, Intervention, StageResult, canonical_json)
+                     FailureSignature, Intervention, canonical_json)
 from .state_store import atomic_write_json
 
 
@@ -67,9 +68,9 @@ repair answer. The implementation must undergo the frozen validation process.
 """
 
 
-class RSIDomain(Protocol):
-    def config(self) -> dict: ...
-    def context(self, state) -> dict: ...
+class RSIDomain(DomainRuntime, Protocol):
+    """Domain runtime with the RSI planner's concrete compilation results."""
+
     def compile_observation(self, decision: dict, state) -> tuple[str, dict]: ...
     def compile_intervention(self, decision: dict, state) -> Intervention: ...
 

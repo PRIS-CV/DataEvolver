@@ -112,7 +112,7 @@ def _read_request(config, profile_path, python, require_capability=True):
     from dataevolver.harness.training_trial_authority import _read_only_event
     from dataevolver.adapters.model_contracts import ModelProfile, ModelPolicy, ModelRequest
     from dataevolver.adapters.model_gateway import ModelGateway
-    from dataevolver.adapters.codex_planner import GatewayPlannerBackend
+    from dataevolver.adapters.codex_planner import RecoveringPlannerBackend
     def forbidden(*a, **kw): raise RuntimeError('feedback request reader cannot execute or infer')
     EvolutionController.run = EvolutionController.tick = RuntimeRSIPlanner.plan = forbidden
     TrainingCandidateFeedbackOperator.execute = TrainingCandidateFeedbackOperator.recover = forbidden
@@ -156,7 +156,7 @@ def _read_request(config, profile_path, python, require_capability=True):
     gateway = ModelGateway(profiles=(profile,), policy=ModelPolicy({'agent.runtime_rsi': profile.profile_id}, 1),
         receipt_root=cfg/'output/model_receipts', artifact_store=store)
     goal = GoalSpec.from_dict(json.loads((protected/'goal.json').read_text()))
-    planner = RuntimeRSIPlanner(backend=GatewayPlannerBackend(gateway, model_id=profile.model, timeout_seconds=900),
+    planner = RuntimeRSIPlanner(backend=RecoveringPlannerBackend(gateway, model_id=profile.model, timeout_seconds=900),
         domain=domain, trace_root=cfg/'output/campaigns'/goal.campaign_id/'planner')
     op = capture_type(authority=authority, output_root=cfg/'output')
     registry = OperatorRegistry(); registry.register(op)

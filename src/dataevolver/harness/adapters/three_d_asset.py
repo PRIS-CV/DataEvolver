@@ -6,6 +6,8 @@ import os
 import shutil
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -14,12 +16,13 @@ from typing import Any, Protocol
 from PIL import Image
 
 from dataevolver.agents.feedback_apply import apply_action, load_action_space
-from dataevolver.paths import REPO_ROOT, SRC_ROOT
+from dataevolver.paths import CONFIGS_ROOT, REPO_ROOT, SRC_ROOT
 
 from ..models import (
     EffectVerification,
     EvidenceStatus,
     ExpectedOutputSpec,
+    GoalSpec,
     JsonModel,
     OperatorCall,
     OperatorReceipt,
@@ -37,6 +40,215 @@ from ..state_store import atomic_write_json
 OPERATOR_ID = "dataevolver.3d_asset_evolution"
 OPERATOR_VERSION = "1"
 STAGES = ("t2i", "segment", "reconstruct", "sanitize", "render", "review")
+
+
+def validate_creation_resources(*, dry_run: bool) -> None:
+    """Validate the explicit environment required by the legacy 3D adapter."""
+    if dry_run:
+        raise ValueError("Agentic 3D execution must not use --dry-run")
+    required = (
+        "DATAEVOLVER_AGENT_BASE_URL",
+        "DATAEVOLVER_AGENT_API_KEY",
+        "DATAEVOLVER_AGENT_MODEL",
+        "QWEN_IMAGE_MODEL_PATH",
+        "SAM3_CKPT",
+        "SAM3_DIR",
+        "HUNYUAN3D_REPO",
+        "MODEL_HUB",
+        "PAINT_MODEL_HUB",
+        "DINO_MODEL_PATH",
+        "VLM_MODEL_PATH",
+        "BLENDER_BIN",
+        "DATAEVOLVER_3D_SCENE_TEMPLATE",
+        "DATAEVOLVER_3D_GPU_ID",
+    )
+    missing = [name for name in required if not os.environ.get(name, "").strip()]
+    if missing:
+        raise ValueError(
+            f"Agentic 3D creation is missing environment: {', '.join(missing)}"
+        )
+    missing_paths = [
+        name
+        for name in required[3:-1]
+        if not Path(os.environ[name]).expanduser().exists()
+    ]
+    if missing_paths:
+        raise ValueError(
+            f"Agentic 3D resource path does not exist: {', '.join(missing_paths)}"
+        )
+    int(os.environ["DATAEVOLVER_3D_GPU_ID"])
+    return
+
+
+def production_preflight(
+    goal: GoalSpec, *, urlopen=urllib.request.urlopen, run=subprocess.run
+) -> dict:
+    asset_ids = [str(item) for item in goal.objective.get("asset_ids", [])]
+    allowed_kinds = {
+        "PROMPT_REGENERATE",
+        "RESEGMENT_RECONSTRUCT",
+        "RECONSTRUCT_RETRY",
+        "SCENE_REFINE",
+    }
+    if (
+        goal.objective.get("real_canary") is not True
+        or goal.planner.get("kind") != "agentic_rsi"
+    ):
+        raise ValueError("3D canary requires an explicit real_canary Agentic Goal")
+    if asset_ids != list(dict.fromkeys(asset_ids)) or len(asset_ids) != 1:
+        raise ValueError("3D canary requires exactly one unique asset")
+    if set(goal.initial_operator_parameters) != {
+        "initial_prompt",
+        "t2i_seed",
+        "reconstruction_seed",
+    }:
+        raise ValueError(
+            "3D canary initial Operator parameters do not match the fixed canary contract"
+        )
+    if (
+        not isinstance(goal.initial_operator_parameters.get("initial_prompt"), str)
+        or not goal.initial_operator_parameters["initial_prompt"].strip()
+    ):
+        raise ValueError("3D canary requires one fixed non-empty initial prompt")
+    if set(goal.objective.get("allowed_experiment_kinds", [])) != allowed_kinds:
+        raise ValueError("3D canary experiment kinds do not match the frozen allowlist")
+    if goal.objective.get("representative_views") != [
+        [0, 0],
+        [90, 0],
+        [180, 0],
+        [270, 0],
+    ]:
+        raise ValueError("3D canary requires the frozen four-view contract")
+    if goal.budgets.max_experiments > 3 or goal.budgets.max_operator_calls > 4:
+        raise ValueError(
+            "3D canary candidate/operator budget exceeds the bounded canary contract"
+        )
+    if goal.budgets.max_planner_calls <= 0 or goal.budgets.max_planner_calls > 4:
+        raise ValueError("3D canary planner-call budget must be between 1 and 4")
+
+    base_url = os.environ["DATAEVOLVER_AGENT_BASE_URL"].rstrip("/")
+    api_key = os.environ["DATAEVOLVER_AGENT_API_KEY"]
+    model = os.environ["DATAEVOLVER_AGENT_MODEL"]
+    request = urllib.request.Request(
+        f"{base_url}/models",
+        method="GET",
+        headers={"Authorization": f"Bearer {api_key}"},
+    )
+    try:
+        with urlopen(request, timeout=15) as response:
+            models_payload = json.loads(response.read().decode("utf-8"))
+    except (OSError, urllib.error.URLError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Agent endpoint unavailable: {exc}") from exc
+    model_ids = {str(item.get("id") or "") for item in models_payload.get("data", [])}
+    if model not in model_ids:
+        raise ValueError(f"Agent model is not served by the endpoint: {model}")
+
+    scene_template_path = (
+        Path(os.environ["DATAEVOLVER_3D_SCENE_TEMPLATE"]).expanduser().resolve()
+    )
+    scene_template = json.loads(scene_template_path.read_text(encoding="utf-8"))
+    blend_path = (
+        Path(str(scene_template.get("blend_path") or "")).expanduser().resolve()
+    )
+    if (
+        scene_template.get("require_scene_contract") is not True
+        or not blend_path.is_file()
+    ):
+        raise ValueError(
+            "Agentic 3D scene template or referenced blend file is unavailable"
+        )
+    action_space_path = (CONFIGS_ROOT / "scene_action_space.json").resolve()
+    json.loads(action_space_path.read_text(encoding="utf-8"))
+
+    environment = dict(os.environ)
+    python_path_parts = [str(SRC_ROOT)]
+    python_path_parts.extend(
+        str(Path(os.environ[name]).expanduser().resolve())
+        for name in ("HUNYUAN3D_REPO", "SAM3_DIR")
+    )
+    if environment.get("PYTHONPATH"):
+        python_path_parts.append(environment["PYTHONPATH"])
+    environment["PYTHONPATH"] = os.pathsep.join(python_path_parts)
+    dependency = run(
+        [sys.executable, "-c", "import torch, PIL, numpy, trimesh, diffsynth"],
+        cwd=REPO_ROOT,
+        env=environment,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        timeout=90,
+        check=False,
+        shell=False,
+    )
+    if dependency.returncode != 0:
+        raise ValueError(
+            f"Agentic 3D Python dependency preflight failed: {(dependency.stderr or dependency.stdout)[-1000:]}"
+        )
+    blender = run(
+        [os.environ["BLENDER_BIN"], "--version"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        timeout=30,
+        check=False,
+        shell=False,
+    )
+    if blender.returncode != 0:
+        raise ValueError(
+            f"Blender preflight failed: {(blender.stderr or blender.stdout)[-1000:]}"
+        )
+
+    gpu_id = int(os.environ["DATAEVOLVER_3D_GPU_ID"])
+    gpu = run(
+        [
+            "nvidia-smi",
+            "-i",
+            str(gpu_id),
+            "--query-gpu=index,memory.used,memory.total,utilization.gpu",
+            "--format=csv,noheader,nounits",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        timeout=30,
+        check=False,
+        shell=False,
+    )
+    if gpu.returncode != 0:
+        raise ValueError(f"GPU preflight failed: {(gpu.stderr or gpu.stdout)[-1000:]}")
+    try:
+        index, memory_used, memory_total, utilization = [
+            int(part.strip()) for part in gpu.stdout.strip().split(",")
+        ]
+    except (TypeError, ValueError) as exc:
+        raise ValueError("GPU preflight returned malformed metrics") from exc
+    max_used = int(goal.resource_policy.get("max_preflight_gpu_memory_mb", 500))
+    if index != gpu_id or memory_used >= max_used:
+        raise ValueError(
+            f"GPU {gpu_id} is not available for the bounded canary: {memory_used} MiB used"
+        )
+
+    return {
+        "schema_version": "dataevolver.harness.production_preflight.v1",
+        "status": "VERIFIED",
+        "agent_model": model,
+        "agent_base_url_hash": hashlib.sha256(base_url.encode("utf-8")).hexdigest(),
+        "scene_template": str(scene_template_path),
+        "scene_template_hash": hashlib.sha256(
+            scene_template_path.read_bytes()
+        ).hexdigest(),
+        "blend_hash": hashlib.sha256(blend_path.read_bytes()).hexdigest(),
+        "action_space_hash": hashlib.sha256(action_space_path.read_bytes()).hexdigest(),
+        "gpu": {
+            "index": index,
+            "memory_used_mb": memory_used,
+            "memory_total_mb": memory_total,
+            "utilization_percent": utilization,
+        },
+        "python_dependencies": "VERIFIED",
+        "blender_version": (blender.stdout or blender.stderr).splitlines()[0],
+    }
+
 
 
 @dataclass(frozen=True)

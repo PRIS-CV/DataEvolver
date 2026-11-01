@@ -197,8 +197,8 @@ def validate_campaign(config_dir, campaign):
         return {"step1_passed": False, "reason": "missing pair manifest or Harness final report"}
     pairs = load_pair_manifest(pairs_path, store, include_rejected=True)
     value = json.loads(pairs_path.read_text())
-    from .cli import _existing_controller
-    controller = _existing_controller(Path(campaign).parent, Path(campaign).name)
+    from .composition import open_controller
+    controller = open_controller(Path(campaign).parent, Path(campaign).name)
     replay = controller.replay().to_dict() == controller.status().to_dict()
     from .models import OperatorCall
     from .operators import _load_receipt, _receipt_path

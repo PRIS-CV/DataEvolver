@@ -158,5 +158,6 @@ class CandidateBuildRecoveryOperator(CandidateSourceCompiler):
 
 
 def canonical_bytes(value):
+    """Bind recovery to strict UTF-8 dataset JSON, including unescaped Unicode."""
     from dataevolver.dataset.contracts import canonical_json
     return canonical_json(value).encode()

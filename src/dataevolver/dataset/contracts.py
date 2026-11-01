@@ -14,6 +14,7 @@ from typing import Any, ClassVar, Mapping
 
 
 def canonical_json(value: Any) -> str:
+    """Encode strict dataset contracts; reject non-finite numbers."""
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
 

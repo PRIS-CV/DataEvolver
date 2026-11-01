@@ -156,7 +156,7 @@ class FrozenTrainingTrialAuthority:
 
 
 def _read(config, call_id):
-    from dataevolver.harness.cli import _existing_controller
+    from dataevolver.harness.composition import open_controller
     from dataevolver.harness.controller import EvolutionController
     from dataevolver.harness.models import OperatorCall, OperatorReceipt, EvidenceStatus
     from dataevolver.harness.adapters.training_rsi import TrainingRSITrialOperator
@@ -194,7 +194,7 @@ def _read(config, call_id):
         if file_sha256(cfg/'source'/name) != digest:
             raise ValueError('original frozen implementation changed')
     goal = json.loads((cfg/'goal.json').read_text())
-    c = _existing_controller(cfg/'campaigns', goal['campaign_id'])
+    c = open_controller(cfg/'campaigns', goal['campaign_id'])
     if c.status().state.value not in {'ABSTAIN','COMPLETE'} or not c._frozen()[0]:
         raise ValueError('original Controller is not a verified terminal run')
     if c.replay().to_dict() != c.status().to_dict():

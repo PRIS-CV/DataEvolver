@@ -81,7 +81,7 @@ def _read_frozen_boundary_failure(config, locations, python):
     from dataevolver.dataset.contracts import ArtifactStore, file_sha256, payload_sha256
     from dataevolver.adapters.model_contracts import ModelProfile, ModelPolicy, ModelReceipt
     from dataevolver.adapters.model_gateway import ModelGateway
-    from dataevolver.adapters.codex_planner import GatewayPlannerBackend
+    from dataevolver.adapters.codex_planner import RecoveringPlannerBackend
     from dataevolver.adapters.cli_planner_service import CLIPlannerEndpointProvider
     from dataevolver.adapters.training_media_worker import TrainingMediaProvider
     from dataevolver.harness.training_candidate_feedback import FrozenTrainingCandidateFeedbackAuthority
@@ -112,7 +112,7 @@ def _read_frozen_boundary_failure(config, locations, python):
     store=ArtifactStore({**inputs['store_roots'],'boundary_probe':dataset[0]})
     pg=ModelGateway(profiles=(profile,),policy=ModelPolicy({'agent.runtime_rsi':profile.profile_id},2),receipt_root=output/'planner_model_receipts',artifact_store=store)
     pg.factories[profile.profile_id]=lambda:CLIPlannerEndpointProvider(profile,worker,store,output/'native')
-    backend=GatewayPlannerBackend(pg,model_id=profile.model,timeout_seconds=900)
+    backend=RecoveringPlannerBackend(pg,model_id=profile.model,timeout_seconds=900)
     sam=next(ModelProfile.from_dict(x) for x in contract['models']['profiles'] if x['profile_id']=='segmentation')
     sg=ModelGateway(profiles=(sam,),policy=ModelPolicy({'training.segment':'segmentation'},1),receipt_root=output/'segment_model_receipts',artifact_store=store)
     sg.factories['segmentation']=lambda:TrainingMediaProvider(sam,contract['models']['workers']['segmentation'],store,'boundary_probe',output/'native-sam')
