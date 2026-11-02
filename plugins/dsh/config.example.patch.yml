@@ -1,4 +1,4 @@
-# Copy to a private file and pass it to dsh --patch.
+# Copy beside this example as config.local.patch.yml (gitignored), then use dsh --patch.
 # A row replaces the whole config; omitted settings use the plugin schema defaults.
 - id: dataevolver
   config:

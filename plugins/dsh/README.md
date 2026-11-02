@@ -33,13 +33,14 @@ range is an interface target, not a runtime acceptance result.
    Plugin installation uses that profile's package manager. This bundle ships
    native ESM files, so it needs no build or lifecycle script.
 
-4. Copy [config.example.patch.yml](config.example.patch.yml) to a private file.
+4. Copy [config.example.patch.yml](config.example.patch.yml) to `config.local.patch.yml`
+   beside the example. The plugin's `.gitignore` excludes that private file.
    Set `command` to your installed `dataevolver` executable or an argv prefix such
    as your Python executable followed by `-m`, `dataevolver`.
 5. Start DSH with your private overlay:
 
    ```sh
-   dsh --profile web --patch /absolute/path/to/private-dataevolver.patch.yml
+   dsh --profile web --patch /absolute/path/to/config.local.patch.yml
    ```
 
 Open DSH's printed startup URL. Configure the agent provider and model in DSH,
@@ -54,8 +55,8 @@ private overlay. Keep campaign files if you intend to inspect or continue runs.
 | Setting | Default | Meaning |
 |---|---|---|
 | `command` | `[dataevolver]` | Executable and fixed arguments; passed as argv without a shell. The executable must be an absolute path or a PATH name. |
-| `workingDirectory` | Original session directory | Absolute directory in the subprocess execution world. The sandbox boundary still comes from the session. |
-| `campaignRoot` | `.dataevolver/campaigns` | Campaign directory; relative paths resolve against the spawned command's working directory. |
+| `workingDirectory` | Original session directory, or policy root | Absolute directory in the subprocess execution world. Agentless calls fall back to the policy root. The sandbox boundary still comes from the session policy. |
+| `campaignRoot` | `.dataevolver/campaigns` | Absolute campaign directory, or a relative path resolved against the spawned command's working directory. |
 | `maxActions` | `1` | Default and maximum action count for each `step` call. |
 | `timeoutMs` | `300000` | Foreground call deadline, including executable lookup and sandbox preparation. |
 | `graceMs` | `5000` | Termination grace passed to the subprocess provider. |

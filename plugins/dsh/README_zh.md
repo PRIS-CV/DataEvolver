@@ -29,12 +29,13 @@ DataEvolver 负责 Campaign 状态、算子、预算、回执和恢复。
    第一个命令仅在 `web` 缺失时从内置模板初始化。插件安装使用 Profile 的包管理器。
    插件直接提供 ESM 文件，无需构建或安装脚本。
 
-4. 把[配置示例](config.example.patch.yml)复制到私有文件。
+4. 把[配置示例](config.example.patch.yml)复制到同目录的 `config.local.patch.yml`。
+   插件的 `.gitignore` 会排除这个私有文件。
    `command` 可填写已安装的 `dataevolver` 可执行文件，或 Python 可执行文件加 `-m`、`dataevolver`。
 5. 使用私有配置启动 DSH：
 
    ```sh
-   dsh --profile web --patch /absolute/path/to/private-dataevolver.patch.yml
+   dsh --profile web --patch /absolute/path/to/config.local.patch.yml
    ```
 
 打开 DSH 输出的启动链接，在 DSH 中配置 Agent 的 Provider 与模型，再让 Agent
@@ -48,8 +49,8 @@ DataEvolver 负责 Campaign 状态、算子、预算、回执和恢复。
 | 字段 | 默认值 | 用途 |
 |---|---|---|
 | `command` | `[dataevolver]` | 可执行文件与固定参数，以 argv 传递。可执行文件填写绝对路径或 PATH 名称。 |
-| `workingDirectory` | 会话初始目录 | 进程执行环境中的绝对目录。沙箱边界仍取自会话策略。 |
-| `campaignRoot` | `.dataevolver/campaigns` | Campaign 目录；相对路径以进程工作目录为基准。 |
+| `workingDirectory` | 会话初始目录或策略根目录 | 进程执行环境中的绝对目录。无 Agent 的调用回退到策略根目录。沙箱边界仍取自会话策略。 |
+| `campaignRoot` | `.dataevolver/campaigns` | Campaign 目录可使用绝对路径；相对路径以进程工作目录为基准。 |
 | `maxActions` | `1` | 每次 `step` 的默认动作数与上限。 |
 | `timeoutMs` | `300000` | 前台调用时限，包含可执行文件查找和沙箱准备。 |
 | `graceMs` | `5000` | 传给进程服务的终止宽限时间。 |
