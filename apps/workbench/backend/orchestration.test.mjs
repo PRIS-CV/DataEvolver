@@ -110,10 +110,17 @@ test("an unknown SSH effect cancels waiting executions", { timeout: 5000 }, asyn
   const first = await jobs.start(step("first"));
   await started(first.record.id);
   const waiting = await jobs.start(step("waiting"));
+  const inspectionPromise = jobs.start({
+    command: "status", values: { campaign: "first", campaignRoot: "runs" },
+  });
   processes[0].child.finish(255);
   assert.equal((await first.done).status, "unknown");
   assert.equal((await waiting.done).status, "cancelled");
-  assert.equal(processes.length, 1);
+  const inspection = await inspectionPromise;
+  await started(inspection.record.id);
+  assert.equal(processes.length, 2);
+  processes[1].child.finish(0);
+  assert.equal((await inspection.done).status, "succeeded");
 });
 
 test("restart inspection does not replay persisted running or queued work", async (t) => {

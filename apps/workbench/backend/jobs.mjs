@@ -337,8 +337,10 @@ export class Jobs {
       resolveDone(record);
       if (uncertain || record.status === "unknown") {
         // Unknown remote effects must not trigger the next queued execution.
-        await Promise.allSettled([...this.pending.keys()].map((id) =>
-          this.cancel(id, "Previous job has unknown effects; inspect receipts before submitting again")));
+        await Promise.allSettled([...this.pending.values()]
+          .filter((pending) => pending.queued)
+          .map((pending) => this.cancel(pending.record.id,
+            "Previous job has unknown effects; inspect receipts before submitting again")));
       }
       if (uncertain) this.holds--;
       this.drain();
