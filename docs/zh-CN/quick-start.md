@@ -2,10 +2,9 @@
 
 [首页](../../README_zh.md) · [文档目录](../../README_zh.md#文档导航) · [English](../en/quick-start.md)
 
-需要网页配置与对话时，可通过 `./apps/workbench/launch.sh` 启动可选的
-[工作台](workbench.md)。下方 CLI 安装流程可独立使用。
-
-先安装源码并查看接口，再按后续指南准备工作流。
+DataEvolver 围绕多模态大模型的训练目标组织图像与 3D 数据合成和修订。
+可通过可选的[工作台](workbench.md)在网页配置并对话，也可独立使用 Harness CLI 准备工作流。
+两种入口共用 Harness 的计划编译、执行记录和恢复接口。
 
 除明确要求切换目录的步骤外，命令示例均从仓库根目录执行。
 
@@ -15,6 +14,7 @@
 |---|---|
 | 基础开发 | 可编辑源码检出；宜使用源码 CI 所用的 Python 3.12。 |
 | Harness 依赖 | `.[harness]`；查看接口无需模型权重或引擎。 |
+| 网页工作台 | 工作台主机安装 Node.js 22.19+、npm、Git 和 Python 3.10+；首次安装需要网络。 |
 | 原生工具/模型执行 | 所选工具要求的系统、引擎、模型依赖和宿主权限。 |
 | GPU 工作负载 | 明确选定的适配器要求的显存、CUDA 和运行时兼容性。 |
 | 网站开发 | Node.js 22+ 和 npm，与模型执行独立。 |
@@ -33,6 +33,38 @@
 [Blender/UE5 Worker（英文参考）](../NATIVE_SCENE_WORKFLOW.md)有单独的契约。
 
 ## 快速开始
+
+先克隆仓库，再选择网页或 CLI 安装方式：
+
+```bash
+git clone https://github.com/PRIS-CV/DataEvolver.git
+cd DataEvolver
+```
+
+### 网页工作台
+
+在仓库根目录执行：
+
+```bash
+./apps/workbench/launch.sh
+```
+
+启动器默认创建 `.venv`、安装 `.[harness]` 和应用锁文件中的 Node 依赖、取得固定提交的
+Agent 扩展、构建前端并启动本地工作台。
+
+1. 如果浏览器未打开，打开终端输出的启动链接。
+2. 在 **设置** 添加 Provider、服务地址和模型 ID，再选择主 Agent 与子 Agent。
+3. 填写工作流需要的图像接口与原生工具路径。
+4. 在 **私有凭据** 填写各接口对应的密钥环境变量名和 API Key，再点击 **暂存密钥**。
+5. 点击 **保存配置**。
+6. 新建对话。
+
+计划编译和 Campaign 命令可在 **Harness** 页面提交。
+
+Blender、UE5、模型权重、推理服务和远端环境由执行主机提供。
+服务器或混合部署见 [OpenSSH 部署](workbench.md#openssh-部署)。
+根目录 `./launch.sh` 保留为兼容入口。
+配置、启动参数和恢复说明见[工作台指南](workbench.md)。
 
 ### 方式 A：让 AI Agent 准备配置
 
@@ -53,10 +85,7 @@
 
 #### 1. 克隆仓库
 
-```bash
-git clone https://github.com/PRIS-CV/DataEvolver.git
-cd DataEvolver
-```
+使用上方已克隆的源码，以仓库根目录作为工作目录。
 
 #### 2. 安装包入口
 
