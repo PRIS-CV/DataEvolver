@@ -33,3 +33,7 @@ surfaces, typography and focus states; no Hallmark runtime or artwork is bundled
 
 Dependency packages and the separate SoL-Pi checkout retain their original
 licenses. The workbench retains DataEvolver's repository license.
+
+Candidate orchestration takes design ideas from [Hyra's official description](https://hy.tencent.com/research/hyra)
+and the [Hyra AI4AI artifacts](https://github.com/Tencent-Hunyuan/Hyra-results/tree/8443f9a9aae1a0b72c79e0b2908c79026b8e1555/AI4AI).
+No Hyra source, training recipe, model weights or runtime is bundled.

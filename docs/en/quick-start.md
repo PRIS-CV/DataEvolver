@@ -70,6 +70,10 @@ the local workbench.
 5. Click **Save configuration**.
 6. Open a new conversation.
 
+Set queue and child-process limits in **Settings → Agent runtime → Candidate
+orchestration**. Ask the main agent to use `mode=proposal` for candidate authoring.
+See [Candidate orchestration](orchestration.md) for evidence context and recovery.
+
 Use **Harness** for plan compilation and Campaign commands.
 
 Blender, UE5, model weights, inference services and remote environments are
