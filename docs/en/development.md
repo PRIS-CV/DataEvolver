@@ -25,8 +25,14 @@ DataEvolver/
 │   └── zh-CN/           # Simplified Chinese task guides
 ├── .agents/skills/       # Onboarding and verification guidance
 ├── .github/workflows/    # Source contracts and website workflows
-└── apps/project-page/    # Independent website and read-only archive API
+└── apps/
+    ├── workbench/       # Optional launcher, private UI and agent/tool bridge
+    └── project-page/    # Independent website and read-only archive API
 ```
+
+The Workbench launcher is `apps/workbench/launch.sh`; the root `launch.sh` is a
+compatibility forwarder. UI and Node dependencies belong to that optional app.
+The Harness uses the same public CLI and requires no Workbench installation.
 
 Local deployment files and generated campaigns live under ignored `.dataevolver/`.
 Keep model bindings, native executable paths and credentials in that local area.

@@ -3,12 +3,14 @@
 [首页](../../README_zh.md) · [快速开始](quick-start.md) · [English](../en/workbench.md)
 
 DataEvolver Workbench 是单用户应用。用户可在网页配置模型与工具、与 Pi Agent
-对话，并向现有 Harness 提交命令。工作台与公开项目网站独立运行。
+对话，并向现有 Harness 提交命令。可选应用、启动器和 Node 依赖集中在
+`apps/workbench/`；核心仍位于 `src/dataevolver/harness/`，无需网页或 Node.js
+也可使用。根目录 `launch.sh` 转发到应用启动器。公开项目网站是另一个独立应用。
 
 ## 启动
 
 1. 在工作台主机安装 Node.js 22.19+、npm、Git 和 Python 3.10+。
-2. 在源码目录执行 `./launch.sh`。
+2. 在源码目录执行 `./apps/workbench/launch.sh`。
 3. 如果浏览器未打开，打开终端输出的启动链接。
 4. 在 **设置** 注册 Provider 和模型，再选择主 Agent 与子 Agent。
 5. 保存配置并新建对话。
@@ -16,7 +18,7 @@ DataEvolver Workbench 是单用户应用。用户可在网页配置模型与工�
 启动器创建 `.venv`、安装 `.[harness]`、安装锁文件中的 Node 依赖、取得固定提交的
 SoL-Pi 源码并构建前端。依赖的安装脚本均被禁用。首次安装需要网络。
 模型权重、GPU 驱动、Blender、UE5 和远端环境由用户准备。
-`./launch.sh --no-install --no-open` 复用已准备的依赖，仅输出网页地址。
+`./apps/workbench/launch.sh --no-install --no-open` 复用已准备的依赖，仅输出网页地址。
 `--port 3080` 指定监听端口。
 
 默认 Pi 依赖为 `@earendil-works/pi-coding-agent` 1.3.0。锁文件记录兼容的依赖版本。
@@ -146,7 +148,7 @@ Harness 命令在远端源码目录执行。目标、Profile、输入输出及 C
 全远端部署在服务器运行：
 
 ```bash
-./launch.sh --no-open
+./apps/workbench/launch.sh --no-open
 ```
 
 在本机建立隧道，替换为自己的 SSH 别名：

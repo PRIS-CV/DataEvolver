@@ -4,12 +4,15 @@
 
 DataEvolver Workbench is a single-user application for configuring models and
 tools, talking to a Pi agent, and submitting commands to the existing Harness.
-It runs independently of the public project website.
+The optional application, launcher and Node dependencies live in
+`apps/workbench/`; the core remains in `src/dataevolver/harness/` and can be used
+without the UI or Node.js. The root `launch.sh` forwards to the app launcher.
+The public project website is a separate app.
 
 ## Start
 
 1. Install Node.js 22.19+, npm, Git and Python 3.10+ on the workbench host.
-2. Run `./launch.sh` from the checkout.
+2. Run `./apps/workbench/launch.sh` from the checkout.
 3. Open the startup URL printed in the terminal if your browser does not open.
 4. Open **Settings**, register a provider and model, then select the main and child agents.
 5. Save the configuration and open a new conversation.
@@ -18,7 +21,7 @@ The launcher creates `.venv`, installs `.[harness]`, installs the locked Node
 dependencies with lifecycle scripts disabled, obtains the pinned SoL-Pi source,
 and builds the frontend. It does not install checkpoints, GPU drivers, Blender,
 UE5 or remote environments. Initial installation requires network access.
-`./launch.sh --no-install --no-open` reuses prepared dependencies and prints the
+`./apps/workbench/launch.sh --no-install --no-open` reuses prepared dependencies and prints the
 browser URL. `--port 3080` selects the listener port.
 
 The default Pi dependency is `@earendil-works/pi-coding-agent` 1.3.0. Its lockfile
@@ -173,7 +176,7 @@ Use remote receipts to reconcile the Campaign.
 For full server deployment, run the launcher on the server:
 
 ```bash
-./launch.sh --no-open
+./apps/workbench/launch.sh --no-open
 ```
 
 On your laptop, establish a tunnel, substituting your existing alias:

@@ -69,7 +69,7 @@ async function api<T = unknown>(path: string, value?: unknown): Promise<T> {
   );
   if (response.status === 401)
     throw new Error(
-      "Open the startup URL printed by launch.sh / 请打开 launch.sh 输出的登录链接",
+      "Open the startup URL printed by apps/workbench/launch.sh / 请打开 apps/workbench/launch.sh 输出的登录链接",
     );
   const data = await response.json();
   if (!response.ok)

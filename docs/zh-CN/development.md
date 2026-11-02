@@ -25,8 +25,13 @@ DataEvolver/
 │   └── zh-CN/           # 简体中文任务指南
 ├── .agents/skills/       # 部署与验收指导
 ├── .github/workflows/    # 源码契约与网站工作流
-└── apps/project-page/    # 独立网站及只读归档 API
+└── apps/
+    ├── workbench/       # 可选启动器、私有网页与 Agent/工具桥接
+    └── project-page/    # 独立网站及只读归档 API
 ```
+
+工作台启动器位于 `apps/workbench/launch.sh`，根目录 `launch.sh` 仅作兼容转发。
+网页和 Node 依赖属于该可选应用。Harness 沿用公开 CLI，无需安装工作台。
 
 本地部署文件和生成的 Campaign 放在已忽略的 `.dataevolver/` 下。
 模型绑定、原生工具路径和凭证也放在该目录中。`configs/` 提供公开模板；

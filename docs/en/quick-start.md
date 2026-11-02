@@ -2,7 +2,8 @@
 
 [Home](../../README.md) · [Documentation index](../../README.md#documentation) · [简体中文](../zh-CN/quick-start.md)
 
-Use the [private Workbench](workbench.md) to configure and drive these interfaces in a browser.
+For browser configuration and chat, the optional [Workbench](workbench.md) starts
+with `./apps/workbench/launch.sh`. The CLI setup below works independently of it.
 
 Install the source checkout and inspect its interfaces, then prepare a workflow with the linked guides.
 

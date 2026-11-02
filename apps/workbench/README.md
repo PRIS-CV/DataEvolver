@@ -1,7 +1,10 @@
 # DataEvolver Workbench
 
 A private, single-user React/Node application around Pi RPC and DataEvolver's
-existing Harness. Start it from the checkout root with `./launch.sh`.
+existing Harness. From the checkout root, run `./apps/workbench/launch.sh`.
+The launcher, its Node dependencies and the UI live in this optional app;
+the core stays in `src/dataevolver/harness/`. The root `launch.sh` forwards
+arguments to this launcher for compatibility.
 
 - [English guide](../../docs/en/workbench.md)
 - [中文指南](../../docs/zh-CN/workbench.md)

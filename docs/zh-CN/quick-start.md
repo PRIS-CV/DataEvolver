@@ -2,7 +2,8 @@
 
 [首页](../../README_zh.md) · [文档目录](../../README_zh.md#文档导航) · [English](../en/quick-start.md)
 
-可通过[私有工作台](workbench.md)在浏览器配置并调用这些接口。
+需要网页配置与对话时，可通过 `./apps/workbench/launch.sh` 启动可选的
+[工作台](workbench.md)。下方 CLI 安装流程可独立使用。
 
 先安装源码并查看接口，再按后续指南准备工作流。
 

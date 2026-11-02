@@ -187,7 +187,7 @@ const server = createServer(async (req, res) => {
     if (!equal(cookie, cookieToken))
       return send(
         401,
-        "Use the startup link printed by launch.sh. Restart the workbench to obtain a new link.",
+        "Use the startup link printed by apps/workbench/launch.sh. Restart the workbench to obtain a new link.",
         "text/plain; charset=utf-8",
       );
     if (req.method === "GET" && path === "/api/events") {
