@@ -1,0 +1,16 @@
+# Copy to a private file and pass it to dsh --patch.
+# A row replaces the whole config; omitted settings use the plugin schema defaults.
+- id: dataevolver
+  config:
+    command: [dataevolver]
+    # Alternatively, use your environment's absolute Python executable:
+    # command: [/absolute/path/to/python, -m, dataevolver]
+    # Omit workingDirectory to use the session directory in the execution world.
+    # workingDirectory: /absolute/path/to/data-workspace
+    campaignRoot: .dataevolver/campaigns
+    maxActions: 1
+    timeoutMs: 300000
+    graceMs: 5000
+    maxOutputBytes: 262144
+    # Names only. Values come from the DSH host environment, never tool arguments.
+    forwardEnv: []

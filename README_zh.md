@@ -5,8 +5,8 @@
 <h1 align="center">DataEvolver</h1>
 
 <p align="center">
-  <strong>面向 Agent 数据工作流、支持持久化运行的 Harness。</strong><br/>
-  Agent 制订计划，注册算子负责执行，运行证据支持恢复。
+  <strong>面向训练目标的多模态大模型图像与 3D 数据自动化自进化合成系统。</strong><br/>
+  以训练目标组织生成、评价与数据修订。
 </p>
 
 <p align="center">
@@ -21,7 +21,8 @@
   <a href="docs/zh-CN/quick-start.md">快速开始</a>
 </p>
 
-DataEvolver 通过支持持久化运行的 Harness 组合数据处理、模型接口和原生工具。
+DataEvolver 围绕多模态大模型的训练目标组织图像与 3D 数据合成和修订。
+Harness 连接数据处理、模型接口和原生工具。
 外层 Agent 准备计划与代码，Controller 管理 Campaign 状态、执行记录和恢复。
 部署选择放在私有配置中。
 
@@ -119,6 +120,7 @@ DataRSI 在声明的预算和回归检查下连接数据修订与模型准入。
 
 | 我想要…… | 指南 | 内容 |
 |---|---|---|
+| 从 DeepSeek Harness 使用 DataEvolver | [DSH 插件](plugins/dsh/README_zh.md) | 原生工具 Bundle、私有配置与既有 Campaign 命令。 |
 | 准备源码环境 | [快速开始](docs/zh-CN/quick-start.md) | 环境要求、安装和 CLI 接口查看。 |
 | 配置本地部署 | [模型、工具与部署](docs/zh-CN/deployment.md) | Profile、Provider、原生 Worker、本地设置和网站部署。 |
 | 计划、执行或恢复任务 | [Harness 生命周期](docs/zh-CN/harness.md) | 编译、创建、推进、查看、暂停、恢复和回执。 |
