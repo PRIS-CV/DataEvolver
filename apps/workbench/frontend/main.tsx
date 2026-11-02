@@ -293,7 +293,6 @@ function Settings({
     >
       <header className="section-heading settings-header">
         <div>
-          <span className="eyebrow">{t("CONFIGURATION", "工作台配置")}</span>
           <h1>{t("Your models. Your machines.", "你的模型，你的工作站。")}</h1>
           <p>
             {t(
@@ -562,7 +561,7 @@ function Settings({
                                   "Token window & output limits",
                                   "上下文窗口与最大输出限制",
                                 )}
-                                summary={`${model.contextWindow} ctx · ${model.maxTokens} max`}
+                                summary={`${model.contextWindow} ctx / ${model.maxTokens} max`}
                               >
                                 <div className="fields">
                                   <TextField
@@ -626,7 +625,7 @@ function Settings({
                   return (
                     <fieldset key={kind} className="route-card">
                       <legend>
-                        {meta.title} · <code>{kind}</code>
+                        {meta.title} / <code>{kind}</code>
                       </legend>
                       <p className="route-protocol">{meta.protocol}</p>
                       <div className="fields fields-3">
@@ -1077,7 +1076,7 @@ function Settings({
                           {pendingDelete
                             ? t("remove on save", "保存时删除")
                             : pendingWrite
-                              ? t("staged · configured", "已暂存 · 待保存")
+                              ? t("staged, pending save", "已暂存，待保存")
                               : t("configured", "已配置")}
                         </span>
                         <ActionButton
@@ -1151,37 +1150,19 @@ function StudioHome({
 
   return (
     <section className="studio-home">
-      <div className="studio-rail studio-rail-left" aria-hidden="true" />
-      <div className="studio-rail studio-rail-right" aria-hidden="true" />
-
       <div className="studio-hero">
         <div className="studio-hero-main">
-          <div className="studio-kicker">
-            <span className="studio-kicker-mark" aria-hidden="true">
-              <img src="/logo.png" alt="" />
-            </span>
-            <span>DataEvolver Workbench</span>
-            <span className="studio-kicker-sep" aria-hidden="true">
-              ·
-            </span>
-            <span className="studio-kicker-mode">
-              {isSsh
-                ? `OpenSSH${config.execution.sshHost ? ` · ${config.execution.sshHost}` : ""}`
-                : t("Local host", "本地工作站")}
-            </span>
-          </div>
-
           <h1 className="studio-title">
             {t(
-              "From research plan to traceable execution.",
-              "让研究计划化为有据可查的工作流。",
+              "Build data around your training goal.",
+              "围绕训练目标，构建数据。",
             )}
           </h1>
 
           <p className="studio-lead">
             {t(
-              "Open an agent conversation with host tool access, advance bounded Campaigns through the Harness, and inspect receipt-backed image artifacts.",
-              "开启具备宿主机工具权限的 Agent 会话，通过 Harness 有界推进 Campaign，并核验附带回执的图像产物。",
+              "Plan image and 3D data tasks with an agent, then execute and review receipts in Harness.",
+              "通过 Agent 规划图像与 3D 数据任务，在 Harness 中执行并查看回执。",
             )}
           </p>
 
@@ -1192,7 +1173,7 @@ function StudioHome({
               onClick={onCreateSession}
             >
               <span>{t("New conversation", "新建对话")}</span>
-              <IconArrowRight size={16} className="studio-cta-arrow" />
+              <IconArrowRight size={16} />
             </ActionButton>
             <ActionButton
               variant="secondary"
@@ -1211,14 +1192,8 @@ function StudioHome({
           className="studio-hero-spec"
           aria-label={t("Active workbench snapshot", "当前工作台配置摘要")}
         >
-          <span className="eyebrow">
-            {t("WORKBENCH SNAPSHOT", "当前配置快照")}
-          </span>
+          <h2>{t("Current environment", "当前环境")}</h2>
           <dl className="studio-spec-dl">
-            <div>
-              <dt>{t("Main agent", "主 Agent")}</dt>
-              <dd>{mainLabel}</dd>
-            </div>
             <div>
               <dt>{t("Execution", "执行目标")}</dt>
               <dd>
@@ -1235,241 +1210,214 @@ function StudioHome({
         </aside>
       </div>
 
-      <div className="studio-bento-stage">
-        <div className="studio-bento-grid">
-          <article className="bento-card bento-harness">
-            <IconHarness
-              size={140}
-              strokeWidth={1}
-              className="bento-watermark"
-            />
-            <div className="bento-card-top">
-              <span className="eyebrow">01 · HARNESS</span>
-              <ActionButton
-                variant="ghost"
-                size="sm"
-                onClick={() => onOpenHarness()}
-              >
-                <span>{t("Open Harness", "打开 Harness")}</span>
-                <IconArrowUpRight size={14} />
-              </ActionButton>
-            </div>
+      <div className="studio-bento-grid">
+        <article className="bento-card bento-harness">
+          <div className="bento-card-top">
             <h2>
-              {t(
-                "Compile plans and run bounded steps",
-                "编译计划并执行有界步进",
-              )}
+              <IconHarness size={18} />
+              Harness
             </h2>
-            <p>
-              {t(
-                "Separate persisted Campaign state from chat turns. Advance work with explicit action limits, inspect status, or replay retained receipts.",
-                "将持久化 Campaign 状态与对话轮次分离，按显式步数上限推进任务、查看状态或回放保留回执。",
-              )}
-            </p>
-            <div
-              className="bento-pipeline"
-              role="group"
-              aria-label={t("Harness quick commands", "Harness 快捷命令跳转")}
+            <ActionButton
+              variant="ghost"
+              size="sm"
+              onClick={() => onOpenHarness()}
             >
-              {(["compile-plan", "create", "step", "replay"] as const).map(
-                (cmd, idx) => (
-                  <button
-                    key={cmd}
-                    type="button"
-                    className="pipeline-node"
-                    onClick={() => onOpenHarness(cmd)}
-                  >
-                    <span className="pipeline-step">0{idx + 1}</span>
-                    <strong>{harnessCommandMeta(cmd, t).title}</strong>
-                    <code>{cmd}</code>
-                  </button>
-                ),
-              )}
-            </div>
-          </article>
+              <span>{t("Open Harness", "打开 Harness")}</span>
+              <IconArrowUpRight size={14} />
+            </ActionButton>
+          </div>
+          <p>
+            {t(
+              "Separate persisted Campaign state from chat turns. Advance work with explicit action limits, inspect status, or replay retained receipts.",
+              "将持久化 Campaign 状态与对话轮次分离，按显式步数上限推进任务、查看状态或回放保留回执。",
+            )}
+          </p>
+          <div
+            className="bento-pipeline"
+            role="group"
+            aria-label={t("Harness quick commands", "Harness 快捷命令跳转")}
+          >
+            {(["compile-plan", "create", "step", "replay"] as const).map(
+              (cmd, idx) => (
+                <button
+                  key={cmd}
+                  type="button"
+                  className="pipeline-node"
+                  onClick={() => onOpenHarness(cmd)}
+                >
+                  <span className="pipeline-step">0{idx + 1}</span>
+                  <strong>{harnessCommandMeta(cmd, t).title}</strong>
+                  <code>{cmd}</code>
+                </button>
+              ),
+            )}
+          </div>
+        </article>
 
-          <article className="bento-card bento-studio">
-            <IconAperture
-              size={136}
-              strokeWidth={1}
-              className="bento-watermark"
-            />
-            <div className="bento-card-top">
-              <span className="eyebrow">
-                02 · {t("IMAGE STUDIO", "图像工坊")}
-              </span>
-              <ActionButton
-                variant="ghost"
-                size="sm"
-                onClick={() => onOpenImages()}
-              >
-                <span>{t("Open Studio", "进入工坊")}</span>
-                <IconArrowUpRight size={14} />
-              </ActionButton>
-            </div>
+        <article className="bento-card bento-studio">
+          <div className="bento-card-top">
             <h2>
-              {t(
-                "Generate, edit and enhance prompts",
-                "图像生成、编辑与提示增强",
-              )}
+              <IconAperture size={18} />
+              {t("Image studio", "图像工坊")}
             </h2>
-            <p>
-              {t(
-                "Run host-path image generation, multipart edits, and prompt enhancement with retained receipts and no automatic retries.",
-                "执行主机路径图像生成、多部分编辑与提示词增强，保留校验回执且失败不自动重试。",
-              )}
-            </p>
-            <div className="bento-reticle">
-              <span className="reticle-corner tl" aria-hidden="true" />
-              <span className="reticle-corner tr" aria-hidden="true" />
-              <span className="reticle-corner bl" aria-hidden="true" />
-              <span className="reticle-corner br" aria-hidden="true" />
-              <div className="reticle-routes">
-                {(
-                  [
-                    ["generation", t("Generation", "图像生成")],
-                    ["edit", t("Multipart edit", "图像编辑")],
-                    ["promptEnhancer", t("Prompt enhancer", "提示词增强")],
-                  ] as const
-                ).map(([routeId, label]) => (
+            <ActionButton
+              variant="ghost"
+              size="sm"
+              onClick={() => onOpenImages()}
+            >
+              <span>{t("Open Studio", "进入工坊")}</span>
+              <IconArrowUpRight size={14} />
+            </ActionButton>
+          </div>
+          <p>
+            {t(
+              "Run host-path image generation, multipart edits, and prompt enhancement with retained receipts and no automatic retries.",
+              "执行主机路径图像生成、多部分编辑与提示词增强，保留校验回执且失败不自动重试。",
+            )}
+          </p>
+          <div className="reticle-routes">
+            {(
+              [
+                ["generation", t("Generation", "图像生成")],
+                ["edit", t("Multipart edit", "图像编辑")],
+                ["promptEnhancer", t("Prompt enhancer", "提示词增强")],
+              ] as const
+            ).map(([routeId, label]) => (
+              <button
+                key={routeId}
+                type="button"
+                className="reticle-chip"
+                onClick={() => onOpenImages(routeId)}
+              >
+                <span>{label}</span>
+                <code>{routeId}</code>
+              </button>
+            ))}
+          </div>
+        </article>
+
+        <article className="bento-card bento-dark">
+          <div className="bento-card-top">
+            <h2>
+              <IconCpu size={18} />
+              {t("Agents & credentials", "Agent 与凭据")}
+            </h2>
+          </div>
+          <dl className="bento-dark-specs">
+            <div>
+              <dt>{t("Main", "主 Agent")}</dt>
+              <dd>
+                <code>{mainLabel}</code>
+                <span>{config.agents.main.thinking}</span>
+              </dd>
+            </div>
+            <div>
+              <dt>{t("Child", "子 Agent")}</dt>
+              <dd>
+                <code>{childLabel}</code>
+                <span>{config.agents.child.thinking}</span>
+              </dd>
+            </div>
+            <div>
+              <dt>{t("Keys", "私有凭据")}</dt>
+              <dd>
+                {credentials.length > 0
+                  ? t(
+                      `${credentials.length} stored env key(s)`,
+                      `已保存 ${credentials.length} 项环境密钥`,
+                    )
+                  : t("No keys stored", "尚未保存密钥")}
+              </dd>
+            </div>
+          </dl>
+          <div className="bento-dark-actions">
+            <ActionButton
+              variant="on-dark"
+              size="sm"
+              onClick={() => onOpenSettings("models")}
+            >
+              <IconCpu size={14} />
+              <span>{t("Models & agents", "模型与 Agent")}</span>
+            </ActionButton>
+            <ActionButton
+              variant="on-dark"
+              size="sm"
+              onClick={() => onOpenSettings("credentials")}
+            >
+              <IconKey size={14} />
+              <span>{t("Credentials", "私有凭据")}</span>
+            </ActionButton>
+          </div>
+        </article>
+
+        <article className="bento-card bento-sessions">
+          <div className="bento-card-top">
+            <h2>
+              <IconChat size={18} />
+              {t("Recent conversations", "近期对话")}
+            </h2>
+            <ActionButton
+              variant="ghost"
+              size="sm"
+              onClick={onCreateSession}
+            >
+              <IconPlus size={14} />
+              <span>{t("Start session", "新建对话")}</span>
+            </ActionButton>
+          </div>
+
+          {sessions.length > 0 ? (
+            <>
+              <div className="bento-session-list">
+                {sessions.slice(0, 3).map((s) => (
                   <button
-                    key={routeId}
+                    key={s.id}
                     type="button"
-                    className="reticle-chip"
-                    onClick={() => onOpenImages(routeId)}
+                    className="bento-session-row"
+                    onClick={() => onChooseSession(s.id)}
                   >
-                    <span>{label}</span>
-                    <code>{routeId}</code>
+                    <span className="bento-session-title">
+                      {s.parentId ? "↳ " : ""}
+                      {s.name}
+                    </span>
+                    <span className="bento-session-meta">
+                      <code>
+                        {s.profile.model || t("Unassigned", "未选模型")}
+                      </code>
+                      <span className={`pill pill-${stateTone(s.state)}`}>
+                        {formatState(s.state, t)}
+                      </span>
+                    </span>
                   </button>
                 ))}
               </div>
-            </div>
-          </article>
-
-          <article className="bento-card bento-dark">
-            <IconCpu size={132} strokeWidth={1} className="bento-watermark" />
-            <div className="bento-card-top">
-              <span className="eyebrow bento-eyebrow-dark">
-                03 · {t("ROUTING & KEYS", "路由与密钥")}
-              </span>
-            </div>
-            <h2>
-              {t(
-                "Agent profiles & write-only vault",
-                "主子 Agent 与仅写入凭据",
-              )}
-            </h2>
-            <dl className="bento-dark-specs">
-              <div>
-                <dt>main</dt>
-                <dd>
-                  {mainLabel} · {config.agents.main.thinking}
-                </dd>
+            </>
+          ) : (
+            <>
+              <h3>
+                {t("Your first conversation starts here", "从第一个训练目标开始")}
+              </h3>
+              <p>
+                {t(
+                  "No conversations yet. Start one to plan your data task.",
+                  "还没有对话。新建对话，规划你的数据任务。",
+                )}
+              </p>
+              <div className="bento-capability-strip">
+                <span>{t("Prompt / Steer / Follow-up", "指令 / 转向 / 追问")}</span>
+                <span>{t("Per-turn model switch", "轮次间模型切换")}</span>
+                <span>{t("Python / Blender / UE5 paths", "原生子进程工具路径")}</span>
               </div>
-              <div>
-                <dt>child</dt>
-                <dd>
-                  {childLabel} · {config.agents.child.thinking}
-                </dd>
-              </div>
-              <div>
-                <dt>keys</dt>
-                <dd>
-                  {credentials.length > 0
-                    ? t(
-                        `${credentials.length} stored env key(s)`,
-                        `已保存 ${credentials.length} 项环境密钥`,
-                      )
-                    : t("Write-only env store", "环境变量仅写入存储")}
-                </dd>
-              </div>
-            </dl>
-            <div className="bento-dark-actions">
-              <ActionButton
-                variant="on-dark"
-                size="sm"
-                onClick={() => onOpenSettings("models")}
-              >
-                <IconCpu size={14} />
-                <span>{t("Models & agents", "模型与 Agent")}</span>
-              </ActionButton>
-              <ActionButton
-                variant="on-dark"
-                size="sm"
-                onClick={() => onOpenSettings("credentials")}
-              >
-                <IconKey size={14} />
-                <span>{t("Credentials", "私有凭据")}</span>
-              </ActionButton>
-            </div>
-          </article>
+            </>
+          )}
 
-          <article className="bento-card bento-sessions">
-            <div className="bento-card-top">
-              <span className="eyebrow">
-                04 · {t("CONVERSATIONS", "对话工作区")}
-              </span>
-              <ActionButton
-                variant="ghost"
-                size="sm"
-                onClick={onCreateSession}
-              >
-                <IconPlus size={14} />
-                <span>{t("Start session", "新建对话")}</span>
-              </ActionButton>
-            </div>
-
-            {sessions.length > 0 ? (
-              <>
-                <h2>{t("Resume recent sessions", "继续近期对话")}</h2>
-                <div className="bento-session-list">
-                  {sessions.slice(0, 3).map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      className="bento-session-row"
-                      onClick={() => onChooseSession(s.id)}
-                    >
-                      <span className="bento-session-title">
-                        {s.parentId ? "↳ " : ""}
-                        {s.name}
-                      </span>
-                      <span className="bento-session-meta">
-                        <code>
-                          {s.profile.model || t("Unassigned", "未选模型")}
-                        </code>
-                        <span className={`pill pill-${stateTone(s.state)}`}>
-                          {formatState(s.state, t)}
-                        </span>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <>
-                <h2>
-                  {t(
-                    "Interactive sessions with host tools",
-                    "具备宿主机权限的交互会话",
-                  )}
-                </h2>
-                <div className="bento-capability-strip">
-                  <span>{t("Prompt / Steer / Follow-up", "指令 / 转向 / 追问")}</span>
-                  <span>{t("Per-turn model switch", "轮次间模型切换")}</span>
-                  <span>{t("Python · Blender · UE5 paths", "原生子进程工具路径")}</span>
-                </div>
-              </>
+          <p className="bento-boundary-note">
+            {t(
+              "Agents can edit files and run host commands. Conversation plans are separate from Campaign state, which belongs to the Harness.",
+              "Agent 可以编辑文件并执行宿主机命令。对话计划用于组织步骤；Campaign 状态由 Harness 独立管理。",
             )}
-
-            <p className="bento-boundary-note">
-              {t(
-                "Agents can edit files and run host commands. Conversation plans are separate from Campaign state, which belongs to the Harness.",
-                "Agent 可以编辑文件并执行宿主机命令。对话计划用于组织步骤；Campaign 状态由 Harness 独立管理。",
-              )}
-            </p>
-          </article>
-        </div>
+          </p>
+        </article>
       </div>
     </section>
   );
@@ -1713,8 +1661,8 @@ function App() {
           </nav>
 
           <div className="session-section">
-            <span className="eyebrow">
-              {t("SESSION HISTORY", "会话历史")}
+            <span className="section-label">
+              {t("Session history", "会话历史")}
             </span>
             <div className="session-list">
               {!data ? (
@@ -1748,7 +1696,6 @@ function App() {
                         <span>
                           {s.profile.model || t("Unassigned", "未选模型")}
                         </span>
-                        <span aria-hidden="true">·</span>
                         <span>{formatState(s.state, t)}</span>
                       </small>
                     </button>
@@ -1800,7 +1747,7 @@ function App() {
             </div>
             <span className={notice ? "status status-active" : "status"}>
               {notice ||
-                t("Host permissions · single user", "宿主机权限 · 单用户")}
+                t("Host permissions / single user", "宿主机权限 / 单用户")}
             </span>
           </header>
 
@@ -1859,15 +1806,15 @@ function App() {
                     <header className="chat-header">
                       <div className="chat-heading">
                         <div className="chat-title-block">
-                          <span className="eyebrow">
-                            {currentSession?.parentId
-                              ? t("CHILD SESSION", "派生子会话")
-                              : t("AGENT SESSION", "Agent 会话")}
-                          </span>
                           <h1>
                             {currentSession?.name ||
                               t("What will you build?", "这次构建什么？")}
                           </h1>
+                          <span className="section-label">
+                            {currentSession?.parentId
+                              ? t("Child session", "派生子会话")
+                              : t("Agent session", "Agent 会话")}
+                          </span>
                         </div>
                         <span className={`pill pill-${stateTone(state)}`}>
                           {formatState(state, t)}
@@ -2160,13 +2107,10 @@ function App() {
                 <div className="page">
                   <header className="section-heading">
                     <div>
-                      <span className="eyebrow">
-                        {t("CAMPAIGN CONTROL", "CAMPAIGN 任务控制")}
-                      </span>
                       <h1>Harness</h1>
                       <p className="mono-caption">
                         {data.config.execution.target === "ssh"
-                          ? `${data.config.execution.sshHost} · ${data.config.execution.remoteWorkspace}`
+                          ? `${data.config.execution.sshHost}:${data.config.execution.remoteWorkspace}`
                           : data.config.paths.workspace}
                       </p>
                     </div>
@@ -2379,11 +2323,8 @@ function App() {
                 <div className="page">
                   <header className="section-heading">
                     <div>
-                      <span className="eyebrow">
-                        {t("IMAGE STUDIO", "图像工坊")}
-                      </span>
                       <h1>
-                        {t("Generate. Refine. Inspect.", "生成、修订与查看。")}
+                        {t("Image studio", "图像工坊")}
                       </h1>
                       <p>
                         {t(

@@ -1,4 +1,4 @@
-/* DataEvolver Workbench — Warm Editorial & Canvas-Inspired Studio System */
+/* DataEvolver Workbench: Canvas composition, Hallmark app-screen refinement. */
 :root {
   --font-sans:
     Inter,
@@ -27,7 +27,7 @@
 
   --canvas: #faf9f5;
   --sidebar: #f1eee7;
-  --surface: #ffffff;
+  --surface: #fffdf9;
   --surface-soft: #f4f0e8;
   --surface-card: #ebe5da;
   --surface-hover: #e5dfd2;
@@ -63,6 +63,16 @@
   --danger-bg: #fbeeed;
   --danger-border: #e0b2ad;
   --danger-ink: #87231c;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
 
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -102,6 +112,7 @@ body {
   background: var(--canvas);
   color: var(--body);
   max-width: 100%;
+  overflow-x: clip;
 }
 
 button,
@@ -150,6 +161,8 @@ h1 {
   line-height: 1.16;
   letter-spacing: -0.022em;
   color: var(--ink);
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 h2 {
@@ -397,17 +410,16 @@ textarea {
 }
 
 fieldset {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 18px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  padding: var(--space-4) 0;
   margin: 0;
   min-width: 0;
   max-width: 100%;
-  background: var(--canvas);
 }
 
 legend {
-  padding: 0 8px;
+  padding: 0 var(--space-2) 0 0;
   font-size: 12.5px;
   font-weight: 600;
   color: var(--ink);
@@ -849,16 +861,14 @@ legend {
 }
 
 /* ==========================================================================
-   Badges, Eyebrows & Accessibility Helpers
+   Badges, Section Labels & Accessibility Helpers
    ========================================================================== */
 
-.eyebrow {
+.section-label {
   display: inline-block;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-  color: var(--terracotta-ink);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
 }
 
 .pill {
@@ -1083,10 +1093,10 @@ legend {
   border-top: 1px solid var(--line);
 }
 
-.session-section .eyebrow {
+.session-section .section-label {
   padding: 0 8px;
   color: var(--muted);
-  font-size: 10.5px;
+  font-size: 12px;
 }
 
 .session-list {
@@ -1273,48 +1283,20 @@ legend {
    ========================================================================== */
 
 .studio-home {
-  position: relative;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 38px 40px 54px;
+  padding: var(--space-10) var(--space-10) var(--space-12);
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: var(--space-8);
   flex: 1;
-}
-
-.studio-rail {
-  position: absolute;
-  top: 0;
-  bottom: 24px;
-  width: 1px;
-  pointer-events: none;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    var(--line-strong) 0 4px,
-    transparent 4px 9px
-  );
-  mask-image: linear-gradient(to bottom, #000 calc(100% - 140px), transparent);
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    #000 calc(100% - 140px),
-    transparent
-  );
-}
-
-.studio-rail-left {
-  left: 18px;
-}
-
-.studio-rail-right {
-  right: 18px;
 }
 
 .studio-hero {
   display: grid;
   grid-template-columns: minmax(0, 7.2fr) minmax(260px, 3.8fr);
-  gap: 28px;
+  gap: var(--space-8);
   align-items: end;
 }
 
@@ -1325,134 +1307,65 @@ legend {
   min-width: 0;
 }
 
-.studio-kicker {
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 5px 12px 5px 7px;
-  border-radius: 999px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--body);
-  margin-bottom: 18px;
-}
-
-.studio-kicker-mark {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  background: var(--surface-soft);
-  border: 1px solid var(--line);
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.studio-kicker-mark img {
-  width: 15px;
-  height: 15px;
-  object-fit: contain;
-}
-
-.studio-kicker-sep {
-  color: var(--line-strong);
-}
-
-.studio-kicker-mode {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--terracotta-ink);
-}
-
 .studio-title {
-  font-family: var(--font-serif);
-  font-size: clamp(2.1rem, 3.8vw, 3.1rem);
-  font-weight: 400;
-  line-height: 1.08;
-  letter-spacing: -0.028em;
-  color: var(--ink);
-  max-width: 610px;
+  font-size: 36px;
+  line-height: 1.2;
+  max-width: 22ch;
   text-wrap: balance;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
 .studio-lead {
   font-size: 15px;
-  line-height: 1.66;
-  color: var(--muted);
-  max-width: 560px;
-  margin-bottom: 24px;
+  max-width: 60ch;
+  margin-bottom: var(--space-6);
 }
 
 .studio-actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
-.studio-cta-primary {
-  min-height: 44px;
-  padding: 10px 22px;
-  border-radius: 999px;
-  font-size: 14px;
-}
-
-.studio-cta-arrow {
-  transition: transform 0.18s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.studio-cta-primary:hover:not(:disabled) .studio-cta-arrow {
-  transform: translateX(3px);
-}
-
+.studio-cta-primary,
 .studio-cta-secondary {
   min-height: 44px;
-  padding: 10px 20px;
-  border-radius: 999px;
+  padding: var(--space-3) var(--space-5);
   font-size: 14px;
 }
 
 .studio-hero-spec {
-  padding: 18px 20px;
-  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
   background: var(--surface-soft);
-  border: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-4);
   min-width: 0;
+}
+
+.studio-hero-spec h2 {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .studio-spec-dl {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: var(--space-3);
 }
 
 .studio-spec-dl > div {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding-top: 8px;
-  border-top: 1px solid var(--line);
+  gap: var(--space-1);
   min-width: 0;
 }
 
-.studio-spec-dl > div:first-child {
-  padding-top: 0;
-  border-top: 0;
-}
-
 .studio-spec-dl dt {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: 12px;
   color: var(--muted);
 }
 
@@ -1463,125 +1376,98 @@ legend {
   overflow-wrap: anywhere;
 }
 
-/* Framed Bento Stage */
-.studio-bento-stage {
-  padding: 16px;
-  border-radius: var(--radius-2xl);
-  background: var(--sidebar);
-  border: 1px solid var(--line);
-}
-
 .studio-bento-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 14px;
+  gap: var(--space-5);
 }
 
 .bento-card {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--line);
   background: var(--surface);
-  padding: 22px 24px;
+  padding: var(--space-6);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-4);
   min-width: 0;
-  transition: border-color 0.2s ease;
-}
-
-.bento-card:hover {
-  border-color: var(--line-strong);
-}
-
-.bento-card > :not(.bento-watermark) {
-  position: relative;
-  z-index: 1;
-}
-
-.bento-watermark {
-  position: absolute;
-  right: -16px;
-  top: -14px;
-  pointer-events: none;
-  z-index: 0;
-  color: var(--terracotta-ink);
-  opacity: 0.065;
 }
 
 .bento-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--space-3);
   flex-wrap: wrap;
 }
 
 .bento-card h2 {
-  font-size: 21px;
-  line-height: 1.24;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: normal;
+}
+
+.bento-card h2 svg {
+  flex-shrink: 0;
+  color: var(--muted);
 }
 
 .bento-card p {
   font-size: 13.5px;
-  line-height: 1.58;
   max-width: 58ch;
 }
 
-/* Module 01: Harness Blueprint Card */
-.bento-harness {
+.bento-harness,
+.bento-sessions {
   grid-column: span 7;
-  background-color: var(--surface);
-  background-image:
-    linear-gradient(to right, rgba(135, 58, 34, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(135, 58, 34, 0.035) 1px, transparent 1px);
-  background-size: 24px 24px;
+}
+
+.bento-studio,
+.bento-dark {
+  grid-column: span 5;
 }
 
 .bento-pipeline {
   margin-top: auto;
-  padding-top: 10px;
+  padding-top: var(--space-3);
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .pipeline-node {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
-  padding: 10px 11px;
-  border-radius: 10px;
-  background: rgba(250, 249, 245, 0.92);
-  border: 1px solid var(--line);
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-2);
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
   text-align: left;
   min-width: 0;
-  transition:
-    background-color 0.14s ease,
-    border-color 0.14s ease,
-    transform 0.14s ease;
+  transition: background-color 0.14s ease;
 }
 
 .pipeline-node:hover:not(:disabled) {
-  background: var(--terracotta-tint);
-  border-color: var(--terracotta-border);
-  transform: translateY(-1px);
+  background: var(--surface-soft);
 }
 
 .pipeline-step {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--cta);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: var(--muted);
 }
 
 .pipeline-node strong {
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--ink);
-  line-height: 1.3;
+  line-height: 1.4;
 }
 
 .pipeline-node code {
@@ -1592,203 +1478,128 @@ legend {
   color: var(--muted);
 }
 
-/* Module 02: Image Studio Viewfinder Card */
-.bento-studio {
-  grid-column: span 5;
-  background: linear-gradient(155deg, #fdf8f5 0%, #f5e8e1 100%);
-  border-color: var(--terracotta-border);
-}
-
-.bento-studio:hover {
-  border-color: var(--terracotta);
-}
-
-.bento-studio .bento-watermark {
-  color: var(--terracotta);
-  opacity: 0.1;
-}
-
-.bento-reticle {
-  position: relative;
-  margin-top: auto;
-  padding: 14px;
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px dashed var(--terracotta-border);
-}
-
-.reticle-corner {
-  position: absolute;
-  width: 9px;
-  height: 9px;
-  border-color: var(--cta);
-  border-style: solid;
-  pointer-events: none;
-}
-
-.reticle-corner.tl {
-  top: 5px;
-  left: 5px;
-  border-width: 1.5px 0 0 1.5px;
-}
-
-.reticle-corner.tr {
-  top: 5px;
-  right: 5px;
-  border-width: 1.5px 1.5px 0 0;
-}
-
-.reticle-corner.bl {
-  bottom: 5px;
-  left: 5px;
-  border-width: 0 0 1.5px 1.5px;
-}
-
-.reticle-corner.br {
-  bottom: 5px;
-  right: 5px;
-  border-width: 0 1.5px 1.5px 0;
-}
-
 .reticle-routes {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  margin-top: auto;
 }
 
 .reticle-chip {
   width: 100%;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 7px 10px;
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  font-size: 12.5px;
-  font-weight: 500;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 13px;
   color: var(--ink);
   text-align: left;
-  transition:
-    background-color 0.14s ease,
-    border-color 0.14s ease;
+  transition: background-color 0.14s ease;
+}
+
+.reticle-chip:last-child {
+  border-bottom: 0;
 }
 
 .reticle-chip:hover:not(:disabled) {
-  background: var(--terracotta-tint);
-  border-color: var(--terracotta);
-}
-
-.reticle-chip code {
-  padding: 1px 6px;
-  font-size: 11px;
   background: var(--surface-soft);
 }
 
-/* Module 03: Dark Espresso Routing & Vault Card */
+.reticle-chip code {
+  padding: 0;
+  border: 0;
+  font-size: 11px;
+  color: var(--muted);
+  background: transparent;
+}
+
 .bento-dark {
-  grid-column: span 5;
-  background-color: var(--surface-dark);
-  background-image: radial-gradient(
-    rgba(246, 244, 238, 0.08) 1px,
-    transparent 1px
-  );
-  background-size: 18px 18px;
+  background: var(--surface-dark-soft);
   border-color: var(--surface-dark-line);
   color: var(--on-dark);
 }
 
-.bento-dark:hover {
-  border-color: #464139;
-}
-
-.bento-dark .bento-watermark {
+.bento-dark h2,
+.bento-dark h2 svg {
   color: var(--on-dark);
-  opacity: 0.07;
 }
 
-.bento-eyebrow-dark {
-  color: #e49a82;
-}
-
-.bento-dark h2 {
-  color: var(--on-dark);
+.bento-dark :focus-visible {
+  outline-color: var(--on-dark);
 }
 
 .bento-dark-specs {
-  margin-top: 4px;
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  padding: 11px 13px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--surface-dark-line);
 }
 
 .bento-dark-specs > div {
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: 70px minmax(0, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--surface-dark-line);
   align-items: baseline;
 }
 
+.bento-dark-specs > div:last-child {
+  border-bottom: 0;
+}
+
 .bento-dark-specs dt {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: #e49a82;
-  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--on-dark-muted);
 }
 
 .bento-dark-specs dd {
-  font-family: var(--font-mono);
-  font-size: 11.5px;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  font-size: 12px;
   color: var(--on-dark-muted);
+  min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.bento-dark-specs code {
+  padding: 0;
+  border: 0;
+  color: var(--on-dark);
+  background: transparent;
+  font-size: 12px;
 }
 
 .bento-dark-actions {
   margin-top: auto;
-  padding-top: 8px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-}
-
-/* Module 04: Conversations & Boundary Card */
-.bento-sessions {
-  grid-column: span 7;
-  background: #fdfcf9;
+  gap: var(--space-2);
 }
 
 .bento-session-list {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  margin-top: 2px;
 }
 
 .bento-session-row {
   width: 100%;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 8px 12px;
-  padding: 9px 12px;
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  border: 1px solid var(--line);
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line-soft);
   text-align: left;
-  transition:
-    background-color 0.14s ease,
-    border-color 0.14s ease;
+  transition: background-color 0.14s ease;
 }
 
 .bento-session-row:hover:not(:disabled) {
   background: var(--surface-soft);
-  border-color: var(--terracotta-border);
 }
 
 .bento-session-title {
@@ -1804,33 +1615,23 @@ legend {
 .bento-session-meta {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
 
 .bento-capability-strip {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.bento-capability-strip span {
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: var(--surface-soft);
-  border: 1px solid var(--line);
-  font-size: 12.5px;
-  font-weight: 500;
-  color: var(--body);
+  gap: var(--space-2) var(--space-4);
+  font-size: 12px;
+  color: var(--muted);
 }
 
 .bento-boundary-note {
   margin-top: auto;
-  padding-top: 12px;
+  padding-top: var(--space-4);
   border-top: 1px solid var(--line-soft);
   font-size: 12px !important;
-  color: var(--muted);
 }
 
 /* ==========================================================================
@@ -1969,7 +1770,6 @@ legend {
 .agent-select {
   display: grid;
   gap: 12px;
-  background: var(--canvas);
 }
 
 .provider-stack,
@@ -1983,7 +1783,6 @@ legend {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: var(--canvas);
 }
 
 .provider-card-header {
@@ -2030,10 +1829,8 @@ legend {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 14px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--line);
 }
 
 .model-card-top {
@@ -2318,7 +2115,6 @@ legend {
 .message-role {
   font-size: 11.5px;
   font-weight: 600;
-  letter-spacing: 0.04em;
   color: var(--muted);
 }
 
@@ -2622,10 +2418,8 @@ legend {
 }
 
 .route-summary-label {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   color: var(--muted);
 }
 
@@ -2718,10 +2512,8 @@ legend {
 }
 
 .receipt-grid dt {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   color: var(--muted);
   margin-bottom: 2px;
 }
@@ -2778,10 +2570,6 @@ legend {
   .conversation,
   .studio-home {
     padding: 26px 24px 40px;
-  }
-
-  .studio-rail {
-    display: none;
   }
 
   .workbench-split,
@@ -2931,11 +2719,6 @@ legend {
     width: 100%;
   }
 
-  .studio-bento-stage {
-    padding: 10px;
-    border-radius: var(--radius-xl);
-  }
-
   .bento-card {
     padding: 18px 16px;
   }
@@ -2956,8 +2739,7 @@ legend {
     flex-wrap: wrap;
   }
 
-  .card,
-  fieldset {
+  .card {
     padding: 16px;
   }
 

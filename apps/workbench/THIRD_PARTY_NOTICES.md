@@ -26,5 +26,10 @@ The Workbench home composition also takes visual inspiration from
 Clause license. Its source, effects, styles and artwork are not included in this
 implementation; this reference does not change DataEvolver's license.
 
+The frontend refinement follows the app-screen and redesign guidance from
+[Hallmark](https://github.com/Nutlope/hallmark), MIT, source reference
+`4f6a46c6dc325d40ab268c93e25c7b96676ebccd`. It informs hierarchy, restrained
+surfaces, typography and focus states; no Hallmark runtime or artwork is bundled.
+
 Dependency packages and the separate SoL-Pi checkout retain their original
 licenses. The workbench retains DataEvolver's repository license.
