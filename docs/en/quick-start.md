@@ -2,7 +2,11 @@
 
 [Home](../../README.md) · [Documentation index](../../README.md#documentation) · [简体中文](../zh-CN/quick-start.md)
 
-Install the source checkout and inspect its interfaces, then prepare a workflow with the linked guides.
+DataEvolver organizes image and 3D data synthesis and revision around multimodal
+large language model training objectives. Use the optional [Workbench](workbench.md)
+for browser configuration and chat, or prepare a workflow through the standalone
+Harness CLI. Both entry points use the same Harness for plan compilation,
+execution records and recovery.
 
 Run command examples from the repository root unless a step changes directory.
 
@@ -12,6 +16,7 @@ Run command examples from the repository root unless a step changes directory.
 |---|---|
 | Base development | Editable checkout; Python 3.12 is recommended and used by source CI. |
 | Harness dependencies | `.[harness]`; no model checkpoint or engine is required for interface inspection. |
+| Browser Workbench | Node.js 22.19+, npm, Git and Python 3.10+ on the workbench host; network access for initial installation. |
 | Native/model execution | The selected tool's OS, engine, model dependencies and host permissions. |
 | GPU workloads | Capacity and CUDA/runtime compatibility for the explicitly selected adapter. |
 | Website development | Node.js 22+ and npm; independent of model execution. |
@@ -35,6 +40,39 @@ native dependencies are host-supplied. This is an optional route alongside the
 
 ## Quick Start
 
+Clone the repository, then choose a browser or CLI setup:
+
+```bash
+git clone https://github.com/PRIS-CV/DataEvolver.git
+cd DataEvolver
+```
+
+### Browser Workbench
+
+From the checkout root, run:
+
+```bash
+./apps/workbench/launch.sh
+```
+
+By default, the launcher creates `.venv`, installs `.[harness]` and the app's locked Node
+dependencies, obtains the pinned agent extension, builds the frontend and starts
+the local workbench.
+
+1. If the browser does not open, open the startup URL printed in the terminal.
+2. In **Settings**, add your provider, endpoint and model IDs, then select the main and child agents.
+3. Configure the image routes and native tool paths your workflow needs.
+4. In **Credentials**, enter each route's key environment name and API key, then click **Stage key for save**.
+5. Click **Save configuration**.
+6. Open a new conversation.
+
+Use **Harness** for plan compilation and Campaign commands.
+
+Blender, UE5, model weights, inference services and remote environments are
+host-supplied. For server or hybrid use, follow [OpenSSH deployments](workbench.md#openssh-deployments).
+The root `./launch.sh` remains a compatibility entry point.
+See the [Workbench guide](workbench.md) for configuration, launcher options and recovery.
+
 ### Option A: Let your AI agent prepare the configuration
 
 Give Codex or another execution-capable agent this starting instruction:
@@ -55,10 +93,7 @@ flow and does not select a model or tool for the user.
 
 #### 1. Clone the repository
 
-```bash
-git clone https://github.com/PRIS-CV/DataEvolver.git
-cd DataEvolver
-```
+Use the checkout created above and keep the repository root as the working directory.
 
 #### 2. Install the package entry points
 
