@@ -2,6 +2,8 @@
 
 [首页](../../README_zh.md) · [文档目录](../../README_zh.md#文档导航) · [English](../en/harness.md)
 
+可通过[私有工作台](workbench.md)在浏览器配置并调用这些接口。
+
 选择编译入口并创建 Campaign，再通过共用 Controller 接口推进和查看运行。
 
 除明确要求切换目录的步骤外，命令示例均从仓库根目录执行。

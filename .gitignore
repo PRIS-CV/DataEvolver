@@ -20,6 +20,7 @@ __pycache__/
 *.pyo
 
 # Environment
+.venv/
 .env
 *.env
 *.local

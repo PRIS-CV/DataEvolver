@@ -127,10 +127,16 @@ dataset. Its version, splits and loading example are documented in the
 <a id="migration-and-verification"></a>
 <a id="project-history-and-visuals"></a>
 
+Start the optional browser Workbench with `./apps/workbench/launch.sh` from the
+checkout root. See [browser setup](docs/en/quick-start.md#browser-workbench) for
+requirements and first-run configuration, or use the standalone Harness CLI.
+The launcher and UI live in `apps/workbench/`; the core lives in `src/dataevolver/harness/`.
+
 | I want to… | Guide | Contents |
 |---|---|---|
+| Configure agents and chat in a browser | [Private Workbench](docs/en/workbench.md) | Optional app and launcher in `apps/workbench/`; agent profiles, image APIs, native tools and OpenSSH. |
 | Use DataEvolver from DeepSeek Harness | [DSH plugin](plugins/dsh/README.md) | Native tool bundle, private configuration and existing campaign commands. |
-| Set up the source checkout | [Quick start](docs/en/quick-start.md) | Prerequisites, installation and CLI inspection. |
+| Set up the source checkout | [Quick start](docs/en/quick-start.md) | Browser launch, first-run configuration and standalone CLI installation. |
 | Configure a deployment | [Models, tools and deployment](docs/en/deployment.md) | Profiles, providers, native workers, local settings and website setup. |
 | Plan, execute or recover a task | [Harness lifecycle](docs/en/harness.md) | Compile, create, step, inspect, pause, resume and receipts. |
 | Work through Codex or another agent | [Agent integration](docs/en/agents.md) | Outer agents, internal planner providers and optional Claude Code setup. |
