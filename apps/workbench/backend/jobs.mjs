@@ -155,7 +155,8 @@ export class Jobs {
           );
           if (record?.status === "running" && !this.active.has(record.id))
             record.status = "unknown";
-          if (record?.status === "queued" && !this.pending.has(record.id)) {
+          if (record?.status === "queued" &&
+            !this.pending.has(record.id) && !this.active.has(record.id)) {
             record.status = "cancelled";
             record.error = "Workbench restarted; queued work was not replayed";
           }
@@ -235,6 +236,7 @@ export class Jobs {
     };
     const item = { record, config, processSpec, root, done, resolveDone, queued, ready: false };
     this.pending.set(id, item);
+    if (queued) this.queue.push(item);
     try {
       await mkdir(root, { recursive: true, mode: 0o700 });
       await atomicJson(resolve(root, "record.json"), record);
@@ -243,7 +245,6 @@ export class Jobs {
       if (this.closing || item.cancelReason) {
         await this.cancel(id, item.cancelReason || "Workbench stopped before dispatch");
       } else if (queued) {
-        this.queue.push(item);
         this.emit({ type: "job_queued", job: record });
         this.drain();
       } else {
@@ -257,11 +258,12 @@ export class Jobs {
       record.status = "failed";
       record.error = error.message;
       resolveDone(record);
+      this.drain();
       throw error;
     }
   }
   drain() {
-    while (!this.closing && !this.holds && this.queue.length &&
+    while (!this.closing && !this.holds && this.queue[0]?.ready &&
       this.executing.size < this.store.config.orchestration.maxConcurrentJobs) {
       const item = this.queue.shift();
       this.pending.delete(item.record.id);
@@ -282,6 +284,7 @@ export class Jobs {
     } finally {
       this.emit({ type: "job_finished", job: item.record });
       item.resolveDone(item.record);
+      this.drain();
     }
     return item.record;
   }

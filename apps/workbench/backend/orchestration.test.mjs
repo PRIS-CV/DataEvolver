@@ -87,6 +87,27 @@ test("FIFO execution keeps its config snapshot and permits inspection", { timeou
   await Promise.all([second.done, inspection.done]);
 });
 
+test("overlapping starts reserve admission order before setup completes", { timeout: 5000 }, async (t) => {
+  const { jobs, processes, started } = await fixture(t);
+  const firstStart = jobs.start(step("first"));
+  const secondStart = jobs.start(step("second"));
+  assert.deepEqual(jobs.queue.map((item) => item.record.values.campaign), ["first", "second"]);
+  // A ready follower must not overtake a head whose receipt is still being written.
+  jobs.queue[1].ready = true;
+  jobs.drain();
+  assert.equal(jobs.active.size, 0);
+  jobs.queue[1].ready = false;
+  const [first, second] = await Promise.all([firstStart, secondStart]);
+  await started(first.record.id);
+  assert.equal(processes.length, 1);
+  assert.ok(processes[0].args.includes("first"));
+  processes[0].child.finish(0);
+  await started(second.record.id);
+  assert.ok(processes[1].args.includes("second"));
+  processes[1].child.finish(0);
+  await Promise.all([first.done, second.done]);
+});
+
 test("queue capacity and session abort cancel only work not dispatched", { timeout: 5000 }, async (t) => {
   const { store, jobs, processes, started } = await fixture(t);
   store.config.orchestration.maxQueuedJobs = 1;
@@ -121,6 +142,20 @@ test("an unknown SSH effect cancels waiting executions", { timeout: 5000 }, asyn
   assert.equal(processes.length, 2);
   processes[1].child.finish(0);
   assert.equal((await inspection.done).status, "succeeded");
+});
+
+test("a live dispatch is not mistaken for a queued restart leftover", async (t) => {
+  const { jobs } = await fixture(t);
+  const id = "dispatching";
+  await mkdir(jobs.root(id), { recursive: true });
+  await atomicJson(resolve(jobs.root(id), "record.json"), {
+    id, status: "queued", createdAt: "2026-01-01T00:00:00Z",
+  });
+  jobs.active.set(id, { child: null, done: Promise.resolve() });
+  const record = (await jobs.list()).find((item) => item.id === id);
+  assert.equal(record.status, "queued");
+  assert.equal(record.error, undefined);
+  jobs.active.delete(id);
 });
 
 test("restart inspection does not replay persisted running or queued work", async (t) => {
