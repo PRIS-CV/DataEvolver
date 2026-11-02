@@ -10,6 +10,9 @@ execution records and recovery.
 
 Run command examples from the repository root unless a step changes directory.
 
+For DeepSeek Harness, use the optional [DSH plugin](../../plugins/dsh/README.md).
+It exposes the same campaign lifecycle through DSH's tool registry.
+
 ## Prerequisites
 
 | Component | Requirement |
@@ -20,6 +23,7 @@ Run command examples from the repository root unless a step changes directory.
 | Native/model execution | The selected tool's OS, engine, model dependencies and host permissions. |
 | GPU workloads | Capacity and CUDA/runtime compatibility for the explicitly selected adapter. |
 | Website development | Node.js 22+ and npm; independent of model execution. |
+| Optional DSH plugin | Node.js 24.9+, a compatible DSH installation and DataEvolver on the selected execution host. |
 
 ### Required Models
 

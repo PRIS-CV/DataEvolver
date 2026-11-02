@@ -125,6 +125,7 @@ DataRSI 在声明的预算和回归检查下连接数据修订与模型准入。
 | 我想要…… | 指南 | 内容 |
 |---|---|---|
 | 在网页配置 Agent 并对话 | [私有工作台](docs/zh-CN/workbench.md) | `apps/workbench/` 下的可选应用与启动器；Agent 配置、图像接口、原生工具与 OpenSSH。 |
+| 从 DeepSeek Harness 使用 DataEvolver | [DSH 插件](plugins/dsh/README_zh.md) | 原生工具 Bundle、私有配置与既有 Campaign 命令。 |
 | 准备源码环境 | [快速开始](docs/zh-CN/quick-start.md) | 网页启动、首次配置和独立 CLI 安装。 |
 | 配置本地部署 | [模型、工具与部署](docs/zh-CN/deployment.md) | Profile、Provider、原生 Worker、本地设置和网站部署。 |
 | 计划、执行或恢复任务 | [Harness 生命周期](docs/zh-CN/harness.md) | 编译、创建、推进、查看、暂停、恢复和回执。 |
