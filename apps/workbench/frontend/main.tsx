@@ -862,9 +862,40 @@ function Settings({
             </div>
 
             <DisclosureGroup
-              defaultOpen={["stages", "reducer"]}
+              defaultOpen={["orchestration", "stages", "reducer"]}
               className="runtime-accordion"
             >
+              <DisclosureItem
+                value="orchestration"
+                title={t("Candidate orchestration", "候选方案编排")}
+                summary={t("Workspaces, queue and evidence", "工作区、队列与执行记录")}
+              >
+                <p className="callout-note">
+                  {t(
+                    "Proposal children use separate local workspaces. Open children include idle processes; stop completed children to free slots. Limits apply to this workbench, not host-wide GPU quotas. Inspection and Campaign pause bypass the execution queue.",
+                    "提案子会话使用独立的本地工作区。空闲子进程仍占名额，完成后请停止子会话。限额仅约束本工作台，不代表整台主机的 GPU 配额。状态查询和 Campaign 暂停可绕过执行队列。",
+                  )}
+                </p>
+                <div className="fields">
+                  {([
+                    ["maxOpenChildren", t("Open child processes", "子会话进程上限")],
+                    ["maxConcurrentJobs", t("Concurrent execution jobs", "执行任务并发上限")],
+                    ["maxQueuedJobs", t("Waiting execution jobs", "排队任务上限")],
+                    ["maxContextBytes", t("Evidence context bytes", "执行上下文字节上限")],
+                  ] as const).map(([key, label]) => (
+                    <TextField
+                      key={key}
+                      label={label}
+                      type="number"
+                      value={config.orchestration[key]}
+                      set={(value) => setConfig({
+                        ...config,
+                        orchestration: { ...config.orchestration, [key]: Number(value) },
+                      })}
+                    />
+                  ))}
+                </div>
+              </DisclosureItem>
               <DisclosureItem
                 value="stages"
                 title={t(
@@ -1522,12 +1553,13 @@ function App() {
           "session_created",
           "session_opened",
           "session_stopped",
+          "job_queued",
           "job_started",
           "job_finished",
         ].includes(item.type)
       )
         void run(load);
-      if (item.type === "job_finished")
+      if (item.type === "job_queued" || item.type === "job_started" || item.type === "job_finished")
         setJob((previous) =>
           previous && previous.id === item.job.id
             ? { ...previous, ...item.job }
@@ -1539,6 +1571,7 @@ function App() {
             ? {
                 ...previous,
                 output: ((previous.output || "") + item.text).slice(-200000),
+                truncated: previous.truncated || (previous.output || "").length + item.text.length > 200000,
               }
             : previous,
         );
@@ -1811,7 +1844,9 @@ function App() {
                               t("What will you build?", "这次构建什么？")}
                           </h1>
                           <span className="section-label">
-                            {currentSession?.parentId
+                            {currentSession?.mode === "proposal"
+                              ? t("Isolated proposal", "独立工作区提案")
+                              : currentSession?.parentId
                               ? t("Child session", "派生子会话")
                               : t("Agent session", "Agent 会话")}
                           </span>
@@ -2281,6 +2316,19 @@ function App() {
                               </small>
                             </div>
                             <div className="receipt-actions">
+                              {activeJob.status === "queued" && (
+                                <ActionButton
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => void run(async () => {
+                                    await api<Job>(`jobs/${activeJob.id}/cancel`, {});
+                                    setJob(await api<Job>(`jobs/${activeJob.id}`));
+                                    await load();
+                                  })}
+                                >
+                                  {t("Cancel queued job", "取消排队任务")}
+                                </ActionButton>
+                              )}
                               <span
                                 className={`pill pill-${stateTone(activeJob.status)}`}
                               >
@@ -2290,8 +2338,8 @@ function App() {
                                 variant="secondary"
                                 size="sm"
                                 tooltip={t(
-                                  "Reload retained output snapshot from host",
-                                  "从主机重新拉取该任务保留的完整输出",
+                                  "Reload the retained log tail from the host",
+                                  "从主机重新读取保留日志的末尾片段",
                                 )}
                                 onClick={() =>
                                   void run(async () =>
@@ -2312,6 +2360,12 @@ function App() {
                             </div>
                           </div>
                           <pre className="log">{activeJob.output || "…"}</pre>
+                          {activeJob.truncated && (
+                            <p className="callout-note">
+                              {t("Showing a bounded log tail. Full logs remain on the workbench host.",
+                                "当前显示有界日志末尾，完整日志保留在工作台主机。")}
+                            </p>
+                          )}
                         </div>
                       )}
                     </section>

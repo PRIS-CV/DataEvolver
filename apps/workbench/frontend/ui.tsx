@@ -426,6 +426,10 @@ export function formatState(raw: string, t: Translate): string {
       return t("paused", "已暂停");
     case "queued":
       return t("queued", "排队中");
+    case "cancelled":
+      return t("cancelled", "已取消");
+    case "unknown":
+      return t("unknown", "效果待核对");
     default:
       return raw;
   }

@@ -29,6 +29,12 @@
       "thinking": "medium"
     }
   },
+  "orchestration": {
+    "maxOpenChildren": 4,
+    "maxConcurrentJobs": 1,
+    "maxQueuedJobs": 16,
+    "maxContextBytes": 32768
+  },
   "image": {
     "generation": {
       "baseUrl": "https://images.example/v1",

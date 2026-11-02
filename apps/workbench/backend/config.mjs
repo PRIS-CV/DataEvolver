@@ -63,6 +63,12 @@ export function defaults() {
       main: { provider: "", model: "", thinking: "high" },
       child: { provider: "", model: "", thinking: "medium" },
     },
+    orchestration: {
+      maxOpenChildren: 4,
+      maxConcurrentJobs: 1,
+      maxQueuedJobs: 16,
+      maxContextBytes: 32768,
+    },
     image: {
       generation: { ...route },
       edit: { ...route },
@@ -119,6 +125,9 @@ export function validateConfig(input) {
     "Unsupported workbench configuration version",
   );
   const config = structuredClone(input);
+  // Existing version-1 deployment files acquire only this new section.
+  if (!Object.hasOwn(config, "orchestration"))
+    config.orchestration = defaults().orchestration;
   const keys = (value, names) =>
     check(
       value &&
@@ -130,8 +139,20 @@ export function validateConfig(input) {
     );
   const shape = defaults();
   keys(config, Object.keys(shape));
-  for (const section of ["agents", "image", "paths", "execution", "pi", "sol"])
+  for (const section of ["agents", "orchestration", "image", "paths", "execution", "pi", "sol"])
     keys(config[section], Object.keys(shape[section]));
+  for (const [key, minimum, maximum] of [
+    ["maxOpenChildren", 1, 32],
+    ["maxConcurrentJobs", 1, 32],
+    ["maxQueuedJobs", 1, 256],
+    ["maxContextBytes", 1024, 1048576],
+  ])
+    check(
+      Number.isSafeInteger(config.orchestration[key]) &&
+        config.orchestration[key] >= minimum &&
+        config.orchestration[key] <= maximum,
+      `Invalid orchestration limit: ${key}`,
+    );
   check(
     Array.isArray(config.providers) && config.providers.length <= 32,
     "Expected at most 32 providers",

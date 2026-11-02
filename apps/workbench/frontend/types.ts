@@ -19,6 +19,12 @@ export type Config = {
   version: number;
   providers: Provider[];
   agents: { main: Agent; child: Agent };
+  orchestration: {
+    maxOpenChildren: number;
+    maxConcurrentJobs: number;
+    maxQueuedJobs: number;
+    maxContextBytes: number;
+  };
   image: { generation: Route; edit: Route; promptEnhancer: Route };
   paths: Record<string, string>;
   execution: Record<string, string>;
@@ -41,6 +47,11 @@ export type Session = {
   createdAt: string;
   profile: Agent;
   state: string;
+  mode?: "task" | "proposal";
+  workspace?: string;
+  sourceWorkspace?: string;
+  contextPath?: string | null;
+  contextSha256?: string | null;
 };
 export type Job = {
   id: string;
@@ -49,6 +60,7 @@ export type Job = {
   target: string;
   createdAt: string;
   output?: string;
+  truncated?: boolean;
   values: Record<string, string | number>;
 };
 export type Message = {
@@ -92,5 +104,5 @@ export type WorkbenchEvent =
   | { type: "session_error"; sessionId: string; error: string }
   | { type: "session_created"; session: Session }
   | { type: "session_opened" | "session_stopped"; sessionId: string }
-  | { type: "job_started" | "job_finished"; job: Job }
+  | { type: "job_queued" | "job_started" | "job_finished"; job: Job }
   | { type: "job_output"; jobId: string; text: string };
