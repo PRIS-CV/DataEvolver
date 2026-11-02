@@ -2282,8 +2282,8 @@ function App() {
                       {data.jobs.length === 0 ? (
                         <div className="empty-box">
                           {t(
-                            "No Harness jobs recorded yet. Submit a command on the left to inspect its receipt and output.",
-                            "暂无 Harness 任务记录。在左侧提交命令后可在此查看回执与输出。",
+                            "No Harness jobs recorded yet. Submit a command to inspect its receipt and output.",
+                            "暂无 Harness 任务记录。提交命令后可在此查看回执与输出。",
                           )}
                         </div>
                       ) : (
@@ -2571,7 +2571,7 @@ function App() {
                                     setImagePrompt(imageResult.text || "")
                                   }
                                 >
-                                  {t("Copy to prompt", "填入左侧提示词")}
+                                  {t("Copy to prompt", "填入提示词")}
                                 </ActionButton>
                               </div>
                               <pre className="pe-output-body">

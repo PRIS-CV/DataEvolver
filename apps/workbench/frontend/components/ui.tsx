@@ -10,7 +10,6 @@ import { Switch } from "@base-ui/react/switch";
 import { Tabs } from "@base-ui/react/tabs";
 import { Tooltip } from "@base-ui/react/tooltip";
 import { IconCheck, IconChevronDown } from "../ui";
-import "./ui.css";
 
 export function TooltipProvider({ children }: { children: React.ReactNode }) {
   return (
@@ -208,7 +207,11 @@ export function SelectField({
             {label}
           </Select.Label>
         )}
-        <Select.Trigger className={triggerClass} aria-label={ariaLabel}>
+        <Select.Trigger
+          type="button"
+          className={triggerClass}
+          aria-label={ariaLabel}
+        >
           <Select.Value className="ui-select-value">
             {(selected: string | null) => {
               const current = selected ?? "";
@@ -387,7 +390,12 @@ export function SettingsTabs({
     >
       <Tabs.List aria-label={ariaLabel} className="ui-tabs-list">
         {tabs.map((tab) => (
-          <Tabs.Tab key={tab.id} value={tab.id} className="ui-tabs-tab">
+          <Tabs.Tab
+            key={tab.id}
+            type="button"
+            value={tab.id}
+            className="ui-tabs-tab"
+          >
             <span className="ui-tabs-tab-top">
               <span className="ui-tabs-tab-title">{tab.label}</span>
               {tab.badge !== null && tab.badge !== undefined && (
@@ -451,7 +459,7 @@ export function DisclosureItem({
   return (
     <Accordion.Item value={value} className="ui-accordion-item">
       <Accordion.Header className="ui-accordion-header">
-        <Accordion.Trigger className="ui-accordion-trigger">
+        <Accordion.Trigger type="button" className="ui-accordion-trigger">
           <span className="ui-accordion-title">{title}</span>
           {summary && <span className="ui-accordion-summary">{summary}</span>}
           <IconChevronDown size={15} className="ui-accordion-chevron" />
