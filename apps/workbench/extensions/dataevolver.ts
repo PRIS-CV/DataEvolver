@@ -33,7 +33,7 @@ export default function (pi: ExtensionAPI) {
     name: "dataevolver_harness",
     label: "DataEvolver Harness",
     description:
-      "Compile or control an existing DataEvolver Campaign on the configured local/SSH host. Values are explicit CLI fields, not shell text. compile-plan requires plan/profile/evaluator/output/campaign; worker-compile requires profile/output/campaign/campaignRoot; create requires goal/campaignRoot/idempotencyKey; step requires campaign/campaignRoot/maxActions (1..100); inspection/pause/resume require campaign/campaignRoot. resume immediately executes work. The returned job receipt includes exit status and logs; unknown effects require inspection, not automatic resend.",
+      "Compile or control an existing DataEvolver Campaign on the configured local/SSH host. Values are explicit CLI fields, not shell text. compile-plan requires plan/profile/evaluator/output/campaign; worker-compile requires profile/output/campaign/campaignRoot; create requires goal/campaignRoot/idempotencyKey; step requires campaign/campaignRoot/maxActions (1..100); inspection/pause/resume require campaign/campaignRoot. resume executes work when dispatched. Mutating commands wait in a bounded Workbench queue; status/explain/replay/pause bypass it. Session abort/stop cancels waiting jobs, not running effects. The returned job receipt includes exit status and logs; unknown effects require inspection, not automatic resend.",
     parameters: Type.Object({
       command: Type.Union(
         [
@@ -101,8 +101,12 @@ export default function (pi: ExtensionAPI) {
     name: "dataevolver_delegate",
     label: "Delegate child task",
     description:
-      "Start a real independent Pi child session with the configured child provider/model. Supply all needed context in task. Returns a child id; inspect or wait using dataevolver_child. Only main sessions may delegate.",
-    parameters: Type.Object({ name: Type.String(), task: Type.String() }),
+      "Delegate using the configured child provider/model. mode=proposal authors candidates in a fresh local workspace with a bounded snapshot of explicit contextJobIds; its bridge permits only Harness status/explain/replay. This is not an OS sandbox. Default mode=task preserves the shared workspace and tool access. Returns a child id; inspect/wait/stop with dataevolver_child. Stop completed children to release capacity. Only main sessions may delegate. Context logs are observations, not verified knowledge.",
+    parameters: Type.Object({
+      name: Type.String(), task: Type.String(),
+      mode: Type.Optional(Type.Union([Type.Literal("task"), Type.Literal("proposal")])),
+      contextJobIds: Type.Optional(Type.Array(Type.String(), { maxItems: 16 })),
+    }),
     async execute(_id, params, signal) {
       return result(await call("delegate", params, signal));
     },

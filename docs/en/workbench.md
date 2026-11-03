@@ -156,6 +156,11 @@ sending a prompt. It does not resume a Campaign. Interrupted job transports are
 shown as `unknown`; inspect Campaign state and native receipts before proceeding.
 Pi history is not an exactly-once execution journal for arbitrary shell commands.
 
+## Candidate orchestration
+
+For isolated proposal sessions, explicit evidence context, dispatch limits and
+queue recovery, see [Candidate orchestration](orchestration.md).
+
 ## OpenSSH deployments
 
 For hybrid operation, keep the workbench and Pi local. Set execution target

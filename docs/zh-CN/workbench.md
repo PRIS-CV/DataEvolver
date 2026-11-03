@@ -132,6 +132,10 @@ Pi 使用长驻 RPC 会话，接受 `prompt`、`steer`、`follow_up`、队列清
 Pi 会话，不发送新提示词，也不恢复 Campaign。中断任务的传输状态显示为 `unknown`。
 继续前应核对 Campaign 状态和原生回执。Pi 对话历史不能保证任意 Shell 命令只执行一次。
 
+## 候选方案编排
+
+独立提案会话、显式执行上下文、派发限额与队列恢复见[候选方案编排](orchestration.md)。
+
 ## OpenSSH 部署
 
 混合部署在本机运行工作台与 Pi。将执行目标设置为 `ssh`，填写已有的 OpenSSH 别名、

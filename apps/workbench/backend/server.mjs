@@ -5,7 +5,7 @@ import { resolve, relative, extname, sep } from "node:path";
 import { homedir } from "node:os";
 import { spawn } from "node:child_process";
 import { ConfigStore, appRoot, repoRoot, check } from "./config.mjs";
-import { Sessions } from "./sessions.mjs";
+import { Sessions, harnessSessionConfig } from "./sessions.mjs";
 import { Jobs } from "./jobs.mjs";
 import { artifactPath, imageRequest } from "./images.mjs";
 
@@ -33,9 +33,9 @@ const emit = (event) => {
     }
   }
 };
-const sessions = new Sessions(store, emit);
-sessions.bridgeUrl = address + "/internal/action";
 const jobs = new Jobs(store, emit);
+const sessions = new Sessions(store, emit, jobs);
+sessions.bridgeUrl = address + "/internal/action";
 const equal = (a, b) =>
   typeof a === "string" &&
   Buffer.byteLength(a) === Buffer.byteLength(b) &&
@@ -92,8 +92,11 @@ async function inspect() {
 async function internal(id, input) {
   const runtime = sessions.running.get(id);
   check(runtime, "Session is not active");
+  if (runtime.record.mode === "proposal")
+    check(input.op === "harness" && ["status", "explain", "replay"].includes(input.data?.command),
+      "Proposal sessions author candidates; only Harness status/explain/replay are allowed through the bridge");
   if (input.op === "harness") {
-    const job = await jobs.start(input.data, id, runtime.config);
+    const job = await jobs.start(input.data, id, harnessSessionConfig(runtime));
     await job.done;
     return jobs.details(job.record.id);
   }
@@ -109,6 +112,8 @@ async function internal(id, input) {
       parentId: id,
       name: input.data.name,
       task: input.data.task,
+      mode: input.data.mode,
+      contextJobIds: input.data.contextJobIds,
     });
   }
   if (input.op === "child") {
@@ -212,8 +217,11 @@ const server = createServer(async (req, res) => {
         jobs: await jobs.list(),
         inspection: await inspect(),
       });
-    if (req.method === "POST" && path === "/api/config")
-      return send(200, await store.save(await body(req)));
+    if (req.method === "POST" && path === "/api/config") {
+      const saved = await store.save(await body(req));
+      jobs.drain();
+      return send(200, saved);
+    }
     if (req.method === "POST" && path === "/api/sessions")
       return send(201, await sessions.create(await body(req)));
     const session = path.match(
@@ -230,6 +238,9 @@ const server = createServer(async (req, res) => {
     const job = path.match(/^\/api\/jobs\/([a-zA-Z0-9_.-]+)$/);
     if (req.method === "GET" && job)
       return send(200, await jobs.details(job[1]));
+    const cancelJob = path.match(/^\/api\/jobs\/([a-zA-Z0-9_.-]+)\/cancel$/);
+    if (req.method === "POST" && cancelJob)
+      return send(200, await jobs.cancel(cancelJob[1]));
     if (req.method === "POST" && path === "/api/image")
       return send(200, await imageRequest(store, await body(req)));
     if (req.method === "GET" && path === "/api/artifact") {

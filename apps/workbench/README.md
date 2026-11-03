@@ -8,6 +8,7 @@ arguments to this launcher for compatibility.
 
 - [English guide](../../docs/en/workbench.md)
 - [中文指南](../../docs/zh-CN/workbench.md)
+- [Candidate orchestration](../../docs/en/orchestration.md) / [候选方案编排](../../docs/zh-CN/orchestration.md)
 - [Upstream references](THIRD_PARTY_NOTICES.md)
 
 `backend/` owns configuration, sessions, subprocess jobs, image API and HTTP/SSE.
