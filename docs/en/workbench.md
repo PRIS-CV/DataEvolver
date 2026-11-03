@@ -131,9 +131,10 @@ The Harness tab exposes the same command set:
 
 | Command | Required values |
 |---|---|
+| `plan` | `goal` (existing image pipeline Goal) |
 | `compile-plan` | `plan`, `profile`, `evaluator`, `output`, `campaign` |
 | `worker-compile` | `profile`, `output`, `campaign`, `campaignRoot` |
-| `create` | `goal`, `campaignRoot`, `idempotencyKey` |
+| `create` | `goal`, `campaignRoot`, `idempotencyKey`; optional boolean `dryRun` |
 | `step` | `campaign`, `campaignRoot`, `maxActions` (1–100) |
 | `status`, `explain`, `replay`, `pause`, `resume` | `campaign`, `campaignRoot` |
 
@@ -215,3 +216,7 @@ lifecycle scripts disabled for type checking; the launcher was not executed. Ins
 agent calls, SSH execution, native rendering, tests and CI were not run for this
 change. The included contract tests are available for later authorized execution;
 source and type checks do not establish runtime acceptance.
+
+## Data collection and curation
+
+Open **Data workspace** for Goal preflight, Campaign control, and read-only exported sample review. See the [Data workspace guide](data-workspace.md) for host configuration and limits.

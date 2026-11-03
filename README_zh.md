@@ -130,6 +130,7 @@ DataRSI 在声明的预算和回归检查下连接数据修订与模型准入。
 | 我想要…… | 指南 | 内容 |
 |---|---|---|
 | 在网页配置 Agent 并对话 | [私有工作台](docs/zh-CN/workbench.md) | `apps/workbench/` 下的可选应用与启动器；Agent 配置、图像接口、原生工具与 OpenSSH。 |
+| 预检收集与清洗 Goal，审核导出样本 | [数据工作区](docs/zh-CN/data-workspace.md) | 复用图像流水线和 Campaign 控制；只读查看本机或 SSH 交付包。 |
 | 探索与审阅候选工作流 | [候选方案编排](docs/zh-CN/orchestration.md) | 独立提案工作区、有界执行上下文和可配置派发队列。 |
 | 从 DeepSeek Harness 使用 DataEvolver | [DSH 插件](plugins/dsh/README_zh.md) | 原生工具 Bundle、私有配置与既有 Campaign 命令。 |
 | 准备源码环境 | [快速开始](docs/zh-CN/quick-start.md) | 网页启动、首次配置和独立 CLI 安装。 |

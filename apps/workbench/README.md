@@ -19,3 +19,5 @@ From `apps/workbench/`, development commands are `npm ci --ignore-scripts`, `npm
 `npm run build`, `npm start -- --no-open`. These commands do not start an agent
 until a session is created. Contract tests are available with `npm test`.
 Tests and runtime workflows were not executed for the initial static review.
+
+Data collection/curation and exported-sample review: [English](../../docs/en/data-workspace.md) / [中文](../../docs/zh-CN/data-workspace.md).

@@ -126,3 +126,7 @@ dataevolver operator-sdk catalog
 
 运行验收需要目标主机和工作负载授权。[项目验收技能](../../.agents/skills/verify-dataevolver/SKILL.md)
 说明验收场景，当前执行状态见[迁移与验证](development.md#迁移与验证)。历史测试数量不能用于验收当前整合版本。
+
+## 图像数据收集与清洗
+
+打开**数据工作区**，可预检 Goal、控制 Campaign，并只读查看导出样本。主机配置与限制见[数据工作区指南](data-workspace.md)。
