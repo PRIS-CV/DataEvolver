@@ -48,6 +48,8 @@ class ImageCollectionOperator(DataGraphOperator):
         self.collection_spec = CollectionSpec.from_dict(json.loads(self.store.resolve(spec_ref).read_text()))
         if self.mode != self.collection_spec.mode:
             raise ValueError("collection execution mode differs from source spec")
+        if self.mode == "server":
+            collection.validate_hub_transport()
         self.collection_spec = replace(self.collection_spec, hf_endpoint=resolve_hf_endpoint(self.collection_spec.hf_endpoint))
         self.contract_hash = payload_sha256([self.contract_hash, self.collection_spec.to_dict()])
         self.spec = self.spec.with_updates(model_config_hash=self.contract_hash)

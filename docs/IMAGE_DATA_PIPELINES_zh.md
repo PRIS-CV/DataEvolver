@@ -40,6 +40,8 @@ CollectionSpec.hf_endpoint → HF_ENDPOINT → https://hf-mirror.com
 
 元数据和 Hub 文件共用端点与精确 revision。镜像缺少指定 revision 时失败，不自动切换。默认下载并发为 4，单文件外层尝试最多 3 次；SDK 内部传输重试属于文件尝试内部。外部 URL 使用 ETag 和 Range 续传，VG 图片保留原域。
 
+服务器启动 Python 前应设置 `HF_HUB_DISABLE_XET=1`。采集使用 SDK 的同步 HTTP 传输，使预算异常可中止下载。预检会阻断 Xet，避免后台进度回调吞掉异常。SDK 缓存与续传继续生效。进度回退不扣除已经接收的流量。
+
 来源模板 `image_sources.example.json` 固定 COCO/VG 入口及 revision，默认配额各 2,500。`__SET_...__` 表示服务器待核对的字段和 URL，不能作为已验证来源配置。
 
 COCO 按 image_id 合并图像信息、实例、caption 和图像许可。单独的 Hub `train` 或数字文件名不证明上游 `train2017`。VG 保留对象 ID、属性归属和关系边，并通过 COCO 对应 ID 排除已知评测图像。远程加载脚本不执行。

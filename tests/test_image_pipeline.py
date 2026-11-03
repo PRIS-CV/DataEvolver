@@ -40,6 +40,8 @@ def forbid_network(monkeypatch):
     def fail(*args, **kwargs):
         raise AssertionError("offline tests must not open network connections")
     monkeypatch.setattr(socket.socket, "connect", fail)
+    monkeypatch.setenv("HF_HUB_DISABLE_XET", "1")
+    monkeypatch.setattr("huggingface_hub.constants.HF_HUB_DISABLE_XET", True)
 
 
 def collection_operator(tmp_path, count=4):
@@ -360,6 +362,14 @@ def test_endpoint_precedence_and_protected_profile_overrides(monkeypatch):
         compile_criteria(criteria)
 
 
+def test_category_mapping_invalidates_semantic_calibration_profile():
+    criteria = {"base_profile": "generic_image_v1", "task_profile": "multi_subject_layout_v1",
+                "execution_mode": "fixture"}
+    original = compile_criteria(criteria)["profile_hash"]
+    assert compile_criteria({**criteria, "category_mapping": {}})["profile_hash"] == original
+    assert compile_criteria({**criteria, "category_mapping": {"cat": "dog"}})["profile_hash"] != original
+
+
 def ledger_fixture(tmp_path):
     fixture = prepare_fixture(tmp_path/"fixture", count_per_source=1)
     sources = tuple({**source, "revision": "a"*40} for source in fixture["spec"].sources)
@@ -419,6 +429,69 @@ def test_unavailable_pinned_revision_never_falls_back(tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="unavailable"):
         ledger.pin(source)
     assert calls == ["https://hf-mirror.com"]
+
+
+def test_server_rejects_xet_before_hub_io_and_offline_plan_reports_requirement(tmp_path, monkeypatch):
+    import huggingface_hub
+    from huggingface_hub import constants
+    ledger, source = ledger_fixture(tmp_path)
+    monkeypatch.setattr(constants, "HF_HUB_DISABLE_XET", False)
+    monkeypatch.setattr(huggingface_hub, "hf_hub_download",
+                        lambda **kwargs: pytest.fail("Xet must be rejected before any SDK download"))
+    with pytest.raises(ValueError, match="HF_HUB_DISABLE_XET"):
+        ledger._hub(source, "shard.parquet", "unused")
+    fixture = prepare_fixture(tmp_path/"server-preflight", count_per_source=1)
+    spec = replace(fixture["spec"], mode="server",
+                   sources=tuple({**value, "revision": "a"*40} for value in fixture["spec"].sources))
+    path = fixture["raw"]/"collection.json"
+    path.write_text(canonical_json(spec.to_dict()))
+    reference = ArtifactRef("raw", path.name, file_sha256(path)).to_dict()
+    contract = fixture["collection_contract"]
+    contract["intent"]["parameters"]["execution_mode"] = "server"
+    contract["intent"]["sources"] = [reference]
+    contract["graph"]["nodes"][0]["inputs"]["spec"]["artifact"] = reference
+    with pytest.raises(ValueError, match="HF_HUB_DISABLE_XET"):
+        ImageCollectionOperator(allowed_write_root=tmp_path/"blocked-campaign", contract=contract,
+                                roots={"raw": fixture["raw"], "bundle": fixture["bundle_root"]})
+    from dataevolver.harness.image_pipeline import image_pipeline_goal
+    evaluator = tmp_path/"preflight-evaluator.json"
+    evaluator.write_text("{}")
+    goal = image_pipeline_goal(contract, campaign_id="transport-preflight", evaluator_path=evaluator)
+    monkeypatch.delenv("HF_HUB_DISABLE_XET")
+    assert "set_HF_HUB_DISABLE_XET_before_start" in offline_plan(goal)["blockers"]
+
+
+def test_hf_http_retry_ignoring_range_counts_retransmitted_payload(tmp_path, monkeypatch):
+    from contextlib import nullcontext
+    import httpx
+    import huggingface_hub
+    from huggingface_hub import file_download
+    ledger, source = ledger_fixture(tmp_path)
+    url = "https://hf-mirror.com/fixture"
+
+    class Interrupted(httpx.SyncByteStream):
+        def __iter__(self):
+            yield b"1234"
+            raise httpx.RemoteProtocolError("interrupted transfer")
+
+    responses = iter((
+        httpx.Response(200, headers={"Content-Length": "8"}, stream=Interrupted(), request=httpx.Request("GET", url)),
+        httpx.Response(200, headers={"Content-Length": "8"}, content=b"12345678", request=httpx.Request("GET", url)),
+    ))
+    monkeypatch.setattr(file_download, "http_stream_backoff", lambda *args, **kwargs: nullcontext(next(responses)))
+    monkeypatch.setattr(file_download.time, "sleep", lambda *args: None)
+    monkeypatch.setattr(file_download.constants, "DOWNLOAD_CHUNK_SIZE", 4)
+
+    def download(**kwargs):
+        payload = io.BytesIO()
+        file_download.http_get(url, payload, expected_size=8, tqdm_class=kwargs["tqdm_class"])
+        path = tmp_path/"sdk-retried-file"
+        path.write_bytes(payload.getvalue())
+        return str(path)
+    monkeypatch.setattr(huggingface_hub, "hf_hub_download", download)
+    assert ledger.download(source, {"path": "shard.parquet"}).read_bytes() == b"12345678"
+    assert ledger.data["transferred_bytes"] == 12
+    assert next(iter(ledger.data["items"].values()))["attempts"] == 1
 
 
 def test_download_attempts_are_bounded_and_budget_failure_is_not_retried(tmp_path, monkeypatch):
@@ -531,6 +604,32 @@ def test_same_model_repair_and_review_remain_coupled(tmp_path):
     assert report["gate_counts"]["unknown"]["independent_review"] == 8
 
 
+def test_same_model_review_requires_independent_human_evidence(tmp_path):
+    from dataevolver.dataset.curation_layout import apply_review
+    fixture, operator, call = layout_operator(tmp_path)
+    reviewer = operator.profiles[0]
+    raw_evidence = fixture["raw"]/"protected.json"
+    report = json.loads(raw_evidence.read_text())
+    sample_id = next(iter(report["samples"]))
+    report["samples"][sample_id]["independent_layout"] = {
+        "status": "pass", "evidence": [fixture["evidence"].to_dict()]}
+    raw_evidence.write_text(canonical_json(report))
+    operator.criteria["protected_evidence"] = ArtifactRef("raw", raw_evidence.name, file_sha256(raw_evidence)).to_dict()
+    context = SimpleNamespace(graph=operator, store=operator.store, calibration_split_conflict=False)
+    receipt = SimpleNamespace(model=reviewer.model, revision=reviewer.revision, output=reviewer.mock_output)
+    row = {"id": sample_id, "producer_model": reviewer.model, "repair_count": 1, "reviews": [], "gates": {},
+           "caption": "A cat is left of a dog.",
+           "selected_objects": [{"id": "1", "category": "cat"}, {"id": "2", "category": "dog"}],
+           "relations": [{"subject_id": "1", "predicate": "left_of", "object_id": "2"}]}
+    apply_review(context, row, receipt, {"receipt_hash": "fixture"})
+    assert row["model_coupling"] is True and row["gates"]["independent_review"]["status"] == "pass"
+    report["authority"] = "model"
+    raw_evidence.write_text(canonical_json(report))
+    operator.criteria["protected_evidence"]["sha256"] = file_sha256(raw_evidence)
+    apply_review(context, row, receipt, {"receipt_hash": "fixture"})
+    assert row["gates"]["independent_review"]["status"] == "unknown"
+
+
 def test_missing_license_is_unknown_and_never_invented(tmp_path):
     def mutate(fixture):
         path = fixture["raw"]/"coco_fixture-licenses.json"
@@ -565,6 +664,75 @@ def test_server_collection_rejects_unresolved_template_before_network():
     path = Path(__file__).resolve().parents[1]/"configs/harness/image_sources.example.json"
     with pytest.raises(ValueError, match="unresolved __SET_"):
         CollectionSpec.from_dict(json.loads(path.read_text()))
+
+
+def test_bad_image_shard_keeps_other_sources_and_reports_each_missing_image(tmp_path):
+    def mutate(fixture):
+        (fixture["raw"]/"coco_fixture-images.parquet").write_bytes(b"invalid parquet")
+        path = fixture["raw"]/"coco_fixture-image_info.json"
+        rows = json.loads(path.read_text())
+        for row in rows:
+            row.pop("coco_url")
+        path.write_text(canonical_json(rows))
+    fixture, operator, call = collect_changed_fixture(tmp_path, mutate)
+    index = json.loads(operator.store.resolve(node_output(operator, call, "audit", "catalog")).read_text())
+    bundle_path = operator.store.resolve(ArtifactRef.from_dict(index["bundle"]))
+    bundle = load_source_bundle(bundle_path)
+    assert bundle.count == 4
+    assert next(source for source in bundle.sources if source["source_id"] == "coco_fixture")["shortfall"] == 4
+    downloads = json.loads((bundle_path.parent/"downloads.json").read_text())
+    failures = [item for item in downloads["items"] if item["source_id"] == "coco_fixture" and item["status"] == "FAILED"]
+    assert len(failures) == 5
+    assert any(item["reason"].startswith("image_shard_failed:") for item in failures)
+    assert len(load_export(export_root(operator, call))) == 4
+
+
+@pytest.mark.parametrize("box", ([24, 48, 64], None, [24, 48, "invalid", 112]))
+def test_malformed_boxes_keep_image_valid_and_allow_one_repair(tmp_path, box):
+    def mutate(fixture):
+        path = fixture["raw"]/"coco_fixture-instances.json"
+        rows = json.loads(path.read_text())
+        rows[0]["bbox"] = box
+        path.write_text(canonical_json(rows))
+    fixture, operator, call = collect_changed_fixture(tmp_path, mutate)
+    index = json.loads(operator.store.resolve(node_output(operator, call, "audit", "catalog")).read_text())
+    original = next(row for shard in index["shards"]
+                    for row in read_parquet(operator.store.resolve(ArtifactRef.from_dict(shard)))
+                    if row["source_id"] == "coco_fixture" and row["source_row_id"] == "1")
+    assert original["gates"]["integrity"]["status"] == "pass"
+    assert original["gates"]["boxes"]["status"] == "fail"
+    assert original["raw_annotation"]["instances"][0]["bbox"] == box
+    repaired = next(row for row in load_export(export_root(operator, call)) if row["id"] == original["id"])
+    assert repaired["repair_count"] == 1
+    assert repaired["gates"]["boxes"]["status"] == "pass"
+
+
+def test_missing_object_annotations_are_repaired_once(tmp_path):
+    def mutate(fixture):
+        sources = copy.deepcopy(fixture["spec"].sources)
+        sources[0]["tables"].pop("instances")
+        fixture["spec"] = replace(fixture["spec"], sources=sources)
+    fixture, operator, call = collect_changed_fixture(tmp_path, mutate)
+    rows = load_export(export_root(operator, call))
+    coco = [row for row in rows if row["source_id"] == "coco_fixture"]
+    assert coco and all(row["repair_count"] == 1 and row["layout_ready"] for row in coco)
+    assert all(row["raw_annotation"]["instances"] == [] for row in coco)
+
+
+def test_malformed_caption_keeps_raw_evidence_and_uses_bounded_repair(tmp_path):
+    def mutate(fixture):
+        path = fixture["raw"]/"coco_fixture-captions.json"
+        rows = json.loads(path.read_text())
+        rows[0]["caption"] = 123
+        path.write_text(canonical_json(rows))
+    fixture, operator, call = collect_changed_fixture(tmp_path, mutate)
+    rows = load_export(export_root(operator, call))
+    repaired = next(row for row in rows if row["source_id"] == "coco_fixture" and row["source_row_id"] == "1")
+    assert repaired["original_captions"] == [123]
+    assert repaired["raw_annotation"]["captions"][0]["caption"] == 123
+    assert repaired["repair_count"] == 1
+    assert repaired["verified_caption"] == "A cat is left of a dog."
+    assert len(rows) == 7
 
 
 def test_external_range_resume_preserves_original_host_and_records_received_bytes(tmp_path, monkeypatch):

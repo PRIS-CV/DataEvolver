@@ -77,7 +77,10 @@ def compile_criteria(value):
             or not math.isclose(sum(ratios.values()), 1)):
         raise ValueError("split ratios must sum to one")
     result.update({key: copy.deepcopy(item) for key, item in value.items() if key != "overrides"})
-    result["profile_hash"] = payload_sha256({key: result[key] for key in (*GENERIC_IMAGE_V1, *MULTI_SUBJECT_LAYOUT_V1)})
+    result["profile_hash"] = payload_sha256({
+        **{key: result[key] for key in (*GENERIC_IMAGE_V1, *MULTI_SUBJECT_LAYOUT_V1)},
+        "category_mapping": result.get("category_mapping", {}),
+    })
     canonical_json(result)
     return result
 

@@ -94,13 +94,17 @@ Metadata and Hub downloads use that same endpoint and exact revision. A missing
 revision fails without fallback. Explicitly switching endpoint keeps the revision
 and creates a new run configuration.
 
-The downloader uses the Hub SDK cache and resume support. External URLs use
+Before starting the server process, set `HF_HUB_DISABLE_XET=1`. Collection uses
+the SDK's synchronous HTTP transport so a budget exception stops the download.
+Preflight rejects Xet, whose background progress callbacks cannot enforce this
+route's budget. The downloader keeps the Hub SDK cache and resume support. External URLs use
 ETag-bound Range resume. Concurrency defaults to four and whole-file attempts
 are capped at three. SDK transport retries remain internal to a file attempt.
 `downloads.json` records per-file attempts, cache hits, received file-payload
 bytes and materialized file sizes. HTTP headers and metadata API response sizes
 are outside the payload counter. SDK transfer callbacks require Hub SDK 1.33 or
-later. A cache hit transfers zero file-payload bytes.
+later. A cache hit transfers zero file-payload bytes. A progress-bar rollback
+does not subtract bytes already received during an interrupted transfer.
 
 The raw cache remains outside the source bundle. The completed bundle has
 read-only files, embedded image bytes and original annotations in Parquet,

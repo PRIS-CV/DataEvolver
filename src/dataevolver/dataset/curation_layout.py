@@ -48,8 +48,11 @@ def audit(ctx):
                 ctx.budget.reserve_rows(record["id"], 1)
                 source = sources[record["source_id"]]
                 raw = record.pop("image_bytes")
-                record.update(gates={}, original_captions=record.get("captions", []),
-                              caption=next(iter(record.get("captions", [])), ""),
+                captions = record.get("captions", [])
+                if not isinstance(captions, list):
+                    captions = [captions]
+                caption = next((value for value in captions if isinstance(value, str) and value.strip()), "")
+                record.update(gates={}, original_captions=captions, caption=caption,
                               raw_relations=record.get("relations", []), reviews=[], repair_count=0)
                 record["gates"]["provenance"] = gate("pass" if source["origin_evidence"] else "unknown", "image_origin_evidence")
                 allowed_origin = record["origin_type"] in {"real_image", "photograph"}
@@ -79,19 +82,25 @@ def audit(ctx):
                     record["dhash"] = sum(int(pixels[offset//8*9 + offset%8] > pixels[offset//8*9 + offset%8+1]) << offset for offset in range(64))
                     objects, box_error = [], ""
                     for original in record.get("objects", []):
-                        value = dict(original)
-                        box = value.get("box_xyxy")
-                        if "box_xywh" in value:
-                            left, top, box_width, box_height = value["box_xywh"]
-                            box = [left, top, left + box_width, top + box_height]
-                        if not valid_box(box, width, height):
-                            box_error = "original_box_out_of_bounds"
-                            value["box_xyxy"] = box
-                        else:
-                            transformed, oriented_width, oriented_height = transform_box_exif(box, orientation, width, height)
-                            value["box_xyxy"] = [transformed[0]/oriented_width, transformed[1]/oriented_height,
-                                                transformed[2]/oriented_width, transformed[3]/oriented_height]
-                        value["category"] = criteria.get("category_mapping", {}).get(value["category"], value["category"])
+                        try:
+                            value = dict(original)
+                            box = value.get("box_xyxy")
+                            if "box_xywh" in value:
+                                left, top, box_width, box_height = value["box_xywh"]
+                                box = [left, top, left + box_width, top + box_height]
+                            if not valid_box(box, width, height):
+                                box_error = "original_box_out_of_bounds"
+                                value["box_xyxy"] = box
+                            else:
+                                transformed, oriented_width, oriented_height = transform_box_exif(box, orientation, width, height)
+                                value["box_xyxy"] = [transformed[0]/oriented_width, transformed[1]/oriented_height,
+                                                    transformed[2]/oriented_width, transformed[3]/oriented_height]
+                            category = value.get("category")
+                            if isinstance(category, str):
+                                value["category"] = criteria.get("category_mapping", {}).get(category, category)
+                        except (ValueError, TypeError, KeyError) as exc:
+                            box_error = f"invalid_original_annotation: {type(exc).__name__}: {str(exc)[:200]}"
+                            value = {"id": "", "category": "", "box_xyxy": None, "attributes": []}
                         objects.append(value)
                     record["objects"] = objects
                     image.thumbnail((criteria["max_export_side"], criteria["max_export_side"]), Image.Resampling.LANCZOS)

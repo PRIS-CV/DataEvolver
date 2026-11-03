@@ -19,6 +19,12 @@ from dataevolver.harness.data_budget import DataBudgetExceeded
 from dataevolver.harness.state_store import atomic_write_json
 
 
+def validate_hub_transport():
+    from huggingface_hub import constants
+    if not constants.HF_HUB_DISABLE_XET:
+        raise ValueError("bounded collection requires HF_HUB_DISABLE_XET=1 before Python starts")
+
+
 def normalize_coco_record(image, instances, captions, categories, licenses):
     image_id = image.get("id", image.get("image_id"))
     if image_id is None:
@@ -145,13 +151,15 @@ class DownloadLedger:
         raise ValueError(f"download attempts exhausted: {entry}")
 
     def _hub(self, source, filename, key):
+        validate_hub_transport()
         from huggingface_hub import hf_hub_download
         from tqdm.auto import tqdm
         ledger = self
 
         class TransferProgress(tqdm):
             def update_transfer(self, count):
-                ledger.progress(key, count)
+                if count > 0:
+                    ledger.progress(key, count)
 
         return Path(hf_hub_download(repo_id=source["repo_id"], filename=filename, revision=source["revision"],
             repo_type="dataset", endpoint=resolve_hf_endpoint(self.spec.hf_endpoint), cache_dir=self.cache / "hf",
@@ -336,24 +344,28 @@ def collect(ctx):
         needed = {value["image_shard"] for value in selected if value.get("image_shard")}
         image_files = [entry for entry in source["image_files"] if selected and (not needed or entry.get("path") in needed)]
         for entry in image_files:
-            path = ledger.download(source, entry)
-            import pyarrow.parquet as pq
-            for chunk in pq.ParquetFile(path).iter_batches(batch_size=128):
-                for value in chunk.to_pylist():
-                    identity = str(value.get("image_id", value.get("id")))
-                    if identity in wanted:
-                        embedded = value.get("image", {})
-                        raw = embedded.get("bytes") if isinstance(embedded, dict) else embedded
-                        if raw and len(raw) <= 32 * 1024 * 1024:
-                            digest = hashlib.sha256(raw).hexdigest()
-                            image_path = ledger.cache / "embedded_images" / digest
-                            ctx.budget.reserve_file(f"embedded_image:{digest}", len(raw))
-                            if not image_path.exists():
-                                image_path.parent.mkdir(parents=True, exist_ok=True)
-                                image_path.write_bytes(raw)
-                            elif file_sha256(image_path) != digest:
-                                raise ValueError("embedded-image cache changed")
-                            image_paths[identity] = image_path
+            try:
+                path = ledger.download(source, entry)
+                import pyarrow.parquet as pq
+                for chunk in pq.ParquetFile(path).iter_batches(batch_size=128):
+                    for value in chunk.to_pylist():
+                        identity = str(value.get("image_id", value.get("id")))
+                        if identity in wanted:
+                            embedded = value.get("image", {})
+                            raw = embedded.get("bytes") if isinstance(embedded, dict) else embedded
+                            if raw and len(raw) <= 32 * 1024 * 1024:
+                                digest = hashlib.sha256(raw).hexdigest()
+                                image_path = ledger.cache / "embedded_images" / digest
+                                ctx.budget.reserve_file(f"embedded_image:{digest}", len(raw))
+                                if not image_path.exists():
+                                    image_path.parent.mkdir(parents=True, exist_ok=True)
+                                    image_path.write_bytes(raw)
+                                elif file_sha256(image_path) != digest:
+                                    raise ValueError("embedded-image cache changed")
+                                image_paths[identity] = image_path
+            except (OSError, ValueError, TypeError, KeyError) as exc:
+                item_log.append({"source_id": source["source_id"], "item_id": canonical_json(entry),
+                                 "status": "FAILED", "reason": f"image_shard_failed: {type(exc).__name__}: {str(exc)[:200]}"})
 
         def fetch_image(row):
             identity = row["source_row_id"]

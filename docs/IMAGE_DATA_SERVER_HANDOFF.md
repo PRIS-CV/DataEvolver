@@ -19,7 +19,10 @@ export IMAGE_CURATED_ROOT=<清洗输出目录>
 export IMAGE_RUNTIME_ROOT=<.dataevolver 运行目录>
 export IMAGE_EXPERIMENT_ROOT=<experiments/dataprocess 下的实验目录>
 export HF_ENDPOINT=https://hf-mirror.com
+export HF_HUB_DISABLE_XET=1
 ```
+
+应在 Python 启动前禁用 Xet。采集预检同时检查 SDK 的实际配置，保证同步 HTTP 回调可传播预算异常。
 
 采集合同中将 `inputs`、`bundle` 两个 store 分别映射到 `IMAGE_INPUT_ROOT`、`IMAGE_BUNDLE_ROOT`。清洗合同再增加 `dataset` 到 `IMAGE_CURATED_ROOT`。campaign 放到 `IMAGE_RUNTIME_ROOT/campaigns`。源码不 import 实验目录。
 
