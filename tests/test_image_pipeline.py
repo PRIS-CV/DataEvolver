@@ -459,6 +459,13 @@ def test_server_rejects_xet_before_hub_io_and_offline_plan_reports_requirement(t
     goal = image_pipeline_goal(contract, campaign_id="transport-preflight", evaluator_path=evaluator)
     monkeypatch.delenv("HF_HUB_DISABLE_XET")
     assert "set_HF_HUB_DISABLE_XET_before_start" in offline_plan(goal)["blockers"]
+    monkeypatch.setenv("HF_HUB_DISABLE_XET", "1")
+    assert "set_HF_HUB_DISABLE_XET_before_start" in offline_plan(goal)["blockers"]
+    monkeypatch.setenv("HF_HUB_DISABLE_XET", "true")
+    monkeypatch.setattr(constants, "HF_HUB_DISABLE_XET", True)
+    assert "set_HF_HUB_DISABLE_XET_before_start" not in offline_plan(goal)["blockers"]
+    assert ImageCollectionOperator(allowed_write_root=tmp_path/"accepted-campaign", contract=contract,
+                                  roots={"raw": fixture["raw"], "bundle": fixture["bundle_root"]}).mode == "server"
 
 
 def test_hf_http_retry_ignoring_range_counts_retransmitted_payload(tmp_path, monkeypatch):

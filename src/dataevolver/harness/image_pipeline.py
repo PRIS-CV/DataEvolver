@@ -76,8 +76,12 @@ def offline_plan(goal):
     if goal.initial_operator_id == "data.image_collection":
         result["operator_version"], result["hf_endpoint"] = "1", resolve_hf_endpoint()
         result["hub_transport"] = "sdk_http"
-        if result["mode"] == "server" and os.environ.get("HF_HUB_DISABLE_XET") != "1":
-            result["blockers"].append("set_HF_HUB_DISABLE_XET_before_start")
+        if result["mode"] == "server":
+            from dataevolver.dataset.collection import validate_hub_transport
+            try:
+                validate_hub_transport()
+            except ValueError:
+                result["blockers"].append("set_HF_HUB_DISABLE_XET_before_start")
         if not missing:
             store = ArtifactStore({key: os.environ[value] for key, value in contract["stores"].items()})
             source = store.resolve(graph.nodes[0].inputs["spec"].artifact)
