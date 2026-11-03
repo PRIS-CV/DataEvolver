@@ -5,7 +5,7 @@ import { resolve, relative, extname, sep } from "node:path";
 import { homedir } from "node:os";
 import { spawn } from "node:child_process";
 import { ConfigStore, appRoot, repoRoot, check } from "./config.mjs";
-import { Sessions } from "./sessions.mjs";
+import { Sessions, harnessSessionConfig } from "./sessions.mjs";
 import { Jobs } from "./jobs.mjs";
 import { artifactPath, imageRequest } from "./images.mjs";
 
@@ -96,7 +96,7 @@ async function internal(id, input) {
     check(input.op === "harness" && ["status", "explain", "replay"].includes(input.data?.command),
       "Proposal sessions author candidates; only Harness status/explain/replay are allowed through the bridge");
   if (input.op === "harness") {
-    const job = await jobs.start(input.data, id, runtime.config);
+    const job = await jobs.start(input.data, id, harnessSessionConfig(runtime));
     await job.done;
     return jobs.details(job.record.id);
   }

@@ -3,12 +3,12 @@ import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
 import { PassThrough } from "node:stream";
 import { createHash } from "node:crypto";
-import { mkdtemp, rm, mkdir, writeFile, readFile } from "node:fs/promises";
+import { mkdtemp, rm, mkdir, writeFile, readFile, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { ConfigStore, defaults, validateConfig, atomicJson } from "./config.mjs";
-import { Jobs } from "./jobs.mjs";
-import { Sessions } from "./sessions.mjs";
+import { Jobs, harnessArgs, launchCommand } from "./jobs.mjs";
+import { Sessions, harnessSessionConfig, sessionRoleInstructions } from "./sessions.mjs";
 
 const step = (campaign) => ({
   command: "step",
@@ -158,6 +158,46 @@ test("a live dispatch is not mistaken for a queued restart leftover", async (t) 
   jobs.active.delete(id);
 });
 
+test("an unknown read-only inspection leaves waiting execution intact", { timeout: 5000 }, async (t) => {
+  const { store, jobs, processes, started } = await fixture(t);
+  Object.assign(store.config.execution, {
+    target: "ssh", sshHost: "example-workstation", remoteWorkspace: "/workspace",
+  });
+  const first = await jobs.start(step("first"));
+  await started(first.record.id);
+  const waiting = await jobs.start(step("waiting"));
+  const inspection = await jobs.start({
+    command: "status", values: { campaign: "first", campaignRoot: "runs" },
+  });
+  await started(inspection.record.id);
+  processes[1].child.finish(255);
+  assert.equal((await inspection.done).status, "unknown");
+  assert.equal(jobs.pending.get(waiting.record.id)?.record.status, "queued");
+  processes[0].child.finish(0);
+  await started(waiting.record.id);
+  processes[2].child.finish(0);
+  await Promise.all([first.done, waiting.done]);
+});
+
+test("an uncertain pause still cancels waiting execution", { timeout: 5000 }, async (t) => {
+  const { store, jobs, processes, started } = await fixture(t);
+  Object.assign(store.config.execution, {
+    target: "ssh", sshHost: "example-workstation", remoteWorkspace: "/workspace",
+  });
+  const first = await jobs.start(step("first"));
+  await started(first.record.id);
+  const waiting = await jobs.start(step("waiting"));
+  const pause = await jobs.start({
+    command: "pause", values: { campaign: "first", campaignRoot: "runs" },
+  });
+  await started(pause.record.id);
+  processes[1].child.finish(255);
+  assert.equal((await pause.done).status, "unknown");
+  assert.equal((await waiting.done).status, "cancelled");
+  processes[0].child.finish(0);
+  await first.done;
+});
+
 test("restart inspection does not replay persisted running or queued work", async (t) => {
   const { jobs, processes } = await fixture(t);
   for (const status of ["running", "queued"]) {
@@ -213,5 +253,53 @@ test("proposal children get distinct empty workspaces; task children retain shar
   assert.equal(createHash("sha256").update(await readFile(first.contextPath)).digest("hex"), first.contextSha256);
   const config = JSON.parse(await readFile(resolve(sessions.root(first.id), "config.json")));
   assert.notEqual(config.paths.output, store.config.paths.output);
+  const execution = harnessSessionConfig({ record: first, config });
+  for (const command of ["status", "explain", "replay"]) {
+    const args = harnessArgs(command, {
+      campaign: "parent-campaign", campaignRoot: ".dataevolver/campaigns",
+    });
+    assert.equal(launchCommand(execution, args).cwd, parent.workspace);
+  }
+  assert.equal(config.paths.workspace, first.workspace);
+  assert.equal(execution.execution, config.execution);
+  const taskConfig = JSON.parse(await readFile(resolve(sessions.root(task.id), "config.json")));
+  assert.equal(harnessSessionConfig({ record: task, config: taskConfig }), taskConfig);
+  assert.equal(harnessSessionConfig({ record: {}, config: taskConfig }), taskConfig);
   await assert.rejects(sessions.create({ parentId: first.id }), /cannot delegate again/);
+});
+
+test("capacity rejection creates no child directory or history", async (t) => {
+  const { store, jobs } = await fixture(t);
+  store.config.agents.main = store.config.agents.child = {
+    provider: "fixture", model: "fixture", thinking: "off",
+  };
+  store.config.orchestration.maxOpenChildren = 1;
+  class InertSessions extends Sessions {
+    async open() { return { state: "idle" }; }
+  }
+  const sessions = new InertSessions(store, () => {}, jobs);
+  const parent = await sessions.create();
+  await sessions.create({ parentId: parent.id });
+  const directory = resolve(store.root, "sessions");
+  const before = (await readdir(directory)).sort();
+  for (const mode of ["task", "proposal"])
+    await assert.rejects(sessions.create({ parentId: parent.id, mode }), /capacity reached/);
+  assert.deepEqual((await readdir(directory)).sort(), before);
+  assert.equal((await sessions.list()).length, 2);
+  assert.equal(sessions.childSlots.size, 1);
+  sessions.childSlots.clear();
+  sessions.open = async () => { throw new Error("fixture startup failure"); };
+  await assert.rejects(sessions.create({ parentId: parent.id }), /fixture startup failure/);
+  assert.equal(sessions.childSlots.size, 0);
+});
+
+test("delegation guidance is limited to main sessions", () => {
+  const config = defaults();
+  assert.match(sessionRoleInstructions({}, config), /delegate with mode=proposal/);
+  const child = sessionRoleInstructions({ parentId: "parent", mode: "task" }, config);
+  assert.match(child, /cannot delegate/);
+  assert.doesNotMatch(child, /delegate with mode=proposal/);
+  const proposal = sessionRoleInstructions({ parentId: "parent", mode: "proposal" }, config);
+  assert.match(proposal, /only Harness status\/explain\/replay/);
+  assert.doesNotMatch(proposal, /delegate with mode=proposal/);
 });

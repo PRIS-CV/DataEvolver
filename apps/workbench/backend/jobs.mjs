@@ -322,14 +322,15 @@ export class Jobs {
             ? "succeeded"
             : "failed";
       if (error) record.error = error.message;
-      let uncertain = record.status === "unknown";
+      const effectsPossible = item.queued || record.command === "pause";
+      let uncertain = effectsPossible && record.status === "unknown";
       if (uncertain) this.holds++;
       try {
         await atomicJson(resolve(root, "record.json"), record);
       } catch (failure) {
         record.status = "unknown";
         record.error = failure.message;
-        if (!uncertain) {
+        if (effectsPossible && !uncertain) {
           uncertain = true;
           this.holds++;
         }
@@ -338,7 +339,7 @@ export class Jobs {
       this.executing.delete(id);
       this.emit({ type: "job_finished", job: record });
       resolveDone(record);
-      if (uncertain || record.status === "unknown") {
+      if (uncertain) {
         // Unknown remote effects must not trigger the next queued execution.
         await Promise.allSettled([...this.pending.values()]
           .filter((pending) => pending.queued)

@@ -45,6 +45,10 @@ Omitting `mode`, or setting it to `task`, preserves ordinary delegation with the
 shared workspace and existing tool access. Use this mode for explicitly authorized
 work that requires the shared workspace.
 
+For local proposal sessions, relative Campaign inspection paths resolve against
+the source workspace. Candidate files belong in the proposal workspace. SSH
+inspections use the configured remote workspace.
+
 ## Evidence context
 
 `contextJobIds` selects at most 16 distinct jobs. The backend captures their
@@ -99,7 +103,7 @@ quotas, model API rate limits, or caps on direct CLI and native agent commands.
   also stops its children, as before. Native effects require separate inspection.
 - Shutdown cancels pending work. Restarted Workbench inspection reports retained
   queued jobs as `cancelled` and unowned running jobs as `unknown`. The Workbench replays neither automatically.
-- An unknown job effect cancels waiting jobs before automatic dispatch continues.
+- An unknown execution or pause effect cancels waiting execution jobs before automatic dispatch continues.
   Future submissions are explicit; inspect Campaign and native receipts first.
 - Ending an SSH transport does not prove that its remote process stopped.
 
