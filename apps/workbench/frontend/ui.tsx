@@ -150,6 +150,11 @@ export function harnessCommandMeta(
   t: Translate,
 ): { title: string; summary: string } {
   switch (command) {
+    case "plan":
+      return {
+        title: t("Inspect image pipeline", "图像流水线预检"),
+        summary: t("Inspect an existing image Goal without downloading data, inference or creating a Campaign.", "检查已有图像 Goal，不下载数据、不推理，也不创建 Campaign。"),
+      };
     case "compile-plan":
       return {
         title: t("Compile plan", "编译计划"),

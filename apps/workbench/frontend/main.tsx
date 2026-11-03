@@ -38,6 +38,7 @@ import {
   IconCpu,
   IconGlobe,
   IconHarness,
+  IconFolder,
   IconImage,
   IconKey,
   IconPlus,
@@ -56,29 +57,8 @@ import {
 } from "./ui";
 import "./style.css";
 
-async function api<T = unknown>(path: string, value?: unknown): Promise<T> {
-  const response = await fetch(
-    "/api/" + path,
-    value === undefined
-      ? {}
-      : {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(value),
-        },
-  );
-  if (response.status === 401)
-    throw new Error(
-      "Open the startup URL printed by apps/workbench/launch.sh / 请打开 apps/workbench/launch.sh 输出的登录链接",
-    );
-  const data = await response.json();
-  if (!response.ok)
-    throw new Error(
-      (data.error || response.statusText) +
-        (data.receipt ? ` · receipt: ${data.receipt}` : ""),
-    );
-  return data;
-}
+import { api } from "./api";
+import { DataWorkspace } from "./data-workspace";
 
 const THINKING_LEVELS = [
   "off",
@@ -1138,6 +1118,7 @@ function Settings({
 }
 
 const commandFields: Record<string, string[]> = {
+  plan: ["goal"],
   "compile-plan": ["plan", "profile", "evaluator", "output", "campaign"],
   "worker-compile": ["profile", "output", "campaign", "campaignRoot"],
   create: ["goal", "campaignRoot", "idempotencyKey"],
@@ -1486,6 +1467,7 @@ function App() {
     campaignRoot: ".dataevolver/campaigns",
   });
   const [job, setJob] = useState<Job>();
+  const [dryRun, setDryRun] = useState(false);
   const [imageKind, setImageKind] = useState("generation");
   const [imagePrompt, setImagePrompt] = useState("");
   const [imagePath, setImagePath] = useState("");
@@ -1684,6 +1666,15 @@ function App() {
             </button>
             <button
               type="button"
+              className={tab === "data" ? "nav-item active" : "nav-item"}
+              aria-current={tab === "data" ? "page" : undefined}
+              onClick={() => setTab("data")}
+            >
+              <IconFolder size={16} />
+              <span>{t("Data workspace", "数据工作区")}</span>
+            </button>
+            <button
+              type="button"
               className={tab === "settings" ? "nav-item active" : "nav-item"}
               aria-current={tab === "settings" ? "page" : undefined}
               onClick={() => setTab("settings")}
@@ -1807,6 +1798,9 @@ function App() {
             </div>
           ) : (
             <>
+              {tab === "data" && (
+                <DataWorkspace data={data} t={t} onSettings={openSettings} />
+              )}
               {tab === "settings" && (
                 <Settings
                   key={JSON.stringify(data.config)}
@@ -2185,7 +2179,7 @@ function App() {
                             );
                             const row = await api<Job>("harness", {
                               command,
-                              values: inputs,
+                              values: { ...inputs, ...(command === "create" ? { dryRun } : {}) },
                             });
                             setJob({ ...row, output: "" });
                             await load();
@@ -2228,6 +2222,20 @@ function App() {
                           ))}
                         </div>
 
+                        {command === "create" && (
+                          <SwitchField
+                            title={t(
+                              "Fixture Goal (--dry-run)",
+                              "Fixture Goal（--dry-run）",
+                            )}
+                            description={t(
+                              "Enable for fixture image Goals; server Goals must omit this flag.",
+                              "fixture 图像 Goal 启用；server Goal 应关闭。",
+                            )}
+                            checked={dryRun}
+                            onChange={setDryRun}
+                          />
+                        )}
                         {command === "resume" && (
                           <div className="warning-callout" role="note">
                             {t(

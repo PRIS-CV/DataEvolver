@@ -7,6 +7,7 @@ import { spawn } from "node:child_process";
 import { ConfigStore, appRoot, repoRoot, check } from "./config.mjs";
 import { Sessions, harnessSessionConfig } from "./sessions.mjs";
 import { Jobs } from "./jobs.mjs";
+import { readDataPackage } from "./data.mjs";
 import { artifactPath, imageRequest } from "./images.mjs";
 
 const port = Number(process.env.DATAEVOLVER_WORKBENCH_PORT || 3080);
@@ -231,6 +232,8 @@ const server = createServer(async (req, res) => {
       return send(200, await sessions.details(session[1]));
     if (session && req.method === "POST" && session[2])
       return send(200, await sessions.command(session[1], await body(req)));
+    if (req.method === "POST" && path === "/api/data/read")
+      return send(200, await readDataPackage(store.config, await body(req)));
     if (req.method === "POST" && path === "/api/harness") {
       const job = await jobs.start(await body(req));
       return send(202, job.record);
