@@ -59,6 +59,11 @@ Agent 可以提出不同的数据工作流，执行过程仍复用同一套状�
 
 这些是实现入口。所选主机与配置的部署可用性、输出质量需要分别验证。
 
+图像收集与多主体布局清洗输出 `SourceBundle.v1` 和可独立读取的
+`curated_images.v2`。详见[中文说明](docs/IMAGE_DATA_PIPELINES_zh.md)与
+[服务器交接](docs/IMAGE_DATA_SERVER_HANDOFF.md)。当前已验证离线 fixtures；
+真实采集与模型校准留待服务器。
+
 Controller 统一管理状态、调度、预算与恢复，模型和原生工具通过明确的契约接入。
 配置方式与现有约束见[部署及适配器限制](docs/zh-CN/deployment.md#本地配置与适配器限制)。
 

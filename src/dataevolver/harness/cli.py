@@ -35,6 +35,9 @@ def parse_args(argv=None):
 
     add_commands(commands)
 
+    plan = commands.add_parser("plan", help="inspect an image pipeline without network or inference")
+    plan.add_argument("--goal", required=True)
+
     models = commands.add_parser(
         "models", help="inspect explicit local model profiles without inference"
     )
@@ -77,6 +80,10 @@ def _print(payload) -> None:
 def main(argv=None) -> int:
     args = parse_args(argv)
     try:
+        if args.command == "plan":
+            from .image_pipeline import offline_plan
+            _print(offline_plan(_load_goal(Path(args.goal))))
+            return 0
         if args.command in {
             "compile-plan",
             "operator-sdk",

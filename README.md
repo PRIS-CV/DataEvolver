@@ -64,6 +64,11 @@ execution state machine.
 These are implementation entry points. Deployment readiness and output quality
 must be established for the selected host and configuration.
 
+Image collection and multi-subject layout curation provide `SourceBundle.v1` and
+portable `curated_images.v2` outputs. See the [pipeline guide](docs/IMAGE_DATA_PIPELINES.md)
+and [server handoff](docs/IMAGE_DATA_SERVER_HANDOFF.md). The route is verified with
+offline fixtures; real acquisition and model calibration remain server work.
+
 The Controller owns state, scheduling, budgets and recovery. Models and native
 tools connect through explicit contracts. See
 [deployment and adapter limits](docs/en/deployment.md#local-configuration-and-adapter-limits).

@@ -32,6 +32,14 @@ def load_goal(path: Path) -> GoalSpec:
 
 def validate_creation_mode(goal: GoalSpec, *, dry_run: bool) -> None:
     """Check route permissions before constructing or opening a campaign."""
+    from .image_pipeline import is_image_pipeline
+    if is_image_pipeline(goal):
+        mode = goal.initial_operator_parameters["intent"]["parameters"].get("execution_mode")
+        if mode not in {"fixture", "server"} or dry_run != (mode == "fixture"):
+            raise ValueError("image fixture requires --dry-run; server execution must omit it")
+        if goal.objective.get("real_data_execution") is not (mode == "server"):
+            raise ValueError("image execution mode differs from real_data_execution authority")
+        return
     if goal.initial_operator_id == "data.catalog_trial" or goal.objective.get(
         "host_workload"
     ):
@@ -79,6 +87,22 @@ def _evaluator_path(goal: GoalSpec) -> Path:
 def build_registry(goal: GoalSpec, campaign_root: Path) -> OperatorRegistry:
     """Bind the GoalSpec's explicit route and its permitted operators."""
     registry = OperatorRegistry()
+    from .image_pipeline import is_image_pipeline
+    if is_image_pipeline(goal):
+        from .adapters.image_pipeline import ImageCollectionOperator, ImageLayoutOperator
+        mode = goal.initial_operator_parameters["intent"]["parameters"].get("execution_mode")
+        if (mode not in {"fixture", "server"} or goal.interventions
+                or goal.planner.get("kind", "deterministic") != "deterministic"
+                or goal.resource_policy.get("allow_gpu") is not False
+                or goal.resource_policy.get("allow_network") is not (mode == "server")
+                or goal.objective.get("real_data_execution") is not (mode == "server")
+                or goal.budgets.max_operator_calls != 1 or goal.budgets.max_rounds != 1
+                or goal.budgets.max_experiments != 0 or goal.budgets.max_retries != 0):
+            raise ValueError("image pipeline requires a bounded campaign with explicit fixture/server authority")
+        operator = ImageCollectionOperator if goal.initial_operator_id == "data.image_collection" else ImageLayoutOperator
+        registry.register(operator(allowed_write_root=campaign_root / goal.campaign_id,
+                                   contract=goal.initial_operator_parameters))
+        return registry
     if goal.objective.get("host_workload"):
         from .runtime_references import host_workload
 
@@ -416,6 +440,18 @@ def build_controller(
     schema_paths = tuple(sorted(CONFIGS_ROOT.glob("schemas/harness_*.schema.json")))
     execution_paths = list(sorted(Path(__file__).resolve().parent.rglob("*.py")))
     execution_paths.append(REPO_ROOT / "src/dataevolver/dataset/contracts.py")
+    from .image_pipeline import is_image_pipeline
+    if is_image_pipeline(goal):
+        execution_paths.extend(REPO_ROOT / path for path in (
+            "src/dataevolver/dataset/collection.py",
+            "src/dataevolver/dataset/collection_spec.py",
+            "src/dataevolver/dataset/image_records.py",
+            "src/dataevolver/dataset/layout_quality.py",
+            "src/dataevolver/dataset/curation_layout.py",
+            "src/dataevolver/dataset/layout_loader.py",
+            "src/dataevolver/adapters/model_contracts.py",
+            "src/dataevolver/adapters/model_gateway.py",
+        ))
     if (
         goal.initial_operator_id
         in {

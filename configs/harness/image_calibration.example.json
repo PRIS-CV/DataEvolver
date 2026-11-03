@@ -1,0 +1,13 @@
+{
+  "schema_version": "dataevolver.layout_calibration.v1",
+  "authority": "independent_human",
+  "evidence_level": "independent_reference",
+  "passed": false,
+  "reviewer": {"model": "__SET_REVIEWER_SERVED_MODEL_ID__", "revision": "__SET_PINNED_REVIEWER_REVISION__"},
+  "rubric_hash": "__SET_RUBRIC_HASH_FROM_OFFLINE_PLAN__",
+  "profile_hash": "__SET_RESOLVED_PROFILE_HASH__",
+  "thresholds": {},
+  "gold_evidence": [],
+  "development_ids": [],
+  "held_out_ids": []
+}

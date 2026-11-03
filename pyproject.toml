@@ -13,6 +13,7 @@ license = { file = "LICENSE" }
 [project.optional-dependencies]
 harness = ["jsonschema>=4", "pillow>=10"]
 curation = ["jsonschema>=4", "pillow>=10", "pyarrow>=14"]
+image-data = ["jsonschema>=4", "pillow>=10", "pyarrow>=14,<18", "huggingface-hub>=1.33,<2"]
 surface = ["jsonschema>=4", "numpy>=1.24", "pillow>=10", "scipy>=1.14"]
 vision = ["transformers>=5.17,<6", "safetensors>=0.4", "pillow>=10"]
 image = ["torch>=2.4", "transformers>=5.17,<6", "accelerate", "safetensors>=0.4", "pillow>=10", "diffusers @ git+https://github.com/huggingface/diffusers.git"]
