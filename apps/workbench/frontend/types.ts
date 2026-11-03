@@ -61,7 +61,7 @@ export type Job = {
   createdAt: string;
   output?: string;
   truncated?: boolean;
-  values: Record<string, string | number>;
+  values: Record<string, string | number | boolean>;
 };
 export type Message = {
   role: string;

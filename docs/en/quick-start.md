@@ -139,3 +139,7 @@ Runtime acceptance needs the intended host and authorized workloads. The
 [verification skill](../../.agents/skills/verify-dataevolver/SKILL.md) describes the
 scenarios; their current execution status is [documented in the development guide](development.md#migration-and-verification).
 No historical test count qualifies the current integration.
+
+## Data collection and curation
+
+Open **Data workspace** for Goal preflight, Campaign control, and read-only exported sample review. See the [Data workspace guide](data-workspace.md) for host configuration and limits.

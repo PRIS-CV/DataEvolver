@@ -2802,6 +2802,42 @@ legend {
   }
 }
 
+@keyframes feature-icon-nudge {
+  0%,
+  100% {
+    transform: none;
+  }
+  35% {
+    transform: translateY(-2px) rotate(-10deg) scale(1.08);
+  }
+  70% {
+    transform: translateY(0) rotate(6deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nav-item > svg,
+  .new-session > svg,
+  .bento-card h2 > svg {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .nav-item:focus-visible > svg,
+  .new-session:focus-visible > svg,
+  .bento-card:focus-within h2 > svg {
+    animation: feature-icon-nudge 420ms ease-out;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .nav-item:hover:not(:disabled) > svg,
+    .new-session:hover:not(:disabled) > svg,
+    .bento-card:hover h2 > svg {
+      animation: feature-icon-nudge 420ms ease-out;
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

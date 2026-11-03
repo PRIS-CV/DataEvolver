@@ -33,10 +33,11 @@ export default function (pi: ExtensionAPI) {
     name: "dataevolver_harness",
     label: "DataEvolver Harness",
     description:
-      "Compile or control an existing DataEvolver Campaign on the configured local/SSH host. Values are explicit CLI fields, not shell text. compile-plan requires plan/profile/evaluator/output/campaign; worker-compile requires profile/output/campaign/campaignRoot; create requires goal/campaignRoot/idempotencyKey; step requires campaign/campaignRoot/maxActions (1..100); inspection/pause/resume require campaign/campaignRoot. resume executes work when dispatched. Mutating commands wait in a bounded Workbench queue; status/explain/replay/pause bypass it. Session abort/stop cancels waiting jobs, not running effects. The returned job receipt includes exit status and logs; unknown effects require inspection, not automatic resend.",
+      "Compile or control an existing DataEvolver Campaign on the configured local/SSH host. Values are explicit CLI fields, not shell text. plan requires goal and inspects an image pipeline offline; compile-plan requires plan/profile/evaluator/output/campaign; worker-compile requires profile/output/campaign/campaignRoot; create requires goal/campaignRoot/idempotencyKey and accepts optional boolean dryRun (true only for fixture image Goals, false/omitted for server Goals); step requires campaign/campaignRoot/maxActions (1..100); inspection/pause/resume require campaign/campaignRoot. resume executes work when dispatched. Mutating commands wait in a bounded Workbench queue; plan/status/explain/replay/pause bypass it. Session abort/stop cancels waiting jobs, not running effects. The returned job receipt includes exit status and logs; unknown effects require inspection, not automatic resend.",
     parameters: Type.Object({
       command: Type.Union(
         [
+          "plan",
           "compile-plan",
           "worker-compile",
           "create",
@@ -50,7 +51,7 @@ export default function (pi: ExtensionAPI) {
       ),
       values: Type.Record(
         Type.String(),
-        Type.Union([Type.String(), Type.Number()]),
+        Type.Union([Type.String(), Type.Number(), Type.Boolean()]),
       ),
     }),
     async execute(_id, params, signal) {

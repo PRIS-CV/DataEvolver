@@ -110,9 +110,10 @@ Harness 页面提供相同命令：
 
 | 命令 | 必需参数 |
 |---|---|
+| `plan` | `goal`（已有图像流水线 Goal） |
 | `compile-plan` | `plan`、`profile`、`evaluator`、`output`、`campaign` |
 | `worker-compile` | `profile`、`output`、`campaign`、`campaignRoot` |
-| `create` | `goal`、`campaignRoot`、`idempotencyKey` |
+| `create` | `goal`、`campaignRoot`、`idempotencyKey`；可选布尔值 `dryRun` |
 | `step` | `campaign`、`campaignRoot`、`maxActions`（1–100） |
 | `status`、`explain`、`replay`、`pause`、`resume` | `campaign`、`campaignRoot` |
 
@@ -182,3 +183,7 @@ DataEvolver 保留独立界面，不引入 DSH 的 Cordis 插件运行时。
 但没有执行启动器。本轮没有执行完整安装流程、网页交互、Agent 调用、SSH 任务、
 原生渲染、测试或 CI。随代码附带的契约测试留待后续授权时运行；
 源码与类型检查不能替代运行验收。
+
+## 图像数据收集与清洗
+
+打开**数据工作区**，可预检 Goal、控制 Campaign，并只读查看导出样本。主机配置与限制见[数据工作区指南](data-workspace.md)。

@@ -12,6 +12,7 @@ import {
 } from "./config.mjs";
 
 const fields = {
+  plan: ["goal"],
   "compile-plan": ["plan", "profile", "evaluator", "output", "campaign"],
   "worker-compile": ["profile", "output", "campaign", "campaignRoot"],
   create: ["goal", "campaignRoot", "idempotencyKey"],
@@ -24,8 +25,9 @@ const fields = {
 };
 export function harnessArgs(command, values = {}) {
   check(Object.hasOwn(fields, command), "Unsupported Harness command");
+  const allowed = command === "create" ? [...fields[command], "dryRun"] : fields[command];
   check(
-    Object.keys(values).every((key) => fields[command].includes(key)),
+    Object.keys(values).every((key) => allowed.includes(key)),
     "Unknown Harness argument",
   );
   const args = ["-m", "dataevolver", command];
@@ -48,6 +50,10 @@ export function harnessArgs(command, values = {}) {
       "--" + key.replace(/[A-Z]/g, (letter) => "-" + letter.toLowerCase()),
       String(value),
     );
+  }
+  if (command === "create" && values.dryRun !== undefined) {
+    check(typeof values.dryRun === "boolean", "dryRun must be boolean");
+    if (values.dryRun) args.push("--dry-run");
   }
   return args;
 }
@@ -125,7 +131,7 @@ async function logTail(path, limit) {
     await file.close();
   }
 }
-const inspectionCommands = new Set(["status", "explain", "replay", "pause"]);
+const inspectionCommands = new Set(["plan", "status", "explain", "replay", "pause"]);
 
 export class Jobs {
   constructor(store, emit, spawnProcess = spawn) {
