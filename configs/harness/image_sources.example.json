@@ -1,0 +1,55 @@
+{
+  "schema_version": "dataevolver.collection_spec.v1",
+  "collection_id": "layout-pilot",
+  "mode": "server",
+  "hf_endpoint": "https://hf-mirror.com",
+  "concurrency": 4,
+  "max_attempts": 3,
+  "max_download_bytes": 20000000000,
+  "max_candidates": 5000,
+  "batch_size": 128,
+  "exclude_coco_ids": [],
+  "sources": [
+    {
+      "source_id": "coco_2017",
+      "repo_id": "srishti-kaushik/COCO-2017",
+      "revision": "3e3628d52b78d7e18860087b297efeb282b5a6a1",
+      "adapter": "coco",
+      "quota": 2500,
+      "tables": {
+        "image_info": [{"path": "__SET_IMAGE_METADATA_FILE__"}],
+        "instances": [{"path": "__SET_INSTANCES_FILE__"}],
+        "captions": [{"path": "__SET_CAPTIONS_FILE__"}],
+        "categories": [{"path": "__SET_CATEGORIES_FILE__"}],
+        "licenses": [{"path": "__SET_IMAGE_LICENSES_FILE__"}]
+      },
+      "image_files": [],
+      "dataset_license": null,
+      "dataset_evidence": [],
+      "origin_type": "real_image",
+      "origin_evidence": [],
+      "allowed_hosts": ["images.cocodataset.org"],
+      "field_mapping": {}
+    },
+    {
+      "source_id": "visual_genome",
+      "repo_id": "ranjaykrishna/visual_genome",
+      "revision": "65bc9e7e7353fff750326c9523e384701934e530",
+      "adapter": "visual_genome",
+      "quota": 2500,
+      "tables": {
+        "image_info": [{"url": "https://data.visualgenome.org/__SET_IMAGE_METADATA_URL__"}],
+        "objects": [{"url": "https://data.visualgenome.org/__SET_OBJECTS_URL__"}],
+        "attributes": [{"url": "https://data.visualgenome.org/__SET_ATTRIBUTES_URL__"}],
+        "relationships": [{"url": "https://data.visualgenome.org/__SET_RELATIONSHIPS_URL__"}]
+      },
+      "image_files": [],
+      "dataset_license": null,
+      "dataset_evidence": [],
+      "origin_type": "real_image",
+      "origin_evidence": [],
+      "allowed_hosts": ["data.visualgenome.org", "cs.stanford.edu"],
+      "field_mapping": {}
+    }
+  ]
+}

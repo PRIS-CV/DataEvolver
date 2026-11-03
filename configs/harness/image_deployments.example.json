@@ -1,0 +1,20 @@
+{
+  "schema_version": "dataevolver.model_deployments.v1",
+  "host_role": "server",
+  "profiles": {
+    "layout_annotator": {
+      "model": "__SET_ANNOTATOR_SERVED_MODEL_ID__",
+      "revision": "__SET_PINNED_ANNOTATOR_REVISION__",
+      "deployment_id": "__SET_SERVER_DEPLOYMENT_ID__",
+      "model_family": "__SET_ANNOTATOR_MODEL_FAMILY__",
+      "endpoint_origin": "http://127.0.0.1:8001"
+    },
+    "layout_reviewer": {
+      "model": "__SET_REVIEWER_SERVED_MODEL_ID__",
+      "revision": "__SET_PINNED_REVIEWER_REVISION__",
+      "deployment_id": "__SET_SERVER_DEPLOYMENT_ID__",
+      "model_family": "__SET_REVIEWER_MODEL_FAMILY__",
+      "endpoint_origin": "http://127.0.0.1:8002"
+    }
+  }
+}

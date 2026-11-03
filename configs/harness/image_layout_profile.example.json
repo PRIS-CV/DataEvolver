@@ -1,0 +1,13 @@
+{
+  "base_profile": "generic_image_v1",
+  "task_profile": "multi_subject_layout_v1",
+  "execution_mode": "server",
+  "overrides": {},
+  "allowed_image_licenses": [],
+  "allowed_dataset_licenses": [],
+  "category_mapping": {},
+  "excluded_coco_ids": [],
+  "calibration": null,
+  "protected_evidence": null,
+  "deployments": null
+}

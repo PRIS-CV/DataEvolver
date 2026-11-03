@@ -11,6 +11,9 @@ def load_export(root: str | Path, *, decode_roles: set[str] | None = None) -> li
     from PIL import Image
     root = Path(root).resolve()
     metadata = json.loads((root / "dataset.json").read_text())
+    if metadata.get("schema_version") == "dataevolver.curated_images.v2":
+        from .layout_loader import load_layout_export
+        return load_layout_export(root)
     if metadata.get("schema_version") != "dataevolver.curated_images.v1":
         raise ValueError("unsupported exported image dataset")
     if metadata.get("governance") != "technical_candidate_pending_independent_review":

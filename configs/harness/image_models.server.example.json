@@ -1,0 +1,30 @@
+{
+  "profiles": [
+    {
+      "schema_version": "dataevolver.model_profile.v1",
+      "profile_id": "layout_annotator",
+      "backend": "local_endpoint",
+      "model": "__SET_ANNOTATOR_SERVED_MODEL_ID__",
+      "revision": "__SET_PINNED_ANNOTATOR_REVISION__",
+      "capabilities": ["json", "vision"],
+      "endpoint_env": "IMAGE_ANNOTATOR_BASE_URL"
+    },
+    {
+      "schema_version": "dataevolver.model_profile.v1",
+      "profile_id": "layout_reviewer",
+      "backend": "local_endpoint",
+      "model": "__SET_REVIEWER_SERVED_MODEL_ID__",
+      "revision": "__SET_PINNED_REVIEWER_REVISION__",
+      "capabilities": ["json", "vision"],
+      "endpoint_env": "IMAGE_REVIEWER_BASE_URL"
+    }
+  ],
+  "policy": {
+    "schema_version": "dataevolver.model_policy.v1",
+    "bindings": {"annotator": "layout_annotator", "reviewer": "layout_reviewer"},
+    "max_calls": 15000,
+    "allowed_local_origins": ["http://127.0.0.1:8001", "http://127.0.0.1:8002"],
+    "external_api_enabled": false
+  },
+  "workers": {}
+}

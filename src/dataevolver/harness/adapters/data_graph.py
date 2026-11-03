@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+import inspect
 import tempfile
 import os
 from dataclasses import replace
@@ -48,6 +49,7 @@ class NodeContext:
         binding = payload_sha256([parent.campaign_id, parent.call_id, graph.contract_hash])[:24]
         self.prefix = f"catalog/{binding}/{node.node_id}"
         self.writes, self.model_requests = {}, []
+        self.model_images = 0
 
     def check(self):
         self.budget.check()
@@ -91,13 +93,14 @@ class NodeContext:
         self.check()
         if self.node.kind != "model" or len(self.model_requests) >= self.node.max_model_calls:
             raise ValueError("node exceeded its declared model authority")
-        if len(request.artifacts) > self.node.max_model_images:
+        if self.model_images + len(request.artifacts) > self.node.max_model_images:
             raise ValueError("node exceeded its declared image budget")
         if request.role != self.node.role or request.max_attempts != 1:
             raise ValueError("node model role/retry policy changed")
         if request.timeout_seconds > self.budget.remaining_seconds():
             raise ValueError("model timeout exceeds remaining run budget")
         receipt = self.graph.gateway(self.parent).invoke(request)
+        self.model_images += len(request.artifacts)
         self.model_requests.append({"request": request.to_dict(), "receipt_hash": receipt.without_reuse_hash()})
         self.check()
         return receipt
@@ -177,6 +180,10 @@ class DataStepOperator:
 
 
 class DataGraphOperator:
+    operator_id = OPERATOR_ID
+    version = "2"
+    allowed_model_backends = frozenset({"mock", "local_python"})
+
     def __init__(self, *, allowed_write_root, contract, roots=None, registry=None, providers=None,source_gateways=None):
         expected = {"intent", "quality_policy", "graph", "budget", "stores", "dataset_store", "models"}
         if set(contract) != expected:
@@ -247,7 +254,7 @@ class DataGraphOperator:
                 if value.artifact and canonical_json(value.artifact.to_dict()) not in approved_sources:
                     raise ValueError("graph input is outside the DatasetIntent source scope")
         for profile in self.profiles:
-            if not generic and profile.backend not in {"mock", "local_python"}:
+            if not generic and profile.backend not in self.allowed_model_backends:
                 raise ValueError("Image curation route requires offline mock or local CPU workers")
             if profile.backend == "local_python" and profile.profile_id not in self.providers:
                 worker = self.workers.get(profile.profile_id, {})
@@ -266,8 +273,8 @@ class DataGraphOperator:
                     validate_worker_config(worker)
         # Bind injected locations without placing private absolute paths in contracts.
         self.contract_hash = payload_sha256({"contract": self.contract, "stores": {k: str(p) for k, p in self.store.roots.items()}})
-        source = Path(__file__).resolve()
-        self.spec = OperatorSpec(operator_id=OPERATOR_ID, version="2", retry_safe=True,
+        source = Path(inspect.getsourcefile(type(self))).resolve()
+        self.spec = OperatorSpec(operator_id=self.operator_id, version=self.version, retry_safe=True,
                                  expected_output_specs=(ExpectedOutputSpec("effect.json"),),
                                  model_config_hash=self.contract_hash, code_revision=file_sha256(source), source_path=str(source),
                                  allowed_write_roots=(str(self.root), str(self.dataset_root)))
@@ -288,6 +295,9 @@ class DataGraphOperator:
                 raise ValueError('source gateway needs a disjoint original model role')
             binding[role]={'contract_hash':gateway.contract_hash(),'receipt_root':str(gateway.root.resolve())}
         return binding
+
+    def evidence_level(self):
+        return "mock_verified" if any(p.backend == "mock" for p in self.profiles) else "real_execution_verified"
 
     def _check_source_gateways(self):
         if self._source_gateway_binding()!=self._source_binding:
@@ -517,7 +527,7 @@ class DataGraphOperator:
         atomic_write_json(Path(call.work_dir) / "effect.json", {"contract_hash": self.contract_hash,
                           "artifacts": artifacts, "budget": budget.summary(),
                           "model_usage": self.model_usage(call),
-                          "evidence_level": "mock_verified" if any(p.backend == "mock" for p in self.profiles) else "real_execution_verified"})
+                          "evidence_level": self.evidence_level()})
         return _write_receipt(_receipt_path(call), self._receipt(call, False))
 
     def recover(self, call):

@@ -1,0 +1,12 @@
+{
+  "schema_version": "dataevolver.image_source_registry.v1",
+  "initial": ["srishti-kaushik/COCO-2017", "ranjaykrishna/visual_genome"],
+  "future": [
+    {"name": "COYO", "status": "registered_for_future_source_review", "repo_id": null},
+    {"name": "DataComp", "status": "registered_for_future_source_review", "repo_id": null},
+    {"name": "PixelProse", "status": "registered_for_future_source_review", "repo_id": null},
+    {"name": "BLIP-3o", "status": "registered_for_future_source_review", "repo_id": null}
+  ],
+  "future_providers": ["ModelScope"],
+  "license_scope": "Dataset declarations and individual image terms require separate evidence."
+}
