@@ -141,7 +141,7 @@ The launcher and UI live in `apps/workbench/`; the core lives in `src/dataevolve
 |---|---|---|
 | Configure agents and chat in a browser | [Private Workbench](docs/en/workbench.md) | Optional app and launcher in `apps/workbench/`; agent profiles, image APIs, native tools and OpenSSH. |
 | Inspect collection/curation Goals and review exported samples | [Data workspace](docs/en/data-workspace.md) | Existing image pipelines and Campaign controls; read-only local/SSH package viewer. |
-| Explore and review candidate workflows | [Candidate orchestration](docs/en/orchestration.md) | Separate proposal workspaces, bounded execution context and configurable dispatch queues. |
+| Explore and review candidate workflows | [Candidate orchestration](docs/en/orchestration.md) | Separate proposals, fresh-context evidence review, configurable worker models and bounded dispatch. |
 | Use DataEvolver from DeepSeek Harness | [DSH plugin](plugins/dsh/README.md) | Native tool bundle, private configuration and existing campaign commands. |
 | Set up the source checkout | [Quick start](docs/en/quick-start.md) | Browser launch, first-run configuration and standalone CLI installation. |
 | Configure a deployment | [Models, tools and deployment](docs/en/deployment.md) | Profiles, providers, native workers, local settings and website setup. |

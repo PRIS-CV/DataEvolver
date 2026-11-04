@@ -72,6 +72,8 @@ Main and child agents have independent provider/model/thinking settings. Model
 switching within a session uses Pi's `set_model` and `set_thinking_level` between
 runs. Additions to providers require a new session because each session retains
 its configuration snapshot. Existing frozen Harness goals remain unchanged.
+Delegation can select an optional registered `profile` per child. `mode=review`
+starts a fresh-context evidence review; see [Candidate orchestration](orchestration.md).
 
 Enter credentials in the private credentials card, stage them by environment
 name, then save. The form reports only configured names. It never returns a

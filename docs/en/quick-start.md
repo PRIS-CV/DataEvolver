@@ -73,6 +73,8 @@ the local workbench.
 Set queue and child-process limits in **Settings → Agent runtime → Candidate
 orchestration**. Ask the main agent to use `mode=proposal` for candidate authoring.
 See [Candidate orchestration](orchestration.md) for evidence context and recovery.
+For a separate review, use `mode=review` with the original question and raw
+evidence references. An optional `profile` selects a registered worker model.
 
 Use **Harness** for plan compilation and Campaign commands.
 

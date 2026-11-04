@@ -49,6 +49,53 @@ For local proposal sessions, relative Campaign inspection paths resolve against
 the source workspace. Candidate files belong in the proposal workspace. SSH
 inspections use the configured remote workspace.
 
+## Review original evidence in a fresh context
+
+Use `mode=review` to commission a separate source/evidence review. Supply the
+original question and source or artifact references in `task`. Select raw job
+receipts with `contextJobIds`; an empty list permits source-only review.
+Do not copy the author's verdict or conversation into the review request.
+
+```json
+{
+  "name": "Review the proposed data recipe",
+  "mode": "review",
+  "task": "Original question: does this recipe preserve the declared image constraints? Inspect the candidate file at the supplied path and the selected raw receipts. Report findings, evidence locations, checks performed and limitations. Do not execute it.",
+  "contextJobIds": ["previous-job-id"],
+  "profile": {
+    "provider": "registered-provider",
+    "model": "registered-review-model",
+    "thinking": "high"
+  }
+}
+```
+
+Replace the IDs and supply the actual candidate path. `profile` is optional for
+all child modes. When supplied, it must contain exactly `provider`, `model` and
+`thinking`; the provider/model must exist in the main session's saved catalog.
+It cannot add an endpoint, credential or model to that catalog. If omitted, the
+configured child profile applies. Provider additions require a new main session.
+
+The backend freezes the redacted question, source workspace and selected job
+observations in `context.json` under `dataevolver.review_context.v1`. The combined
+UTF-8 JSON must fit `maxContextBytes`; the backend rejects an oversized question
+before creating a session. The saved file receives the same digest check as proposal
+context. The initial prompt points to this file instead of repeating the question.
+The backend cannot determine whether the caller supplied the true original
+question, or whether the supplied text contains an author's conclusion.
+
+The reviewer gets its own empty local workspace and Pi history, without parent
+or sibling messages. Its bridge permits only `status`, `explain` and `replay`;
+relative Campaign paths still use the source workspace. The bridge denies image
+calls, execution, delegation and child control. Native tools retain
+host permissions, and referenced source/artifact files remain live inputs rather
+than immutable copies. Record the revision or digests actually inspected.
+
+Inspect the review with `dataevolver_child`, then stop it to release its slot.
+A review opinion does not certify independent reproduction, automatically accept
+a candidate, or write `PROMOTED` knowledge. Existing task/proposal sessions and
+configuration files need no migration. The UI labels review sessions separately.
+
 ## Evidence context
 
 `contextJobIds` selects at most 16 distinct jobs. The backend captures their
@@ -121,3 +168,8 @@ traceable feedback. These mechanisms do not prove better candidate quality or
 training results. Evaluator co-evolution and benchmark-probe development are
 outside this change. Review is static only. We did not run the accompanying
 contract tests; runtime behavior and performance remain unvalidated.
+
+[Hyra 2.0](https://hunyuan.tencent.com/research/hyra2) adds a useful emphasis on
+reusable tools, original-evidence review, and separate project state, working
+context and reusable knowledge. See the [design mapping](hyra2-design.md) for
+what this base adopts, what already exists, and what remains outside its scope.

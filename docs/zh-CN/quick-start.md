@@ -66,6 +66,8 @@ Agent 扩展、构建前端并启动本地工作台。
 在 **设置 → Agent 运行时 → 候选方案编排** 中配置队列和子进程限额。
 编写候选时，可要求主 Agent 使用 `mode=proposal`。
 执行上下文与恢复说明见[候选方案编排](orchestration.md)。
+独立复核使用 `mode=review`，传入原始问题与原始证据引用。
+可选 `profile` 从已注册模型中选择本次 Worker。
 
 计划编译和 Campaign 命令可在 **Harness** 页面提交。
 
