@@ -102,11 +102,16 @@ export default function (pi: ExtensionAPI) {
     name: "dataevolver_delegate",
     label: "Delegate child task",
     description:
-      "Delegate using the configured child provider/model. mode=proposal authors candidates in a fresh local workspace with a bounded snapshot of explicit contextJobIds; its bridge permits only Harness status/explain/replay. This is not an OS sandbox. Default mode=task preserves the shared workspace and tool access. Returns a child id; inspect/wait/stop with dataevolver_child. Stop completed children to release capacity. Only main sessions may delegate. Context logs are observations, not verified knowledge.",
+      "Delegate using the configured child provider/model, or an explicit profile registered in this main session's config snapshot. mode=proposal authors candidates in a fresh local workspace. mode=review starts a fresh-context review: task must contain the original question and raw source/evidence references, not the author's conclusion; it is frozen in the bounded context with explicit contextJobIds. Review does not inherit parent/sibling conversation. Both modes permit only Harness status/explain/replay through the bridge and are not OS sandboxes. Default mode=task preserves shared workspace/tool access. Inspect/wait/stop with dataevolver_child; stop completed children to release capacity. Only main sessions may delegate. Logs and review opinions do not establish independent reproduction or PROMOTED knowledge.",
     parameters: Type.Object({
       name: Type.String(), task: Type.String(),
-      mode: Type.Optional(Type.Union([Type.Literal("task"), Type.Literal("proposal")])),
+      mode: Type.Optional(Type.Union([Type.Literal("task"), Type.Literal("proposal"), Type.Literal("review")])),
       contextJobIds: Type.Optional(Type.Array(Type.String(), { maxItems: 16 })),
+      profile: Type.Optional(Type.Object({
+        provider: Type.String(),
+        model: Type.String(),
+        thinking: Type.Union(["off", "minimal", "low", "medium", "high", "xhigh", "max"].map((value) => Type.Literal(value))),
+      }, { additionalProperties: false })),
     }),
     async execute(_id, params, signal) {
       return result(await call("delegate", params, signal));

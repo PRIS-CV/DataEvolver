@@ -1838,7 +1838,9 @@ function App() {
                               t("What will you build?", "这次构建什么？")}
                           </h1>
                           <span className="section-label">
-                            {currentSession?.mode === "proposal"
+                            {currentSession?.mode === "review"
+                              ? t("Evidence-first review", "先核对证据的复核")
+                              : currentSession?.mode === "proposal"
                               ? t("Isolated proposal", "独立工作区提案")
                               : currentSession?.parentId
                               ? t("Child session", "派生子会话")

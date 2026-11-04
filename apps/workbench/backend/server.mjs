@@ -93,9 +93,9 @@ async function inspect() {
 async function internal(id, input) {
   const runtime = sessions.running.get(id);
   check(runtime, "Session is not active");
-  if (runtime.record.mode === "proposal")
+  if (["proposal", "review"].includes(runtime.record.mode))
     check(input.op === "harness" && ["status", "explain", "replay"].includes(input.data?.command),
-      "Proposal sessions author candidates; only Harness status/explain/replay are allowed through the bridge");
+      "Proposal and review sessions permit only Harness status/explain/replay through the bridge");
   if (input.op === "harness") {
     const job = await jobs.start(input.data, id, harnessSessionConfig(runtime));
     await job.done;
@@ -115,6 +115,7 @@ async function internal(id, input) {
       task: input.data.task,
       mode: input.data.mode,
       contextJobIds: input.data.contextJobIds,
+      profile: input.data.profile,
     });
   }
   if (input.op === "child") {
