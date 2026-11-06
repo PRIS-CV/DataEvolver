@@ -47,7 +47,7 @@ export type Session = {
   createdAt: string;
   profile: Agent;
   state: string;
-  mode?: "task" | "proposal";
+  mode?: "task" | "proposal" | "review";
   workspace?: string;
   sourceWorkspace?: string;
   contextPath?: string | null;

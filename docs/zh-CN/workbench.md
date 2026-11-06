@@ -62,6 +62,8 @@ Completions、OpenAI Responses、Anthropic Messages 和 Google Generative AI。
 主 Agent 与子 Agent 分别选择 Provider、模型和 thinking。会话内的模型切换在轮次之间
 调用 Pi 的 `set_model` 和 `set_thinking_level`。新增 Provider 后需要创建新会话，
 因为每个会话保留配置快照。已有 Harness 的冻结目标不随设置变化。
+每次委派可通过 `profile` 选择已注册的子 Agent 模型。
+`mode=review` 在新上下文中复核证据，详见[候选方案编排](orchestration.md)。
 
 在私有凭据面板输入环境变量名与密钥，暂存后保存。页面仅返回已配置的名称，不返回
 已保存的密钥值。空白输入保留旧值；移除按钮在下次保存时删除旧值。

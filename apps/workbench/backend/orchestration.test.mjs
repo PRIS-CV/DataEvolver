@@ -6,7 +6,7 @@ import { createHash } from "node:crypto";
 import { mkdtemp, rm, mkdir, writeFile, readFile, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
-import { ConfigStore, defaults, validateConfig, atomicJson } from "./config.mjs";
+import { ConfigStore, defaults, validateConfig, atomicJson, readJson } from "./config.mjs";
 import { Jobs, harnessArgs, launchCommand } from "./jobs.mjs";
 import { Sessions, harnessSessionConfig, sessionRoleInstructions } from "./sessions.mjs";
 
@@ -302,4 +302,93 @@ test("delegation guidance is limited to main sessions", () => {
   const proposal = sessionRoleInstructions({ parentId: "parent", mode: "proposal" }, config);
   assert.match(proposal, /only Harness status\/explain\/replay/);
   assert.doesNotMatch(proposal, /delegate with mode=proposal/);
+});
+
+test("review freezes a redacted original question without copying author history", async (t) => {
+  const { store, jobs } = await fixture(t);
+  store.config.agents.main = store.config.agents.child = {
+    provider: "fixture", model: "fixture", thinking: "off",
+  };
+  store.secrets.REVIEW_KEY = "private-review-key";
+  const prompts = [];
+  class InertSessions extends Sessions {
+    async open() { return { state: "idle" }; }
+    async command(id, input) { prompts.push({ id, ...input }); }
+  }
+  const sessions = new InertSessions(store, () => {}, jobs);
+  const parent = await sessions.create();
+  await writeFile(resolve(sessions.root(parent.id), "pi.jsonl"), "AUTHOR_CONCLUSION");
+  const task = `Inspect src/dataevolver/harness/controller.py statically. ${store.secrets.REVIEW_KEY}`;
+  const child = await sessions.create({ parentId: parent.id, mode: "review", task });
+  const bytes = await readFile(child.contextPath);
+  assert.ok(bytes.length <= store.config.orchestration.maxContextBytes);
+  const context = JSON.parse(bytes);
+  assert.equal(context.schemaVersion, "dataevolver.review_context.v1");
+  assert.equal(context.reviewRequest.sourceWorkspace, parent.workspace);
+  assert.match(context.reviewRequest.question, /controller.py/);
+  assert.equal(bytes.includes(Buffer.from(store.secrets.REVIEW_KEY)), false);
+  assert.equal(bytes.includes(Buffer.from("AUTHOR_CONCLUSION")), false);
+  assert.equal(createHash("sha256").update(bytes).digest("hex"), child.contextSha256);
+  assert.deepEqual(await readdir(child.workspace), []);
+  assert.equal(prompts.length, 1);
+  assert.equal(prompts[0].message.includes(task), false);
+  assert.ok(prompts[0].message.includes(child.contextPath));
+  const config = await readJson(resolve(sessions.root(child.id), "config.json"));
+  assert.equal(harnessSessionConfig({ record: child, config }).paths.workspace, parent.workspace);
+  const instructions = sessionRoleInstructions(child, config);
+  assert.match(instructions, /not independent reproduction/);
+  assert.match(instructions, /only Harness status\/explain\/replay/);
+  assert.match(instructions, /not a security sandbox/);
+  assert.doesNotMatch(instructions, /delegate with mode=proposal/);
+  await writeFile(child.contextPath, "{}");
+  await assert.rejects(sessions.start(child.id), /context changed/);
+});
+
+test("review input and profile overrides are checked before creating a child", async (t) => {
+  const { store, jobs } = await fixture(t);
+  store.config.providers = [{
+    id: "fixture", api: "openai-completions", baseUrl: "https://models.example/v1",
+    apiKeyEnv: "", models: ["author", "reviewer"].map((id) => ({
+      id, reasoning: true, input: ["text"], contextWindow: 4096, maxTokens: 1024,
+    })),
+  }];
+  store.config.agents.main = store.config.agents.child = {
+    provider: "fixture", model: "author", thinking: "off",
+  };
+  class InertSessions extends Sessions {
+    async open() { return { state: "idle" }; }
+    async command() {}
+  }
+  const sessions = new InertSessions(store, () => {}, jobs);
+  const parent = await sessions.create();
+  const before = await readdir(resolve(store.root, "sessions"));
+  const review = { parentId: parent.id, mode: "review", task: "Inspect source/file.py." };
+  await assert.rejects(sessions.create({ ...review, task: " " }), /original question/);
+  await assert.rejects(sessions.create({ ...review, task: "x".repeat(40000) }), /maxContextBytes/);
+  for (const profile of [
+    { provider: "fixture", model: "missing", thinking: "off" },
+    { provider: "fixture", model: "reviewer", thinking: "invalid" },
+    { provider: "fixture", model: "reviewer", thinking: "off", endpoint: "https://other.example" },
+    { provider: "", model: "", thinking: "off" },
+  ]) await assert.rejects(sessions.create({ ...review, profile }));
+  // A new global provider is unavailable to an already-created parent.
+  store.config.providers.push({ ...store.config.providers[0], id: "later" });
+  await assert.rejects(sessions.create({ ...review, profile: { provider: "later", model: "reviewer", thinking: "off" } }), /not registered/);
+  assert.deepEqual(await readdir(resolve(store.root, "sessions")), before);
+  assert.equal(sessions.childSlots.size, 0);
+  const profile = { provider: "fixture", model: "reviewer", thinking: "high" };
+  const child = await sessions.create({ ...review, profile });
+  assert.deepEqual(child.profile, profile);
+  const bytes = await readFile(child.contextPath);
+  const oneByteTooLarge = review.task + "x".repeat(store.config.orchestration.maxContextBytes - bytes.length + 1);
+  const directories = await readdir(resolve(store.root, "sessions"));
+  await assert.rejects(sessions.create({ ...review, task: oneByteTooLarge, profile }), /maxContextBytes/);
+  assert.deepEqual(await readdir(resolve(store.root, "sessions")), directories);
+  const saved = await readJson(resolve(sessions.root(child.id), "config.json"));
+  assert.deepEqual(saved.agents.child, profile);
+  assert.equal(saved.providers.length, 1);
+  assert.equal(store.config.agents.child.model, "author");
+  const normal = await sessions.create({ parentId: parent.id });
+  assert.equal(normal.profile.model, "author");
+  assert.equal(normal.workspace, parent.workspace);
 });

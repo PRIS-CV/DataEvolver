@@ -37,3 +37,9 @@ licenses. The workbench retains DataEvolver's repository license.
 Candidate orchestration takes design ideas from [Hyra's official description](https://hy.tencent.com/research/hyra)
 and the [Hyra AI4AI artifacts](https://github.com/Tencent-Hunyuan/Hyra-results/tree/8443f9a9aae1a0b72c79e0b2908c79026b8e1555/AI4AI).
 No Hyra source, training recipe, model weights or runtime is bundled.
+
+The evidence-first review mode and reusable-method guidance also draw on
+[Hyra 2.0: the next step in automated research](https://hunyuan.tencent.com/research/hyra2),
+published 2026-11-02, especially its Harness description and Figure 2.
+The [design mapping](../../docs/en/hyra2-design.md) records the adaptation and
+its limits. This is a design reference, without copied Hyra code or artwork.

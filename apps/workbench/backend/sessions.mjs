@@ -14,11 +14,12 @@ import {
   readJson,
   appRoot,
   thinkingLevels,
+  validateConfig,
 } from "./config.mjs";
 
-// Campaign inspection keeps the source cwd while proposal authors use a separate cwd.
+// Inspection uses the source cwd while proposal/review sessions keep separate cwd.
 export function harnessSessionConfig({ record, config }) {
-  if (record.mode !== "proposal") return config;
+  if (!["proposal", "review"].includes(record.mode)) return config;
   return {
     ...config,
     paths: { ...config.paths, workspace: record.sourceWorkspace },
@@ -26,10 +27,12 @@ export function harnessSessionConfig({ record, config }) {
 }
 
 export function sessionRoleInstructions(record, config) {
+  if (record.mode === "review")
+    return `You are a fresh-context review worker, not the candidate author. Read the original question and explicit evidence references in ${record.contextPath} first. Inspect source from ${record.sourceWorkspace} and original receipts before considering author conclusions; no parent or sibling conversation is copied into this session. Return checks performed, findings with evidence locations, the narrowest supported conclusion and limitations. Distinguish source inspection, execution observations and independently reproduced results. Model agreement is not independent reproduction or PROMOTED knowledge. Write review notes only in ${config.paths.workspace}; do not execute campaigns, engines or models. The Workbench bridge permits only Harness status/explain/replay. Native tools retain host account permissions: this is not a security sandbox. You cannot delegate or control other children.`;
   if (record.mode === "proposal") return `This is an isolated candidate-authoring session. Read source and AGENT_SETUP.md from ${record.sourceWorkspace}. Write proposed files only in ${config.paths.workspace}; candidate artifacts belong in ${config.paths.output}. The source checkout and configured asset/data roots are reference inputs. Do not execute campaigns, engines or models. The Workbench bridge permits only Harness status/explain/replay here. Native tools still have the host account's permissions: this is not a security sandbox. Return your hypothesis, proposed file paths, expected effect, uncertainties and checks needed; do not claim verification or promotion.`;
   if (record.parentId)
     return "You are an assigned child task and cannot delegate or control other child sessions. Work in the shared workspace, use configured image and Harness tools for the assigned task, and return file paths, receipts and uncertainties to the parent.";
-  return "Use configured image and delegation tools. Child tasks are independent sessions; send explicit context and inspect their result. For candidate exploration, delegate with mode=proposal and explicit contextJobIds. Ordinary mode=task retains shared workspace semantics. Inspect and stop completed children to release their process slots. Queue capacity bounds Workbench dispatch, not native GPU capacity. Reuse compatible PROMOTED knowledge only through existing Harness admission.";
+  return "Use configured image and delegation tools. Child tasks are independent sessions; send explicit context and inspect their result. For candidate exploration, delegate with mode=proposal and explicit contextJobIds. For independent source/evidence review, use mode=review, put the original question and raw source/evidence references in task, and select contextJobIds without copying the author's conclusion. An optional profile selects a registered provider/model/thinking from this session's configuration snapshot. Ordinary mode=task retains shared workspace semantics. Inspect and stop completed children to release their process slots. Queue capacity bounds Workbench dispatch, not native GPU capacity. Reuse compatible PROMOTED knowledge only through existing Harness admission. A review opinion alone does not establish independent reproduction, promotion or training benefit.";
 }
 
 export class Sessions {
@@ -74,13 +77,15 @@ export class Sessions {
       .filter(Boolean)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
-  async create({ parentId = null, name = "", task = "", mode = "task", contextJobIds = [] } = {}) {
-    check(["task", "proposal"].includes(mode), "Unknown delegation mode");
-    check(parentId || mode === "task", "Proposals require a parent session");
+  async create({ parentId = null, name = "", task = "", mode = "task", contextJobIds = [], profile } = {}) {
+    check(["task", "proposal", "review"].includes(mode), "Unknown delegation mode");
+    check(parentId || mode === "task", "Proposals and reviews require a parent session");
     check(typeof task === "string" && task.length <= 100000,
       "Task must be bounded text");
     check(parentId || (Array.isArray(contextJobIds) && !contextJobIds.length),
       "Evidence context is supplied to child sessions");
+    check(parentId || profile === undefined, "Profile overrides are supplied to child sessions");
+    check(mode !== "review" || task.trim(), "Review requires the original question and evidence references in task");
     let config = structuredClone(this.store.config);
     if (parentId) {
       const parent = await readJson(
@@ -89,14 +94,30 @@ export class Sessions {
       check(!parent.parentId, "Child sessions cannot delegate again");
       config = await readJson(resolve(this.root(parentId), "config.json"));
     }
-    const context = parentId ? await this.jobs.context(contextJobIds) : null;
+    if (profile !== undefined) {
+      check(profile && typeof profile === "object" && !Array.isArray(profile),
+        "Profile must contain provider, model and thinking");
+      // Reuse deployment validation against the parent's frozen provider catalog.
+      config = validateConfig({ ...config, agents: { ...config.agents, child: profile } });
+      check(profile.provider && profile.model, "Select a registered child provider and model");
+    }
+    let context = parentId ? await this.jobs.context(contextJobIds) : null;
+    if (mode === "review") {
+      context = this.store.redact({
+        ...context,
+        schemaVersion: "dataevolver.review_context.v1",
+        reviewRequest: { question: task, sourceWorkspace: config.paths.workspace },
+      });
+      check(Buffer.byteLength(JSON.stringify(context, null, 2) + "\n") <= this.store.config.orchestration.maxContextBytes,
+        "Review context exceeds maxContextBytes; shorten the question or select fewer jobs");
+    }
     const id = randomUUID();
     const root = this.root(id);
     if (parentId) this.reserveChild(id);
     try {
       await mkdir(root, { recursive: true, mode: 0o700 });
       const sourceWorkspace = config.paths.workspace;
-      if (mode === "proposal") {
+      if (["proposal", "review"].includes(mode)) {
         config.paths.workspace = resolve(root, "workspace");
         config.paths.output = resolve(root, "artifacts");
         await mkdir(config.paths.workspace, { mode: 0o700 });
@@ -126,7 +147,12 @@ export class Sessions {
       await atomicJson(resolve(root, "record.json"), record);
       this.emit({ type: "session_created", session: record });
       const runtime = await this.open(id);
-      if (task) await this.command(id, { command: "prompt", message: task });
+      if (task) await this.command(id, {
+        command: "prompt",
+        message: mode === "review"
+          ? `Review the original question and raw evidence references in ${record.contextPath}. Inspect evidence first and return findings, evidence locations and limitations. Do not execute workloads or promote knowledge.`
+          : task,
+      });
       return { ...record, state: runtime.state };
     } catch (error) {
       if (!this.running.has(id)) this.childSlots.delete(id);
