@@ -43,6 +43,12 @@ The previous VLM dual loop remains on the
 [legacy branch](https://github.com/PRIS-CV/DataEvolver/tree/codex/legacy-vlm-dual-loop).
 See [research and project history](docs/en/research.md) for results and provenance.
 
+> [!NOTE]
+> **Research update: DataRSI**  
+> Our ICASSP 2027 work, DataRSI, builds on DataEvolver's synthetic-data construction infrastructure and studies failure-driven bounded revisions of synthetic supervision.  
+> [[DataRSI Project]](https://pris-cv.github.io/DataRSI/) &bull; [[DataRSI Code]](https://github.com/PRIS-CV/DataRSI)
+
+---
 ## Why DataEvolver?
 
 Data construction involves more than selecting a model: plans need compatible

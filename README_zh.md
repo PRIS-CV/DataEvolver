@@ -41,6 +41,12 @@ Harness 连接数据处理、模型接口和原生工具。
 早期 VLM 双循环保留在[历史分支](https://github.com/PRIS-CV/DataEvolver/tree/codex/legacy-vlm-dual-loop)。
 研究结果和版本范围见[研究与项目沿革](docs/zh-CN/research.md)。
 
+> [!NOTE]
+> **研究更新：DataRSI**  
+> 我们的 ICASSP 2027 论文研究 DataRSI 基于 DataEvolver 的合成数据构建基础设施，专注于失败驱动的有界合成监督修订协议。  
+> [[DataRSI 项目主页]](https://pris-cv.github.io/DataRSI/) &bull; [[DataRSI 代码仓库]](https://github.com/PRIS-CV/DataRSI)
+
+---
 ## 为什么是 DataEvolver？
 
 数据构建需要兼容的算子、明确的进程输入输出，以及中断后可核对的运行证据。
